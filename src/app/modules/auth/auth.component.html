@@ -1,0 +1,96 @@
+<div id="flex-container" style="overflow: hidden;">
+  <header>
+    <div class="row">
+      <div class="col-md-6 pl-10 pt-5">
+        <div class="dropdown show mt-auto">
+          <i class="fas fa-align-justify dropdown-toggle" style="cursor: pointer; font-size: 25px;" aria-hidden="true"
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" href="javascript:void(0)">About</a>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="goToUserGuide()">User Guide</a>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="goToMdr()">MDR</a>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="goToLegalNotice()">Legal Notice</a>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="goToPrivacy()">Data Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 text-right">
+        <a href="https://ecrin.org/" target="_blank"><img src="./assets/media/logos/ecrin-logo.png"
+            style="height: 55px;" /></a>
+        <a href="https://www.uio.no/english/services/it/research/sensitive-data/" target="_blank"><img
+            src="./assets/media/logos/uio-english.jpg" style="height: 55px;" /></a>
+      </div>
+    </div>
+  </header>
+  <article>
+    <div class="row">
+      <div class="col-md-6 p-10">
+        <span>The clinical research repository is a file based repository - capable of holding any type of 'digital
+          object' - be it a data set, a document, a computer program, or a media file.
+          The secure infrastructure for file storage is provided by TSD, an established secure data infrastructure that
+          is part of the University of Oslo. <br>
+          ECRIN liaises with both data providers, for the transfer of digital objects to the repository, and data
+          requesters, browsing the objects under managed access. Both processes are governed by formal agreements, one
+          for the data providers, and another for the secondary users. ECRIN uses a Repository Management System,
+          developed in-house, to manage and record this activity.
+          The system developed so far is intended to provide and support: the management of repository content and its
+          associated metadata; the transfer of data objects into the secure infrastructure; the collection of details of
+          data contributors and their requirements; the quality control processes applied to uploaded data objects; the
+          handling of data requests, in particular the responses of the repository in answering data requests; the usage
+          of all types of stored data objects; the repository’s performance against pre-agreed quality criteria.</span>
+      </div>
+      <div class="col-md-6 p-10">
+        <div class="row pt-10">
+          <div class="col-md-3 text-center p-0">
+            <img src="./assets/media/logos/icon-blue.png" alt="">
+          </div>
+          <div class="col-md-9 m-auto p-0">
+            <span class="text-uppercase" style="font-size: 35px; font-weight: bold;">Clinical Research Repository</span>
+          </div>
+        </div>
+        <div class="row pt-10">
+          <div class="col-md-12 text-center">
+            <span style="font-size: 14px;">Supporting clinical researchers in sharing their data for re-analysis and
+              secondary analysis.</span>
+          </div>
+        </div>
+        <div class="row pt-10">
+          <div class="col-md-4 text-center p-2"><button class="btn btn-primary"
+              style="background: #000091; font-weight: bold;" (click)="login()">Login</button></div>
+          <div class="col-md-4 text-center p-2"><button class="btn btn-primary"
+              style="background: #000091; font-weight: bold;" (click)="goToContact()">Contact Us</button></div>
+          <div class="col-md-4 text-center p-2"><button class="btn btn-primary"
+              style="background: #000091; font-weight: bold;" (click)="goToBrowse()">Browse</button></div>
+        </div>
+      </div>
+    </div>
+  </article>
+  <footer>
+    <div class="row" style="background-color: #000091;">
+      <div class="col-2 col-md-2 m-auto p-0" style="background: white;">
+        <img src="./assets/media/logos/funded.png" alt="" class="img-fluid">
+      </div>
+      <div class="col-2 col-md-2 m-auto">
+        <ul style="color: white; list-style: none; font-size: 14px; margin-bottom: 0;">
+          <li style="cursor: pointer;">About</li>
+          <li style="cursor: pointer;" (click)="goToUserGuide()">User Guide</li>
+          <li style="cursor: pointer;" (click)="goToMdr()">MDR</li>
+        </ul>
+      </div>
+      <div class="col-5 col-md-5 text-right display-text">
+        <span style="font-size: 9px; color: white;">All Projects are supported by the Horizon Europe and Horizon 2020
+          Programme.<br> Canserv under GA 101058620, BY-COVID under GA 101046203 <br> EOSC-Life under GA 824087</span>
+      </div>
+      <div class="col-3 col-md-3 m-auto">
+        <div class="row">
+          <div class="col-4 col-md-4 p-0"><a href="https://www.eosc-life.eu/" target="_blank"><img
+                src="./assets/media/logos/eoscBW.png" alt="" class="img-fluid"></a></div>
+          <div class="col-4 col-md-4 p-0"><a href="https://by-covid.org/" target="_blank"><img
+                src="./assets/media/logos/bycovdBW.png" alt="" class="img-fluid"></a></div>
+          <div class="col-4 col-md-4 p-0"><a href="https://www.canserv.eu/" target="_blank"><img
+                src="./assets/media/logos/canservBW.png" alt="" class="img-fluid"></a></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

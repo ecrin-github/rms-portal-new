@@ -1,0 +1,171 @@
+<ng-container *ngxPermissionsOnly="['Admin', 'Manager']">
+    <div class="card" id="navbar">
+        <div class="card-body">
+            <div class="row" style="margin: 0 auto;">
+                <div class="offset-md-1 col-md-2 text-center" (click)="scrollToElement(dtp)">
+                    <ng-container *ngIf="dtpTotal">
+                        <apx-chart style="cursor: pointer;" [series]="dtpChartOptions.series"
+                            [chart]="dtpChartOptions.chart" [xaxis]="dtpChartOptions.xaxis"
+                            [yaxis]="dtpChartOptions.yaxis" [dataLabels]="dtpChartOptions.dataLabels"
+                            [stroke]="dtpChartOptions.stroke" [legend]="dtpChartOptions.legend"
+                            [fill]="dtpChartOptions.fill" [states]="dtpChartOptions.states"
+                            [tooltip]="dtpChartOptions.tooltip" [colors]="dtpChartOptions.colors"
+                            [markers]="dtpChartOptions.markers" [plotOptions]="dtpChartOptions.plotOptions"></apx-chart>
+                    </ng-container>
+                    <span style="font-size: 14px; font-weight: 600;">Data Transfers</span>
+                </div>
+                <div class="col-md-2 text-center" (click)="scrollToElement(dup)">
+                    <ng-container *ngIf="dupTotal">
+                        <apx-chart style="cursor: pointer;" [series]="dupChartOptions.series"
+                            [chart]="dupChartOptions.chart" [xaxis]="dupChartOptions.xaxis"
+                            [yaxis]="dupChartOptions.yaxis" [dataLabels]="dupChartOptions.dataLabels"
+                            [stroke]="dupChartOptions.stroke" [legend]="dupChartOptions.legend"
+                            [fill]="dupChartOptions.fill" [states]="dupChartOptions.states"
+                            [tooltip]="dupChartOptions.tooltip" [colors]="dupChartOptions.colors"
+                            [markers]="dupChartOptions.markers" [plotOptions]="dupChartOptions.plotOptions"></apx-chart>
+                    </ng-container>
+                    <span style="font-size: 14px; font-weight: 600;">Data Use Processes</span>
+                </div>
+                <div class="col-md-2 text-center" (click)="scrollToElement(study)">
+                    <ng-container *ngIf="studyTotal">
+                        <apx-chart style="cursor: pointer;" [series]="studyChartOptions.series"
+                            [chart]="studyChartOptions.chart" [xaxis]="studyChartOptions.xaxis"
+                            [yaxis]="studyChartOptions.yaxis" [dataLabels]="studyChartOptions.dataLabels"
+                            [stroke]="studyChartOptions.stroke" [legend]="studyChartOptions.legend"
+                            [fill]="studyChartOptions.fill" [states]="studyChartOptions.states"
+                            [tooltip]="studyChartOptions.tooltip" [colors]="studyChartOptions.colors"
+                            [markers]="studyChartOptions.markers" [plotOptions]="studyChartOptions.plotOptions">
+                        </apx-chart>
+                    </ng-container>
+                    <span style="font-size: 14px; font-weight: 600;">Studies</span>
+                </div>
+                <div class="col-md-2 text-center" (click)="scrollToElement(dataObject)">
+                    <ng-container *ngIf="objectTotal">
+                        <apx-chart style="cursor: pointer;" [series]="objectChartOptions.series"
+                            [chart]="objectChartOptions.chart" [xaxis]="objectChartOptions.xaxis"
+                            [yaxis]="objectChartOptions.yaxis" [dataLabels]="objectChartOptions.dataLabels"
+                            [stroke]="objectChartOptions.stroke" [legend]="objectChartOptions.legend"
+                            [fill]="objectChartOptions.fill" [states]="objectChartOptions.states"
+                            [tooltip]="objectChartOptions.tooltip" [colors]="objectChartOptions.colors"
+                            [markers]="objectChartOptions.markers" [plotOptions]="objectChartOptions.plotOptions">
+                        </apx-chart>
+                    </ng-container>
+                    <span style="font-size: 14px; font-weight: 600;">Data Objects</span>
+                </div>
+                <div class="col-md-2 text-center" (click)="scrollToElement(user)">
+                    <ng-container *ngIf="peopleTotal">
+                        <apx-chart style="cursor: pointer;" [series]="peopleChartOptions.series"
+                            [chart]="peopleChartOptions.chart" [xaxis]="peopleChartOptions.xaxis"
+                            [yaxis]="peopleChartOptions.yaxis" [dataLabels]="peopleChartOptions.dataLabels"
+                            [stroke]="peopleChartOptions.stroke" [legend]="peopleChartOptions.legend"
+                            [fill]="peopleChartOptions.fill" [states]="peopleChartOptions.states"
+                            [tooltip]="peopleChartOptions.tooltip" [colors]="peopleChartOptions.colors"
+                            [markers]="peopleChartOptions.markers" [plotOptions]="peopleChartOptions.plotOptions">
+                        </apx-chart>
+                    </ng-container>
+                    <span style="font-size: 14px; font-weight: 600;">People</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row" #dtp id="content">
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-12 pb-2">
+                    <app-new-dtu></app-new-dtu>
+                </div>
+                <div class="col-md-12 py-2">
+                    <app-completed-dtu></app-completed-dtu>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <app-recent-dtu [dtpTotal] = dtpTotal></app-recent-dtu>
+        </div>
+    </div>
+    <br />
+    <div class="row" #dup>
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-12 pb-2">
+                    <app-new-dup></app-new-dup>
+                </div>
+                <div class="col-md-12 py-2">
+                    <app-completed-dup></app-completed-dup>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <app-recent-dup  [dupTotal] = dupTotal></app-recent-dup>
+        </div>
+    </div>
+    <br />
+    <!-- <div class="row">
+        <div class="col-12 col-sm-12 col-md-6">
+            <app-new-studies></app-new-studies>
+        </div>
+        <div class="col-12 col-sm-12 col-md-6 pt-4 pt-sm-4 pt-md-0">
+            <app-new-objects></app-new-objects>
+        </div>
+    </div>
+    <br /> -->
+    <div class="row" #study>
+        <div class="col-12 col-sm-12 col-md-12">
+            <app-recent-studies [studyTotal] = studyTotal></app-recent-studies>
+        </div>
+    </div>
+    <br>
+    <div class="row" #dataObject>
+        <div class="col-12 col-sm-12 col-md-12 pt-4 pt-sm-4 pt-md-0">
+            <app-recent-objects  [objectTotal] = objectTotal></app-recent-objects>
+        </div>
+    </div>
+    <br />
+    <div class="row" #user>
+        <div class="col-12">
+            <app-recent-users  [peopleTotal] = peopleTotal></app-recent-users>
+        </div>
+    </div>
+    <br />
+</ng-container>
+<ng-container *ngxPermissionsOnly="['User']">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 text-center" style="font-size: 16px; font-weight: bold;">
+                    Data shown below are for the {{organisation}} organization
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <app-summary-dtp></app-summary-dtp>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <app-summary-dup></app-summary-dup>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <app-summary-study></app-summary-study>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <app-summary-object></app-summary-object>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <app-summary-user></app-summary-user>
+        </div>
+    </div>
+    <br />
+</ng-container>

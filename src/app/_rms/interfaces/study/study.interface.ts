@@ -1,0 +1,59 @@
+import {StudyContributorInterface} from './study-contributor.interface';
+import {StudyFeatureInterface} from './study-feature.interface';
+import {StudyIdentifierInterface} from './study-identifiers.interface';
+import {StudyReferenceInterface} from './study-reference.interface';
+import {StudyRelationshipInterface} from './study-relationship.interface';
+import {StudyTitleInterface} from './study-title.interface';
+import {StudyTopicInterface} from './study-topic.interface';
+
+
+export interface StudyInterface {
+    id: number | null;
+    sdSid: string | null;
+    mdrSdSid: string | null;
+    mdrSourceId: number | null;
+    displayTitle: string | null;
+    titleLangCode: string | null;
+    briefDescription: string | null;
+    dataSharingStatement: string | null;
+    studyStartYear: number | null;
+    studyStartMonth: number | null;
+    studyTypeId: number | null;
+    studyStatusId: number | null;
+    studyEnrolment: number | null;
+    studyGenderEligId: number | null;
+    minAge: number | null;
+    minAgeUnitsId: number | null;
+    maxAge: number | null;
+    maxAgeUnitsId: number | null;
+    createdOn: string | null;
+    studyContributors: StudyContributorInterface[] | null;
+    studyFeatures: StudyFeatureInterface[] | null;
+    studyIdentifiers: StudyIdentifierInterface[] | null;
+    studyReferences: StudyReferenceInterface[] | null;
+    studyRelationships: StudyRelationshipInterface[] | null;
+    studyTitles: StudyTitleInterface[] | null;
+    studyTopics: StudyTopicInterface[] | null;
+}
+
+export interface StudyDataInterface {
+    id: number | null;
+    sdSid: string | null;
+    mdrSdSid: string | null;
+    mdrSourceId: number | null;
+    displayTitle: string | null;
+    titleLangCode: string | null;
+    briefDescription: string | null;
+    dataSharingStatement: string | null;
+    studyStartYear: number | null;
+    studyStartMonth: number | null;
+    studyTypeId: number | null;
+    studyStatusId: number | null;
+    studyEnrolment: number | null;
+    studyGenderEligId: number | null;
+    minAge: number | null;
+    minAgeUnitsId: number | null;
+    maxAge: number | null;
+    maxAgeUnitsId: number | null;
+    createdOn: string | null;
+}

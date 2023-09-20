@@ -1,0 +1,45 @@
+<form [formGroup]="form">
+    <ng-template [ngIf]="!(selectedStudyType === 'interventional') && !(selectedStudyType === 'observational')">
+        <div class="row">
+            <div class="col-12 mb-3 mt-3 text-center justify-content-center">
+                <p>No study features yet</p>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template [ngIf]="selectedStudyType === 'interventional' || selectedStudyType === 'observational'">
+        <div formArrayName="studyFeatures">
+                <div class="col-12 mb-5">
+                    <mat-expansion-panel [expanded]="true">
+                        <mat-expansion-panel-header>
+                        </mat-expansion-panel-header>
+                        <div class="row">
+                            <ng-container *ngIf="selectedStudyType === 'interventional'">
+                                    <div class="col-md-6 pt-2" *ngFor="let studyFeature of studyFeatures().controls; let i = index;" [formGroupName]="i">
+                                        <label for="'featureValueId'+ i" class="font-style text-capitalize">{{featureInterventional[i]?.name}}</label>
+                                        <select id="'featureValueId'+ i" class="form-control" formControlName="featureValueId" *ngIf="!isView">
+                                            <option disabled selected value="null">Select an option...</option>
+                                            <option [value]="featValue.id" *ngFor="let featValue of featureValInter[i]">{{featValue.name}}</option>
+                                        </select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findFeatureValue(studyFeature.value.featureValueId)}}</h6>
+                                    </div>
+                            </ng-container>
+                            <ng-container *ngIf="selectedStudyType === 'observational'">
+                                    <div class="col-md-6 pt-2" *ngFor="let studyFeature of studyFeatures().controls; let i = index;" [formGroupName]="i">
+                                        <label for="featureValueId" class="font-style text-capitalize">{{featureObservational[i]?.name}}</label>
+                                        <select id="featureValueId" class="form-control" formControlName="featureValueId" *ngIf="!isView">
+                                            <option disabled selected value="null">Select an option...</option>
+                                            <option [value]="featValue.id" *ngFor="let featValue of featureValObe[i]">{{featValue.name}}</option>
+                                        </select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findFeatureValue(studyFeature.value.featureValueId)}}</h6>
+                                    </div>
+                            </ng-container>
+                        </div>
+                        <mat-action-row *ngIf="!isView">
+                            <button mat-button color="primary" (click)="addFeature()">Save</button>
+                        </mat-action-row>
+                    </mat-expansion-panel>
+                </div>
+        </div>
+    </ng-template>
+</form>

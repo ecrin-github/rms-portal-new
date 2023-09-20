@@ -1,0 +1,249 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row" id="navbar" [ngClass]="isBrowsing ? 'browsing-header' : ''">
+            <div class="col-md-4">
+                <h2 class="text-capitalize">{{ isView ? 'Study Details' : isEdit ? 'Editing Study Details' : 'Add a new study'}}</h2>
+            </div>
+            <div class="col-md-8 text-right">
+                <ng-container *ngIf="isView && !isBrowsing">
+                    <a [routerLink]="['/studies', id, 'edit']" [queryParams]="{type: 'manual'}"
+                       class="btn btn-primary mr-1" target="tempTab">
+                        <i class="fa fa-edit"></i> Edit
+                    </a>
+                    <button class="btn btn-primary mr-1" (click)="print()">
+                        <i class="fa fa-print"></i> PDF
+                    </button>
+                    <button class="btn btn-primary mr-1" (click)="jsonExport()">
+                        <i class="fa fa-code"></i> JSON
+                    </button>
+                    <button class="btn btn-warning" (click)="close()"> {{isView ? 'Back' : 'Cancel'}}</button>
+                </ng-container>
+                <ng-container *ngIf="isView && isBrowsing">
+                    <button class="btn btn-warning" (click)="close()"> {{isView ? 'Back' : 'Cancel'}}</button>
+                </ng-container>
+            </div>
+            <div class="pl-5">
+                <h6>{{studyData?.displayTitle}}</h6>
+            </div>    
+        </div>
+    </div>
+
+    <div class="card-body" id="content">
+        <div class="row form-group" *ngIf="isAdd && addType === 'usingTrialId'">
+            <div class="col-md-6">
+                <label for="registryId" class="font-style text-capitalize">Trial Registry ID</label>
+                <select id="registryId" class="form-control" [(ngModel)]="registryId">
+                    <option selected disabled value="">Select an ID...</option>
+                    <option [value]=registry.id *ngFor="let registry of trialRegistries">{{registry.name}}</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="trialId" class="font-style text-capitalize">Trial ID</label>
+                <input id="trialId" type="text" class="form-control" [(ngModel)]="trialId">
+            </div>
+        </div>
+        <form [formGroup]="studyForm">
+            <ng-container *ngIf="!(addType==='usingTrialId')">
+                <div class="row form-group" *ngIf="!(isView || isEdit)">
+                    <div class="col-md-6">
+                        <label for="studyId" class="font-style text-capitalize">study id <sup>*</sup> </label>
+                        <input type="text" class="form-control" id="studyId" formControlName="sdSid" [ngClass]="{ 'is-invalid': isSubmitted && g.sdSid.errors }">
+                        <small>Study ID should start with 'RMS-' followed by alphanumeric value, e.g. RMS-mystudy1</small>
+                        <div *ngIf="isSubmitted && g.sdSid.errors" class="invalid-feedback">
+                            <p *ngIf="g.sdSid.errors.pattern">Please enter the ID in the correct pattern</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        <label for="displayTitle" class="font-style text-capitalize">Title <sup>*</sup> </label>
+                        <textarea cols="30" rows="3" class="form-control" placeholder="Please enter a good mnemonic reference for your study"
+                            formControlName="displayTitle" *ngIf="!isView" id="displayTitle" (change)="onChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.displayTitle.errors }"></textarea>
+                            <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.displayTitle.errors">
+                                <p *ngIf="isSubmitted && g.displayTitle.errors.required"> Please enter study title</p>
+                            </div>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.displayTitle}}</h6>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-3">
+                        <label for="studyStatusId" class="font-style text-capitalize">status</label>
+                        <select class="form-control" id="studyStatusId" formControlName="studyStatusId" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStatusId.errors }">
+                            <option selected disabled value="null">Please select...</option>
+                            <option [value]=status.id *ngFor="let status of studyStatuses">{{status.name}}</option>
+                        </select>
+                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyStatusId.errors">
+                            <p *ngIf="isSubmitted && g.studyStatusId.errors.required"> Please enter the study status</p>
+                        </div>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyStatusView?.name}}</h6>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="studyTypeId" class="font-style text-capitalize">type</label>
+                        <select class="form-control" id="studyTypeId" formControlName="studyTypeId" *ngIf="!isView"
+                            (change)="studyTypeChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.studyTypeId.errors }">
+                            <option selected disabled value="null">Please select...</option>
+                            <option [value]=type.id *ngFor="let type of studyTypes">{{type.name}}</option>
+                        </select>
+                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyTypeId.errors">
+                            <p *ngIf="isSubmitted && g.studyTypeId.errors.required"> Please enter the study type</p>
+                        </div>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyTypeView?.name}}</h6>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="studyStartMonth" class="font-style text-capitalize">Start Month</label>
+                        <select id="studyStartMonth" class="form-control" formControlName="studyStartMonth" *ngIf="!isView">
+                            <option selected disabled value="null">Select a month</option>
+                            <option [value]="month.id" *ngFor="let month of monthValues">{{month.name}}</option>
+                        </select>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyStartMonth}}</h6>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="studyStartYear" class="font-style text-capitalize">Start Year</label>
+                        <p-calendar id="studyStartYear" formControlName="studyStartYear" view="year" dateFormat="yy"
+                            *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStartYear.errors }" placeholder="Select a year"></p-calendar>
+                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyStartYear.errors">
+                            <p *ngIf="isSubmitted && g.studyStartYear.errors.required"> Please enter the study start year</p>
+                        </div>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyStartYear}}</h6>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        <label for="briefDescription" class="font-style text-capitalize">Brief description</label>
+                        <textarea class="form-control" cols="30" rows="5" placeholder="Please enter a brief description of your study"
+                            formControlName="briefDescription" *ngIf="!isView" id="briefDescription">
+                            </textarea>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.briefDescription}}</h6>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-12">
+                        <label for="dataSharingStatement" class="font-style text-capitalize">Data sharing statement</label>
+                        <textarea class="form-control" cols="30" rows="5" placeholder="Please enter a Data sharing statement related to your submission, e.g. ‘Submitter agrees that data can be shared with others by the repository manager’, or ‘Any request of sharing the data should be agreed directly with the submitter’, etc."
+                            formControlName="dataSharingStatement" *ngIf="!isView" id="dataSharingStatement"></textarea>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.dataSharingStatement}}</h6>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                        <label for="studyGenderEligId" class="font-style text-capitalize">Study gender eligibility</label>
+                        <select class="form-control" id="studyGenderEligId" formControlName="studyGenderEligId" *ngIf="!isView">
+                            <option selected disabled value="null">Please select...</option>
+                            <option [value]=gender.id *ngFor="let gender of genderEligibility">{{gender.name}}</option>
+                        </select>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyGenderView?.name}}</h6>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                        <label for="studyEnrolment" class="font-style text-capitalize">Study enrollment</label>
+                        <input type="text" class="form-control" placeholder="Estimated or actual number of participants in the study"
+                            formControlName="studyEnrolment" *ngIf="!isView" id="studyEnrolment" />
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyEnrolment}}</h6>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <label for="minAge" class="font-style text-capitalize">Min age</label>
+                                <input type="text" id="minAge" class="form-control" placeholder="Minimum age value"
+                                    formControlName="minAge" *ngIf="!isView" />
+                                <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.minAge ? studyData?.minAge :
+                                    ''}}</h6>
+                            </div>
+                            <div class="col-4">
+                                <label for="minAgeUnits" class="font-style text-capitalize">Units</label>
+                                <select id="minAgeUnits" class="form-control" formControlName="minAgeUnitsId" *ngIf="!isView">
+                                    <option selected disabled value="null">Please select...</option>
+                                    <option [value]=unit.id *ngFor="let unit of timeUnits">{{unit.name}}</option>
+                                </select>
+                                <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyMinAgeView?.name}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <label for="maxAge" class="font-style text-capitalize">Max age</label>
+                                <input id="maxAge" type="text" class="form-control" placeholder="Maximum age value"
+                                    formControlName="maxAge" *ngIf="!isView" />
+                                <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.maxAge ? studyData?.maxAge :
+                                    ''}}</h6>
+                            </div>
+                            <div class="col-4">
+                                <label for="maxAgeUnits" class="font-style text-capitalize">Units</label>
+                                <select id="maxAgeUnits" class="form-control" formControlName="maxAgeUnitsId" *ngIf="!isView">
+                                    <option selected disabled value="null">Please select...</option>
+                                    <option [value]=unit.id *ngFor="let unit of timeUnits">{{unit.name}}</option>
+                                </select>
+                                <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyMaxAgeView?.name}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+            <hr />
+            <div class="row" *ngIf="!isView">
+                <div class="col-12 justify-content-center text-center">
+                    <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
+                    <button class="btn btn-warning" (click)="close()"> {{isView ? 'Back' : 'Cancel'}}</button>
+                </div>
+            </div>
+            <hr />
+            <ng-container *ngIf="isEdit || isView">
+                <mat-expansion-panel [expanded]="studyFull?.studyIdentifiers.length > 0 ? true : false">
+                    <mat-expansion-panel-header>
+                        <h6 class="pt-3 font-style">Study identifier(s)</h6>
+                    </mat-expansion-panel-header>
+                    <app-study-identifier [sdSid]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-identifier>
+                </mat-expansion-panel>
+                <hr />
+                <mat-expansion-panel [expanded]="studyFull?.studyTitles.length > 0 ? true : false">
+                    <mat-expansion-panel-header>
+                        <h6 class="pt-3 font-style">Study title(s)</h6>
+                    </mat-expansion-panel-header>
+                    <app-study-title [sdSid]="id" [isView]="isView" [isEdit]="isEdit" [publicTitle]="publicTitle"></app-study-title>
+                </mat-expansion-panel>
+                <hr />
+                <ng-container *ngIf="studyType">
+                    <mat-expansion-panel [expanded]="studyFull?.studyFeatures.length > 0 ? true : false">
+                        <mat-expansion-panel-header>
+                            <h6 class="pt-3 font-style">Study feature(s)</h6>
+                        </mat-expansion-panel-header>
+                        <app-study-feature [sdSid]="id" [isView]="isView" [isEdit]="isEdit" [studyType]="studyType" *ngIf="studyType"></app-study-feature>
+                    </mat-expansion-panel>
+                    <hr />
+                </ng-container>
+                <mat-expansion-panel [expanded]="studyFull?.studyTopics.length > 0 ? true : false">
+                    <mat-expansion-panel-header>
+                        <h6 class="pt-3 font-style">Study topic(s)</h6>
+                    </mat-expansion-panel-header>
+                    <app-study-topic [sdSid]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-topic>
+                </mat-expansion-panel>
+                <hr />
+                <mat-expansion-panel [expanded]="studyFull?.studyRelationships.length > 0 ? true : false">
+                    <mat-expansion-panel-header>
+                        <h6 class="pt-3 font-style">Study relationship(s)</h6>
+                    </mat-expansion-panel-header>
+                    <app-study-relationship [sdSid]="id" [isView]="isView" [isEdit]="isEdit"></app-study-relationship>
+                </mat-expansion-panel>
+                <hr />
+                <mat-expansion-panel [expanded]="studyFull?.studyContributors.length > 0 ? true : false">
+                    <mat-expansion-panel-header>
+                        <h6 class="pt-3 font-style">Study contributor(s)</h6>
+                    </mat-expansion-panel-header>
+                    <app-study-contributor [sdSid]="id" [isView]="isView" [isEdit]="isEdit"></app-study-contributor>
+                </mat-expansion-panel>
+                <hr />
+            </ng-container>
+            <ng-container>
+                <mat-expansion-panel [expanded]="associatedObjects?.length > 0 ? true : false">
+                    <mat-expansion-panel-header>
+                        <h6 class="pt-3 font-style">Study object(s)</h6>
+                    </mat-expansion-panel-header>
+                    <ul>
+                        <li *ngFor="let object of associatedObjects"><a href="javascript:void(0)" (click)="goToObject(object.sdOid)">{{object.displayTitle}}({{object.sdOid}})</a></li>
+                    </ul>
+                </mat-expansion-panel>
+            </ng-container>
+        </form>
+    </div>
+</div>
+<br />

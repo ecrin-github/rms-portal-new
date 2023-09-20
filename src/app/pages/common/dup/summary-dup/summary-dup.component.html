@@ -1,0 +1,107 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row" id="navbar">
+            <div class="col-md-6">
+                <h2>Data Usage</h2>
+            </div>
+            <div class="col-md-6 text-right" *ngxPermissionsOnly="['Admin', 'Manager']">
+                <a [routerLink]="['/data-use', 'add']" class="btn btn-success" target="tempTab">
+                    <i class="fa fa-plus"></i> New data use
+                </a>    
+            </div>
+        </div>
+        <!-- <div style="float: right; margin-top: -40px;" >
+        </div> -->
+    </div>
+    <div class="card-body">
+
+        <div class="row" *ngxPermissionsOnly="['Admin', 'Manager']">
+            <div class="col-md-3">
+                <select class="form-control" [(ngModel)]="filterOption">
+                    <option selected disabled value="">Search by...</option>
+                    <option value="title">Title</option>
+                </select>
+            </div>
+            <div class="col-md-9">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search Data Use Process..." [(ngModel)]="searchText" (keydown)="onInputChange($event)"/>
+                </div>
+            </div>
+            <!-- <div class="col-md-3">
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" (click)="filterSearch()">Search</button>
+                    <span class="pl-2"><button class="btn btn-warning" (click)="getDupList()">Clear</button></span>
+                </div>
+            </div> -->
+        </div>
+
+        <mat-table [dataSource]="dataSource">
+
+            <ng-container matColumnDef="id">
+                <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
+                <mat-cell *matCellDef="let row"> {{row.id}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="organisation">
+                <mat-header-cell *matHeaderCellDef> Organisation </mat-header-cell>
+                <mat-cell *matCellDef="let row">
+                    <strong>{{row.orgName}}</strong>
+                </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="title">
+                <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+                <mat-cell *matCellDef="let row">
+                    <a [routerLink]="['/data-use', row.id, 'view']" target="tempTab">{{row.displayName}}</a>
+                </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+                <mat-cell *matCellDef="let row"> {{row.statusName}} </mat-cell>
+            </ng-container>
+
+
+            <ng-container matColumnDef="actions">
+                <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+                <mat-cell *matCellDef="let row">
+                    <a [routerLink]="['/data-use', row.id, 'view']" target="tempTab">
+                        <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
+                    </a>
+                    <a [routerLink]="['/data-use', row.id, 'edit']" target="tempTab" *ngxPermissionsOnly="['Admin', 'Manager']">
+                        <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
+                    </a>
+                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngxPermissionsOnly="['Admin', 'Manager']">
+
+                    </i>
+                </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;">
+            </mat-row>
+        </mat-table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" [length]="dupLength" [pageSize]="10"></mat-paginator>
+    </div>
+
+</div>
+
+<br />
+<!-- Modal -->
+<ng-template #deleteModal let-modal>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Delete Record</h5>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <h6>Sorry, DUP agreed date is present for this DUP so you can't delete this DUP.</h6>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" (click)="closeModal()">Close</button>
+        </div>
+    </div>
+</ng-template>

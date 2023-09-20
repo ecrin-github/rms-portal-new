@@ -1,0 +1,65 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row" id="navbar">
+            <div class="col-md-6">
+                <h2>People</h2>
+            </div>
+            <div class="col-md-6 text-right" *ngxPermissionsOnly="['Admin', 'Manager']">
+                <a [routerLink]="['/people', 'add']" class="btn btn-success" target="newTab">
+                    <i class="fa fa-plus"></i> New Person
+                </a>    
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row" *ngxPermissionsOnly="['Admin', 'Manager']">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search Person..." [(ngModel)]="searchText" (keydown)="onInputChange($event)"/>
+                </div>
+            </div>
+            <!-- <div class="col-md-3">
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" (click)="filterSearch()">Search</button>
+                    <span class="pl-2"><button class="btn btn-warning" (click)="getPeople()">Reset</button></span>
+                </div>
+            </div> -->
+        </div>
+        <mat-table [dataSource]="dataSource">
+
+            <ng-container matColumnDef="name">
+                <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+                <mat-cell *matCellDef="let row"> <a [routerLink]="['/people', row.id, 'view']" target="_blank">{{row.name}}</a></mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="roleName">
+                <mat-header-cell *matHeaderCellDef> Role </mat-header-cell>
+                <mat-cell *matCellDef="let row"> {{row.roleName}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="orgName">
+                <mat-header-cell *matHeaderCellDef> Organization </mat-header-cell>
+                <mat-cell *matCellDef="let row"> {{row.orgName}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+                <mat-cell *matCellDef="let row">
+                    <a [routerLink]="['/people', row.id, 'view']" target="tempTab">
+                        <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
+                    </a>
+                    <a [routerLink]="['/people', row.id, 'edit']" target="tempTab" *ngxPermissionsOnly="['Admin', 'Manager']">
+                        <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
+                    </a>
+                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngxPermissionsOnly="['Admin', 'Manager']">
+
+                    </i>
+                </mat-cell>
+            </ng-container>
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;">
+            </mat-row>
+        </mat-table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" [length]="peopleLength" [pageSize]="10"></mat-paginator>
+    </div>
+</div>

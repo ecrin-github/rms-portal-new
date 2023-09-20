@@ -1,0 +1,123 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row" [ngClass]="sticky ? '' : ''"  id="navbar">
+            <div class="col-md-6">
+                <h2>Studies</h2>
+            </div>
+            <ng-container *ngIf="!isBrowsing">
+                <div class="col-md-6 text-right"  *ngxPermissionsOnly="['Admin', 'Manager']">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            <i class="fa fa-plus"></i> New study
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/studies/add?type=usingTrialId" target="tempTab">Using Trial Registry</a>
+                            <a class="dropdown-item" href="/studies/add?type=manual" target="tempTab">Manually</a>
+                        </div>
+                    </div>
+                </div>    
+            </ng-container>
+        </div>
+        <!-- <ng-container *ngIf="!isBrowsing">
+            <div style="float: right; margin-top: -40px;" *ngxPermissionsOnly="['Admin', 'Manager']">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">
+                        <i class="fa fa-plus"></i> New study
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/studies/add?type=usingTrialId" target="tempTab">Using Trial Registry</a>
+                        <a class="dropdown-item" href="/studies/add?type=manual" target="tempTab">Manually</a>
+                    </div>
+                </div>
+            </div>
+        </ng-container> -->
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-control" [(ngModel)]="filterOption">
+                    <option selected disabled value="">Search by...</option>
+                    <option value="title">Title</option>
+                </select>
+            </div>
+            <div class="col-md-9">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search study..." [(ngModel)]="searchText" (keydown)="onInputChange($event)"/>
+                </div>
+            </div>
+            <!-- <div class="col-md-3">
+                <div class="form-group">
+                    <button class="btn btn-primary" (click)="filterSearch()">Search</button>
+                    <span class="pl-2"><button class="btn btn-warning" (click)="getStudyList()">Clear</button></span>
+                </div>
+            </div> -->
+        </div>
+
+        <mat-table [dataSource]="dataSource">
+
+            <ng-container matColumnDef="sdSid">
+                <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
+                <mat-cell *matCellDef="let row"> <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']" target="_blank">{{row.sdSid}}</a> </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="title">
+                <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']" target="_blank">{{row.displayTitle}}</a></mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+                <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
+                <mat-cell *matCellDef="let row"> {{row.typeName}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+                <mat-cell *matCellDef="let row"> {{row.statusName}} </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+                <mat-cell *matCellDef="let row">
+                    <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']" target="tempTab">
+                        <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
+                    </a>
+                    <a [routerLink]="['/studies', row.sdSid, 'edit']" [queryParams]="{type: 'manual'}" target="tempTab" *ngIf="!isBrowsing">
+                        <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
+                    </a>
+                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.sdSid)" *ngIf="!isBrowsing">
+
+                    </i>
+                </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;">
+            </mat-row>
+        </mat-table>
+        <mat-paginator #studyPaginator [pageSizeOptions]="[5, 10, 25, 100]" [length]="studyLength" [pageSize]="10"></mat-paginator>
+    </div>
+</div>
+
+<br />
+
+<!-- Modal -->
+<ng-template #studyDeleteModal let-modal>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Delete Record</h5>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <h6>{{title}}</h6>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" (click)="closeModal()">Close</button>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,797 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row" [ngClass]="sticky ? '' : ''"  id="navbar">
+            <div class="col-md-7">
+                <h2>{{ isView ? 'Data Transfer Details' : isEdit ? 'Editing Data Transfer Details' : 'Add new data transfer'}}</h2>
+            </div>
+            <div class="col-md-5 text-right" *ngIf="isView">
+                <a [routerLink]="['/data-transfers', id, 'edit']" class="btn btn-primary mr-5" target="tempTab" *ngIf="role !== 'User'">
+                    <i class="fa fa-edit"></i> Edit
+                </a>
+                <button class="btn btn-primary mr-5" (click)="printDocument()">
+                    <i class="fa fa-print"></i> PDF
+                </button>
+                <button class="btn btn-primary" (click)="jsonExport()">
+                    <i class="fa fa-code"></i> JSON
+                </button>
+            </div>
+            <div class="text-right col-md-5" *ngIf="!isView && showButton">
+                <button class="btn btn-success mr-5" *ngIf="!isView" (click)="onSave()">{{isEdit ?'Apply Changes' : 'Save'}}</button>
+                <button class="btn btn-warning" *ngIf="!isView" (click)="close()"> Cancel </button>
+            </div>
+            <div class="pl-5">
+                <h6>{{dtpData?.coreDtp.displayName}}</h6>
+            </div>
+        </div>
+        <!-- <div id="navbar" [ngClass]="sticky ? 'text-center' : ''">
+            <h6>{{studyData?.displayTitle}}</h6>
+        </div> -->
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12 mb-5">
+                <ng-container *ngIf="isView || isEdit">
+                    <ul class="nav nav-pills maxw-fit-content nav-fill" style="border-bottom: 1px solid lightgray">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#overview" data-toggle="tab" id="overviews" (click)="showButton = true">Overview</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#setup" data-toggle="tab" id="setups"
+                                (click)="getDtpStudies(id); getDtpObjects(id); getDtpPeople(id); showButton = false">{{ isView ? 'Linked Objects and People' : 'Set up'}}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#objectsaccess" data-toggle="tab" id="objectsaccesss" (click)="onClickObjectAccessTab(); showButton = false">Objects and
+                                Access</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#controlledaccess" data-toggle="tab" id="controlledaccesss"
+                                (click)="onClickControllTab(); showButton = false">Controlled Access
+                                Data</a>
+                        </li>
+                    </ul>
+                </ng-container>
+            </div>
+            <div class="tab-content w-100">
+                <div class="tab-pane fade show active" id="overview">
+                    <div class="col-md-12">
+                        <form [formGroup]="form">
+                            <div class="row form-group">
+                                <div class="col-md-6">
+                                    <label for="" class="font-style text-capitalize">organization</label>
+                                    <ng-select [items]="organizationList" bindLabel="name" bindValue="orgId"
+                                        formControlName="orgId" [multiple]="false" [virtualScroll]="true" class="custom"
+                                        notFoundText="No members found" placeholder="Select Organisation"
+                                        *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.orgId.errors }" [readonly]="isEdit">
+                                    </ng-select>
+                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.orgId.errors">
+                                        <p *ngIf="submitted && g.orgId.errors.required"> Please select Organization</p>
+                                    </div>
+                                    <h6 style="font-weight: 100;" *ngIf="isView">
+                                        {{findOrganization(dtpData?.coreDtp.orgId)}}</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="" class="font-style text-capitalize">display name</label>
+                                    <input type="text" class="form-control" formControlName="displayName"
+                                        *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.displayName.errors }">
+                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.displayName.errors">
+                                        <p *ngIf="submitted && g.displayName.errors.required"> Please enter the Display
+                                            Name
+                                        </p>
+                                    </div>
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.coreDtp.displayName}}</h6>
+                                </div>
+                            </div>
+                            <div class="row form-group" *ngIf="isEdit || isView">
+                                <div class="col-md-6">
+                                    <label for="" class="font-style text-capitalize pr-5">Status</label>
+                                    <button class="btn btn-danger btn-sm" *ngIf="!isView"
+                                        (click)="resetAll()">Change Submission Status</button>
+                                    <select class="form-control" formControlName="statusId" *ngIf="showStatus"
+                                        (change)="onChange()">
+                                        <option disabled selected value="">Select an option...</option>
+                                        <option [value]=status.id *ngFor="let status of statusList">{{status.name}}
+                                        </option>
+                                    </select>
+                                    <h6 style="font-weight: 100;" *ngIf="!showStatus || isView">
+                                        {{findStatus(dtpData?.coreDtp.statusId)}}</h6>
+                                </div>
+                            </div>
+                            <div #wizard class="wizard wizard-1" id="kt_wizard_v1" data-wizard-state="step-first"
+                                data-wizard-clickable="true">
+                                <div class="wizard-nav border-bottom">
+                                    <div class="wizard-steps p-8 p-lg-10">
+                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step"
+                                            title="DTP initiated but not yet set up">
+                                            <div class="wizard-label">
+                                                <i class="wizard-icon flaticon2-browser-1"></i>
+                                                <h3 class="wizard-title">Creation of DTP Record</h3>
+                                                <i class="fa fa-check-circle" style="color: green;"
+                                                    *ngIf="!(isEdit || isView) ? 1 < currentStatus : 1 < currentStatus"></i>
+                                                <i class="fa fa-exclamation-circle" style="color: orange;"
+                                                    *ngIf="1 === currentStatus"></i>
+                                            </div>
+                                        </a>
+                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step"
+                                            title="RMS system being set up for further input">
+                                            <div class="wizard-label">
+                                                <i class="wizard-icon flaticon2-setup"></i>
+                                                <h3 class="wizard-title">Set Up of users, objects etc</h3>
+                                                <i class="fa fa-check-circle" style="color: green;"
+                                                    *ngIf="!(isEdit || isView) ? 2 < currentStatus : 2 < currentStatus"></i>
+                                                <i class="fa fa-exclamation-circle" style="color: orange;"
+                                                    *ngIf="2 === currentStatus"></i>
+                                            </div>
+                                        </a>
+                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step"
+                                            title="Metadata being provided and DTA being prepared">
+                                            <div class="wizard-label">
+                                                <i class="wizard-icon flaticon-responsive"></i>
+                                                <h3 class="wizard-title">Data & agreement preparation</h3>
+                                                <i class="fa fa-check-circle" style="color: green;"
+                                                    *ngIf="!(isEdit || isView) ? 3 < currentStatus : 3 < currentStatus"></i>
+                                                <i class="fa fa-exclamation-circle" style="color: orange;"
+                                                    *ngIf="3 === currentStatus"></i>
+                                            </div>
+                                        </a>
+                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step"
+                                            title="DTA agreed, transfer can take place">
+                                            <div class="wizard-label">
+                                                <i class="wizard-icon flaticon-truck"></i>
+                                                <h3 class="wizard-title">Transfer of objects to TSD</h3>
+                                                <i class="fa fa-check-circle" style="color: green;"
+                                                    *ngIf="!(isEdit || isView) ? 4 < currentStatus : 4 < currentStatus"></i>
+                                                <i class="fa fa-exclamation-circle" style="color: orange;"
+                                                    *ngIf="4 === currentStatus"></i>
+                                            </div>
+                                        </a>
+                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step"
+                                            title="Transfer has occured-QC checs being carried out">
+                                            <div class="wizard-label">
+                                                <i class="wizard-icon flaticon-globe"></i>
+                                                <h3 class="wizard-title">Quality checks of objects</h3>
+                                                <i class="fa fa-check-circle" style="color: green;"
+                                                    *ngIf="!(isEdit || isView) ? 5 < currentStatus : 5 < currentStatus"></i>
+                                                <i class="fa fa-exclamation-circle" style="color: orange;"
+                                                    *ngIf="5 === currentStatus"></i>
+                                            </div>
+                                        </a>
+                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step"
+                                            title="Objects made available, metadata in MDR">
+                                            <div class="wizard-label">
+                                                <i class="wizard-icon flaticon2-open-text-book"></i>
+                                                <h3 class="wizard-title">DTP Completed, objects listed</h3>
+                                                <i class="fa fa-check-circle" style="color: orange;"
+                                                    *ngIf="!(isEdit || isView) ? 6 < currentStatus : 6 < currentStatus"></i>
+                                                <i class="fa fa-exclamation-circle" style="color: green;"
+                                                    *ngIf="currentStatus === 6"></i>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="row justify-content-center my-10 px-8 my-lg-15 px-lg-10">
+                                    <div class="col-md-12" data-wizard-type="step-content" data-wizard-state="current">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">Initial contact
+                                                    date</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="initialContactDate" ngbDatepicker
+                                                            #initialContactDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.initialContactDate.errors }"
+                                                            (click)="initialContactDate.toggle()"
+                                                            formControlName="initialContactDate" [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="initialContactDate.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.initialContactDate)}}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" data-wizard-type="step-content">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">SetUp Completed</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="setUpCompleted" ngbDatepicker
+                                                            #setUpCompleted="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.setUpCompleted.errors }"
+                                                            (click)="setUpCompleted.toggle()"
+                                                            formControlName="setUpCompleted" [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="setUpCompleted.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.setUpCompleted)}}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" data-wizard-type="step-content">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">MD access
+                                                    granted</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="mdAccessGranted" ngbDatepicker
+                                                            #mdAccessGranted="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.mdAccessGranted.errors }"
+                                                            (click)="mdAccessGranted.toggle()"
+                                                            formControlName="mdAccessGranted" [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="mdAccessGranted.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.mdAccessGranted)}}</h6>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">MD completed
+                                                    date</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="mdCompleteDate" ngbDatepicker
+                                                            #mdCompleteDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.mdCompleteDate.errors }"
+                                                            (click)="mdCompleteDate.toggle()"
+                                                            formControlName="mdCompleteDate" [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="mdCompleteDate.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.mdCompleteDate)}}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">DTA Agreed Date</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="dtaAgreedDate" ngbDatepicker
+                                                            #dtaAgreedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.dtaAgreedDate.errors }"
+                                                            (click)="dtaAgreedDate.toggle()"
+                                                            formControlName="dtaAgreedDate" [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="dtaAgreedDate.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.dtaAgreedDate)}}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" data-wizard-type="step-content">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">upload access
+                                                    requested</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="uploadAccessRequested" ngbDatepicker
+                                                            #uploadAccessRequested="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadAccessRequested.errors }"
+                                                            (click)="uploadAccessRequested.toggle()"
+                                                            formControlName="uploadAccessRequested"
+                                                            [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="uploadAccessRequested.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.uploadAccessRequested)}}</h6>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">upload access
+                                                    confirmed</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="uploadAccessConfirmed" ngbDatepicker
+                                                            #uploadAccessConfirmed="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadAccessConfirmed.errors }"
+                                                            (click)="uploadAccessConfirmed.toggle()"
+                                                            formControlName="uploadAccessConfirmed"
+                                                            [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="uploadAccessConfirmed.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.uploadAccessConfirmed)}}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">upload complete</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="uploadsComplete" ngbDatepicker
+                                                            #uploadsComplete="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadsComplete.errors }"
+                                                            (click)="uploadsComplete.toggle()"
+                                                            formControlName="uploadsComplete" [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="uploadsComplete.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.uploadsComplete)}}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" data-wizard-type="step-content">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">QC checks
+                                                    completed</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="qcChecksCompleted" ngbDatepicker
+                                                            #qcChecksCompleted="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.qcChecksCompleted.errors }"
+                                                            (click)="qcChecksCompleted.toggle()"
+                                                            formControlName="qcChecksCompleted" [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="qcChecksCompleted.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.qcChecksCompleted)}}</h6>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">MD integrated with
+                                                    MDR</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="mdIntegratedWithMdr" ngbDatepicker
+                                                            #mdIntegratedWithMdr="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.mdIntegratedWithMdr.errors }"
+                                                            (click)="mdIntegratedWithMdr.toggle()"
+                                                            formControlName="mdIntegratedWithMdr" [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="mdIntegratedWithMdr.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.mdIntegratedWithMdr)}}</h6>
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">Availability
+                                                    requested</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="availabilityRequested" ngbDatepicker
+                                                            #availabilityRequested="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityRequested.errors }"
+                                                            (click)="availabilityRequested.toggle()"
+                                                            formControlName="availabilityRequested"
+                                                            [maxDate]="todayDate" container='body' container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="availabilityRequested.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.availabilityRequested)}}</h6>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="" class="font-style text-capitalize">Availability
+                                                    confirmed</label>
+                                                <div class="form-group" *ngIf="!isView">
+                                                    <div class="input-group">
+                                                        <input class="form-control" placeholder="yyyy-mm-dd"
+                                                            name="availabilityConfirmed" ngbDatepicker
+                                                            #availabilityConfirmed="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityConfirmed.errors }"
+                                                            (click)="availabilityConfirmed.toggle()"
+                                                            formControlName="availabilityConfirmed"
+                                                            [maxDate]="todayDate" container='body'>
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                (click)="availabilityConfirmed.toggle()" type="button">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{viewDate(dtpData?.coreDtp.availabilityConfirmed)}}</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between border-top pt-10">
+                                        <div class="mr-2">
+                                            <div class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4"
+                                                data-wizard-type="action-prev" (click)="buttonClick='previous'">
+                                                Previous
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="btn btn-primary font-weight-bold text-uppercase px-9 py-4"
+                                                data-wizard-type="action-next"
+                                                [hidden]="isView ? !(currentStatus > nextStep) : false"
+                                                (click)="buttonClick='next'">
+                                                Next Step
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr *ngIf="!isEdit && !isView" />
+                            <ng-container *ngIf="isEdit || isView">
+                                <hr style="border-top: 2px solid;" />
+                                <br />
+                                <h3>Agreement Details</h3>
+                                <br />
+                                <div class="row form-group">
+                                    <div class="col-md-6">
+                                        <label class="form-check-label font-style text-capitalize" for="conformsToDefault">conforms to
+                                            default</label>
+                                        <input class="form-check-input ml-4" type="checkbox" id="conformsToDefault"
+                                            formControlName="conformsToDefaultChange" (change)="conformsToDefaultChange()" *ngIf="!isView">
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{dtpData?.dtas[0]?.conformsToDefault}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-6" *ngIf="!showVariations">
+                                        <label for="variations" class="font-style text-capitalize">variations</label>
+                                        <textarea cols="30" rows="3" class="form-control" id="variations" formControlName="variations"
+                                            *ngIf="!isView"></textarea>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.dtas[0]?.variations}}
+                                        </h6>
+                                    </div>
+                                </div>
+                                <div class="row form-group ">
+                                    <div class="col-md-6">
+                                        <label for="filePath" class="font-style text-capitalize">DTA file path</label>
+                                        <input type="text" class="form-control" id="filePath" formControlName="dtaFilePath" *ngIf="!isView">
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.dtas[0]?.dtaFilePath}}
+                                        </h6>
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-md-6">
+                                        <label for="rsignatory1" class="font-style text-capitalize">Repository Signatory
+                                            1</label>
+                                        <select id="rsignatory1" class="form-control" formControlName="repoSignatory1" *ngIf="!isView">
+                                            <option selected disabled value="">Select an option...</option>
+                                            <option [value]=user.personId *ngFor="let user of associatedUser">
+                                                {{user.personName}}</option>
+                                        </select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dtpData?.dtas[0]?.repoSignatory1)}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="rsignatory2" class="font-style text-capitalize">Repository Signatory
+                                            2</label>
+                                        <select id="rsignatory2" class="form-control" formControlName="repoSignatory2" *ngIf="!isView">
+                                            <option selected disabled value="">Select an option...</option>
+                                            <option [value]="user.personId" *ngFor="let user of associatedUser">
+                                                {{user.personName}}</option>
+                                        </select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dtpData?.dtas[0]?.repoSignatory2)}}
+                                        </h6>
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-md-6">
+                                        <label for="psignatory1" class="font-style text-capitalize">Provider Signatory
+                                            1</label>
+                                        <select id="psignatory1" class="form-control" formControlName="providerSignatory1" *ngIf="!isView">
+                                            <option selected disabled value="">Select an option...</option>
+                                            <option [value]="user.personId" *ngFor="let user of associatedUser">
+                                                {{user.personName}}</option>
+                                        </select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{findPeopleById(dtpData?.dtas[0]?.providerSignatory1)}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="psignatory2" class="font-style text-capitalize">Provider Signatory
+                                            2</label>
+                                        <select id="psignatory2" class="form-control" formControlName="providerSignatory2" *ngIf="!isView">
+                                            <option selected disabled value="">Select an option...</option>
+                                            <option [value]="user.personId" *ngFor="let user of associatedUser">
+                                                {{user.personName}}</option>
+                                        </select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{findPeopleById(dtpData?.dtas[0]?.providerSignatory2)}}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="isEdit || isView">
+                                <hr style="border-top: 2px solid;" />
+                                <h3>Notes</h3>
+                                <div formArrayName="notes">
+                                    <div class="row form-group">
+                                        <div class="col-md-12 text-right pb-2">
+                                            <button class="btn btn-primary p-2" (click)="addDtpNote()" *ngIf="!isView"><i class="fa fa-plus p-0"></i></button>
+                                        </div>
+                                        <div class="col-md-12" *ngFor="let note of notes().controls;let i = index" [formGroupName]="i">
+                                            <div class="card border-0">
+                                                <div class="card-body pl-0 pr-0 pb-0 pt-5">
+                                                    <i class="fa fa-times float-right pr-1 text-danger" style="cursor: pointer;"
+                                                        (click)="deleteDtpNote(i)" *ngIf="!isView"></i>
+                                                    <i class="fa fa-check float-right pr-2 text-success" style="cursor: pointer;"
+                                                        (click)="saveDtpNote(note)" *ngIf="!isView"></i>
+                                                    <h6>{{findPeopleById(dtpData.dtpNotes[i].author)}} <small>{{dtpData.dtpNotes[i].createdOn | date}}</small></h6>
+                                                    <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="text"
+                                                        *ngIf="!isView"></textarea>
+                                                    <span style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpNotes[i].text}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                            </ng-container>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="setup">
+                    <div class="col-md-12">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <span class="font-style">Associated Studies</span>
+                                <button class="btn btn-primary float-right" (click)="addStudy()" *ngIf="!isView">Add
+                                    Study</button>
+                                <ng-container *ngIf="associatedStudies.length <= 0">
+                                    <p>No Associated Study</p>
+                                </ng-container>
+                                <ng-container *ngIf="associatedStudies.length > 0">
+                                    <ul>
+                                        <li *ngFor="let study of associatedStudies; let i = index" class="pl-4">
+                                            {{study.studyName}}({{study.sdSid}})
+                                            <i class="fa fa-times pl-3" (click)="removeDtpStudy(study.id, study.sdSid)"
+                                                *ngIf="!isView"></i>
+                                        </li>
+                                    </ul>
+                                </ng-container>
+                                <br>
+                                <hr>
+                                <span class="font-style">Associated Data Objects</span>
+                                <button class="btn btn-primary float-right" (click)="addDataObject()"
+                                    *ngIf="!isView">Add Data Objects</button>
+                                <ng-container *ngIf="associatedObject.length <= 0">
+                                    <p>No Associated Data Object</p>
+                                </ng-container>
+                                <ng-container *ngIf="associatedObject.length > 0">
+                                    <ul>
+                                        <li *ngFor="let object of associatedObject; let i = index" class="pl-4">
+                                            {{object.sdOid}}<span title="{{object.objectName}}">({{object.objectName | slice:0:50}}...)</span>
+                                            <i class="fa fa-times pl-3" (click)="removeDtpObject(object.id)"
+                                                *ngIf="!isView"></i>
+                                            <ng-container *ngIf="instanceArray[i]?.length <= 0">
+                                                <ul style="list-style-type: none;">
+                                                    <li><small>currently there is no instances related to the data object, please create some first</small> <span class="pl-2"><button class="btn btn-success btn-sm"(click)="goToDo(object)">Create one</button></span></li>
+                                                </ul>
+                                            </ng-container>
+                                            <ng-container *ngIf="instanceArray[i]?.length > 0">
+                                                <ul style="list-style-type: square;">
+                                                    <li *ngFor="let instance of instanceArray[i]">
+                                                        {{instance.resourceComments}} ({{instance.id}}) <span class="pl-2"><button class="btn btn-success btn-sm"
+                                                             (click)="goToTsd(instance)">Upload</button></span>
+                                                    </li>
+                                                </ul>
+                                            </ng-container>
+        
+                                        </li>
+                                    </ul>
+                                </ng-container>
+                                <br>
+                                <hr>
+                                <span class="font-style">Associated People</span>
+                                <button class="btn btn-primary float-right" (click)="addUser()" *ngIf="!isView">Add
+                                    People</button>
+                                <ng-container *ngIf="associatedUser.length <= 0">
+                                    <p>No Associated Users</p>
+                                </ng-container>
+                                <ng-container *ngIf="associatedUser.length > 0">
+                                    <ul>
+                                        <li *ngFor="let user of associatedUser; let i = index" class="pl-4">
+                                            {{user.personName}}
+                                            <i class="fa fa-times pl-3" (click)="removeDtpUser(user.id)"
+                                                *ngIf="!isView"></i>
+                                        </li>
+                                    </ul>
+                                </ng-container>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="objectsaccess">
+                    <div class="col-md-12">
+                        <form [formGroup]="objectEmbargoForm">
+                            <div formArrayName="embargo">
+                                <div class="col-md-12" *ngFor="let embargo of embargos().controls;let i = index" [formGroupName]="i">
+                                    <br>
+                                    <mat-expansion-panel [expanded]="isView ? 'true' : 'false'">
+                                        <mat-expansion-panel-header>{{dtpData.dtpObjects[i].sdOid}}
+                                           <div class="col text-right"><i class="fas fa-square" [ngClass]="dtpData.dtpObjects[i].accessTypeId === 11 || dtpData.dtpObjects[i].accessTypeId === 12 ? 'text-success' : 'text-warning'"></i></div>
+                                        </mat-expansion-panel-header>
+                                        <div class="row form-group">
+                                            <div class="col-md-4">
+                                                <label for="accessTypeId" class="font-style text-capitalize">Access Type</label>
+                                                <select id="accessTypeId" formControlName="accessTypeId" class="form-control" *ngIf="!isView">
+                                                    <option [value]=accessType.id *ngFor="let accessType of accessTypes">{{accessType.name}}
+                                                    </option>
+                                                </select>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{findAccessType(dtpData.dtpObjects[i].accessTypeId)}}</h6>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="accessDetails" class="font-style text-capitalize">access details</label>
+                                                <textarea id="accessDetails" cols="30" rows="3" class="form-control" formControlName="accessDetails"
+                                                    *ngIf="!isView"></textarea>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpObjects[i].accessDetails}}</h6>
+                                            </div>
+                                            <div class="col-md-4 form-check m-auto">
+                                                <label class="form-check-label font-style text-capitalize" for="embargoRequested">embargo requested</label>
+                                                <input class="form-check-input ml-4" type="checkbox" id="embargoRequested" formControlName="embargoRequested" *ngIf="!isView" (change)="onEmbargoChange(i)">
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpObjects[i].embargoRequested}}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="row form-group" *ngIf="isEmbargoRequested[i]">
+                                            <div class="col-md-8">
+                                                <label for="embargoRegime" class="font-style text-capitalize">embargo Regime</label>
+                                                <input type="text" class="form-control" id="embargoRegime" formControlName="embargoRegime" *ngIf="!isView">
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpObjects[i].embargoRegime}}</h6>
+                                            </div>
+                                            <div class="col-md-4 form-check m-auto">
+                                                <label class="form-check-label font-style text-capitalize" for="embargoStillApplies">Emmbargo still applies</label>
+                                                <input class="form-check-input ml-4" type="checkbox" id="embargoStillApplies" formControlName="embargoStillApplies" *ngIf="!isView">
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpObjects[i].embargoStillApplies}}</h6>
+                                            </div>                        
+                                        </div>
+                                        <div class="row form-group">
+                                            <div class="col-md-4">
+                                                <label for="accessCheckStatusId" class="font-style text-capitalize">Access check status</label>
+                                                <select id="accessCheckStatusId" formControlName="accessCheckStatusId" class="form-control" *ngIf="!isView">
+                                                    <option [value]=accessStatusType.id *ngFor="let accessStatusType of accessStatusTypes">{{accessStatusType.name}}
+                                                    </option>
+                                                </select>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{findCheckSatus(dtpData.dtpObjects[i].accessCheckStatusId)}}</h6>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="accessCheckBy" class="font-style text-capitalize">access check by</label>
+                                                <select id="accessCheckBy" class="form-control" formControlName="accessCheckBy" *ngIf="!isView">
+                                                    <option selected disabled value="">Select an option...</option>
+                                                    <option [value]="user.personId" *ngFor="let user of associatedUser">
+                                                        {{user.personName}}</option>
+                                                </select>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{findPeopleById(dtpData.dtpObjects[i].accessCheckBy)}}
+                                                </h6>        
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="accessCheckDate" class="font-style text-capitalize">access check date</label>
+                                                <input class="form-control" placeholder="yyyy-mm-dd"
+                                                name="accessCheckDate" ngbDatepicker
+                                                #accessCheckDate="ngbDatepicker"
+                                                (click)="accessCheckDate.toggle()"
+                                                formControlName="accessCheckDate" [maxDate]="todayDate" *ngIf="!isView" container='body'>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{viewDate(dtpData.dtpObjects[i].accessCheckDate)}}</h6>
+                                            </div>
+                                        </div>
+                                        <mat-action-row *ngIf="!isView">
+                                            <button mat-button color="primary" (click)="editEmbargo(embargo)">Save</button>
+                                            <button mat-button color="warn" (click)="removeEmbargo(i)">Remove</button>
+                                        </mat-action-row>                
+                                    </mat-expansion-panel>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="controlledaccess">
+                    <div class="col-md-12">
+                        <form [formGroup]="preReqForm">
+                            <div class="col-md-12 text-right" *ngIf="!isView">
+                                <button class="btn btn-primary" (click)="addPreReq()">Add Pre-Requisite</button>
+                            </div>
+                            <div formArrayName="preRequisite">
+                                <div class="col-md-12" *ngFor="let preReq of preReqs().controls;let i = index" [formGroupName]="i">
+                                    <br>
+                                    <label for="preReqId" class="font-style text-capitalize">{{(preReqs()?.controls[i-1]?.value?.sdOid ===
+                                        preReqs()?.controls[i]?.value?.sdOid) && i!==0 ? '' : 'Pre-Requisite for Data Object' +
+                                        preReq.value.sdOid}}</label>
+                                    <mat-expansion-panel [expanded]="isView ? 'true' : 'true'">
+                                        <mat-expansion-panel-header>{{findPrereqType(dtpData.dtpPrereqs[i].preRequisiteTypeId)}}</mat-expansion-panel-header>
+                                        <div class="row form-group">
+                                            <div class="col-md-6" *ngIf="!isView">
+                                                <label for="preReqId" class="font-style text-capitalize">Pre-Requisite Type</label>
+                                                <select id="preReqId" formControlName="preRequisiteTypeId" class="form-control" *ngIf="!isView">
+                                                    <option [value]=preReqType.id *ngFor="let preReqType of preRequTypes">{{preReqType.name}}
+                                                    </option>
+                                                </select>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                    {{findPrereqType(dtpData.dtpPrereqs[i].preRequisiteTypeId)}}</h6>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="notes" class="font-style text-capitalize">Note</label>
+                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="preRequisiteNotes"
+                                                    *ngIf="!isView"></textarea>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpPrereqs[i].preRequisiteNotes}}</h6>
+                                            </div>
+                                        </div>
+                                        <mat-action-row *ngIf="!isView">
+                                            <button mat-button color="primary" (click)="editPreReq(preReq)">Save</button>
+                                            <button mat-button color="warn" (click)="removePreReq(i)">Remove</button>
+                                        </mat-action-row>                
+                                    </mat-expansion-panel>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <br />

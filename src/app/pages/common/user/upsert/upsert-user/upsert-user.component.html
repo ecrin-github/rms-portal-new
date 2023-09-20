@@ -1,0 +1,71 @@
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="my-3">{{userData?.name}}</h5>
+                    <p class="text-muted mb-1">{{userData?.designation}}</p>
+                    <p class="text-muted mb-1">{{userData?.orgName}}</p>
+                    <p class="text-muted mb-1">{{userData?.email}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h2>{{isView ? 'View User Data' : isEdit ? 'Edit User Data' : 'Add User Data'}}</h2>
+                        </div>
+                        <div class="col-md-5 text-right">
+                            <button class="btn btn-success mr-5" *ngIf="!isView" (click)="onSave()">{{isEdit ?'Apply Changes' : 'Save'}}</button>
+                            <button class="btn btn-warning" *ngIf="!isView" (click)="close()"> Cancel </button>
+                        </div>
+                    </div>
+                </div>    
+                <form [formGroup]="userForm">
+                    <div class="card-body">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="familyName" class="font-style text-capitalize">family name</label>
+                                <input id="familyName" type="text" class="form-control" formControlName="familyName" *ngIf="!isView">
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.familyName}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="givenName" class="font-style text-capitalize">given name</label>
+                                <input id="givenName" type="text" class="form-control" formControlName="givenName" *ngIf="!isView">
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.givenName}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="designation" class="font-style text-capitalize">designation</label>
+                                <input id="designation" type="text" class="form-control" formControlName="designation" *ngIf="!isView">
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.designation}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="email" class="font-style text-capitalize">email</label>
+                                <input id="email" type="text" class="form-control" formControlName="email" *ngIf="!isView">
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.email}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="email" class="font-style text-capitalize">organization</label>
+                                <ng-select [items]="organizationList" bindLabel="name" bindValue="orgId" [multiple]="false" formControlName="orgId"
+                                    [virtualScroll]="true" class="custom " notFoundText="No organization found"
+                                    placeholder="Select Organisation" *ngIf="!isView">
+                                </ng-select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.orgName}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

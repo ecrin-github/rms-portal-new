@@ -1,0 +1,60 @@
+<div class="row pb-2" *ngIf="!isView">
+    <div class="col-12 text-right justify-content-center mt-5">
+        <button class="btn btn-primary" (click)="addStudyTitle(); scrollToElement()">
+            <i class="fa fa-plus"></i> Add title
+        </button>
+    </div>
+</div>
+<form [formGroup]="form">
+    <ng-template [ngIf]="studyTitles().length <= 0">
+        <div class="row">
+            <div class="col-12 mb-3 mt-3 text-center justify-content-center">
+                <p>No study titles yet</p>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template [ngIf]="studyTitles().length > 0">
+        <div formArrayName="studyTitles">
+            <div class="row" *ngFor="let studyTitle of studyTitles().controls;let i = index" [formGroupName]="i">
+                <div class="col-12 mb-5" [id]="'titlepanel'+i">
+                    <mat-expansion-panel [expanded]="studyTitle.value.alreadyExist ? false : true">
+                        <mat-expansion-panel-header class="text-truncate">
+                            {{studyTitle.value.titleText}}
+                        </mat-expansion-panel-header>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="titleTypeId" class="font-style text-capitalize">Title type</label>
+                                <select class="form-control" id="titleTypeId" formControlName="titleTypeId" *ngIf="!isView">
+                                    <option disabled selected value="null">Select title type</option>
+                                    <option [value]="title.id" *ngFor="let title of titleType">{{title.name}}</option>
+                                </select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTitleType(studyTitle.value.titleTypeId)}}</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="langCode" class="font-style text-capitalize">Language code</label>
+                                <select class="form-control" id="langCode" formControlName="langCode" *ngIf="!isView">
+                                    <option disabled selected value=""></option>
+                                    <option [value]=language.code *ngFor="let language of languageCodes">{{language.name}}</option>
+                                </select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTitle.value.langCode}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="titleText" class="font-style text-capitalize">Title text</label>
+                                <textarea id="titleText" class="form-control" placeholder="Please enter title"
+                                formControlName="titleText" *ngIf="!isView" cols="30" rows="3"></textarea>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTitle.value.titleText}}</h6>
+                            </div>
+                        </div>
+                        <mat-action-row *ngIf="!isView">
+                            <button mat-button color="primary" (click)="studyTitle.value.alreadyExist ? editTitle(studyTitle) : addTitle(i)">Save</button>
+                            <button mat-button color="warn" (click)="removeStudyTitle(i)">Remove</button>
+                        </mat-action-row>
+                    </mat-expansion-panel>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</form>

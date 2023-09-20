@@ -1,0 +1,69 @@
+<div class="row pb-2" *ngIf="!isView">
+    <div class="col-12 text-right mt-5 justify-content-center">
+        <button class="btn btn-primary" (click)="addObjectRelation(); scrollToElement()">
+            <i class="fa fa-plus"></i>
+            Add Relation
+        </button>
+    </div>
+</div>
+<form [formGroup]="form">
+    <ng-template [ngIf]="objectRelationships().length <= 0">
+        <div class="row">
+            <div class="col-12 mb-3 mt-3 text-center justify-content-center">
+                <p>No object relationships yet</p>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template [ngIf]="objectRelationships().length > 0">
+        <div formArrayName="objectRelationships">
+            <div class="row" *ngFor="let objectRelation of objectRelationships().controls; let i = index;"
+                [formGroupName]="i">
+                <div class="col-12 mb-5" [id]="'objectrel'+i">
+                    <mat-expansion-panel [expanded]="objectRelation.value.alreadyExist ? false : true">
+                        <mat-expansion-panel-header class="text-truncate">
+                            {{findRelationType(objectRelation.value.relationshipTypeId)}}
+                        </mat-expansion-panel-header>
+
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="relationshipTypeId" class="font-style text-capitalize">Relationship type</label>
+                                <select id="relationshipTypeId" class="form-control" formControlName="relationshipTypeId" *ngIf="!isView">
+                                    <option disabled selected value="null">Please select the type of relationship</option>
+                                    <option [value]=relationship.id *ngFor="let relationship of relationshipType">{{relationship.name}}</option>
+                                </select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findRelationType(objectRelation.value.relationshipTypeId)}}</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="targetSdOid" class="font-style text-capitalize">Target data object</label>
+                                <!-- <input id="targetSdOid" type="text" class="form-control" formControlName="targetSdOid"
+                                    placeholder="Enter a parameter..." *ngIf="!isView" /> -->
+                                <ng-select [items]="objectList" bindLabel="sdOid" bindValue="sdOid" formControlName="targetSdOid" [multiple]="false"
+                                    [virtualScroll]="true" class="custom" notFoundText="No members found" placeholder="Please select the related data object"
+                                    *ngIf="!isView" [searchFn]="customSearchFn">
+                                    <ng-template ng-label-tmp let-item="item">
+                                        {{item.sdOid}}
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                        <div class="row m-0">
+                                            <div class="col-md-8 col-8 p-0 m-0">
+                                                <div class="col-md-12">{{item.sdOid}}</div>
+                                                <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.displayTitle}}</div>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </ng-select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectRelation.value.targetSdOid}}</h6>
+                            </div>
+                        </div>
+
+                        <mat-action-row *ngIf="!isView">
+                            <button mat-button color="primary" (click)="objectRelation.value.alreadyExist ? editRelation(objectRelation) : addRelation(i)">Save</button>
+                            <button mat-button color="warn" (click)="removeObjectRelation(i)">Remove</button>
+                        </mat-action-row>
+                    </mat-expansion-panel>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</form>

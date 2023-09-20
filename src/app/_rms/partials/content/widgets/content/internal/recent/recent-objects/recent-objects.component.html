@@ -1,0 +1,69 @@
+<!--begin::Advance Table Widget 9-->
+<div class="card card-custom" [ngClass]="cssClass">
+  <!--begin::Header-->
+  <div class="card-header border-0 py-5">
+    <h3 class="card-title align-items-start flex-column">
+      <span class="card-label font-weight-bolder text-dark">Recent Data Objects</span>
+      <span class="text-muted mt-3 font-weight-bold font-size-sm"
+        >Showing the 10 most recently added data objects, from a total of {{objectTotal}}.</span
+      >
+    </h3>
+    <div class="card-toolbar">
+      <a [routerLink]="['/data-objects', 'add']"
+         class="btn btn-success font-weight-bolder font-size-sm mr-3"
+         target="_blank" 
+      >Add</a
+      >
+      <a [routerLink]="['/data-objects']"
+         class="btn btn-info font-weight-bolder font-size-sm"
+         target="temptab"
+        >See All</a
+      >
+    </div>
+  </div>
+  <!--end::Header-->
+
+  <!--begin::Body-->
+  <div class="card-body pt-0 pb-3" style="height: 500px; overflow: auto;">
+    <mat-table [dataSource]="dataSource">
+
+      <ng-container matColumnDef="sdOid">
+          <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
+          <mat-cell *matCellDef="let row"><a [routerLink]="['/data-objects', row.sdOid, 'view']" target="_blank">{{row.sdOid}}</a> </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="title">
+          <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+          <mat-cell *matCellDef="let row"><a [routerLink]="['/data-objects', row.sdOid, 'view']" target="_blank">{{row.displayTitle}}</a></mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="type">
+          <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
+          <mat-cell *matCellDef="let row"> {{row.typeName}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="linkedStudy">
+          <mat-header-cell *matHeaderCellDef> Linked to studies </mat-header-cell>
+          <mat-cell *matCellDef="let row">
+            <a [routerLink]="['/studies', row.sdSid, 'view']" target="temptab">{{row.studyName}}</a>
+          </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef>  </mat-header-cell>
+          <mat-cell *matCellDef="let row">
+            <a [routerLink]="['/data-objects', row.sdOid, 'view']" target="temptab"
+              class="btn btn-light-primary font-weight-bolder font-size-sm mr-3">View</a>
+            <a [routerLink]="['/data-objects', row.sdOid, 'edit']" target="temptab"
+              class="btn btn-light-success font-weight-bolder font-size-sm">Edit</a>
+          </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;">
+      </mat-row>
+  </mat-table>  
+</div>
+  <!--end::Body-->
+</div>
+<!--end::Advance Table Widget 9-->
