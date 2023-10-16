@@ -20,17 +20,17 @@
                 <div class="col-12 mb-5" [id]="'topicpanel'+i">
                     <mat-expansion-panel [expanded]="studyTopic.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findTopicType(studyTopic.value.topicTypeId)}} : {{studyTopic.value.meshValue}}
+                            {{findTopicType(studyTopic.value.topicType)}} : {{studyTopic.value.meshValue}}
                         </mat-expansion-panel-header>
 
                         <div class="row form-group">
                             <div class="col-md-6">
-                                <label for="topicTypeId" class="font-style text-capitalize">Topic type</label>
-                                <select class="form-control" id="topicTypeId" formControlName="topicTypeId" *ngIf="!isView">
+                                <label for="topicType" class="font-style text-capitalize">Topic type</label>
+                                <select class="form-control" id="topicType" formControlName="topicType" *ngIf="!isView">
                                     <option disabled selected value="null">Please select topic type</option>
                                     <option [value]="title.id" *ngFor="let title of topicTypes">{{title.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTopicType(studyTopic.value.topicTypeId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTopicType(studyTopic.value.topicType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="meshValue" class="font-style text-capitalize">Topic value</label>
@@ -42,7 +42,7 @@
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="originalValue" class="font-style text-capitalize">Controlled Terminology</label>
-                                <ng-select [items]="controlledTerminology" bindLabel="name" bindValue="id" formControlName="originalCtId" [multiple]="false"
+                                <ng-select [items]="controlledTerminology" bindLabel="name" bindValue="id" formControlName="originalValue" [multiple]="false"
                                     [virtualScroll]="true" class="custom" notFoundText="No terminology found" placeholder="Select Terminology" *ngIf="!isView">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.name}}
@@ -58,7 +58,7 @@
                                 </ng-select>
                                 <!-- <input type="text" id="originalValue" class="form-control" placeholder="Enter a parameter..." formControlName="originalValue"
                                     *ngIf="!isView" /> -->
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTopicVocabulary(studyTopic.value.originalCtId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTopicVocabulary(studyTopic.value.originalValue)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="meshCode" class="font-style text-capitalize">CT code</label>

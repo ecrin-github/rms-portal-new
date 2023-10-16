@@ -51,6 +51,7 @@ export class UpsertDupComponent implements OnInit {
   objectList: [] = [];
   role: any;
   showUploadButton: boolean = false;
+  pageSize: Number = 10000;
 
   constructor(private router: Router, private fb: UntypedFormBuilder, private dupService: DupService, private spinner: NgxSpinnerService, private toastr: ToastrService,
     private activatedRoute: ActivatedRoute, private modalService: NgbModal, private commonLookup: CommonLookupService, private processLookup: ProcessLookupService, private pdfGeneratorService: PdfGeneratorService,
@@ -333,7 +334,7 @@ export class UpsertDupComponent implements OnInit {
 
   getOrganization() {
     this.spinner.show();
-    this.commonLookup.getOrganizationList().subscribe((res: any) => {
+    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
       if (res && res.data) {
         this.organizationList = res.data;
@@ -544,8 +545,8 @@ export class UpsertDupComponent implements OnInit {
     }
   }
   findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((type: any) => type.orgId === id);
-    return organizationArray && organizationArray.length ? organizationArray[0].name : 'None'
+    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
+    return organizationArray && organizationArray.length ? organizationArray[0].defaultName : 'None'
   }
   findStatus(id) {
     const statusArray: any = this.statusList.filter((type: any) => type.id === id);

@@ -25,13 +25,13 @@
 
                         <div class="row form-group">
                             <div class="col-md-6">
-                                <label for="titleTypeId" class="font-style text-capitalize">Title type</label>
-                                <select id="titleTypeId" class="form-control" formControlName="titleTypeId"
+                                <label for="titleType" class="font-style text-capitalize">Title type</label>
+                                <select id="titleType" class="form-control" formControlName="titleType"
                                     *ngIf="!isView">
                                     <option disabled selected value="">Select an option...</option>
                                     <option [value]=title.id *ngFor="let title of titleType">{{title.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTitleType(objectTitle.value.titleTypeId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTitleType(objectTitle.value.titleType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="titleText" class="font-style text-capitalize">Title text</label>
@@ -45,9 +45,9 @@
                                 <label for="langCode" class="font-style text-capitalize">Language code</label>
                                 <select id="langCode" class="form-control" formControlName="langCode" *ngIf="!isView">
                                     <option disabled selected value=""></option>
-                                    <option [value]="code.code" *ngFor="let code of languageCode">{{code.name}}</option>
+                                    <option [value]="code.id" *ngFor="let code of languageCode">{{code.langNameEn}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectTitle.value.langCode}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findLangcodeById(objectTitle.value.langCode)}}</h6>
                             </div>
                             <!-- <div class="col-md-6">
                                 <label for="comments" class="font-style text-capitalize">Comments</label>

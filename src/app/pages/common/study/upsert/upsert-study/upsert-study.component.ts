@@ -56,6 +56,7 @@ export class UpsertStudyComponent implements OnInit {
   isBrowsing: boolean = false;
   role: any;
   associatedObjects: any;
+  pageSize: Number = 10000;
 
   constructor(private fb: UntypedFormBuilder, private router: Router, private studyLookupService: StudyLookupService, private studyService: StudyService, private activatedRoute: ActivatedRoute,
     private spinner: NgxSpinnerService, private toastr: ToastrService, private pdfGenerator: PdfGeneratorService, private jsonGenerator: JsonGeneratorService, private commonLookupService: CommonLookupService, private listService: ListService) {
@@ -64,16 +65,16 @@ export class UpsertStudyComponent implements OnInit {
       displayTitle: ['', Validators.required],
       briefDescription: '',
       dataSharingStatement: '',
-      studyTypeId: null,
-      studyStatusId: null,
-      studyGenderEligId: null,
-      studyEnrolment: '',
+      studyType: null,
+      studyStatus: null,
+      studyGenderElig: null,
+      studyEnrollment: '',
       studyStartMonth: null,
       studyStartYear: null,
       minAge: null,
-      minAgeUnitsId: null,
+      minAgeUnit: null,
       maxAge: null,
-      maxAgeUnitsId: null,
+      maxAgeUnit: null,
       studyIdentifiers: [],
       studyTitles: [],
       studyFeatures: [],
@@ -105,8 +106,8 @@ export class UpsertStudyComponent implements OnInit {
     this.isAdd = this.router.url.includes('add') ? true : false;
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     if (this.role === 'User') {
-      this.studyForm.get('studyTypeId').setValidators(Validators.required);
-      this.studyForm.get('studyStatusId').setValidators(Validators.required);
+      this.studyForm.get('studyType').setValidators(Validators.required);
+      this.studyForm.get('studyStatus').setValidators(Validators.required);
       this.studyForm.get('studyStartYear').setValidators(Validators.required);
     }
     if (this.isAdd) {
@@ -140,15 +141,14 @@ export class UpsertStudyComponent implements OnInit {
     setTimeout(() => {
       this.spinner.show(); 
     });
-    const getStudyType$ = this.isBrowsing ? this.studyLookupService.getBrowsingStudyTypes() : this.studyLookupService.getStudyTypes();
-    getStudyType$.subscribe((res:any) => {
+    this.studyLookupService.getStudyTypes(this.pageSize).subscribe((res:any) => {
       this.spinner.hide();
-      if(res.data) {
-        this.studyTypes = res.data;
+      if(res.results) {
+        this.studyTypes = res.results;
       }
       if (this.isView) {
         setTimeout(() => {
-          this.studyTypeView = this.findStudyTypeById(this.studyForm.value.studyTypeId);
+          this.studyTypeView = this.findStudyTypeById(this.studyForm.value.studyType);
         });
       }
     }, error => {
@@ -161,15 +161,14 @@ export class UpsertStudyComponent implements OnInit {
     setTimeout(() => {
       this.spinner.show(); 
     });
-    const getStudyStatus$ = this.isBrowsing ? this.studyLookupService.getBrowsingStudyStatuses() : this.studyLookupService.getStudyStatuses();
-    getStudyStatus$.subscribe((res: any) => {
+    this.studyLookupService.getStudyStatuses(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if(res.data) {
-        this.studyStatuses = res.data;
+      if(res.results) {
+        this.studyStatuses = res.results;
       }
       if (this.isView) {
         setTimeout(() => {
-          this.studyStatusView = this.findStudyStatusById(this.studyData.studyStatusId);
+          this.studyStatusView = this.findStudyStatusById(this.studyData.studyStatus);
         });
       }
     }, error => {
@@ -181,15 +180,14 @@ export class UpsertStudyComponent implements OnInit {
     setTimeout(() => {
       this.spinner.show(); 
     });
-    const getGenderEligibility$ = this.isBrowsing ? this.studyLookupService.getBrowsingGenderEligibilities() : this.studyLookupService.getGenderEligibilities();
-    getGenderEligibility$.subscribe((res: any) => {
+    this.studyLookupService.getGenderEligibilities(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.data) {
-        this.genderEligibility = res.data;
+      if (res.results) {
+        this.genderEligibility = res.results;
       }
       if (this.isView) {
         setTimeout(() => {
-          this.studyGenderView = this.findGenderEligibilityId(this.studyForm.value.studyGenderEligId);
+          this.studyGenderView = this.findGenderEligibilityId(this.studyForm.value.studyGenderElig);
         });
       }
     }, error => {
@@ -201,23 +199,22 @@ export class UpsertStudyComponent implements OnInit {
     setTimeout(() => {
       this.spinner.show(); 
     });
-    const getTimeUnits$ = this.isBrowsing ? this.studyLookupService.getBrowsingTimeUnits() : this.studyLookupService.getTimeUnits();
-    getTimeUnits$.subscribe((res: any) => {
+    this.studyLookupService.getTimeUnits(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if(res.data) {
-        this.timeUnits = res.data;
+      if(res.results) {
+        this.timeUnits = res.results;
       }
       if (this.isView) {
         setTimeout(() => {
-          this.studyMinAgeView = this.findTimeUnitsById(this.studyForm.value.minAgeUnitsId);
-          this.studyMaxAgeView = this.findTimeUnitsById(this.studyForm.value.maxAgeUnitsId);
+          this.studyMinAgeView = this.findTimeUnitsById(this.studyForm.value.minAgeUnit);
+          this.studyMaxAgeView = this.findTimeUnitsById(this.studyForm.value.maxAgeUnit);
         });
       }
       if (this.isAdd) {
         const arr: any = this.timeUnits.filter((item: any) => item.name.toLowerCase() === "years");
         this.studyForm.patchValue({
-          minAgeUnitsId: arr[0].id,
-          maxAgeUnitsId: arr[0].id
+          minAgeUnit: arr[0].id,
+          maxAgeUnit: arr[0].id
         })
       }
     }, error => {
@@ -229,13 +226,11 @@ export class UpsertStudyComponent implements OnInit {
     setTimeout(() => {
      this.spinner.show(); 
     });
-    const fullStudy$ = this.isBrowsing ? this.studyService.getBrowsingFullStudyById(id) : this.studyService.getFullStudyById(id);
-    fullStudy$.subscribe((res: any) => {
+    this.studyService.getStudyById(id).subscribe((res: any) => {
       console.log('data', res);
       this.spinner.hide();
-      if (res && res.data && res.data.length) {
-        this.studyFull = res.data[0];
-        this.studyData = res.data[0].coreStudy;
+      if (res) {
+        this.studyData = res;
         this.patchStudyForm();
       }
     }, error => {
@@ -260,9 +255,9 @@ export class UpsertStudyComponent implements OnInit {
     return ageArray && ageArray.length ? ageArray[0] : { name: '' };
 }
   getTrialRegistries() {
-    this.studyLookupService.getTrialRegistries().subscribe((res: any) => {
-      if (res && res.data) {
-        this.trialRegistries = res.data;
+    this.studyLookupService.getTrialRegistries(this.pageSize).subscribe((res: any) => {
+      if (res && res.results) {
+        this.trialRegistries = res.results;
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -273,16 +268,16 @@ export class UpsertStudyComponent implements OnInit {
       displayTitle: this.studyData.displayTitle,
       briefDescription: this.studyData.briefDescription,
       dataSharingStatement: this.studyData.dataSharingStatement,
-      studyTypeId: this.studyData.studyTypeId,
-      studyStatusId: this.studyData.studyStatusId,
-      studyGenderEligId: this.studyData.studyGenderEligId,
-      studyEnrolment: this.studyData.studyEnrolment,
+      studyType: this.studyData.studyType ? this.studyData.studyType.id : null,
+      studyStatus: this.studyData.studyStatus ? this.studyData.studyStatus.id : null,
+      studyGenderElig: this.studyData.studyGenderElig ? this.studyData.studyGenderElig.id : null,
+      studyEnrollment: this.studyData.studyEnrollment,
       studyStartYear: this.studyData.studyStartYear ? new Date(`01/01/${this.studyData.studyStartYear}`) : '',
       studyStartMonth: this.studyData.studyStartMonth,
       minAge: this.studyData.minAge,
-      minAgeUnitsId: this.studyData.minAgeUnitsId,
+      minAgeUnit: this.studyData.minAgeUnit ? this.studyData.minAgeUnit.id : null,
       maxAge: this.studyData.maxAge,
-      maxAgeUnitsId: this.studyData.maxAgeUnitsId,
+      maxAgeUnit: this.studyData.maxAgeUnit ? this.studyData.maxAgeUnit.id : null,
       studyIdentifiers: this.studyData.studyIdentifiers ? this.studyData.studyIdentifiers : [],
       studyTitles: this.studyData.studyTitles ? this.studyData.studyTitles : [],
       studyFeatures: this.studyData.studyFeatures ? this.studyData.studyFeatures : [],
@@ -301,15 +296,15 @@ export class UpsertStudyComponent implements OnInit {
       this.isSubmitted = true;
       console.log('payload', this.studyForm);
       this.studyForm.patchValue({
-        maxAgeUnitsId: this.studyForm.value.maxAge === '' || null ? null : this.studyForm.value.maxAgeUnitsId,
-        minAgeUnitsId: this.studyForm.value.minAge === '' || null ? null : this.studyForm.value.minAgeUnitsId
+        maxAgeUnit: this.studyForm.value.maxAge === '' || null ? null : this.studyForm.value.maxAgeUnit,
+        minAgeUnit: this.studyForm.value.minAge === '' || null ? null : this.studyForm.value.minAgeUnit
       })
       if (this.studyForm.valid) {
         const payload = JSON.parse(JSON.stringify(this.studyForm.value));
         this.spinner.show();
         if (this.isEdit) {
-          payload.id = this.studyData.id;
-          payload.sdSid = this.id;
+          // payload.id = this.studyData.id;
+          // payload.sdSid = this.id;
           payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
           this.studyService.editStudy(this.id, payload).subscribe((res: any) => {
             this.spinner.hide();
@@ -326,7 +321,7 @@ export class UpsertStudyComponent implements OnInit {
           })
         } else {
           payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
-          this.studyService.addStudy(payload.sdSid, payload).subscribe((res: any) => {
+          this.studyService.addStudy(payload).subscribe((res: any) => {
             this.spinner.hide();
             if (res.statusCode === 200) {
               this.toastr.success('Study Detail added successfully');
@@ -380,17 +375,17 @@ export class UpsertStudyComponent implements OnInit {
   studyTypeChange() {
     const arrInterventional:any = this.studyTypes.filter((item: any) => item.name.toLowerCase() === 'interventional');
     const arrObservational:any = this.studyTypes.filter((item: any) => item.name.toLowerCase() === 'observational');
-    this.studyType = parseInt(this.studyForm.value.studyTypeId) === arrInterventional[0].id ? 'interventional' : parseInt(this.studyForm.value.studyTypeId) === arrObservational[0].id ? 'observational': ''
+    this.studyType = parseInt(this.studyForm.value.studyType) === arrInterventional[0].id ? 'interventional' : parseInt(this.studyForm.value.studyType) === arrObservational[0].id ? 'observational': ''
   }
   print() {
     this.studyService.getFullStudyById(this.id).subscribe((res: any) => {
       if (res && res.data) {
         const payload = JSON.parse(JSON.stringify(res.data[0]));
-        payload.coreStudy.studyStatusId = this.findStudyStatusById(payload.coreStudy.studyStatusId);
-        payload.coreStudy.studyTypeId = this.findStudyTypeById(payload.coreStudy.studyTypeId);
-        payload.coreStudy.studyGenderEligId = this.findGenderEligibilityId(payload.coreStudy.studyGenderEligId);
-        payload.coreStudy.minAgeUnitsId = this.findTimeUnitsById(payload.coreStudy.minAgeUnitsId);
-        payload.coreStudy.maxAgeUnitsId = this.findTimeUnitsById(payload.coreStudy.maxAgeUnitsId);
+        payload.coreStudy.studyStatus = this.findStudyStatusById(payload.coreStudy.studyStatus);
+        payload.coreStudy.studyType = this.findStudyTypeById(payload.coreStudy.studyType);
+        payload.coreStudy.studyGenderElig = this.findGenderEligibilityId(payload.coreStudy.studyGenderElig);
+        payload.coreStudy.minAgeUnit = this.findTimeUnitsById(payload.coreStudy.minAgeUnit);
+        payload.coreStudy.maxAgeUnit = this.findTimeUnitsById(payload.coreStudy.maxAgeUnit);
         payload.studyIdentifiers.map(item => {
           item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
         });
@@ -418,11 +413,11 @@ export class UpsertStudyComponent implements OnInit {
     this.studyService.getFullStudyById(this.id).subscribe((res: any) => {
       if (res && res.data) {
         const payload = JSON.parse(JSON.stringify(res.data[0]));
-        payload.coreStudy.studyStatusId = this.findStudyStatusById(payload.coreStudy.studyStatusId);
-        payload.coreStudy.studyTypeId = this.findStudyTypeById(payload.coreStudy.studyTypeId);
-        payload.coreStudy.studyGenderEligId = this.findGenderEligibilityId(payload.coreStudy.studyGenderEligId);
-        payload.coreStudy.minAgeUnitsId = this.findTimeUnitsById(payload.coreStudy.minAgeUnitsId);
-        payload.coreStudy.maxAgeUnitsId = this.findTimeUnitsById(payload.coreStudy.maxAgeUnitsId);
+        payload.coreStudy.studyStatus = this.findStudyStatusById(payload.coreStudy.studyStatus);
+        payload.coreStudy.studyType = this.findStudyTypeById(payload.coreStudy.studyType);
+        payload.coreStudy.studyGenderElig = this.findGenderEligibilityId(payload.coreStudy.studyGenderElig);
+        payload.coreStudy.minAgeUnit = this.findTimeUnitsById(payload.coreStudy.minAgeUnit);
+        payload.coreStudy.maxAgeUnit = this.findTimeUnitsById(payload.coreStudy.maxAgeUnit);
         payload.studyIdentifiers.map(item => {
           item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
         });
@@ -449,10 +444,9 @@ export class UpsertStudyComponent implements OnInit {
   // code to get values for id for generating pdf 
 
   getIdentifierType() {
-    const identifierType$ = this.isBrowsing ? this.studyLookupService.getBrowsingStudyIdentifierTypes() : this.studyLookupService.getStudyIdentifierTypes();
-    identifierType$.subscribe((res: any) => {
-      if(res && res.data) {
-        this.identifierTypes = res.data;
+    this.studyLookupService.getStudyIdentifierTypes(this.pageSize).subscribe((res: any) => {
+      if(res && res.results) {
+        this.identifierTypes = res.results;
       }
       this.spinner.hide();
     }, error => {
@@ -464,10 +458,9 @@ export class UpsertStudyComponent implements OnInit {
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : ''
   }
   getTitleType() {
-    const titleType$ = this.isBrowsing ? this.studyLookupService.getBrowsingStudyTitleTypes() : this.studyLookupService.getStudyTitleTypes();
-    titleType$.subscribe((res:any) => {
-      if(res.data) {
-        this.titleType = res.data;
+    this.studyLookupService.getStudyTitleTypes(this.pageSize).subscribe((res:any) => {
+      if(res.results) {
+        this.titleType = res.results;
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -478,8 +471,8 @@ export class UpsertStudyComponent implements OnInit {
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : '';
   }
   getFeature() {
-    const getFeatureType$ = this.isBrowsing ? this.studyLookupService.getBrowsingFeatureTypes() : this.studyLookupService.getFeatureTypes();
-    const getFeatureValue$ = this.isBrowsing ?  this.studyLookupService.getBrowsingFeatureValues() : this.studyLookupService.getFeatureValues();
+    const getFeatureType$ = this.studyLookupService.getFeatureTypes(this.pageSize);
+    const getFeatureValue$ = this.studyLookupService.getFeatureValues(this.pageSize);
     const combine$ = combineLatest([getFeatureType$, getFeatureValue$]).subscribe(([featureType, featureValue] : [any, any]) => {
       if (featureType.data) {
         this.featureTypes = featureType.data;
@@ -500,8 +493,7 @@ export class UpsertStudyComponent implements OnInit {
     return featureValueArray && featureValueArray.length ? featureValueArray[0].name : '';
   }
   getTopicType() {
-    const topicType$ = this.isBrowsing ? this.commonLookupService.getBrowsingTopicTypes() : this.commonLookupService.getTopicTypes();
-    topicType$.subscribe((res: any) => {
+    this.commonLookupService.getTopicTypes(this.pageSize).subscribe((res: any) => {
       if (res.data) {
         this.topicTypes = res.data;
       }
@@ -514,11 +506,10 @@ export class UpsertStudyComponent implements OnInit {
     return topicArray && topicArray.length ? topicArray[0].name : '';
   }
   getTopicVocabulary() {
-    const topicVocabularies$ = this.isBrowsing ? this.commonLookupService.getBrowsingTopicVocabularies() : this.commonLookupService.getTopicVocabularies();
-    topicVocabularies$.subscribe((res: any) => {
+    this.commonLookupService.getTopicVocabularies(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.data) {
-        this.controlledTerminology = res.data;
+      if (res.results) {
+        this.controlledTerminology = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -530,10 +521,9 @@ export class UpsertStudyComponent implements OnInit {
     return arr && arr.length ? arr[0].name : 'None';
   }
   getRelationshipType() {
-    const relationshipType$ = this.isBrowsing ? this.studyLookupService.getBrowsingStudyRelationshipTypes() : this.studyLookupService.getStudyRelationshipTypes();
-    relationshipType$.subscribe((res: any) => {
-      if(res.data) {
-        this.relationshipType = res.data;
+    this.studyLookupService.getStudyRelationshipTypes(this.pageSize).subscribe((res: any) => {
+      if(res.results) {
+        this.relationshipType = res.results;
       }
     }, error => {
       this.toastr.error(error.error.title);

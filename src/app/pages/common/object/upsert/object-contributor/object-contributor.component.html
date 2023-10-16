@@ -21,7 +21,7 @@
                 <div class="col-12 mb-5" [id]="'objectconst'+i">
                     <mat-expansion-panel [expanded]="objectContributor.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findContributorType(objectContributor.value.contribTypeId)}}
+                            {{findContributorType(objectContributor.value.contributorType)}}
                         </mat-expansion-panel-header>
 
                         <div class="row form-group">
@@ -37,30 +37,35 @@
                         </div>
                         <div class="row form-group" *ngIf="isIndividual[i] ? !isIndividual[i] : (objectContributor.value.isIndividual==='false' || objectContributor.value.isIndividual===false)">
                             <div class="col-md-6">
-                                <label for="contribTypeId" class="font-style text-capitalize">Contributor type</label>
-                                <select class="form-control" id="contribTypeId" formControlName="contribTypeId" *ngIf="!isView">
+                                <label for="contributorType" class="font-style text-capitalize">Contributor type</label>
+                                <select class="form-control" id="contributorType" formControlName="contributorType" *ngIf="!isView">
                                     <option selected disabled value="null">Please select the contributor type</option>
                                     <option [value]=contributor.id *ngFor="let contributor of contributorType">
                                         {{contributor.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findContributorType(objectContributor.value.contribTypeId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findContributorType(objectContributor.value.contributorType)}}</h6>
                             </div>
                             <div class="col-md-6">
-                                <label for="organisationName" class="font-style text-capitalize">Organisation</label>
-                                <input type="text" id="organisationName" class="form-control" placeholder="Please select organisation"
-                                    formControlName="organisationName" *ngIf="!isView" />
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.organisationName}}</h6>
+                                <label for="organisation" class="font-style text-capitalize">Organisation</label>
+                                <!-- <input type="text" id="organisation" class="form-control" placeholder="Please select organisation"
+                                    formControlName="organisation" *ngIf="!isView" /> -->
+                                <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
+                                    formControlName="organisation" [multiple]="false" [virtualScroll]="true" class="custom"
+                                    notFoundText="No members found" placeholder="Select Organisation"
+                                    *ngIf="!isView">
+                                </ng-select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.organisation}}</h6>
                             </div>
                         </div>
                         <div class="row form-group" *ngIf="isIndividual[i] ? isIndividual[i] : ( objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true)">
                             <div class="col-md-6">
-                                <label for="contribTypeId" class="font-style text-capitalize">Contributor type</label>
-                                <select class="form-control" id="contribTypeId" formControlName="contribTypeId" *ngIf="!isView">
+                                <label for="contributorType" class="font-style text-capitalize">Contributor type</label>
+                                <select class="form-control" id="contributorType" formControlName="contributorType" *ngIf="!isView">
                                     <option selected disabled value="null">Please select the contributor type</option>
                                     <option [value]=contributor.id *ngFor="let contributor of contributorType">
                                         {{contributor.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findContributorType(objectContributor.value.contribTypeId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findContributorType(objectContributor.value.contributorType)}}</h6>
                             </div>
                         </div>
                         <div class="row form-group"*ngIf="isIndividual[i] ? isIndividual[i] : ( objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true)">
@@ -91,10 +96,15 @@
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.personAffiliation}}</h6>
                             </div>
                             <div class="col-md-6">
-                                <label for="organisationName" class="font-style text-capitalize">Organisation</label>
-                                <input type="text" id="organisationName" class="form-control" placeholder="Please select organisation"
-                                    formControlName="organisationName" *ngIf="!isView" />
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.organisationName}}</h6>
+                                <label for="organisation" class="font-style text-capitalize">Organisation</label>
+                                <!-- <input type="text" id="organisation" class="form-control" placeholder="Please select organisation"
+                                    formControlName="organisation" *ngIf="!isView" /> -->
+                                <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
+                                    formControlName="organisation" [multiple]="false" [virtualScroll]="true" class="custom"
+                                    notFoundText="No members found" placeholder="Select Organisation"
+                                    *ngIf="!isView">
+                                </ng-select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.organisation}}</h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">

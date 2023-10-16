@@ -23,7 +23,7 @@ export class StudyTitleComponent implements OnInit {
   subscription: Subscription = new Subscription();
   @Input() isView: boolean;
   @Input() isEdit: boolean;
-  @Input() sdSid: string;
+  @Input() studyId: string;
   @Input() set initiateEmit(initiateEmit: any) {
     if (initiateEmit) {
       this.emitData();
@@ -41,6 +41,7 @@ export class StudyTitleComponent implements OnInit {
   @Output() emitTitle: EventEmitter<any> = new EventEmitter();
   studyTitle: StudyTitleInterface
   len: any;
+  pageSize: Number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private studyService: StudyService, private commonLookupService: CommonLookupService, private studyLookupService: StudyLookupService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private router: Router) {
     this.form = this.fb.group({
@@ -63,10 +64,10 @@ export class StudyTitleComponent implements OnInit {
   newStudyTitle(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdSid: '',
-      titleTypeId: null,
+      studyId: '',
+      titleType: null,
       titleText: '',
-      langCode: 'en',
+      langCode: this.findLangCode('English'),
       comments: '',
       alreadyExist: false,
       isTitleLinked: false
@@ -76,7 +77,7 @@ export class StudyTitleComponent implements OnInit {
   addStudyTitle() {
     this.len = this.studyTitles().value.length;
     if (this.len) {
-      if (this.studyTitles().value[this.len-1].titleTypeId !== null && this.studyTitles().value[this.len-1].titleText !== null) {
+      if (this.studyTitles().value[this.len-1].titleType !== null && this.studyTitles().value[this.len-1].titleText !== null) {
         this.studyTitles().push(this.newStudyTitle());
       } else {
         if (this.studyTitles().value[this.len-1].alreadyExist) {
@@ -97,7 +98,7 @@ export class StudyTitleComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       removeModal.componentInstance.type = 'studyTitle';
       removeModal.componentInstance.id = this.studyTitles().value[i].id;
-      removeModal.componentInstance.sdSid = this.studyTitles().value[i].sdSid;
+      removeModal.componentInstance.studyId = this.studyTitles().value[i].studyId;
       removeModal.result.then((data) => {
         if (data) {
           this.studyTitles().removeAt(i);
@@ -111,8 +112,8 @@ export class StudyTitleComponent implements OnInit {
         const publicType: any = this.titleType.filter((item: any) => item.name === 'Public title');
         this.studyTitles().push(this.fb.group({
           id: '',
-          sdSid: '',
-          titleTypeId: publicType && publicType.length ? publicType[0].id : '',
+          studyId: '',
+          titleType: publicType && publicType.length ? publicType[0].id : '',
           titleText: title,
           langCode: '',
           comments: '',
@@ -132,11 +133,10 @@ export class StudyTitleComponent implements OnInit {
     setTimeout(() => {
       this.spinner.show(); 
     });
-    const getTitleType$ = this.isBrowsing ? this.studyLookupService.getBrowsingStudyTitleTypes() : this.studyLookupService.getStudyTitleTypes();
-    getTitleType$.subscribe((res:any) => {
+    this.studyLookupService.getStudyTitleTypes(this.pageSize).subscribe((res:any) => {
       this.spinner.hide();
-      if(res.data) {
-        this.titleType = res.data;
+      if(res.results) {
+        this.titleType = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -145,13 +145,12 @@ export class StudyTitleComponent implements OnInit {
   }
   getLanguageCode() {
     setTimeout(() => {
-      this.spinner.show(); 
+      this.spinner.show();
     });
-    const langCode$ = this.isBrowsing ? this.commonLookupService.getBrowsingLanguageCodes('en') : this.commonLookupService.getLanguageCodes('en');
-    langCode$.subscribe((res: any) => {
+    this.commonLookupService.getLanguageCodes(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.data) {
-        this.languageCodes = res.data;
+      if (res.results) {
+        this.languageCodes = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -160,10 +159,9 @@ export class StudyTitleComponent implements OnInit {
   }
   getStudyTitle() {
     this.spinner.show();
-    const getStudyTitles$ = this.isBrowsing ? this.studyService.getBrowsingStudyTitles(this.sdSid) : this.studyService.getStudyTitles(this.sdSid);
-    getStudyTitles$.subscribe((res: any) => {
-      if (res && res.data) {
-        this.studyTitle = res.data.length ? res.data : [];
+    this.studyService.getStudyTitles(this.studyId).subscribe((res: any) => {
+      if (res && res.results) {
+        this.studyTitle = res.results.length ? res.results : [];
         this.patchForm(this.studyTitle);
       }
       this.spinner.hide();
@@ -180,10 +178,10 @@ export class StudyTitleComponent implements OnInit {
     titles.forEach(title => {
       formArray.push(this.fb.group({
         id: title.id,
-        sdSid: title.sdSid,
-        titleTypeId: title.titleTypeId,
+        studyId: title.studyId,
+        titleType: title.titleType ? title.titleType.id : null,
         titleText: title.titleText,
-        langCode: title.langCode,
+        langCode: title.langCode ? title.langCode.id : null,
         comments: title.comments,
         alreadyExist: true
       }))
@@ -193,10 +191,10 @@ export class StudyTitleComponent implements OnInit {
   addTitle(index) {
     this.spinner.show();
     const payload = this.form.value.studyTitles[index];
-    payload.sdSid = this.sdSid;
+    payload.studyId = this.studyId;
     delete payload.id;
 
-    this.studyService.addStudyTitle(this.sdSid, payload).subscribe((res: any) => {
+    this.studyService.addStudyTitle(this.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Study Title added successfully');
@@ -212,7 +210,7 @@ export class StudyTitleComponent implements OnInit {
   editTitle(titleObject) {
     const payload = titleObject.value;
     this.spinner.show();
-    this.studyService.editStudyTitle(payload.id, payload.sdSid, payload).subscribe((res: any) => {
+    this.studyService.editStudyTitle(payload.id, payload.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if(res.statusCode === 200) {
         this.toastr.success('Study Title updated successfully');
@@ -229,13 +227,17 @@ export class StudyTitleComponent implements OnInit {
     const titleTypeArray: any = this.titleType.filter((type: any) => type.id === id);
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : '';
   }
+  findLangCode(langCode) {
+    const langArr: any = this.languageCodes.filter((type: any) => type.langNameEn === langCode);
+    return langArr && langArr.length ? langArr[0].id : '';
+  }
   emitData() {
     const payload = this.form.value.studyTitles.map(item => {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdSid) {
-        item.sdSid = this.sdSid;
+      if(this.studyId) {
+        item.studyId = this.studyId;
       }
       return item;
     })

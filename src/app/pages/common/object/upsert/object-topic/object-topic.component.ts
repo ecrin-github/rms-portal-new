@@ -19,7 +19,7 @@ export class ObjectTopicComponent implements OnInit {
   form: UntypedFormGroup;
   topicType: [] = [];
   subscription: Subscription = new Subscription();
-  @Input() sdOid: string;
+  @Input() objectId: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   objectTopic: ObjectTopicInterface;
@@ -31,6 +31,7 @@ export class ObjectTopicComponent implements OnInit {
   @Output() emitTopic: EventEmitter<any> = new EventEmitter();
   len: any;
   isBrowsing: boolean = false;
+  pageSize: Number = 10000;
 
   constructor( private fb: UntypedFormBuilder,private router: Router, private commonLookupService: CommonLookupService, private spinner: NgxSpinnerService, private toastr: ToastrService, private objectService: DataObjectService, private modalService: NgbModal) {
     this.form = this.fb.group({
@@ -52,8 +53,8 @@ export class ObjectTopicComponent implements OnInit {
   newObjectTopic(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdOid: '',
-      topicTypeId: '',
+      objectId: '',
+      topicType: '',
       meshCoded: false,
       meshCode: '',
       meshValue: '',
@@ -67,7 +68,7 @@ export class ObjectTopicComponent implements OnInit {
   addObjectTopic() {
     this.len = this.objectTopics().value.length;
     if (this.len) {
-      if (this.objectTopics().value[this.len-1].topicTypeId && this.objectTopics().value[this.len-1].meshValue) {
+      if (this.objectTopics().value[this.len-1].topicType && this.objectTopics().value[this.len-1].meshValue) {
         this.objectTopics().push(this.newObjectTopic());
       } else {
         if (this.objectTopics().value[this.len-1].alreadyExist) {
@@ -88,7 +89,7 @@ export class ObjectTopicComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       removeModal.componentInstance.type = 'objectTopic';
       removeModal.componentInstance.id = this.objectTopics().value[i].id;
-      removeModal.componentInstance.sdOid = this.objectTopics().value[i].sdOid;
+      removeModal.componentInstance.objectId = this.objectTopics().value[i].objectId;
       removeModal.result.then((data) => {
         if (data) {
           this.objectTopics().removeAt(i);
@@ -97,27 +98,33 @@ export class ObjectTopicComponent implements OnInit {
     }
   }
   getTopicType() {
-    const getTopicType$ = this.isBrowsing ? this.commonLookupService.getBrowsingTopicTypes() : this.commonLookupService.getTopicTypes();
-    getTopicType$.subscribe((res: any) => {
-      if(res.data) {
-        this.topicType = res.data;
+    this.commonLookupService.getTopicTypes(this.pageSize).subscribe((res: any) => {
+      if (res.results) {
+        this.topicType = res.results;
       }
     }, error => {
       console.log('error', error);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     });
   }
   getObjectTopic() {
-    const getObjectTopics$ = this.isBrowsing ? this.objectService.getBrowsingObjectTopics(this.sdOid) : this.objectService.getObjectTopics(this.sdOid);
     this.spinner.show();
-    getObjectTopics$.subscribe((res: any) => {
+    this.objectService.getObjectTopics(this.objectId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.objectTopic = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.objectTopic = res.results.length ? res.results : [];
         this.patchForm(this.objectTopic);
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   patchForm(topics) {
@@ -128,8 +135,8 @@ export class ObjectTopicComponent implements OnInit {
     topics.forEach(topic => {
       formArray.push(this.fb.group({
         id: topic.id,
-        sdOid: topic.sdOid,
-        topicTypeId: topic.topicTypeId,
+        objectId: topic.objectId,
+        topicType: topic.topicType ? topic.topicType.id : null,
         meshCoded: topic.meshCoded,
         meshCode: topic.meshCode,
         meshValue: topic.meshValue,
@@ -144,11 +151,11 @@ export class ObjectTopicComponent implements OnInit {
   addTopic(index) {
     this.spinner.show();
     const payload = this.form.value.objectTopics[index];
-    payload.sdOid = this.sdOid;
+    payload.objectId = this.objectId;
     payload.meshCoded = payload.meshCoded === 'true' ? true : false;
     delete payload.id;
 
-    this.objectService.addObjectTopic(this.sdOid, payload).subscribe((res: any) => {
+    this.objectService.addObjectTopic(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Obect Topic added successfully');
@@ -158,14 +165,18 @@ export class ObjectTopicComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   editTopic(topicObject) {
     const payload = topicObject.value;
     payload.meshCoded = payload.meshCoded === 'true' ? true : false;
     this.spinner.show();
-    this.objectService.editObjectTopic(payload.id, payload.sdOid, payload).subscribe((res: any) => {
+    this.objectService.editObjectTopic(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Topic updated successfully');
@@ -175,7 +186,11 @@ export class ObjectTopicComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   findTopicType(id) {
@@ -188,8 +203,8 @@ export class ObjectTopicComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdOid) {
-        item.sdOid = this.sdOid;
+      if(this.objectId) {
+        item.objectId = this.objectId;
       }
       return item;
     })

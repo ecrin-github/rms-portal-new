@@ -63,6 +63,7 @@ export class UpsertDtpComponent implements OnInit {
   role: any;
   showUploadButton: boolean = false;
   instanceArray = [];
+  pageSize: number = 10000;
 
   constructor( private router: Router, private fb: UntypedFormBuilder, private dtpService: DtpService, private spinner: NgxSpinnerService, private toastr: ToastrService,
     private activatedRoute: ActivatedRoute, private modalService: NgbModal, private commonLookup: CommonLookupService, private processLookup: ProcessLookupService,
@@ -433,7 +434,7 @@ export class UpsertDtpComponent implements OnInit {
   get g() { return this.form.controls; }
   getOrganization() {
     this.spinner.show();
-    this.commonLookup.getOrganizationList().subscribe((res: any) => {
+    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
       if (res && res.data) {
         this.organizationList = res.data;
@@ -719,8 +720,8 @@ export class UpsertDtpComponent implements OnInit {
 
   }
   findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((type: any) => type.orgId === id);
-    return organizationArray && organizationArray.length ? organizationArray[0].name : ''
+    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
+    return organizationArray && organizationArray.length ? organizationArray[0].defaultName : ''
   }
   findStatus(id) {
     const statusArray: any = this.statusList.filter((type: any) => type.id === id);
@@ -809,7 +810,7 @@ export class UpsertDtpComponent implements OnInit {
       if (res) {
         this.associatedObject = res.data ? res.data : [];
         this.associatedObject.map( (item, index) => {
-          this.dataObjectService.getObjectInstances(item.sdOid).subscribe((res:any) => {
+          this.dataObjectService.getObjectInstances(item.sdOid, this.pageSize).subscribe((res:any) => {
             console.log('object instances', res);
             this.instanceArray[index] = res.data;
             console.log('instarr', this.instanceArray);

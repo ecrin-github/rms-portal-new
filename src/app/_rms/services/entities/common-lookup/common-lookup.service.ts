@@ -12,57 +12,28 @@ export class CommonLookupService {
 
   constructor( private http: HttpClient) { }
 
-  getTopicTypes() {
-    return this.http.get(`${base}/lookup/topic-types/simple`);
+  getTopicTypes(pageSize) {
+    return this.http.get(`${base}/context/topic-types?page_size=${pageSize}`);
   }
-  getBrowsingTopicTypes() {
-    return this.http.get(`${base}/browsing/lookup/topic-types/simple`);
+  getTopicVocabularies(pageSize) {
+    return this.http.get(`${base}/context/topic-vocabularies?page_size=${pageSize}`);
   }
-  getTopicVocabularies() {
-    return this.http.get(`${base}/lookup/topic-vocabularies/simple`);
+  getContributorTypes(pageSize) {
+    return this.http.get(`${base}/context/contributor-types?page_size=${pageSize}`);
   }
-  getBrowsingTopicVocabularies() {
-    return this.http.get(`${base}/browsing/lookup/topic-vocabularies/simple`);
-  }
-  getContributorTypes() {
-    return this.http.get(`${base}/lookup/contribution-types/simple`);
-  }
-  getBrowsingContributorTypes() {
-    return this.http.get(`${base}/browsing/lookup/contribution-types/simple`);
-  }
-  getIndividualContributorTypes() {
-    return this.http.get(`${base}/lookup/contribution-types-for-individuals/simple`);
-  }
-  getrowsingIndividualContributorTypes() {
-    return this.http.get(`${base}/browsing/lookup/contribution-types-for-individuals/simple`);
-  }
-  getOrganisationContributorTypes() {
-    return this.http.get(`${base}/lookup/contribution-types-for-organisations/simple`);
-  }
-  getBrowsingOrganisationContributorTypes() {
-    return this.http.get(`${base}/browsing/lookup/contribution-types-for-organisations/simple`);
-  }
-
-  getOrganizationList() {
-    return this.http.get(`${base}/context/orgnames`);
-  }
-  getBrowsingOrganizationList() {
-    return this.http.get(`${base}/browsing/context/orgnames`);
+  getOrganizationList(pageSize) {
+    return this.http.get(`${base}/general/organisations?page_size=${pageSize}`);
   }
 
 
-  getLanguageCodes(nameLang) {
-    return this.http.get(`${base}/lookup/major-langs/${nameLang}`);
+  getLanguageCodes(pageSize) {
+    return this.http.get(`${base}/general/language-codes?page_size=${pageSize}`);
   }
-  getBrowsingLanguageCodes(nameLang) {
-    return this.http.get(`${base}/browsing/lookup/major-langs/${nameLang}`);
-  }
-
-  //  checks if an object is linked to a dtp/dup withou associated study
+  //  checks if an object is linked to a dtp/dup without associated study
   objectInvolvement(sdSid) {
     return this.http.get(`${base}/studies/${sdSid}/object-involvement`);
   }
   emailAPI(payload) {
-    return this.http.post(`${contactUrl}/service-controller/send-email`, payload);
+    return this.http.post(`${contactUrl}/app/send-email`, payload);
   }
 }

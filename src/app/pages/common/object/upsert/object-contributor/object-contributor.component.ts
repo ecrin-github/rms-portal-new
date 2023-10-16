@@ -18,8 +18,9 @@ import { Router } from '@angular/router';
 export class ObjectContributorComponent implements OnInit {
   form: UntypedFormGroup;
   contributorType: [] = [];
+  organizationList: [] = [];
   subscription: Subscription = new Subscription();
-  @Input() sdOid: string;
+  @Input() objectId: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   objectContributor: ObjectContributorInterface;
@@ -32,6 +33,7 @@ export class ObjectContributorComponent implements OnInit {
   @Output() emitContributor: EventEmitter<any> = new EventEmitter();
   len: any;
   isBrowsing: boolean = false;
+  pagesize: Number = 10000;
 
   constructor( private fb: UntypedFormBuilder,private router: Router, private commonLooupService: CommonLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal) { 
     this.form = this.fb.group({
@@ -42,6 +44,7 @@ export class ObjectContributorComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getContributorType();
+    this.getOrganization();
     if (this.isEdit || this.isView) {
       this.getObjectContributor();
     }
@@ -53,10 +56,10 @@ export class ObjectContributorComponent implements OnInit {
   newObjectContributor(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdOid: '',
-      contribTypeId: '',
+      objectId: '',
+      contributorType: '',
       isIndividual: false,
-      organisationName: '',
+      organisation: '',
       personGivenName: '',
       personFamilyName: '',
       orcidId: '',
@@ -68,7 +71,7 @@ export class ObjectContributorComponent implements OnInit {
   addObjectContributor() {
     this.len = this.objectContributors().value.length;
     if (this.len) {
-      if (this.objectContributors().value[this.len-1].contribTypeId) {
+      if (this.objectContributors().value[this.len-1].contributorType) {
         this.objectContributors().push(this.newObjectContributor());
       } else {
         if (this.objectContributors().value[this.len-1].alreadyExist) {
@@ -89,7 +92,7 @@ export class ObjectContributorComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       removeModal.componentInstance.type = 'objectContributor';
       removeModal.componentInstance.id = this.objectContributors().value[i].id;
-      removeModal.componentInstance.sdOid = this.objectContributors().value[i].sdOid;
+      removeModal.componentInstance.objectId = this.objectContributors().value[i].objectId;
       removeModal.result.then((data) => {
         if (data) {
           this.objectContributors().removeAt(i);
@@ -98,10 +101,9 @@ export class ObjectContributorComponent implements OnInit {
     }
   }
   getContributorType() {
-    const getContributorType$ = this.isBrowsing ? this.commonLooupService.getBrowsingContributorTypes() : this.commonLooupService.getContributorTypes();
-    getContributorType$.subscribe((res:any) => {
-      if(res.data) {
-        this.contributorType = res.data;
+    this.commonLooupService.getContributorTypes(this.pagesize).subscribe((res: any) => {
+      if (res.results) {
+        this.contributorType = res.results;
       }
     }, error => {
       console.log('error', error);
@@ -109,11 +111,10 @@ export class ObjectContributorComponent implements OnInit {
   }
   getObjectContributor() {
     this.spinner.show();
-    const getObjectContributors$ = this.isBrowsing ? this.objectService.getBrowsingObjectContributors(this.sdOid) : this.objectService.getObjectContributors(this.sdOid);
-    getObjectContributors$.subscribe((res: any) => {
+    this.objectService.getObjectContributors(this.objectId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.objectContributor = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.objectContributor = res.results.length ? res.results : [];
         this.patchForm(this.objectContributor);
       }
     }, error => {
@@ -129,10 +130,10 @@ export class ObjectContributorComponent implements OnInit {
     contributors.forEach(contributor => {
       formArray.push(this.fb.group({
         id: contributor.id,
-        sdOid: contributor.sdOid,
-        contribTypeId: contributor.contribTypeId,
+        objectId: contributor.objectId,
+        contributorType: contributor.contributorType ? contributor.contributorType.id : null,
         isIndividual: contributor.isIndividual,
-        organisationName: contributor.organisationName,
+        organisation: contributor.organisation ? contributor.organisation.id : null,
         personGivenName: contributor.personGivenName,
         personFamilyName: contributor.personFamilyName,
         orcidId: contributor.orcidId,
@@ -145,11 +146,11 @@ export class ObjectContributorComponent implements OnInit {
   addContributor(index) {
     this.spinner.show();
     const payload = this.form.value.objectContributors[index];
-    payload.sdOid = this.sdOid;
+    payload.objectId = this.objectId;
     payload.isIndividual = payload.isIndividual === 'true' ? true : false;
     delete payload.id;
 
-    this.objectService.addObjectContributor(this.sdOid, payload).subscribe((res: any) => {
+    this.objectService.addObjectContributor(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Contributor added successfully');
@@ -166,13 +167,25 @@ export class ObjectContributorComponent implements OnInit {
     const payload = contributorObject.value;
     payload.isIndividual = payload.isIndividual === 'true' ? true : false;
     this.spinner.show();
-    this.objectService.editObjectContributor(payload.id, payload.sdOid, payload).subscribe((res: any) => {
+    this.objectService.editObjectContributor(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Contributor updated successfully');
         this.getObjectContributor();
       } else {
         this.toastr.error(res.messages[0]);
+      }
+    }, error => {
+      this.spinner.hide();
+      this.toastr.error(error.error.title);
+    })
+  }
+    getOrganization() {
+    this.spinner.show();
+    this.commonLooupService.getOrganizationList(this.pagesize).subscribe((res: any) => {
+      this.spinner.hide();
+      if (res && res.results) {
+        this.organizationList = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -189,8 +202,8 @@ export class ObjectContributorComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdOid) {
-        item.sdOid = this.sdOid;
+      if(this.objectId) {
+        item.objectId = this.objectId;
       }
       return item;
     })

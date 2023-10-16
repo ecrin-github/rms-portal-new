@@ -24,18 +24,18 @@
                         </mat-expansion-panel-header>
                         <div class="row form-group">
                             <div class="col-md-6">
-                                <label for="titleTypeId" class="font-style text-capitalize">Title type</label>
-                                <select class="form-control" id="titleTypeId" formControlName="titleTypeId" *ngIf="!isView">
+                                <label for="titleType" class="font-style text-capitalize">Title type</label>
+                                <select class="form-control" id="titleType" formControlName="titleType" *ngIf="!isView">
                                     <option disabled selected value="null">Select title type</option>
                                     <option [value]="title.id" *ngFor="let title of titleType">{{title.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTitleType(studyTitle.value.titleTypeId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTitleType(studyTitle.value.titleType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="langCode" class="font-style text-capitalize">Language code</label>
                                 <select class="form-control" id="langCode" formControlName="langCode" *ngIf="!isView">
                                     <option disabled selected value=""></option>
-                                    <option [value]=language.code *ngFor="let language of languageCodes">{{language.name}}</option>
+                                    <option [value]=language.id *ngFor="let language of languageCodes">{{language.langNameEn}}</option>
                                 </select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{studyTitle.value.langCode}}</h6>
                             </div>

@@ -1,3 +1,4 @@
+import { StudyDataInterface } from '../study/study.interface';
 import { ObjectContributorInterface } from './object-contributor.interface';
 import {ObjectDatasetInterface} from './object-dataset.interface';
 import {ObjectDateInterface} from './object-date.interface';
@@ -13,22 +14,19 @@ export interface DataObjectInterface {
     id: number;
     sdOid: string | null;
     sdSid: string | null;
-    coreObject: {
-        sdSid: string | null;
-        doi: string | null;
-        displayTitle: string | null;
-        version: string | null;
-        objectClassId: number;
-        objectTypeId: number;
-        publicationYear: number;
-        langCode: string | null;
-        accessTypeId: number;
-        managingOrgId: number;
-        managingOrg: string | null;
-        accessDetails: string | null;
-        accessDetailsUrl: string | null;
-        eoscCategory: number;
-    };
+    doi: string | null;
+    displayTitle: string | null;
+    version: string | null;
+    objectClass: {id:number, name: string};
+    objectType: {id:number, name: string};
+    publicationYear: number;
+    langCode: {id:number, langNameEn: string} | null;
+    accessType: {id: number, name: string};
+    managingOrgId: number;
+    managingOrg: {id: number, defaultName: string } | null;
+    accessDetails: string | null;
+    accessDetailsUrl: string | null;
+    eoscCategory: number;
     doiStatusId: number;
     managingOrgRorId: string | null;
     urlLastChecked: string | null;
@@ -45,6 +43,7 @@ export interface DataObjectInterface {
     objectRights: ObjectRightInterface[] | null;
     objectTitles: ObjectTitleInterface[] | null;
     objectTopics: ObjectTopicInterface[] | null;
+    linkedStudies: StudyDataInterface[] | null;
 }
 
 

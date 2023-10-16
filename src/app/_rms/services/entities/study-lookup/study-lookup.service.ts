@@ -11,65 +11,34 @@ export class StudyLookupService {
 
   constructor( private http: HttpClient) { }
   
-  getStudyTypes() {
-    return this.http.get(`${base}/lookup/study-types/simple`);
+  getStudyTypes(pageSize) {
+    return this.http.get(`${base}/context/study-types?page_size=${pageSize}`);
   }
-  getBrowsingStudyTypes() {
-    return this.http.get(`${base}/browsing/lookup/study-types/simple`);
+  getStudyStatuses(pageSize) {
+    return this.http.get(`${base}/context/study-statuses?page_size=${pageSize}`);
   }
-  getStudyStatuses() {
-    return this.http.get(`${base}/lookup/study-statuses/simple`);
-  }
-  getBrowsingStudyStatuses() {
-    return this.http.get(`${base}/browsing/lookup/study-statuses/simple`);
-  }
-  getGenderEligibilities() {
-    return this.http.get(`${base}/lookup/gender-eligibility-types/simple`);
+  getGenderEligibilities(pageSize) {
+    return this.http.get(`${base}/context/gender-eligibility-types?page_size=${pageSize}`);
   } 
-  getBrowsingGenderEligibilities() {
-    return this.http.get(`${base}/browsing/lookup/gender-eligibility-types/simple`);
+  getFeatureTypes(pageSize) {
+    return this.http.get(`${base}/context/study-feature-types?page_size=${pageSize}`);
   }
-  getFeatureTypes() {
-    return this.http.get(`${base}/lookup/study-feature-types/simple`);
+  getFeatureValues(pageSize) {
+    return this.http.get(`${base}/context/study-feature-categories?page_size=${pageSize}`);
   }
-  getBrowsingFeatureTypes() {
-    return this.http.get(`${base}/browsing/lookup/study-feature-types/simple`);
+  getStudyIdentifierTypes(pageSize) {
+    return this.http.get(`${base}/context/identifier-types?page_size=${pageSize}`);
   }
-  getFeatureValues() {
-    return this.http.get(`${base}/lookup/study-feature-categories/simple`);
+  getStudyTitleTypes(pageSize) {
+    return this.http.get(`${base}/context/title-types?page_size=${pageSize}`);
   }
-  getBrowsingFeatureValues() {
-    return this.http.get(`${base}/browsing/lookup/study-feature-categories/simple`);
+  getStudyRelationshipTypes(pageSize) {
+    return this.http.get(`${base}/context/study-relationship-types?page_size=${pageSize}`);
   }
-  getStudyIdentifierTypes() {
-    return this.http.get(`${base}/lookup/identifier-types-for-studies/simple`);
+  getTimeUnits(pageSize) {
+    return this.http.get(`${base}/context/time-units?page_size=${pageSize}`);
   }
-  getBrowsingStudyIdentifierTypes() {
-    return this.http.get(`${base}/browsing/lookup/identifier-types-for-studies/simple`);
+  getTrialRegistries(pageSize) {
+    return this.http.get(`${base}/context/trial-registries?page_size=${pageSize}`);
   }
-  getStudyTitleTypes() {
-    return this.http.get(`${base}/lookup/title-types-for-studies/simple`);
-  }
-  getBrowsingStudyTitleTypes() {
-    return this.http.get(`${base}/browsing/lookup/title-types-for-studies/simple`);
-  }
-  getStudyRelationshipTypes() {
-    return this.http.get(`${base}/lookup/study-relationship-types/simple`);
-  }
-  getBrowsingStudyRelationshipTypes() {
-    return this.http.get(`${base}/browsing/lookup/study-relationship-types/simple`);
-  }
-  getTimeUnits() {
-    return this.http.get(`${base}/lookup/time-units/simple`);
-  }
-  getBrowsingTimeUnits() {
-    return this.http.get(`${base}/browsing/lookup/time-units/simple`);
-  }
-  getTrialRegistries() {
-    return this.http.get(`${base}/lookup/trial-registries/simple`);
-  }
-  getBrowsingTrialRegistries() {
-    return this.http.get(`${base}/browsing/lookup/trial-registries/simple`);
-  }
-
 }

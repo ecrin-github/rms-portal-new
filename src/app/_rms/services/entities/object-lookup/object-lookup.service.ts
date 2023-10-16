@@ -12,82 +12,43 @@ export class ObjectLookupService {
   constructor( private http: HttpClient) { }
 
   // lookups
-  getObjectClasses() {
-    return this.http.get(`${base}/lookup/object-classes/simple`);
+  getObjectClasses(pageSize) {
+    return this.http.get(`${base}/context/object-classes?page_size=${pageSize}`);
   }
-  getBrowsingObjectClasses() {
-    return this.http.get(`${base}/browsing/lookup/object-classes/simple`);
+  getObjectTypes(pageSize) {
+    return this.http.get(`${base}/context/object-types?page_size=${pageSize}`);
   }
-  getObjectTypes() {
-    return this.http.get(`${base}/lookup/object-types/simple`);
+  getObjectTitleTypes(pageSize) {
+    return this.http.get(`${base}/context/title-types?page_size=${pageSize}`);
   }
-  getBrowsingObjectTypes() {
-    return this.http.get(`${base}/browsing/lookup/object-types/simple`);
+  getAccessTypes(pageSize) {
+    return this.http.get(`${base}/context/object-access-types?page_size=${pageSize}`);
   }
-  getObjectTitleTypes() {
-    return this.http.get(`${base}/lookup/title-types-for-objects/simple`);
+  getRecordKeyTypes(pageSize) {
+    return this.http.get(`${base}/context/dataset-recordkey-types?page_size=${pageSize}`);
   }
-  getBrowsingObjectTitleTypes() {
-    return this.http.get(`${base}/browsing/lookup/title-types-for-objects/simple`);
+  getDeidentificationTypes(pageSize) {
+    return this.http.get(`${base}/context/dataset-deidentification-levels?page_size=${pageSize}`);
   }
-  getAccessTypes() {
-    return this.http.get(`${base}/lookup/object-access-types/simple`);
+  getConsentTypes(pageSize) {
+    return this.http.get(`${base}/context/dataset-consent-types?page_size=${pageSize}`);
   }
-  getBrowsingAccessTypes() {
-    return this.http.get(`${base}/browsing/lookup/object-access-types/simple`);
+  getSizeUnits(pageSize) {
+    return this.http.get(`${base}/context/size-units?page_size=${pageSize}`);
   }
-  getRecordKeyTypes() {
-    return this.http.get(`${base}/lookup/dataset-recordkey-types/simple`);
+  getResourceTypes(pageSize) {
+    return this.http.get(`${base}/context/resource-types?page_size=${pageSize}`);
   }
-  getBrowsingRecordKeyTypes() {
-    return this.http.get(`${base}/browsing/lookup/dataset-recordkey-types/simple`);
+  getDateTypes(pageSize) {
+    return this.http.get(`${base}/context/date-types?page_size=${pageSize}`);
   }
-  getDeidentificationTypes() {
-    return this.http.get(`${base}/lookup/dataset-deidentification-types/simple`);
+  getDescriptionTypes(pageSize) {
+    return this.http.get(`${base}/context/description-types?page_size=${pageSize}`);
   }
-  getBrowsingDeidentificationTypes() {
-    return this.http.get(`${base}/browsing/lookup/dataset-deidentification-types/simple`);
+  getObjectIdentifierTypes(pageSize) {
+    return this.http.get(`${base}/context/identifier-types?page_size=${pageSize}`);
   }
-  getConsentTypes() {
-    return this.http.get(`${base}/lookup/dataset-consent-types/simple`);
-  }
-  getBrowsingConsentTypes() {
-    return this.http.get(`${base}/browsing/lookup/dataset-consent-types/simple`);
-  }
-  getSizeUnits() {
-    return this.http.get(`${base}/lookup/size-units/simple`);
-  }
-  getBrowsingSizeUnits() {
-    return this.http.get(`${base}/browsing/lookup/size-units/simple`);
-  }
-  getResourceTypes() {
-    return this.http.get(`${base}/lookup/resource-types/simple`);
-  }
-  getBrowsingResourceTypes() {
-    return this.http.get(`${base}/browsing/lookup/resource-types/simple`);
-  }
-  getDateTypes() {
-    return this.http.get(`${base}/lookup/date-types/simple`);
-  }
-  getBrowsingDateTypes() {
-    return this.http.get(`${base}/browsing/lookup/date-types/simple`);
-  }
-  getDescriptionTypes() {
-    return this.http.get(`${base}/lookup/description-types/simple`);
-  }
-  getBrowsingDescriptionTypes() {
-    return this.http.get(`${base}/browsing/lookup/description-types/simple`);
-  }
-  getObjectIdentifierTypes() {
-    return this.http.get(`${base}/lookup/identifier-types-for-objects/simple`);
-  }
-  getBrowsingObjectIdentifierTypes() {
-    return this.http.get(`${base}/browsing/lookup/identifier-types-for-objects/simple`);
-  }
-  getObjectRelationshipTypes() {
-    return this.http.get(`${base}/lookup/object-relationship-types/simple`);
-  }
-  getBrowsingObjectRelationshipTypes() {
-    return this.http.get(`${base}/browsing/lookup/object-relationship-types/simple`);
+  getObjectRelationshipTypes(pageSize) {
+    return this.http.get(`${base}/context/object-relationship-types?page_size=${pageSize}`);
   }
 }

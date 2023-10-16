@@ -9,6 +9,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { Router } from '@angular/router';
+import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 
 @Component({
   selector: 'app-object-instance',
@@ -19,8 +20,9 @@ export class ObjectInstanceComponent implements OnInit {
   form: UntypedFormGroup;
   sizeUnit: [] = [];
   resourceType: [] = [];
+  organizationList: []  [];
   subscription: Subscription = new Subscription();
-  @Input() sdOid: string;
+  @Input() objectId: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   objectInstance: ObjectInstanceInterface;
@@ -32,8 +34,9 @@ export class ObjectInstanceComponent implements OnInit {
   }
   @Output() emitInstance: EventEmitter<any> = new EventEmitter();
   len: any;
+  pageSize: number = 10000;
 
-  constructor( private fb: UntypedFormBuilder, private router: Router, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal) { 
+  constructor( private fb: UntypedFormBuilder, private router: Router, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private commonLookup: CommonLookupService) { 
     this.form = this.fb.group({
       objectInstances: this.fb.array([])
     });
@@ -43,6 +46,7 @@ export class ObjectInstanceComponent implements OnInit {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getSizeUnit();
     this.getResourceType();
+    this.getOrganization();
     if (this.isEdit || this.isView) {
       this.getObjectInstance();
     }
@@ -54,13 +58,13 @@ export class ObjectInstanceComponent implements OnInit {
   newObjectInstance(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdOid: '',
+      objectId: '',
       repositoryOrg: '',
       urlAccessible: false,
       url: [{value: '', disabled: true}],
-      resourceTypeId: '',
-      resourceSize: '',
-      resourceSizeUnits: '',
+      resourceType: '',
+      resourceSize: 0,
+      resourceSizeUnit: '',
       resourceComments: '',
       alreadyExist: false
     });
@@ -94,7 +98,7 @@ export class ObjectInstanceComponent implements OnInit {
       const deleteModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop:'static'});
       deleteModal.componentInstance.type = 'objectInstance';
       deleteModal.componentInstance.id = this.objectInstances().value[i].id;
-      deleteModal.componentInstance.sdOid = this.objectInstances().value[i].sdOid;
+      deleteModal.componentInstance.objectId = this.objectInstances().value[i].objectId;
       deleteModal.result.then((data) => {
         if (data) {
           this.objectInstances().removeAt(i);
@@ -103,54 +107,64 @@ export class ObjectInstanceComponent implements OnInit {
     }
   }
   getSizeUnit() {
-    const getSizeUnit$ = this.isBrowsing ? this.objectLookupService.getBrowsingSizeUnits() : this.objectLookupService.getSizeUnits();
-    getSizeUnit$.subscribe((res: any) => {
-      if(res.data) {
-        this.sizeUnit = res.data;
+    this.objectLookupService.getSizeUnits(this.pageSize).subscribe((res: any) => {
+      if(res.results) {
+        this.sizeUnit = res.results;
       }
     }, error => {
       console.log('error', error);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     });
   }
   getResourceType() {
-    const getResourceType$ = this.isBrowsing ? this.objectLookupService.getBrowsingResourceTypes() : this.objectLookupService.getResourceTypes();
-    getResourceType$.subscribe((res: any) => {
-      if (res.data) {
-        this.resourceType = res.data;
+    this.objectLookupService.getResourceTypes(this.pageSize).subscribe((res: any) => {
+      if (res.results) {
+        this.resourceType = res.results;
       }
     }, error => {
       console.log('error',error);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     });
   }
   getObjectInstance() {
-    const getObjectInstances$ = this.isBrowsing ? this.objectService.getBrowsingObjectInstances(this.sdOid) : this.objectService.getObjectInstances(this.sdOid);
     this.spinner.show();
-    getObjectInstances$.subscribe((res: any) => {
+    this.objectService.getObjectInstances(this.objectId, this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.objectInstance = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.objectInstance = res.results.length ? res.results : [];
         this.patchForm(this.objectInstance);
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   patchForm(instances) {
     this.form.setControl('objectInstances', this.patchArray(instances));
+    console.log('instance', this.objectInstances())
   }
   patchArray(instances): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     instances.forEach(instance => {
       formArray.push(this.fb.group({
         id: instance.id,
-        sdOid: instance.sdOid,
-        repositoryOrg: instance.repositoryOrg,
+        objectId: instance.objectId,
+        repositoryOrg: instance.repositoryOrg ? instance.repositoryOrg.id : null,
         urlAccessible: instance.urlAccessible,
         url: [{value: instance.url, disabled: instance.urlAccessible === 'true' || instance.urlAccessible === true ? false : true}],
-        resourceTypeId: instance.resourceTypeId,
+        resourceType: instance.resourceType ? instance.resourceType.id : null,
         resourceSize: instance.resourceSize,
-        resourceSizeUnits: instance.resourceSizeUnits,
+        resourceSizeUnit: instance.resourceSizeUnit ? instance.resourceSizeUnit.id : null,
         resourceComments: instance.resourceComments,
         alreadyExist: true
       }))
@@ -160,11 +174,11 @@ export class ObjectInstanceComponent implements OnInit {
   addInstance(index) {
     this.spinner.show();
     const payload = this.form.value.objectInstances[index];
-    payload.sdOid = this.sdOid;
+    payload.objectId = this.objectId;
     payload.urlAccessible = payload.urlAccessible === 'true' ? true : false;
     delete payload.id;
 
-    this.objectService.addObjectInstance(this.sdOid, payload).subscribe((res: any) => {
+    this.objectService.addObjectInstance(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if( res.statusCode === 200) {
         this.toastr.success('Object Instance added successfully');
@@ -174,14 +188,18 @@ export class ObjectInstanceComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   editInstance(instanceObject) {
     const payload = instanceObject.value;
     payload.urlAccessible = payload.urlAccessible === 'true' ? true : false;
     this.spinner.show();
-    this.objectService.editObjectInstance(payload.id, payload.sdOid, payload).subscribe((res: any) => {
+    this.objectService.editObjectInstance(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Instance updated successfully');
@@ -191,15 +209,39 @@ export class ObjectInstanceComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
+    })
+  }
+  getOrganization() {
+    this.spinner.show();
+    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
+      this.spinner.hide();
+      if (res && res.results) {
+        this.organizationList = res.results;
+      }
+    }, error => {
+      this.spinner.hide();
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   findResourceType(id) {
     const resourceArray: any = this.resourceType.filter((type: any) => type.id === id);
     return resourceArray && resourceArray.length ? resourceArray[0].name : '';
   }
+  findOrganizationType(id) {
+    const orgArr: any = this.organizationList?.filter((type:any) => type.id === id);
+    return orgArr && orgArr.length ? orgArr[0].defaultName : '';
+  }
   findSizeUnit(id) {
-    const sizeArray: any = this.sizeUnit.filter((type: any) => type.id === parseInt(id));
+    const sizeArray: any = this.sizeUnit.filter((type: any) => type.id === id);
     return sizeArray && sizeArray.length ? sizeArray[0].name : '';
   }
   emitData() {
@@ -208,8 +250,8 @@ export class ObjectInstanceComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdOid) {
-        item.sdOid = this.sdOid;
+      if(this.objectId) {
+        item.objectId = this.objectId;
       }
       return item;
     })

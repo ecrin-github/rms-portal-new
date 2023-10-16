@@ -37,15 +37,15 @@ export class StudyService {
   
   // study data - study table data only 
 
-  addStudy(sdSid, payload) {
+  addStudy(payload) {
     // note inclusion of explicit sdSid in call
-    return this.http.post(`${base}/studies/${sdSid}`, payload);
+    return this.http.post(`${base}/mdm/studies`, payload);
   }
   getStudyById(sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}`);
   }
   editStudy(sdSid, payload) {
-    return this.http.put(`${base}/studies/${sdSid}`, payload);
+    return this.http.put(`${base}/mdm/studies/${sdSid}`, payload);
   }
   deleteStudyById(sdSid) {
     // full delete would normally be more useful
@@ -56,44 +56,38 @@ export class StudyService {
   // study identifiers
 
   getStudyIdentifiers(sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/identifiers`);
-  }
-  getBrowsingStudyIdentifiers(sdSid) {
-    return this.http.get(`${base}/browsing/studies/${sdSid}/identifiers`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-identifiers`);
   }
   addStudyIdentifier(sdSid, payload) {
-    return this.http.post(`${base}/studies/${sdSid}/identifiers`, payload);
+    return this.http.post(`${base}/mdm/studies/${sdSid}/study-identifiers`, payload);
   }
   getStudyIdentifier(id, sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/identifiers/${id}`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-identifiers/${id}`);
   }
-    editStudyIdentifier(id, sdSid, payload) {
-    return this.http.put(`${base}/studies/${sdSid}/identifiers/${id}`, payload);
+  editStudyIdentifier(id, sdSid, payload) {
+    return this.http.put(`${base}/mdm/studies/${sdSid}/study-identifiers/${id}`, payload);
   }
   deleteStudyIdentifier(id, sdSid) {
-    return this.http.delete(`${base}/studies/${sdSid}/identifiers/${id}`);
+    return this.http.delete(`${base}/mdm/studies/${sdSid}/study-identifiers/${id}`);
   }
 
 
   // study titles
 
   getStudyTitles(sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/titles`);
-  }
-  getBrowsingStudyTitles(sdSid) {
-    return this.http.get(`${base}/browsing/studies/${sdSid}/titles`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-titles`);
   }
   addStudyTitle(sdSid, payload) {
-    return this.http.post(`${base}/studies/${sdSid}/titles`, payload);
+    return this.http.post(`${base}/mdm/studies/${sdSid}/study-titles`, payload);
   }
   getStudyTitle(id, sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/titles/${id}`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-titles/${id}`);
   }
   editStudyTitle(id, sdSid, payload) {
-    return this.http.put(`${base}/studies/${sdSid}/titles/${id}`, payload);
+    return this.http.put(`${base}/mdm/studies/${sdSid}/study-titles/${id}`, payload);
   }
   deleteStudyTitle(id, sdSid) {
-    return this.http.delete(`${base}/studies/${sdSid}/titles/${id}`);
+    return this.http.delete(`${base}/mdm/studies/${sdSid}/study-titles/${id}`);
   }
 
 
@@ -120,64 +114,55 @@ export class StudyService {
 
   // study topics
   getStudyTopics(sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/topics`);
-  }
-  getBrowsingStudyTopics(sdSid) {
-    return this.http.get(`${base}/browsing/studies/${sdSid}/topics`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-topics`);
   }
   addStudyTopic(sdSid, payload) {
-    return this.http.post(`${base}/studies/${sdSid}/topics`, payload);
+    return this.http.post(`${base}/mdm/studies/${sdSid}/study-topics`, payload);
   }
   getStudyTopic(id, sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/topics/${id}`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-topics/${id}`);
   }
   editStudyTopic(id, sdSid, payload) {
-    return this.http.put(`${base}/studies/${sdSid}/topics/${id}`, payload);
+    return this.http.put(`${base}/mdm/studies/${sdSid}/study-topics/${id}`, payload);
   }
   deleteStudyTopic(id, sdSid) {
-    return this.http.delete(`${base}/studies/${sdSid}/topics/${id}`);
+    return this.http.delete(`${base}/mdm/studies/${sdSid}/study-topics/${id}`);
   }
   
 
   // study relationships
   getStudyRelationships(sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/relationships`);
-  }
-  getBrowsingStudyRelationships(sdSid) {
-    return this.http.get(`${base}/browsing/studies/${sdSid}/relationships`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-relationships`);
   }
   addStudyRelationship(sdSid, payload) {
-    return this.http.post(`${base}/studies/${sdSid}/relationships`, payload);
+    return this.http.post(`${base}/mdm/studies/${sdSid}/study-relationships`, payload);
   }
   getStudyRelationship(id, sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/relationships/${id}`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-relationships/${id}`);
   }
   editStudyRelationship(id, sdSid, payload) {
-    return this.http.put(`${base}/studies/${sdSid}/relationships/${id}`, payload);
+    return this.http.put(`${base}/mdm/studies/${sdSid}/study-relationships/${id}`, payload);
   }
   deleteStudyRelationship(id, sdSid) {
-    return this.http.delete(`${base}/studies/${sdSid}/relationships/${id}`);
+    return this.http.delete(`${base}/mdm/studies/${sdSid}/study-relationships/${id}`);
   }
 
 
   // study contributors
   getStudyContributors(sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/contributors`);
-  }
-  getBrowsingStudyContributors(sdSid) {
-    return this.http.get(`${base}/browsing/studies/${sdSid}/contributors`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-contributors`);
   }
   addStudyContributor(sdSid, payload) {
-    return this.http.post(`${base}/studies/${sdSid}/contributors`, payload);
+    return this.http.post(`${base}/mdm/studies/${sdSid}/study-contributors`, payload);
   }
   getStudyContributor(id, sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/contributors/${id}`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-contributors/${id}`);
   }
   editStudyContributor(id, sdSid, payload) {
-    return this.http.put(`${base}/studies/${sdSid}/contributors/${id}`, payload);
+    return this.http.put(`${base}/mdm/studies/${sdSid}/study-contributors/${id}`, payload);
   }
   deleteStudyContributor(id, sdSid) {
-    return this.http.delete(`${base}/studies/${sdSid}/contributors/${id}`);
+    return this.http.delete(`${base}/mdm/studies/${sdSid}/study-contributors/${id}`);
   }
 
   // check number of linked DTP and DUP

@@ -27,6 +27,7 @@ export class AddModalComponent implements OnInit {
   accessTypes: [] = [];
   dupPreReqForm: UntypedFormGroup;
   isEmbargoRequested: boolean = false;
+  pageSize: Number = 10000;
 
   constructor( private spinner: NgxSpinnerService, private fb: UntypedFormBuilder, private dtpService: DtpService, private toastr: ToastrService, private processLookup: ProcessLookupService,
     private activeModal: NgbActiveModal, private objectLookupService: ObjectLookupService, private dupService: DupService) { 
@@ -82,7 +83,7 @@ export class AddModalComponent implements OnInit {
     })
   }
   getAccessType() {
-    this.objectLookupService.getAccessTypes().subscribe((res: any) => {
+    this.objectLookupService.getAccessTypes(this.pageSize).subscribe((res: any) => {
       if(res.data) {
         this.accessTypes = res.data;
       }

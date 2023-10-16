@@ -1,5 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { BYPASS_LOG } from 'src/app/_rms/interceptor/myinterceptor.interceptor';
 import { environment } from 'src/environments/environment';
 
 const base = environment.baseUrl;
@@ -13,8 +14,8 @@ export class ListService {
 
   // study lists
 
-  getStudyList() {
-    return this.http.get(`${base}/studies/list`);
+  getStudyList(pageSize?,page?) {
+    return this.http.get(`${base}/mdm/studies?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
   }
 
   getFilteredStudyList(title_fragment: string, page: number, size: number) {
@@ -40,8 +41,8 @@ export class ListService {
 
   // object lists
 
-  getObjectList() {
-    return this.http.get(`${base}/data-objects/list`);
+  getObjectList(pageSize?,page?) {
+    return this.http.get(`${base}/mdm/data-objects?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
   }
   
   getFilteredObjectList(title_fragment: string, page: number, size: number) {
@@ -69,11 +70,6 @@ export class ListService {
   getRecentObjectsList(n :number) {
     return this.http.get(`${base}/data-objects/list/recent/${n}`);
   }
-
-  getBrowsingObjectList() {
-    return this.http.get(`${base}/browsing/data-objects/list`);
-  }
-
 
   // DTP lists
 
@@ -112,8 +108,8 @@ export class ListService {
   }
 
   // People Lists
-  getPeopleList() {
-    return this.http.get(`${base}/people/list`);
+  getPeopleList(pageSize?, page?) {
+    return this.http.get(`${base}/users?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
   }
   getFilteredPeopleList(name_fragment: string, page: number, size: number) {
     return this.http.get(`${base}/people/list/name-contains/${name_fragment}`);

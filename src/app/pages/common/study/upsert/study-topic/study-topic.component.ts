@@ -21,7 +21,7 @@ export class StudyTopicComponent implements OnInit {
   subscription: Subscription = new Subscription();
   @Input() isView: boolean;
   @Input() isEdit: boolean;
-  @Input() sdSid: string;
+  @Input() studyId: string;
   @Input() set initiateEmit(initiateEmit: any) {
     if (initiateEmit) {
       this.emitData();
@@ -32,6 +32,7 @@ export class StudyTopicComponent implements OnInit {
   controlledTerminology = [];
   len: any;
   isBrowsing: boolean = false;
+  pageSize: Number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private router: Router, private commonLookupService: CommonLookupService, private studyService: StudyService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal) { 
     this.form = this.fb.group({
@@ -54,12 +55,12 @@ export class StudyTopicComponent implements OnInit {
   newStudyTopic(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdSid: '',
-      topicTypeId: null,
+      studyId: '',
+      topicType: null,
       meshCoded: false,
       meshCode: '',
       meshValue: '',
-      originalCtId: null,
+      originalValue: null,
       alreadyExist: false
     });
   }
@@ -67,7 +68,7 @@ export class StudyTopicComponent implements OnInit {
   addStudyTopic() {
     this.len = this.studyTopics().value.length;
     if (this.len) {
-      if (this.studyTopics().value[this.len-1].topicTypeId !== null && this.studyTopics().value[this.len-1].meshValue !== null) {
+      if (this.studyTopics().value[this.len-1].topicType !== null && this.studyTopics().value[this.len-1].meshValue !== null) {
         this.studyTopics().push(this.newStudyTopic());
       } else {
         if (this.studyTopics().value[this.len-1].alreadyExist) {
@@ -88,7 +89,7 @@ export class StudyTopicComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       removeModal.componentInstance.type = 'studyTopic';
       removeModal.componentInstance.id = this.studyTopics().value[i].id;
-      removeModal.componentInstance.sdSid = this.studyTopics().value[i].sdSid;
+      removeModal.componentInstance.studyId = this.studyTopics().value[i].studyId;
       removeModal.result.then((data) => {
         if (data) {
           this.studyTopics().removeAt(i);
@@ -97,10 +98,9 @@ export class StudyTopicComponent implements OnInit {
     }
   }
   getTopicType() {
-    const getTopicType$ = this.isBrowsing ? this.commonLookupService.getBrowsingTopicTypes() : this.commonLookupService.getTopicTypes();
-    getTopicType$.subscribe((res: any) => {
-      if (res.data) {
-        this.topicTypes = res.data;
+    this.commonLookupService.getTopicTypes(this.pageSize).subscribe((res: any) => {
+      if (res.results) {
+        this.topicTypes = res.results;
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -108,13 +108,12 @@ export class StudyTopicComponent implements OnInit {
   }
   getTopicVocabulary() {
     setTimeout(() => {
-     this.spinner.show(); 
+      this.spinner.show();
     });
-    const getTopicVocabulary$ = this.isBrowsing ? this.commonLookupService.getBrowsingTopicVocabularies() : this.commonLookupService.getTopicVocabularies();
-    getTopicVocabulary$.subscribe((res: any) => {
+    this.commonLookupService.getTopicVocabularies(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.data) {
-        this.controlledTerminology = res.data;
+      if (res.results) {
+        this.controlledTerminology = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -126,12 +125,11 @@ export class StudyTopicComponent implements OnInit {
     return arr && arr.length ? arr[0].name : 'None';
   }
   getStudyTopic() {
-    const getStudyTopic$ = this.isBrowsing ? this.studyService.getBrowsingStudyTopics(this.sdSid) : this.studyService.getStudyTopics(this.sdSid);
     this.spinner.show();
-    getStudyTopic$.subscribe((res: any) => {
+    this.studyService.getStudyTopics(this.studyId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.studyTopic = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.studyTopic = res.results.length ? res.results : [];
         this.patchForm(this.studyTopic);
       }
     }, error => {
@@ -147,12 +145,12 @@ export class StudyTopicComponent implements OnInit {
     topics.forEach(topic => {
       formArray.push(this.fb.group({
         id: topic.id,
-        sdSid: topic.sdSid,
-        topicTypeId: topic.topicTypeId,
+        studyId: topic.studyId,
+        topicType: topic.topicType ? topic.topicType.id : null,
         meshCoded: topic.meshCoded,
         meshCode: topic.meshCode,
         meshValue: topic.meshValue,
-        originalCtId: topic.originalCtId,
+        originalValue: topic.originalValue,
         alreadyExist: true
       }))
     });
@@ -161,11 +159,11 @@ export class StudyTopicComponent implements OnInit {
   addTopic(index) {
     this.spinner.show();
     const payload = this.form.value.studyTopics[index];
-    payload.sdSid = this.sdSid;
+    payload.studyId = this.studyId;
     payload.meshCoded = payload.meshCoded === 'true' ? true : false;
     delete payload.id;
 
-    this.studyService.addStudyTopic(this.sdSid, payload).subscribe((res: any) => {
+    this.studyService.addStudyTopic(this.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Study Topic added successfully');
@@ -182,7 +180,7 @@ export class StudyTopicComponent implements OnInit {
     const payload = topicObject.value;
     payload.meshCoded = payload.meshCoded === 'true' ? true : false;
     this.spinner.show();
-    this.studyService.editStudyTopic(payload.id, payload.sdSid, payload).subscribe((res: any) => {
+    this.studyService.editStudyTopic(payload.id, payload.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Study Topic updated successfully');
@@ -204,8 +202,8 @@ export class StudyTopicComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdSid) {
-        item.sdSid = this.sdSid;
+      if(this.studyId) {
+        item.studyId = this.studyId;
       }
       item.meshCoded = item.meshCoded === 'true' ? true : false;
       return item;

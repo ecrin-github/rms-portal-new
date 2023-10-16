@@ -22,7 +22,7 @@ export class ObjectTitleComponent implements OnInit {
   languageCode: [] = [];
   titleType: [] = [];
   subscription: Subscription = new Subscription();
-  @Input() sdOid: string;
+  @Input() objectId: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   objectTitle: ObjectTitleInterface;
@@ -34,6 +34,7 @@ export class ObjectTitleComponent implements OnInit {
   @Output() emitTitle: EventEmitter<any> = new EventEmitter();
   len: any;
   isBrowsing: boolean = false;
+  pageSize: number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private router: Router, private commonLookupService: CommonLookupService, private objectService: DataObjectService, private objectLookupService: ObjectLookupService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal) {
     this.form = this.fb.group({
@@ -56,10 +57,10 @@ export class ObjectTitleComponent implements OnInit {
   newObjectTitle(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdOid: '',
-      titleTypeId: '',
+      objectId: '',
+      titleType: '',
       titleText: '',
-      langCode: 'en',
+      langCode: this.findLangCode('English'),
       comments: '',
       alreadyExist: false
     });
@@ -68,7 +69,7 @@ export class ObjectTitleComponent implements OnInit {
   addObjectTitle() {
     this.len = this.objectTitles().value.length;
     if (this.len) {
-      if (this.objectTitles().value[this.len-1].titleTypeId && this.objectTitles().value[this.len-1].titleText) {
+      if (this.objectTitles().value[this.len-1].titleType && this.objectTitles().value[this.len-1].titleText) {
         this.objectTitles().push(this.newObjectTitle());
       } else {
         if (this.objectTitles().value[this.len-1].alreadyExist) {
@@ -89,7 +90,7 @@ export class ObjectTitleComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       removeModal.componentInstance.type = 'objectTitle';
       removeModal.componentInstance.id = this.objectTitles().value[i].id;
-      removeModal.componentInstance.sdOid = this.objectTitles().value[i].sdOid;
+      removeModal.componentInstance.objectId = this.objectTitles().value[i].objectId;
       removeModal.result.then((data) => {
         if (data) {
           this.objectTitles().removeAt(i);
@@ -98,37 +99,45 @@ export class ObjectTitleComponent implements OnInit {
     }
   }
   getLanguageCode() {
-    const getLanguageCode$ = this.isBrowsing ? this.commonLookupService.getBrowsingLanguageCodes('en') : this.commonLookupService.getLanguageCodes('en');
-    getLanguageCode$.subscribe((res:any) => {
-      if(res.data) {
-        this.languageCode = res.data;
+    this.commonLookupService.getLanguageCodes(this.pageSize).subscribe((res: any) => {
+      if (res.results) {
+        this.languageCode = res.results;
       }
     }, error => {
       console.log('error', error);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     });
   }
   getTitleType() {
-    const getTitleType$ = this.isBrowsing ? this.objectLookupService.getBrowsingObjectTitleTypes() : this.objectLookupService.getObjectTitleTypes();
-    getTitleType$.subscribe((res:any) => {
-      if(res.data) {
-        this.titleType = res.data;
+    this.objectLookupService.getObjectTitleTypes(this.pageSize).subscribe((res:any) => {
+      if(res.results) {
+        this.titleType = res.results;
       }
     }, error => {
       console.log('error', error);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     });
   }
   getObjectTitle() {
-    const getObjectTitles$ = this.isBrowsing ? this.objectService.getBrowsingObjectTitles(this.sdOid) : this.objectService.getObjectTitles(this.sdOid);
     this.spinner.show();
-    getObjectTitles$.subscribe((res: any) => {
+    this.objectService.getObjectTitles(this.objectId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.objectTitle = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.objectTitle = res.results.length ? res.results : [];
         this.patchForm(this.objectTitle);
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   patchForm(titles) {
@@ -139,10 +148,10 @@ export class ObjectTitleComponent implements OnInit {
     titles.forEach(title => {
       formArray.push(this.fb.group({
         id: title.id,
-        sdOid: title.sdOid,
-        titleTypeId: title.titleTypeId,
+        objectId: title.objectId,
+        titleType: title.titleType ? title.titleType.id : null,
         titleText: title.titleText,
-        langCode: title.langCode,
+        langCode: title.langCode ? title.langCode.id : null,
         comments: title.comments,
         alreadyExist: true
       }))
@@ -152,10 +161,10 @@ export class ObjectTitleComponent implements OnInit {
   addTitle(index) {
     this.spinner.show();
     const payload = this.form.value.objectTitles[index];
-    payload.sdOid = this.sdOid;
+    payload.objectId = this.objectId;
     delete payload.id;
 
-    this.objectService.addObjectTitle(this.sdOid, payload).subscribe((res: any) => {
+    this.objectService.addObjectTitle(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Title added successfully');
@@ -165,13 +174,16 @@ export class ObjectTitleComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   editTitle(titleObject) {
     const payload = titleObject.value;
     this.spinner.show();
-    this.objectService.editObjectTitle(payload.id, payload.sdOid, payload).subscribe((res: any) => {
+    this.objectService.editObjectTitle(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Title updated successfully');
@@ -181,20 +193,31 @@ export class ObjectTitleComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   findTitleType(id) {
     const titleTypeArray: any = this.titleType.filter((type: any) => type.id === id);
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : ''
   }
+  findLangCode(languageCode) {
+    const langArr: any = this.languageCode.filter((type: any) => type.languageCode === languageCode);
+    return langArr && langArr.length? langArr[0].id : '';
+  }
+  findLangcodeById(id) {
+    const langArr: any = this.languageCode.filter((type: any) => type.id === id);
+    return langArr && langArr.length ? langArr[0].langNameEn : '';
+  }
   emitData() {
     const payload = this.form.value.objectTitles.map(item => {
       if (!item.id) {
         delete item.id;
       }
-      if (this.sdOid) {
-        item.sdOid = this.sdOid;
+      if (this.objectId) {
+        item.objectId = this.objectId;
       }
       return item;
     })

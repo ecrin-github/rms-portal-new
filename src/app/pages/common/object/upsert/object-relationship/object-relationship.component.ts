@@ -23,7 +23,7 @@ export class ObjectRelationshipComponent implements OnInit {
   subscription: Subscription = new Subscription();
   @Input() isView: boolean;
   @Input() isEdit: boolean;
-  @Input() sdOid: string;
+  @Input() objectId: string;
   objectRelation: ObjectRelationshipInterface;
   @Input() set initiateEmit(initiateEmit: any) {
     if (initiateEmit) {
@@ -33,6 +33,7 @@ export class ObjectRelationshipComponent implements OnInit {
   @Output() emitRelation: EventEmitter<any> = new EventEmitter();
   len: any;
   isBrowsing: boolean = false;
+  pageSize: Number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private router: Router, private listService: ListService, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal) {
     this.form = this.fb.group({
@@ -55,9 +56,9 @@ export class ObjectRelationshipComponent implements OnInit {
   newObjectRelation(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdOid: '',
-      relationshipTypeId: '',
-      targetSdOid: '',
+      objectId: '',
+      relationshipType: '',
+      targetObjectId: '',
       alreadyExist: false
     });
   }
@@ -65,7 +66,7 @@ export class ObjectRelationshipComponent implements OnInit {
   addObjectRelation() {
     this.len = this.objectRelationships().value.length;
     if (this.len) {
-      if (this.objectRelationships().value[this.len-1].relationshipTypeId && this.objectRelationships().value[this.len-1].targetSdOid) {
+      if (this.objectRelationships().value[this.len-1].relationshipType && this.objectRelationships().value[this.len-1].targetObjectId) {
         this.objectRelationships().push(this.newObjectRelation());
       } else {
         if (this.objectRelationships().value[this.len-1].alreadyExist) {
@@ -86,7 +87,7 @@ export class ObjectRelationshipComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop:'static'});
       removeModal.componentInstance.type = 'objectRelationship';
       removeModal.componentInstance.id = this.objectRelationships().value[i].id;
-      removeModal.componentInstance.sdOid = this.objectRelationships().value[i].sdOid;
+      removeModal.componentInstance.objectId = this.objectRelationships().value[i].objectId;
       removeModal.result.then((data) => {
         if (data) {
           this.objectRelationships().removeAt(i);
@@ -95,42 +96,51 @@ export class ObjectRelationshipComponent implements OnInit {
     }
   }
   getRelationshipType() {
-    const getRelationshipType$ = this.isBrowsing ? this.objectLookupService.getBrowsingObjectRelationshipTypes() : this.objectLookupService.getObjectRelationshipTypes();
-    getRelationshipType$.subscribe((res:any) => {
-      if(res.data) {
-        this.relationshipType = res.data;
+    this.objectLookupService.getObjectRelationshipTypes(this.pageSize).subscribe((res:any) => {
+      if(res.results) {
+        this.relationshipType = res.results;
       }
     }, error => {
       console.log('error', error)
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     });
   }
   getObjectRelation() {
     this.spinner.show();
-    const getObjectRelationships$ = this.isBrowsing ? this.objectService.getBrowsingObjectRelationships(this.sdOid) : this.objectService.getObjectRelationships(this.sdOid);
-    getObjectRelationships$.subscribe((res: any) => {
+    this.objectService.getObjectRelationships(this.objectId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.objectRelation = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.objectRelation = res.results.length ? res.results : [];
         this.patchForm(this.objectRelation);
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   getObjectList() {
     setTimeout(() => {
       this.spinner.show();
     });
-    const getObjectList$ = this.isBrowsing ? this.listService.getBrowsingObjectList() : this.listService.getObjectList();
-    getObjectList$.subscribe((res: any) => {
+    this.listService.getObjectList(this.pageSize, '').subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.objectList = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.objectList = res.results.length ? res.results : [];
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   patchForm(relations) {
@@ -141,24 +151,24 @@ export class ObjectRelationshipComponent implements OnInit {
     relations.forEach(relation => {
       formArray.push(this.fb.group({
         id: relation.id,
-        sdOid: relation.sdOid,
-        relationshipTypeId: relation.relationshipTypeId,
-        targetSdOid: relation.targetSdOid,
+        objectId: relation.objectId,
+        relationshipType: relation.relationshipType ? relation.relationshipType.id : null,
+        targetObjectId: relation.targetObjectId,
         alreadyExist: true
       }))
     });
     return formArray;
   }
   addRelation(index) {
-    if (this.form.value.objectRelationships[index].targetSdOid === this.sdOid) {
+    if (this.form.value.objectRelationships[index].targetObjectId === this.objectId) {
       this.toastr.error('Data Object can not be put in relationship to itself');
     } else {
       this.spinner.show();
       const payload = this.form.value.objectRelationships[index];
-      payload.sdOid = this.sdOid;
+      payload.objectId = this.objectId;
       delete payload.id;
 
-      this.objectService.addObjectDescription(this.sdOid, payload).subscribe((res: any) => {
+      this.objectService.addObjectDescription(this.objectId, payload).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Object Relationship is added successfully');
@@ -167,17 +177,21 @@ export class ObjectRelationshipComponent implements OnInit {
         }
       }, error => {
         this.spinner.hide();
-        this.toastr.error(error.error.title);
+        // this.toastr.error(error.error.title);
+        const arr = Object.keys(error.error);
+        arr.map((item,index) => {
+          this.toastr.error(`${item} : ${error.error[item]}`);
+        })  
       })
     }
   }
   editRelation(relationObject) {
-    if (relationObject.value.targetSdOid === this.sdOid) {
+    if (relationObject.value.targetObjectId === this.objectId) {
       this.toastr.error('Data Object can not be put in relationship to itself');
     } else {
       const payload = relationObject.value;
       this.spinner.show();
-      this.objectService.editObjectRelationship(payload.id, payload.sdOid, payload).subscribe((res: any) => {
+      this.objectService.editObjectRelationship(payload.id, payload.objectId, payload).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Object Relationship updated successfully');
@@ -186,7 +200,11 @@ export class ObjectRelationshipComponent implements OnInit {
         }
       }, error => {
         this.spinner.hide();
-        this.toastr.error(error.error.title);
+        // this.toastr.error(error.error.title);
+        const arr = Object.keys(error.error);
+        arr.map((item,index) => {
+          this.toastr.error(`${item} : ${error.error[item]}`);
+        })  
       })
     }
   }
@@ -199,8 +217,8 @@ export class ObjectRelationshipComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdOid) {
-        item.sdOid = this.sdOid;
+      if(this.objectId) {
+        item.objectId = this.objectId;
       }
       return item;
     })
@@ -211,7 +229,7 @@ export class ObjectRelationshipComponent implements OnInit {
   }
   customSearchFn(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.sdOid.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
+    return item.objectId.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
   }
   scrollToElement(): void {
     setTimeout(() => {

@@ -20,17 +20,17 @@
                 <div class="col-12 mb-5" [id]="'idenpanel'+i">
                     <mat-expansion-panel [expanded]="studyIdentifier.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findIdentifierType(studyIdentifier.value.identifierTypeId)}}: {{studyIdentifier.value.identifierValue}}
+                            {{findIdentifierType(studyIdentifier.value.identifierType)}}: {{studyIdentifier.value.identifierValue}}
                         </mat-expansion-panel-header> 
 
                         <div class="row form-group">
                             <div class="col-md-6">
-                                <label for="identifierTypeId" class="font-style text-capitalize">Identifier type</label>
-                                <select class="form-control" formControlName="identifierTypeId" *ngIf="!isView" id="identifierTypeId" (change)="onChange(i)">
+                                <label for="identifierType" class="font-style text-capitalize">Identifier type</label>
+                                <select class="form-control" formControlName="identifierType" *ngIf="!isView" id="identifierType" (change)="onChange(i)">
                                     <option selected disabled value="null">Please select type</option>
                                     <option [value]=identifier.id *ngFor="let identifier of identifierTypes">{{identifier.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findIdentifierType(studyIdentifier.value.identifierTypeId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findIdentifierType(studyIdentifier.value.identifierType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="identifierValue" class="font-style text-capitalize">Identifier value</label>
@@ -41,14 +41,14 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <label for="identifierOrgId" class="font-style text-capitalize">Identifier organisation</label>
-                                <ng-select [items]="organizationList" bindLabel="name" bindValue="id" formControlName="identifierOrgId"
+                                <label for="identifierOrg" class="font-style text-capitalize">Identifier organisation</label>
+                                <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="identifierOrg"
                                     [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No organization found"
                                     placeholder="Select Organization" *ngIf="!isView">
                                 </ng-select>
                                 <!-- <input type="text" id="identifierOrgId" class="form-control" placeholder="Enter a parameter..."
                                     formControlName="identifierOrgId" *ngIf="!isView" /> -->
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(studyIdentifier.value.identifierOrgId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(studyIdentifier.value.identifierOrg)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="identifierDate" class="font-style text-capitalize">Identifier date</label>

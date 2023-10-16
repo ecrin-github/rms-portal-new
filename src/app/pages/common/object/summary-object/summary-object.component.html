@@ -52,13 +52,13 @@
 
             <ng-container matColumnDef="type">
                 <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{row.typeName}} </mat-cell>
+                <mat-cell *matCellDef="let row"> {{row.objectType ? row.objectType.name : ''}} </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="linkedStudy">
                 <mat-header-cell *matHeaderCellDef> Linked to studies </mat-header-cell>
                 <mat-cell *matCellDef="let row">
-                    <a [routerLink]="['/studies', row.sdSid, 'view']" target="_blank">{{row.studyName}}</a>
+                    <a [routerLink]="['/studies', row.sdSid, 'view']" target="_blank">{{row.linkedStudies ? row.linkedStudies.displayTitle : ''}}</a>
                 </mat-cell>
             </ng-container>
 

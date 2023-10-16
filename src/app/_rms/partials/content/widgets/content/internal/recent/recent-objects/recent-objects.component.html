@@ -29,32 +29,32 @@
 
       <ng-container matColumnDef="sdOid">
           <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-          <mat-cell *matCellDef="let row"><a [routerLink]="['/data-objects', row.sdOid, 'view']" target="_blank">{{row.sdOid}}</a> </mat-cell>
+          <mat-cell *matCellDef="let row"><a [routerLink]="['/data-objects', row.id, 'view']" target="_blank">{{row.sdOid}}</a> </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="title">
           <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
-          <mat-cell *matCellDef="let row"><a [routerLink]="['/data-objects', row.sdOid, 'view']" target="_blank">{{row.displayTitle}}</a></mat-cell>
+          <mat-cell *matCellDef="let row"><a [routerLink]="['/data-objects', row.id, 'view']" target="_blank">{{row.displayTitle}}</a></mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="type">
           <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
-          <mat-cell *matCellDef="let row"> {{row.typeName}} </mat-cell>
+          <mat-cell *matCellDef="let row"> {{row.objectType ? row.objectType.name : ''}} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="linkedStudy">
           <mat-header-cell *matHeaderCellDef> Linked to studies </mat-header-cell>
           <mat-cell *matCellDef="let row">
-            <a [routerLink]="['/studies', row.sdSid, 'view']" target="temptab">{{row.studyName}}</a>
+            <a [routerLink]="['/studies', row.sdSid, 'view']" target="temptab">{{row.linkedStudies ? row.linkedStudies.displayTitle : ''}}</a>
           </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="actions">
           <mat-header-cell *matHeaderCellDef>  </mat-header-cell>
           <mat-cell *matCellDef="let row">
-            <a [routerLink]="['/data-objects', row.sdOid, 'view']" target="temptab"
+            <a [routerLink]="['/data-objects', row.id, 'view']" target="temptab"
               class="btn btn-light-primary font-weight-bolder font-size-sm mr-3">View</a>
-            <a [routerLink]="['/data-objects', row.sdOid, 'edit']" target="temptab"
+            <a [routerLink]="['/data-objects', row.id, 'edit']" target="temptab"
               class="btn btn-light-success font-weight-bolder font-size-sm">Edit</a>
           </mat-cell>
       </ng-container>

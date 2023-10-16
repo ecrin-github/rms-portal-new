@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 })
 export class ObjectRightComponent implements OnInit {
   form: UntypedFormGroup;
-  @Input() sdOid: string;
+  @Input() objectId: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   objectRight: ObjectRightInterface;
@@ -47,9 +47,9 @@ export class ObjectRightComponent implements OnInit {
   newObjectRight(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdOid: '',
+      objectId: '',
       rightsName: '',
-      rightsUri: '',
+      rightsUrl: '',
       comments: '',
       alreadyExist: false
     });
@@ -58,7 +58,7 @@ export class ObjectRightComponent implements OnInit {
   addObjectRight() {
     this.len = this.objectRights().value.length;
     if (this.len) {
-      if (this.objectRights().value[this.len-1].rightsName && this.objectRights().value[this.len-1].rightsUri) {
+      if (this.objectRights().value[this.len-1].rightsName && this.objectRights().value[this.len-1].rightsUrl) {
         this.objectRights().push(this.newObjectRight());
       } else {
         if (this.objectRights().value[this.len-1].alreadyExist) {
@@ -79,7 +79,7 @@ export class ObjectRightComponent implements OnInit {
       const deleteModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       deleteModal.componentInstance.type = 'objectRight';
       deleteModal.componentInstance.id = this.objectRights().value[i].id;
-      deleteModal.componentInstance.sdOid = this.objectRights().value[i].sdOid;
+      deleteModal.componentInstance.objectId = this.objectRights().value[i].objectId;
       deleteModal.result.then((data) => {
         if (data) {
           this.objectRights().removeAt(i);
@@ -89,16 +89,19 @@ export class ObjectRightComponent implements OnInit {
   }
   getObjectRight() {
     this.spinner.show();
-    const getObjectRights$ = this.isBrowsing ? this.objectService.getBrowsingObjectRights(this.sdOid) : this.objectService.getObjectRights(this.sdOid);
-    getObjectRights$.subscribe((res: any) => {
+    this.objectService.getObjectRights(this.objectId).subscribe((res: any) => {
       this.spinner.hide();
-      if(res && res.data) {
-        this.objectRight = res.data.length ? res.data : [];
+      if(res && res.results) {
+        this.objectRight = res.results.length ? res.results : [];
         this.patchForm(this.objectRight);
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   patchForm(rights) {
@@ -109,9 +112,9 @@ export class ObjectRightComponent implements OnInit {
     rights.forEach(right => {
       formArray.push(this.fb.group({
         id: right.id,
-        sdOid: right.sdOid,
+        objectId: right.objectId,
         rightsName: right.rightsName,
-        rightsUri: right.rightsUri,
+        rightsUrl: right.rightsUrl,
         comments: right.comments,
         alreadyExist: true
       }))
@@ -121,10 +124,10 @@ export class ObjectRightComponent implements OnInit {
   addRight(index) {
     this.spinner.show();
     const payload = this.form.value.objectRights[index];
-    payload.sdOid = this.sdOid;
+    payload.objectId = this.objectId;
     delete payload.id;
 
-    this.objectService.addObjectRight(this.sdOid, payload).subscribe((res: any) => {
+    this.objectService.addObjectRight(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Right added successfully');
@@ -134,13 +137,17 @@ export class ObjectRightComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   editRight(rightObject) {
     const payload = rightObject.value;
     this.spinner.show();
-    this.objectService.editObjectRight(payload.id, payload.sdOid, payload).subscribe((res: any) => {
+    this.objectService.editObjectRight(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if( res.statusCode === 200) {
         this.toastr.success('Object Right updated successfully');
@@ -150,7 +157,11 @@ export class ObjectRightComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   emitData() {
@@ -158,8 +169,8 @@ export class ObjectRightComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdOid) {
-        item.sdOid = this.sdOid;
+      if(this.objectId) {
+        item.objectId = this.objectId;
       }
       return item;
     })

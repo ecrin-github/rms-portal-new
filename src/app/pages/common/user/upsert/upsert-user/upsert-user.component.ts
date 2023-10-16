@@ -19,6 +19,7 @@ export class UpsertUserComponent implements OnInit {
   id: any;
   userData: any;
   submitte: boolean = false;
+  pageSize:Number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private router: Router, private activatedRoute: ActivatedRoute, private peopleService: PeopleService, private spinner: NgxSpinnerService,
     private toastr: ToastrService, private commonLookup: CommonLookupService) {
@@ -63,7 +64,7 @@ export class UpsertUserComponent implements OnInit {
   }
   getOrganization() {
     this.spinner.show();
-    this.commonLookup.getOrganizationList().subscribe((res: any) => {
+    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
       if (res && res.data) {
         this.organizationList = res.data;
@@ -116,8 +117,8 @@ export class UpsertUserComponent implements OnInit {
     window.close();
   }
   findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((item: any) => item.orgId === id);
-    return organizationArray && organizationArray.length ? organizationArray[0].name : '';
+    const organizationArray: any = this.organizationList.filter((item: any) => item.id === id);
+    return organizationArray && organizationArray.length ? organizationArray[0].defaultName : '';
   }
 
 }

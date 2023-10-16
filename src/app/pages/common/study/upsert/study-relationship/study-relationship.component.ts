@@ -23,7 +23,7 @@ export class StudyRelationshipComponent implements OnInit {
   subscription: Subscription = new Subscription();
   @Input() isView: boolean;
   @Input() isEdit: boolean;
-  @Input() sdSid: string;
+  @Input() studyId: string;
   @Input() set initiateEmit(initiateEmit: any) {
     if (initiateEmit) {
       this.emitData();
@@ -33,6 +33,7 @@ export class StudyRelationshipComponent implements OnInit {
   studyRelationship: StudyRelationshipInterface;
   len: any;
   isBrowsing: boolean = false;
+  pageSize: Number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private router: Router, private listService: ListService, private studyService: StudyService, private studyLookupService: StudyLookupService, private toastr: ToastrService, private spinner: NgxSpinnerService, private modalService: NgbModal) {
     this.form = this.fb.group({
@@ -55,9 +56,9 @@ export class StudyRelationshipComponent implements OnInit {
   newStudyRelation(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdSid: '',
-      relationshipTypeId: null,
-      targetSdSid: null,
+      studyId: '',
+      relationshipType: null,
+      targetStudyId: null,
       alreadyExist: false
     });
   }
@@ -65,7 +66,7 @@ export class StudyRelationshipComponent implements OnInit {
   addStudyRelation() {
     this.len = this.studyRelationships().value.length;
     if (this.len) {
-      if (this.studyRelationships().value[this.len-1].relationshipTypeId && this.studyRelationships().value[this.len-1].targetSdSid) {
+      if (this.studyRelationships().value[this.len-1].relationshipType && this.studyRelationships().value[this.len-1].targetStudyId) {
         this.studyRelationships().push(this.newStudyRelation());
       } else {
         if (this.studyRelationships().value[this.len-1].alreadyExist) {
@@ -86,7 +87,7 @@ export class StudyRelationshipComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       removeModal.componentInstance.type = 'studyRelationship';
       removeModal.componentInstance.id = this.studyRelationships().value[i].id;
-      removeModal.componentInstance.sdSid = this.studyRelationships().value[i].sdSid;
+      removeModal.componentInstance.studyId = this.studyRelationships().value[i].studyId;
       removeModal.result.then((data) => {
         if (data) {
           this.studyRelationships().removeAt(i);
@@ -95,10 +96,9 @@ export class StudyRelationshipComponent implements OnInit {
     }
   }
   getRelationshipType() {
-    const getRelationshipType$ = this.isBrowsing ? this.studyLookupService.getBrowsingStudyRelationshipTypes() : this.studyLookupService.getStudyRelationshipTypes();
-    getRelationshipType$.subscribe((res: any) => {
-      if(res.data) {
-        this.relationshipType = res.data;
+    this.studyLookupService.getStudyRelationshipTypes(this.pageSize).subscribe((res: any) => {
+      if(res.results) {
+        this.relationshipType = res.results;
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -108,11 +108,10 @@ export class StudyRelationshipComponent implements OnInit {
     setTimeout(() => {
       this.spinner.show();
     });
-    const getStudyList$ = this.isBrowsing ? this.listService.getBrowsingStudyList() : this.listService.getStudyList();
-    getStudyList$.subscribe((res: any) => {
+    this.listService.getStudyList(this.pageSize, '').subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.studyType = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.studyType = res.results.length ? res.results : [];
       }
     }, error => {
       this.spinner.hide();
@@ -120,12 +119,11 @@ export class StudyRelationshipComponent implements OnInit {
     })
   }
   getStudyRelationship() {
-    const getStudyRelationship$ = this.isBrowsing ? this.studyService.getBrowsingStudyRelationships(this.sdSid) : this.studyService.getStudyRelationships(this.sdSid);
     this.spinner.show();
-    getStudyRelationship$.subscribe((res: any) => {
+    this.studyService.getStudyRelationships(this.studyId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.studyRelationship = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.studyRelationship = res.results.length ? res.results : [];
         this.patchForm(this.studyRelationship);
       }
     }, error => {
@@ -141,24 +139,24 @@ export class StudyRelationshipComponent implements OnInit {
     relationships.forEach(relationship => {
       formArray.push(this.fb.group({
         id: relationship.id,
-        sdSid: relationship.sdSid,
-        relationshipTypeId: relationship.relationshipTypeId,
-        targetSdSid: relationship.targetSdSid,
+        studyId: relationship.studyId,
+        relationshipType: relationship.relationshipType ? relationship.relationshipType.id : null,
+        targetStudyId: relationship.targetStudyId,
         alreadyExist: true
       }))
     });
     return formArray;
   }
   addRelationship(index) {
-    if (this.form.value.studyRelationships[index].targetSdSid === this.sdSid) {
+    if (this.form.value.studyRelationships[index].targetStudyId === this.studyId) {
       this.toastr.error('Study can not be put in relationship to itself');
     } else {
       this.spinner.show();
       const payload = this.form.value.studyRelationships[index];
-      payload.sdSid = this.sdSid;
+      payload.studyId = this.studyId;
       delete payload.id;
 
-      this.studyService.addStudyRelationship(this.sdSid, payload).subscribe((res: any) => {
+      this.studyService.addStudyRelationship(this.studyId, payload).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Study Relationship added successfully');
@@ -173,12 +171,12 @@ export class StudyRelationshipComponent implements OnInit {
     }
   }
   editRelationship(relationObject) {
-    if (relationObject.value.targetSdSid === this.sdSid) {
+    if (relationObject.value.targetStudyId === this.studyId) {
       this.toastr.error('Study can not be put in relationship to itself');
     } else {
       const payload = relationObject.value;
       this.spinner.show();  
-      this.studyService.editStudyRelationship(payload.id, payload.sdSid, payload).subscribe((res: any) => {
+      this.studyService.editStudyRelationship(payload.id, payload.studyId, payload).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Study Relationship updated successfully');
@@ -197,7 +195,7 @@ export class StudyRelationshipComponent implements OnInit {
     return relationArray && relationArray.length ? relationArray[0].name : '';
   }
   findStudyTitle(id) {
-    const studyArray: any = this.studyType.filter((type: any) => type.sdSid === id);
+    const studyArray: any = this.studyType.filter((type: any) => type.studyId === id);
     return studyArray && studyArray.length ? studyArray[0].displayTitle : ''
   }
   emitData() {
@@ -205,8 +203,8 @@ export class StudyRelationshipComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdSid) {
-        item.sdSid = this.sdSid;
+      if(this.studyId) {
+        item.studyId = this.studyId;
       }
       return item;
     })
@@ -217,7 +215,7 @@ export class StudyRelationshipComponent implements OnInit {
   }
   customSearchFn(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.sdSid.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
+    return item.studyId.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
   }
   scrollToElement(): void {
     setTimeout(() => {

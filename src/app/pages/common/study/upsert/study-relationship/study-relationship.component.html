@@ -21,37 +21,37 @@
                 <div class="col-12 mb-5" [id]="'relpanel'+i">
                     <mat-expansion-panel [expanded]="studyRelation.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findRelationshipType(studyRelation.value.relationshipTypeId)}}&nbsp;{{studyRelation.value.targetSdSid}}
+                            {{findRelationshipType(studyRelation.value.relationshipType)}}&nbsp;{{studyRelation.value.targetStudyId}}
                             <!-- ,&nbsp; {{findStudyTitle(studyRelation.value.targetSdSid)}} -->
                         </mat-expansion-panel-header>
                         <div class="row form-group">
                             <div class="col-md-6">
-                                <label for="targetSdSid" class="font-style text-capitalize">Target study</label>
-                                <ng-select [items]="studyType" bindLabel="sdSid" bindValue="sdSid" formControlName="targetSdSid"
+                                <label for="targetStudyId" class="font-style text-capitalize">Target study</label>
+                                <ng-select [items]="studyType" bindLabel="id" bindValue="id" formControlName="targetStudyId"
                                 [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No members found"
                                     placeholder="Select target study" *ngIf="!isView" [searchFn]="customSearchFn">
                                     <ng-template ng-label-tmp let-item="item">
-                                        {{item.sdSid}}
+                                        {{item.id}}
                                     </ng-template>
                                     <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                         <div class="row m-0">
                                             <div class="col-md-8 col-8 p-0 m-0">
-                                                <div class="col-md-12">{{item.sdSid}}</div>
+                                                <div class="col-md-12">{{item.id}}</div>
                                                 <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.displayTitle}}</div>
                                             </div>
                                         </div>
                                     </ng-template>
                                 </ng-select>
                                 <!-- <input type="text" id="targetSdSid" class="form-control" formControlName="targetSdSid" *ngIf="!isView"/> -->
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyRelation.value.targetSdSid}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyRelation.value.targetStudyId}}</h6>
                             </div>
                             <div class="col-md-6">
-                                <label for="relationshipTypeId" class="font-style text-capitalize">Relationship type</label>
-                                <select class="form-control" id="relationshipTypeId" formControlName="relationshipTypeId" *ngIf="!isView">
+                                <label for="relationshipType" class="font-style text-capitalize">Relationship type</label>
+                                <select class="form-control" id="relationshipType" formControlName="relationshipType" *ngIf="!isView">
                                     <option disabled selected value="null">Please select relationship type</option>
                                     <option [value]="relationship.id" *ngFor="let relationship of relationshipType">{{relationship.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findRelationshipType(studyRelation.value.relationshipTypeId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findRelationshipType(studyRelation.value.relationshipType)}}</h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">

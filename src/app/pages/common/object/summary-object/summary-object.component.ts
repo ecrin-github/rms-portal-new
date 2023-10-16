@@ -64,10 +64,11 @@ export class SummaryObjectComponent implements OnInit {
   }
   
   getAllObjectList() {
-    this.listService.getObjectList().subscribe((res: any) => {
+    const pageSize = 10000;
+    this.listService.getObjectList(pageSize,'').subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<ObjectListEntryInterface>(res.data);
+      if (res && res.results) {
+        this.dataSource = new MatTableDataSource<ObjectListEntryInterface>(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
       }
@@ -93,33 +94,13 @@ export class SummaryObjectComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-  getBrowsingObject() {
-    this.listService.getBrowsingObjectList().subscribe((res: any) => {
-      this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<ObjectListEntryInterface>(res.data);
-      } else {
-        this.dataSource = new MatTableDataSource();
-      }
-      this.dataSource.paginator = this.paginator;
-      this.searchText = '';
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
-  }
   getObjectList() {
     if (this.role === 'User') {
       this.getObjectListByOrg();
     } else {
-      if (this.isBrowsing) {
-        this.getBrowsingObject();
-      } else {
-        this.getAllObjectList();
-      }
+      this.getAllObjectList();
     }
-  }
-    
+  } 
   applyFilter(filterValue: string) {
     filterValue = filterValue.trim(); // Remove whitespace
     filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches

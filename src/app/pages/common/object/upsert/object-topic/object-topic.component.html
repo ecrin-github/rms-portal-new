@@ -21,17 +21,17 @@
                 <div class="col-12 mb-5" [id]="'objecttopic'+i">
                     <mat-expansion-panel [expanded]="objectTopic.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findTopicType(objectTopic.value.topicTypeId)}}
+                            {{findTopicType(objectTopic.value.topicType)}}
                         </mat-expansion-panel-header>
 
                         <div class="row">
                             <div class="col-md-6">
-                                <label for="topicTypeId" class="font-style text-capitalize">Topic type</label>
-                                <select id="topicTypeId" class="form-control" formControlName="topicTypeId" *ngIf="!isView">
+                                <label for="topicType" class="font-style text-capitalize">Topic type</label>
+                                <select id="topicType" class="form-control" formControlName="topicType" *ngIf="!isView">
                                     <option selected disabled value="">Select an option...</option>
                                     <option [value]=topic.id *ngFor="let topic of topicType">{{topic.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTopicType(objectTopic.value.topicTypeId)}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTopicType(objectTopic.value.topicType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="meshValue" class="font-style text-capitalize">Topic value</label>

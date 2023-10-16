@@ -56,7 +56,7 @@
                         <div class="row form-group">
                             <div class="col-md-12">
                                 <label for="email" class="font-style text-capitalize">organization</label>
-                                <ng-select [items]="organizationList" bindLabel="name" bindValue="orgId" [multiple]="false" formControlName="orgId"
+                                <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" [multiple]="false" formControlName="orgId"
                                     [virtualScroll]="true" class="custom " notFoundText="No organization found"
                                     placeholder="Select Organisation" *ngIf="!isView">
                                 </ng-select>

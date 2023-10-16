@@ -30,6 +30,7 @@ export class UpsertObjectComponent implements OnInit {
   deidentificationType: [] = [];
   consentType: [] = [];
   languageCode: [] = [];
+  organizationList: [] = [];
   id: any;
   objectData: DataObjectInterface;
   subscription: Subscription = new Subscription();
@@ -54,34 +55,35 @@ export class UpsertObjectComponent implements OnInit {
   orgId: any;
   isSubmitted: boolean = false;
   isBrowsing: boolean = false;
+  pageSize: Number = 10000;
 
   constructor(private fb: UntypedFormBuilder, private router: Router, private commonLookupService: CommonLookupService, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService,
     private toastr: ToastrService, private activatedRoute: ActivatedRoute, private listService: ListService, private pdfGenerator: PdfGeneratorService, private jsonGenerator: JsonGeneratorService) {
     this.objectForm = this.fb.group({
-      SdSid: ['', Validators.required],
+      SdSid: '',
       doi: '',
       displayTitle: ['', Validators.required],
       version: '',
-      objectClassId: null,
-      objectTypeId: null,
+      objectClass: null,
+      objectType: null,
       publicationYear: null,
-      langCode: 'en',
+      langCode: '',
       managingOrg: '',
-      accessTypeId: null,
+      accessType: null,
       accessDetails: '',
       accessDetailsUrl: '',
       eoscCategory: 0,
       objectDatasets: this.fb.group({
-        recordKeysTypeId: null,
-        recordKeysDetails: '',
-        deidentTypeId: null,
+        recordkeyType: null,
+        recordkeyDetails: '',
+        deidentType: null,
         deidentDirect: false,
         deidentHipaa: false,
         deidentDates: false,
         deidentNonarr: false,
         deidentKanon: false,
         deidentDetails: '',
-        consentTypeId: null,
+        consentType: null,
         consentNoncommercial: false,
         consentGeogRestrict: false,
         consentResearchType: false,
@@ -126,7 +128,7 @@ export class UpsertObjectComponent implements OnInit {
       this.orgId = localStorage.getItem('organisationId');
     }
     if (this.role === 'User') {
-      this.objectForm.get('objectTypeId').setValidators(Validators.required);
+      this.objectForm.get('objectType').setValidators(Validators.required);
     }
     this.getStudyList();
     this.getObjectClass();
@@ -143,6 +145,7 @@ export class UpsertObjectComponent implements OnInit {
     this.getTopicType();
     this.getIdentifierType();
     this.getDescriptionType();
+    this.getOrganization();
     if (this.isView || this.isEdit) {
       this.id = this.activatedRoute.snapshot.params.id;
       this.getObjectById(this.id);
@@ -184,13 +187,12 @@ export class UpsertObjectComponent implements OnInit {
   }
   getObjectClass() {
     setTimeout(() => {
-     this.spinner.show(); 
+      this.spinner.show();
     });
-    const getObjectClass$ = this.isBrowsing ? this.objectLookupService.getBrowsingObjectClasses() : this.objectLookupService.getObjectClasses()
-    getObjectClass$.subscribe((res: any) => {
+    this.objectLookupService.getObjectClasses(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if(res.data) {
-        this.objectClass = res.data;
+      if (res.results) {
+        this.objectClass = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -199,13 +201,12 @@ export class UpsertObjectComponent implements OnInit {
   }
   getObjectType() {
     setTimeout(() => {
-     this.spinner.show(); 
+      this.spinner.show();
     });
-    const getObjectType$ = this.isBrowsing ? this.objectLookupService.getBrowsingObjectTitleTypes() : this.objectLookupService.getObjectTypes();
-    getObjectType$.subscribe((res: any) => {
+    this.objectLookupService.getObjectTypes(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.data) {
-        this.objectType = res.data;
+      if (res.results) {
+        this.objectType = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -216,11 +217,10 @@ export class UpsertObjectComponent implements OnInit {
     setTimeout(() => {
      this.spinner.show(); 
     });
-    const getAccessType$ = this.isBrowsing ? this.objectLookupService.getBrowsingAccessTypes() : this.objectLookupService.getAccessTypes();
-    getAccessType$.subscribe((res: any) => {
+    this.objectLookupService.getAccessTypes(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if(res.data) {
-        this.accessType = res.data;
+      if(res.results) {
+        this.accessType = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -231,11 +231,10 @@ export class UpsertObjectComponent implements OnInit {
     setTimeout(() => {
      this.spinner.show(); 
     });
-    const getKeyType$ = this.isBrowsing ? this.objectLookupService.getBrowsingRecordKeyTypes() : this.objectLookupService.getRecordKeyTypes();
-    getKeyType$.subscribe((res: any) => {
+    this.objectLookupService.getRecordKeyTypes(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.data) {
-        this.keyType = res.data;
+      if (res.results) {
+        this.keyType = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -246,11 +245,10 @@ export class UpsertObjectComponent implements OnInit {
     setTimeout(() => {
      this.spinner.show(); 
     });
-    const getDeidentificationType$ = this.isBrowsing ? this.objectLookupService.getBrowsingDeidentificationTypes() : this.objectLookupService.getDeidentificationTypes();
-    getDeidentificationType$.subscribe((res: any) => {
+    this.objectLookupService.getDeidentificationTypes(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.data) {
-        this.deidentificationType = res.data
+      if (res.results) {
+        this.deidentificationType = res.results
       }
     }, error => {
       this.spinner.hide();
@@ -261,11 +259,10 @@ export class UpsertObjectComponent implements OnInit {
     setTimeout(() => {
      this.spinner.show(); 
     });
-    const getConsentType$ = this.isBrowsing ? this.objectLookupService.getBrowsingConsentTypes() : this.objectLookupService.getConsentTypes();
-    getConsentType$.subscribe((res:any) => {
+    this.objectLookupService.getConsentTypes(this.pageSize).subscribe((res:any) => {
       this.spinner.hide();
-      if(res.data) {
-        this.consentType = res.data;
+      if(res.results) {
+        this.consentType = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -274,13 +271,29 @@ export class UpsertObjectComponent implements OnInit {
   }
   getLanguageCode() {
     setTimeout(() => {
-     this.spinner.show(); 
+      this.spinner.show();
     });
-    const getLanguageCodes$ = this.isBrowsing ? this.commonLookupService.getBrowsingLanguageCodes('en') : this.commonLookupService.getLanguageCodes('en');
-    getLanguageCodes$.subscribe((res: any) => {
+    this.commonLookupService.getLanguageCodes(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.languageCode = res.data;
+      if (res && res.results) {
+        this.languageCode = res.results;
+        if (this.isAdd) {
+          this.objectForm.patchValue({
+            langCode: this.findLangCode('English')
+          })
+        }
+      }
+    }, error => {
+      this.spinner.hide();
+      this.toastr.error(error.error.title);
+    })
+  }
+  getOrganization() {
+    this.spinner.show();
+    this.commonLookupService.getOrganizationList(this.pageSize).subscribe((res: any) => {
+      this.spinner.hide();
+      if (res && res.results) {
+        this.organizationList = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -291,11 +304,10 @@ export class UpsertObjectComponent implements OnInit {
     setTimeout(() => {
      this.spinner.show();
     });
-    const getDataObjectById$ = this.isBrowsing ? this.objectService.getBrowsingDataObjectById(id) : this.objectService.getDataObjectById(id);
-    getDataObjectById$.subscribe((res: any) => {
+    this.objectService.getDataObjectById(id).subscribe((res: any) => {
       this.spinner.hide();
-      if(res && res.data && res.data.length) {
-        this.objectData = res.data[0];
+      if(res) {
+        this.objectData = res;
         this.patchObjectForm();
       }
     }, error => {
@@ -305,41 +317,47 @@ export class UpsertObjectComponent implements OnInit {
   }
   patchObjectForm() {
     const arr: any = this.objectClass.filter((item:any) => item.name === 'Dataset');
-    this.showDatasetKey = this.objectData.coreObject.objectClassId === arr[0].id ? true : false;
+    if (this.objectData.objectClass) {
+      this.showDatasetKey = this.objectData.objectClass.id === arr[0].id ? true : false;
+    }
     const arrType: any = this.objectType.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
-    arrType.map(item => {
-      if (item.id === this.objectData.coreObject.objectTypeId) {
-        this.showTopic = true;
-        return;
-      }
-    });
+    if(this.objectData.objectType) {
+      arrType.map(item => {
+        if (item.id === this.objectData.objectType.id) {
+          this.showTopic = true;
+          return;
+        }
+      });
+    }
     const arrAccessType: any = this.accessType.filter((item: any) => item.name === 'Public on-screen access and download');
-    this.showAccessDetails =  this.objectData.coreObject.accessTypeId === arrAccessType[0].id ? false : true;
+    if (this.objectData.accessType) {
+      this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0].id ? false : true;
+    }
     this.objectForm.patchValue({
-      SdSid: this.objectData.coreObject.sdSid,
-      doi: this.objectData.coreObject.doi,
-      displayTitle: this.objectData.coreObject.displayTitle,
-      version: this.objectData.coreObject.version,
-      objectClassId: this.objectData.coreObject.objectClassId,
-      objectTypeId: this.objectData.coreObject.objectTypeId,
-      publicationYear: this.objectData.coreObject.publicationYear ? new Date(`01/01/${this.objectData.coreObject.publicationYear}`) : '',
-      langCode: this.objectData.coreObject.langCode,
-      managingOrg: this.objectData.coreObject.managingOrg,
-      accessTypeId: this.objectData.coreObject.accessTypeId,
-      accessDetails: this.objectData.coreObject.accessDetails,
-      accessDetailsUrl: this.objectData.coreObject.accessDetailsUrl,
-      eoscCategory: this.objectData.coreObject.eoscCategory,
+      // SdSid: this.objectData.linkedStudies[0] ? this.objectData.linkedStudies[0].sdSid : null,
+      doi: this.objectData.doi,
+      displayTitle: this.objectData.displayTitle,
+      version: this.objectData.version,
+      objectClass: this.objectData.objectClass ? this.objectData.objectClass.id : null,
+      objectType: this.objectData.objectType ? this.objectData.objectType.id : null,
+      publicationYear: this.objectData.publicationYear ? new Date(`01/01/${this.objectData.publicationYear}`) : '',
+      langCode: this.objectData.langCode ? this.objectData.langCode.id : null,
+      managingOrg: this.objectData.managingOrg ? this.objectData.managingOrg.id : null,
+      accessType: this.objectData.accessType ? this.objectData.accessType.id : null,
+      accessDetails: this.objectData.accessDetails,
+      accessDetailsUrl: this.objectData.accessDetailsUrl,
+      eoscCategory: this.objectData.eoscCategory,
       objectDatasets: {
-        recordKeysTypeId: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordKeysTypeId :null,
-        recordKeysDetails: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordKeysDetails :'',
-        deidentTypeId: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentTypeId :null,
+        recordkeyType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordkeyType ? this.objectData.objectDatasets[0].recordkeyType.id : null :null,
+        recordkeyDetails: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordkeyDetails :'',
+        deidentType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentType ? this.objectData.objectDatasets[0].deidentType.id : null :null,
         deidentDirect: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDirect : false,
         deidentHipaa: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentHipaa : false,
         deidentDates: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDates : false,
         deidentNonarr: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentNonarr : false,
         deidentKanon: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentKanon : false,
         deidentDetails: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDetails :'',
-        consentTypeId: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentTypeId :null,
+        consentType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentType ? this.objectData.objectDatasets[0].consentType.id :null :null,
         consentNoncommercial: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentNoncommercial : false,
         consentGeogRestrict: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentGeogRestrict : false,
         consentResearchType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentResearchType : false,
@@ -364,35 +382,46 @@ export class UpsertObjectComponent implements OnInit {
     }
     this.isSubmitted = true;
     if (this.objectForm.valid) {
-      const payload = JSON.parse(JSON.stringify(this.objectForm.value));
-      payload.objectTypeId = payload.objectTypeId ? payload.objectTypeId : null;
-      payload.objectClassId = payload.objectClassId ? payload.objectClassId : null;
-      payload.accessTypeId = payload.accessTypeId ? payload.accessTypeId : null;
-      payload.accessTypeId = payload.accessTypeId ? payload.accessTypeId : null;
-      payload.publicationYear = this.objectForm.value.publicationYear ? this.objectForm.value.publicationYear.getFullYear() : null;
-      const datasetPayload = JSON.parse(JSON.stringify(this.objectForm.value));
-      datasetPayload.objectDatasets.deidentDirect = datasetPayload.objectDatasets.deidentDirect;
-      datasetPayload.objectDatasets.deidentHipaa = datasetPayload.objectDatasets.deidentHipaa;
-      datasetPayload.objectDatasets.deidentDates = datasetPayload.objectDatasets.deidentDates;
-      datasetPayload.objectDatasets.deidentNonarr = datasetPayload.objectDatasets.deidentNonarr;
-      datasetPayload.objectDatasets.deidentKanon = datasetPayload.objectDatasets.deidentKanon;
-      datasetPayload.objectDatasets.consentNoncommercial = datasetPayload.objectDatasets.consentNoncommercial;
-      datasetPayload.objectDatasets.consentGeogRestrict = datasetPayload.objectDatasets.consentGeogRestrict;
-      datasetPayload.objectDatasets.consentResearchType = datasetPayload.objectDatasets.consentResearchType;
-      datasetPayload.objectDatasets.consentGeneticOnly = datasetPayload.objectDatasets.consentGeneticOnly;
-      datasetPayload.objectDatasets.consentNoMethods = datasetPayload.objectDatasets.consentNoMethods;
-      datasetPayload.objectDatasets.recordKeysTypeId = datasetPayload.objectDatasets.recordKeysTypeId ? datasetPayload.objectDatasets.recordKeysTypeId : null;
-      datasetPayload.objectDatasets.deidentTypeId = datasetPayload.objectDatasets.deidentTypeId ? datasetPayload.objectDatasets.deidentTypeId : null;
-      datasetPayload.objectDatasets.consentTypeId = datasetPayload.objectDatasets.consentTypeId ? datasetPayload.objectDatasets.consentTypeId : null;
+      const payload = {
+        sdOid: this.id,
+        displayTitle: this.objectForm.value.displayTitle,
+        version: this.objectForm.value.version,
+        doi: this.objectForm.value.doi,
+        publicationYear: this.objectForm.value.publicationYear ? this.objectForm.value.publicationYear.getFullYear() : null,
+        accessDetails: this.objectForm.value.accessDetails,
+        accessDetailsUrl: this.objectForm.value.accessDetailsUrl,
+        urlLastChecked: this.objectForm.value.urlLastChecked,
+        addStudyContributors: true,
+        addStudyTopics: true,
+        studyId: this.objectForm.value.sdSid,
+        objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass : null,
+        objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType : null,
+        managingOrg: this.objectForm.value.managingOrg ? this.objectForm.value.managingOrg : null,
+        langCode: this.objectForm.value.langCode,
+        accessType: this.objectForm.value.accessType ? this.objectForm.value.accessType : null
+      }
+      const datasetPayload = {
+        recordkeyType: this.objectForm.value.objectDatasets.recordkeyType,
+        recordkeyDetails: this.objectForm.value.objectDatasets.recordkeyDetails,
+        deidentType: this.objectForm.value.objectDatasets.deidentType,
+        deidentDirect: this.objectForm.value.objectDatasets.deidentDirect,
+        deidentHipaa: this.objectForm.value.objectDatasets.deidentHipaa,
+        deidentDates: this.objectForm.value.objectDatasets.deidentDates,
+        deidentNonarr: this.objectForm.value.objectDatasets.deidentNonarr,
+        deidentKanon: this.objectForm.value.objectDatasets.deidentKanon,
+        deidentDetails: this.objectForm.value.objectDatasets.deidentDetails,
+        consentType: this.objectForm.value.objectDatasets.consentType,
+        consentNoncommercial: this.objectForm.value.objectDatasets.consentNoncommercial,
+        consentGeogRestrict: this.objectForm.value.objectDatasets.consentGeogRestrict,
+        consentResearchType: this.objectForm.value.objectDatasets.consentResearchType,
+        consentGeneticOnly: this.objectForm.value.objectDatasets.consentGeneticOnly,
+        consentNoMethods: this.objectForm.value.objectDatasets.consentNoMethods,
+        consentDetails: this.objectForm.value.objectDatasets.consentDetails,
+        objectId: this.id
+      }
       if (this.isEdit) {
-        payload.id = this.objectData.id;
-        payload.sdOid = this.id;
-        if (this.objectData.objectDatasets.length > 0) {
-          datasetPayload.objectDatasets['id'] = this.objectData.objectDatasets[0].id;
-          datasetPayload.objectDatasets['sdOid'] = this.objectData.objectDatasets[0].sdOid;
-        }
         const editDataObject$ = this.objectService.editDataObject(this.id, payload);
-        const editDataset$ = this.objectData.objectDatasets.length > 0 ? this.objectService.editObjecDataset(this.objectData.objectDatasets[0].id, this.id, datasetPayload.objectDatasets) : this.objectService.addObjectDatasete(this.id, datasetPayload);
+        const editDataset$ = this.objectData.objectDatasets.length > 0 ? this.objectService.editObjecDataset(this.objectData.objectDatasets[0].id, this.id, datasetPayload) : this.objectService.addObjectDatasete(this.id, datasetPayload);
         this.spinner.show();
         const combine$ = combineLatest([editDataObject$, editDataset$]).subscribe(([editRes, datasetRes] : [any, any]) => {
           this.spinner.hide();
@@ -406,12 +435,11 @@ export class UpsertObjectComponent implements OnInit {
           this.toastr.error(error.error.title);
         })
       } else {
-        this.objectService.addDataObject(payload.SdSid, payload).subscribe((res: any) => {
+        this.objectService.addDataObject(payload).subscribe((res: any) => {
           this.spinner.hide();
           if (res.statusCode === 200) {
-            this.objectService.addObjectDatasete(res.data[0].sdOid, datasetPayload.objectDatasets).subscribe((res: any) => {
+            this.objectService.addObjectDatasete(res.data[0].sdOid, datasetPayload).subscribe((res: any) => {
               if (res.statusCode === 200) {
-                // this.toastr.success('Dataset added successfully');
               }
             }, error => {
               this.toastr.error(res.messages[0]);
@@ -435,29 +463,35 @@ export class UpsertObjectComponent implements OnInit {
     }
     this.count = 0;
   }
-  findObjectClass(id) {
-    const objectClassArray: any = this.objectClass.filter((type: any) => type.id === id);
-    return objectClassArray && objectClassArray.length ? objectClassArray[0].name : '';
-  }
-  findobjectType(id) {
-    const objectTypeArray: any = this.objectType.filter((type: any) => type.id === id);
-    return objectTypeArray && objectTypeArray.length ? objectTypeArray[0].name : '';
-  }
-  findAccessType(id) {
-    const accessTypeArray: any = this.accessType.filter((type: any) => type.id === id);
-    return accessTypeArray && accessTypeArray.length ? accessTypeArray[0].name : '';
-  }
-  findKeyType(id) {
-    const keyTypeArray: any = this.keyType.filter((type: any) => type.id === id);
-    return keyTypeArray && keyTypeArray.length ? keyTypeArray[0].name : 'None';
-  }
-  findDeidentificationType(id) {
-    const deidentificationArray: any = this.deidentificationType.filter((type: any) => type.id === id);
-    return deidentificationArray && deidentificationArray.length ? deidentificationArray[0].name : 'None';
-  }
+  // findObjectClass(id) {
+  //   const objectClassArray: any = this.objectClass.filter((type: any) => type.id === id);
+  //   return objectClassArray && objectClassArray.length ? objectClassArray[0].name : '';
+  // }
+  // findobjectType(id) {
+  //   const objectTypeArray: any = this.objectType.filter((type: any) => type.id === id);
+  //   return objectTypeArray && objectTypeArray.length ? objectTypeArray[0].name : '';
+  // }
+  // findAccessType(id) {
+  //   const accessTypeArray: any = this.accessType.filter((type: any) => type.id === id);
+  //   return accessTypeArray && accessTypeArray.length ? accessTypeArray[0].name : '';
+  // }
+  // findKeyType(id) {
+  //   const keyTypeArray: any = this.keyType.filter((type: any) => type.id === id);
+  //   return keyTypeArray && keyTypeArray.length ? keyTypeArray[0].name : 'None';
+  // }
+  // findDeidentificationType(id) {
+  //   const deidentificationArray: any = this.deidentificationType.filter((type: any) => type.id === id);
+  //   return deidentificationArray && deidentificationArray.length ? deidentificationArray[0].name : 'None';
+  // }
   findConsentType(id) {
     const consentTypeArray: any = this.consentType.filter((type: any) => type.id === id);
     return consentTypeArray && consentTypeArray.length ?consentTypeArray[0].name : 'None';
+  }
+  findLangCode(languageCode) {
+    setTimeout(() => {
+      const langArr: any = this.languageCode.filter((type: any) => type.languageCode === languageCode);
+      return langArr && langArr.length? langArr[0].id : '';
+    }, 2000);
   }
   ngOnDestroy() {
     this.subscription.unsubscribe();
@@ -467,13 +501,13 @@ export class UpsertObjectComponent implements OnInit {
   }
   onChange() {
     const arr: any = this.objectClass.filter((item:any) => item.name.toLowerCase() === 'dataset');
-    this.showDatasetKey = parseInt(this.objectForm.value.objectClassId) === arr[0].id ? true : false;
+    this.showDatasetKey = this.objectForm.value.objectClass === arr[0].id ? true : false;
   }
   onTypeChange() {
     this.showTopic = false;
     const arrType: any = this.objectType.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
     arrType.map(item => {
-      if (item.id === parseInt(this.objectForm.value.objectTypeId)) {
+      if (item.id === this.objectForm.value.objectType) {
         this.showTopic = true;
         return
       }
@@ -481,12 +515,13 @@ export class UpsertObjectComponent implements OnInit {
   }
   printPdf() {
     const payload = JSON.parse(JSON.stringify(this.objectData));
-    payload.coreObject.objectClassId = this.findObjectClass(payload.coreObject.objectClassId);
-    payload.coreObject.objectTypeId = this.findobjectType(payload.coreObject.objectTypeId);
-    payload.coreObject.accessTypeId = this.findAccessType(payload.coreObject.accessTypeId);
+    //remembber to include commented fields
+    // payload.coreObject.objectClass = this.findObjectClass(payload.coreObject.objectClass);
+    // payload.coreObject.objectType = this.findobjectType(payload.coreObject.objectType);
+    // payload.coreObject.accessType = this.findAccessType(payload.coreObject.accessType);
     if (payload.objectDatasets.length > 0) {
-      payload.objectDatasets[0].recordKeysTypeId = this.findKeyType(payload.objectDatasets[0].recordKeysTypeId);
-      payload.objectDatasets[0].deidentTypeId = this.findDeidentificationType(payload.objectDatasets[0].deidentTypeId);
+      // payload.objectDatasets[0].recordkeyType = this.findKeyType(payload.objectDatasets[0].recordkeyType);
+      // payload.objectDatasets[0].deidentType = this.findDeidentificationType(payload.objectDatasets[0].deidentType);
       payload.objectDatasets[0].deidentDirect = payload.objectDatasets[0].deidentDirect ? payload.objectDatasets[0].deidentDirect : false;
       payload.objectDatasets[0].deidentHipaa = payload.objectDatasets[0].deidentHipaa ? payload.objectDatasets[0].deidentHipaa : false;
       payload.objectDatasets[0].deidentDates = payload.objectDatasets[0].deidentDates ? payload.objectDatasets[0].deidentDates : false;
@@ -497,7 +532,7 @@ export class UpsertObjectComponent implements OnInit {
       payload.objectDatasets[0].consentResearchType = payload.objectDatasets[0].consentResearchType ? payload.objectDatasets[0].consentResearchType : false;
       payload.objectDatasets[0].consentGeneticOnly = payload.objectDatasets[0].consentGeneticOnly ? payload.objectDatasets[0].consentGeneticOnly : false;
       payload.objectDatasets[0].consentNoMethods = payload.objectDatasets[0].consentNoMethods ? payload.objectDatasets[0].consentNoMethods : false;
-      payload.objectDatasets[0].consentTypeId = this.findConsentType(payload.objectDatasets[0].consentTypeId);
+      payload.objectDatasets[0].consentType = this.findConsentType(payload.objectDatasets[0].consentType);
     }
     payload.objectInstances.map(item => {
       item.resourceTypeId = this.findResourceType(item.resourceTypeId);
@@ -522,12 +557,13 @@ export class UpsertObjectComponent implements OnInit {
   }
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.objectData));
-    payload.coreObject.objectClassId = this.findObjectClass(payload.coreObject.objectClassId);
-    payload.coreObject.objectTypeId = this.findobjectType(payload.coreObject.objectTypeId);
-    payload.coreObject.accessTypeId = this.findAccessType(payload.coreObject.accessTypeId);
+    // remember to include commented fields
+    // payload.coreObject.objectClass = this.findObjectClass(payload.coreObject.objectClass);
+    // payload.coreObject.objectType = this.findobjectType(payload.coreObject.objectType);
+    // payload.coreObject.accessType = this.findAccessType(payload.coreObject.accessType);
     if (payload.objectDatasets.length > 0) {
-      payload.objectDatasets[0].recordKeysTypeId = this.findKeyType(payload.objectDatasets[0].recordKeysTypeId);
-      payload.objectDatasets[0].deidentTypeId = this.findDeidentificationType(payload.objectDatasets[0].deidentTypeId);
+      // payload.objectDatasets[0].recordkeyType = this.findKeyType(payload.objectDatasets[0].recordkeyType);
+      // payload.objectDatasets[0].deidentType = this.findDeidentificationType(payload.objectDatasets[0].deidentType);
       payload.objectDatasets[0].deidentDirect = payload.objectDatasets[0].deidentDirect ? payload.objectDatasets[0].deidentDirect : false;
       payload.objectDatasets[0].deidentHipaa = payload.objectDatasets[0].deidentHipaa ? payload.objectDatasets[0].deidentHipaa : false;
       payload.objectDatasets[0].deidentDates = payload.objectDatasets[0].deidentDates ? payload.objectDatasets[0].deidentDates : false;
@@ -538,7 +574,7 @@ export class UpsertObjectComponent implements OnInit {
       payload.objectDatasets[0].consentResearchType = payload.objectDatasets[0].consentResearchType ? payload.objectDatasets[0].consentResearchType : false;
       payload.objectDatasets[0].consentGeneticOnly = payload.objectDatasets[0].consentGeneticOnly ? payload.objectDatasets[0].consentGeneticOnly : false;
       payload.objectDatasets[0].consentNoMethods = payload.objectDatasets[0].consentNoMethods ? payload.objectDatasets[0].consentNoMethods : false;
-      payload.objectDatasets[0].consentTypeId = this.findConsentType(payload.objectDatasets[0].consentTypeId);
+      payload.objectDatasets[0].consentType = this.findConsentType(payload.objectDatasets[0].consentType);
     }
     payload.objectInstances.map(item => {
       item.resourceTypeId = this.findResourceType(item.resourceTypeId);
@@ -564,20 +600,18 @@ export class UpsertObjectComponent implements OnInit {
 
 // code to get values for id for generating pdf and json
   getSizeUnit() {
-    const getSizeUnit$ = this.isBrowsing ? this.objectLookupService.getBrowsingSizeUnits() : this.objectLookupService.getSizeUnits();
-    getSizeUnit$.subscribe((res: any) => {
+    this.objectLookupService.getSizeUnits(this.pageSize).subscribe((res: any) => {
       if(res.data) {
-        this.sizeUnit = res.data;
+        this.sizeUnit = res.results;
       }
     }, error => {
       console.log('error', error);
     });
   }
   getResourceType() {
-    const getResourceType$ = this.isBrowsing ? this.objectLookupService.getBrowsingResourceTypes() : this.objectLookupService.getResourceTypes();
-    getResourceType$.subscribe((res: any) => {
-      if (res.data) {
-        this.resourceType = res.data;
+    this.objectLookupService.getResourceTypes(this.pageSize).subscribe((res: any) => {
+      if (res.results) {
+        this.resourceType = res.results;
       }
     }, error => {
       console.log('error',error);
@@ -592,10 +626,9 @@ export class UpsertObjectComponent implements OnInit {
     return sizeArray && sizeArray.length ? sizeArray[0].name : '';
   }
   getTitleType() {
-    const getTitleType$ = this.isBrowsing ? this.objectLookupService.getBrowsingObjectTitleTypes() : this.objectLookupService.getObjectTitleTypes();
-    getTitleType$.subscribe((res:any) => {
-      if(res.data) {
-        this.titleType = res.data;
+    this.objectLookupService.getObjectTitleTypes(this.pageSize).subscribe((res:any) => {
+      if(res.results) {
+        this.titleType = res.results;
       }
     }, error => {
       console.log('error', error);
@@ -606,10 +639,9 @@ export class UpsertObjectComponent implements OnInit {
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : ''
   }
   getDateType() {
-    const getDateTypes$ = this.isBrowsing ? this.objectLookupService.getBrowsingDateTypes() : this.objectLookupService.getDateTypes();
-    getDateTypes$.subscribe((res: any) => {
-      if(res.data) {
-        this.dateType = res.data
+    this.objectLookupService.getDateTypes(this.pageSize).subscribe((res: any) => {
+      if(res.results) {
+        this.dateType = res.results
       }
     }, error => {
       console.log('error', error);
@@ -620,10 +652,9 @@ export class UpsertObjectComponent implements OnInit {
     return dateTypeArray && dateTypeArray.length ? dateTypeArray[0].name : '';
   }
   getTopicType() {
-    const getTopicTypes$ = this.isBrowsing ? this.commonLookupService.getBrowsingTopicTypes() : this.commonLookupService.getTopicTypes();
-    getTopicTypes$.subscribe((res: any) => {
-      if(res.data) {
-        this.topicType = res.data;
+    this.commonLookupService.getTopicTypes(this.pageSize).subscribe((res: any) => {
+      if (res.results) {
+        this.topicType = res.results;
       }
     }, error => {
       console.log('error', error);
@@ -634,10 +665,9 @@ export class UpsertObjectComponent implements OnInit {
     return topicTypeArrray && topicTypeArrray.length ? topicTypeArrray[0].name : '';
   }
   getIdentifierType() {
-    const getIdentifierTypes$ = this.isBrowsing ? this.objectLookupService.getBrowsingObjectIdentifierTypes() : this.objectLookupService.getObjectIdentifierTypes();
-    getIdentifierTypes$.subscribe((res:any) => {
-      if(res.data) {
-        this.identifierType = res.data;
+    this.objectLookupService.getObjectIdentifierTypes(this.pageSize).subscribe((res:any) => {
+      if(res.results) {
+        this.identifierType = res.results;
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -648,10 +678,9 @@ export class UpsertObjectComponent implements OnInit {
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : '';
   }
   getDescriptionType() {
-    const getDescriptionTypes$ = this.isBrowsing ? this.objectLookupService.getBrowsingDescriptionTypes() : this.objectLookupService.getDescriptionTypes();
-    getDescriptionTypes$.subscribe((res: any) => {
-      if(res.data) {
-        this.descriptionType = res.data;
+    this.objectLookupService.getDescriptionTypes(this.pageSize).subscribe((res: any) => {
+      if(res.results) {
+        this.descriptionType = res.results;
       }
     }, error => {
       console.log('error', error);
@@ -663,7 +692,7 @@ export class UpsertObjectComponent implements OnInit {
   }
   onChangeAccessType() {
     const arr: any = this.accessType.filter((item: any) => item.name === 'Public on-screen access and download');
-    this.showAccessDetails = parseInt(this.objectForm.value.accessTypeId) === arr[0].id ? false : true;
+    this.showAccessDetails = parseInt(this.objectForm.value.accessType) === arr[0].id ? false : true;
   }
   goToParentStudy(sdSid) {
     if (this.isBrowsing) {

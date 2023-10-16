@@ -10,6 +10,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { Router } from '@angular/router';
+import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 
 
 
@@ -21,8 +22,9 @@ import { Router } from '@angular/router';
 export class ObjectIdentifierComponent implements OnInit {
   form: UntypedFormGroup;
   identifierType: [] = [];
+  organizationList: [] = [];
   subscription: Subscription = new Subscription();
-  @Input() sdOid: string;
+  @Input() objectId: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   objectIdentifier: ObjectIdentifierInterface;
@@ -34,8 +36,9 @@ export class ObjectIdentifierComponent implements OnInit {
   @Output() emitIdentifier: EventEmitter<any> = new EventEmitter();
   len: any;
   isBrowsing: boolean = false;
+  pageSize: Number = 10000;
 
-  constructor( private fb: UntypedFormBuilder, private router: Router, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal) {
+  constructor( private fb: UntypedFormBuilder, private router: Router, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private commonLookup: CommonLookupService) {
     this.form = this.fb.group({
       objectIdentifiers: this.fb.array([])
     });
@@ -44,6 +47,7 @@ export class ObjectIdentifierComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getIdentifierType();
+    this.getOrganization();
     if (this.isEdit || this.isView) {
       this.getObjectIdentifier();
     }
@@ -55,9 +59,9 @@ export class ObjectIdentifierComponent implements OnInit {
   newObjectIdentifier(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdOid: '',
+      objectId: '',
       identifierValue: '',
-      identifierTypeId: '',
+      identifierType: '',
       identifierDate: '',
       identifierOrg: '',
       alreadyExist: false
@@ -67,7 +71,7 @@ export class ObjectIdentifierComponent implements OnInit {
   addObjectIdentifier() {
     this.len = this.objectIdentifiers().value.length;
     if (this.len) {
-      if (this.objectIdentifiers().value[this.len-1].identifierTypeId && this.objectIdentifiers().value[this.len-1].identifierValue) {
+      if (this.objectIdentifiers().value[this.len-1].identifierType && this.objectIdentifiers().value[this.len-1].identifierValue) {
         this.objectIdentifiers().push(this.newObjectIdentifier());
       } else {
         if (this.objectIdentifiers().value[this.len-1].alreadyExist) {
@@ -88,7 +92,7 @@ export class ObjectIdentifierComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       removeModal.componentInstance.type = 'objectIdentifier';
       removeModal.componentInstance.id = this.objectIdentifiers().value[i].id;
-      removeModal.componentInstance.sdOid = this.objectIdentifiers().value[i].sdOid;
+      removeModal.componentInstance.objectId = this.objectIdentifiers().value[i].objectId;
       removeModal.result.then((data) => {
         if (data) {
           this.objectIdentifiers().removeAt(i);
@@ -97,27 +101,49 @@ export class ObjectIdentifierComponent implements OnInit {
     }
   }
   getIdentifierType() {
-    const getIdentifierType$ = this.isBrowsing ? this.objectLookupService.getBrowsingObjectIdentifierTypes() : this.objectLookupService.getObjectIdentifierTypes();
-    getIdentifierType$.subscribe((res:any) => {
-      if(res.data) {
-        this.identifierType = res.data;
+    this.objectLookupService.getObjectIdentifierTypes(this.pageSize).subscribe((res:any) => {
+      if(res.results) {
+        this.identifierType = res.results;
       }
     }, error => {
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     });
   }
   getObjectIdentifier() {
-    const getObjectIdentifiers$ = this.isBrowsing ? this.objectService.getBrowsingObjectIdentifiers(this.sdOid) : this.objectService.getObjectIdentifiers(this.sdOid);
     this.spinner.show();
-    getObjectIdentifiers$.subscribe((res: any) => {
+    this.objectService.getObjectIdentifiers(this.objectId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.objectIdentifier = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.objectIdentifier = res.results.length ? res.results : [];
         this.patchForm(this.objectIdentifier);
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
+    })
+  }
+  getOrganization() {
+    this.spinner.show();
+    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
+      this.spinner.hide();
+      if (res && res.results) {
+        this.organizationList = res.results;
+      }
+    }, error => {
+      this.spinner.hide();
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   patchForm(identifiers) {
@@ -128,11 +154,11 @@ export class ObjectIdentifierComponent implements OnInit {
     identifiers.forEach(identifier => {
       formArray.push(this.fb.group({
         id: identifier.id,
-        sdOid: identifier.sdOid,
+        objectId: identifier.objectId,
         identifierValue: identifier.identifierValue,
-        identifierTypeId: identifier.identifierTypeId,
+        identifierType: identifier.identifierType ? identifier.identifierType.id : null,
         identifierDate: identifier.identifierDate ? this.stringTodate(identifier.identifierDate): '',
-        identifierOrg: identifier.identifierOrg,
+        identifierOrg: identifier.identifierOrg ? identifier.identifierOrg.id : null,
         alreadyExist: true
       }))
     });
@@ -141,11 +167,11 @@ export class ObjectIdentifierComponent implements OnInit {
   addIdentifier(index) {
     this.spinner.show();
     const payload = this.form.value.objectIdentifiers[index];
-    payload.sdOid = this.sdOid;
-    payload.identifierDate = this.dateToString(payload.identifierDate);
+    payload.objectId = this.objectId;
+    payload.identifierDate = new Date(this.dateToString(payload.identifierDate));
     delete payload.id;
 
-    this.objectService.addObjectIdentifier(this.sdOid, payload).subscribe((res: any) => {
+    this.objectService.addObjectIdentifier(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Identifier added successfully');
@@ -155,14 +181,18 @@ export class ObjectIdentifierComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   editIdentifier(identifierObject) {
     const payload = identifierObject.value;
-    payload.identifierDate = this.dateToString(payload.identifierDate);
+    payload.identifierDate = new Date(this.dateToString(payload.identifierDate));
     this.spinner.show();
-    this.objectService.editObjectIdentifier(payload.id, payload.sdOid, payload).subscribe((res: any) => {
+    this.objectService.editObjectIdentifier(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Identifier updated successfully');
@@ -172,12 +202,20 @@ export class ObjectIdentifierComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      this.toastr.error(error.error.title);
+      // this.toastr.error(error.error.title);
+      const arr = Object.keys(error.error);
+      arr.map((item,index) => {
+        this.toastr.error(`${item} : ${error.error[item]}`);
+      })
     })
   }
   findIdentifierTyepe(id) {
     const identifierTypeArray: any = this.identifierType.filter((type: any) => type.id === id);
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : '';
+  }
+  findOrganization(id) {
+    const orgArr: any = this.organizationList.filter((type: any) => type.id === id);
+    return orgArr && orgArr.length ? orgArr[0].defaultName : '';
   }
   dateToString(date) {
     const monthArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -193,8 +231,8 @@ export class ObjectIdentifierComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdOid) {
-        item.sdOid = this.sdOid;
+      if(this.objectId) {
+        item.objectId = this.objectId;
       }
       return item;
     })

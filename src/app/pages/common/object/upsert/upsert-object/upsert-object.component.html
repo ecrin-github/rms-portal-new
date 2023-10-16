@@ -22,7 +22,7 @@
                 </ng-container>
             </div>
             <div class="pl-5">
-                <h6>{{objectData?.coreObject?.displayTitle}}</h6>
+                <h6>{{objectData?.displayTitle}}</h6>
             </div>    
         </div>
     </div>
@@ -48,7 +48,7 @@
                         </ng-template>
                     </ng-select>
                     <br *ngIf="isView || isEdit">
-                    <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.coreObject?.sdSid)" *ngIf="isView || isEdit" style="cursor: pointer;">{{findStudyById(objectData?.coreObject?.sdSid)}}</a>
+                    <!-- <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.linkedStudies[0]?.sdSid)" *ngIf="isView || isEdit" style="cursor: pointer;">{{findStudyById(objectData?.linkedStudies[0]?.sdSid)}}</a> -->
                     <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.SdSid.errors">
                         <p *ngIf="isSubmitted && g.SdSid.errors.required"> Please enter parent study ID</p>
                     </div>  
@@ -59,7 +59,7 @@
                     <label for="displayTitle" class="font-style text-capitalize">title</label>
                     <textarea id="displayTitle" cols="30" rows="3" class="form-control" placeholder="Please enter a good mnemonic reference for your data object"
                     formControlName="displayTitle" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.displayTitle.errors }"></textarea>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.coreObject?.displayTitle}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.displayTitle}}</h6>
                     <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.displayTitle.errors">
                         <p *ngIf="isSubmitted && g.displayTitle.errors.required"> Please enter Object title</p>
                     </div>  
@@ -67,23 +67,23 @@
             </div>
             <div class="row form-group">
                 <div class="col-md-6">
-                    <label for="objectClassId" class="font-style text-capitalize">Object class</label>
-                    <select id="objectClassId" class="form-control" formControlName="objectClassId" *ngIf="!isView" (change)="onChange()">
+                    <label for="objectClass" class="font-style text-capitalize">Object class</label>
+                    <select id="objectClass" class="form-control" formControlName="objectClass" *ngIf="!isView" (change)="onChange()">
                         <option selected disabled value="null">Please select object class</option>
                         <option [value]=class.id *ngFor="let class of objectClass">{{class.name}}</option>
                     </select>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{findObjectClass(objectData?.coreObject?.objectClassId)}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectClass ? objectData?.objectClass.name : 'None'}}</h6>
                 </div>
                 <div class="col-md-6">
-                    <label for="objectTypeId" class="font-style text-capitalize">Object type</label>
-                    <select id="objectTypeId" class="form-control" formControlName="objectTypeId" *ngIf="!isView" (change)="onTypeChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.objectTypeId.errors }">
+                    <label for="objectType" class="font-style text-capitalize">Object type</label>
+                    <select id="objectType" class="form-control" formControlName="objectType" *ngIf="!isView" (change)="onTypeChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.objectType.errors }">
                         <option selected disabled value="null">Please select object type</option>
                         <option [value]=type.id *ngFor="let type of objectType">{{type.name}}</option>
                     </select>
-                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.objectTypeId.errors">
-                        <p *ngIf="isSubmitted && g.objectTypeId.errors.required"> Please enter the data object type</p>
+                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.objectType.errors">
+                        <p *ngIf="isSubmitted && g.objectType.errors.required"> Please enter the data object type</p>
                     </div>  
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{findobjectType(objectData?.coreObject?.objectTypeId)}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectType ? objectData?.objectType.name : 'None'}}</h6>
                 </div>
             </div>
             <div class="row form-group">
@@ -91,44 +91,50 @@
                     <label for="doi" class="font-style text-capitalize">DOI</label>
                     <input id="doi" type="text" class="form-control" placeholder="Enter the relevant Digital Object Identifier" formControlName="doi"
                         *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView"><a [href]='"https://scholar.google.fr/scholar?q="+objectData?.coreObject?.doi' target="_blank">{{objectData?.coreObject?.doi}}</a> </h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView"><a [href]='"https://scholar.google.fr/scholar?q="+objectData?.doi' target="_blank">{{objectData?.doi}}</a> </h6>
                 </div>
                 <div class="col-md-6">
                     <label for="version" class="font-style text-capitalize">Version</label>
                     <input type="text" id="version" class="form-control" placeholder="Enter version" formControlName="version"
                         *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.coreObject?.version}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.version}}</h6>
                 </div>
             </div>
             <div class="row form-group">
                 <div class="col-md-6">
                     <label for="publicationYear" class="font-style text-capitalize">Publication year</label>
                     <p-calendar appendTo="body" id="publicationYear" formControlName="publicationYear" view="year" dateFormat="yy" *ngIf="!isView" placeholder="Enter publication year"></p-calendar>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.coreObject?.publicationYear}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.publicationYear}}</h6>
                 </div>
                 <div class="col-md-6">
                     <label for="langCode" class="font-style text-capitalize">Language</label>
                     <select id="langCode" class="form-control" formControlName="langCode" *ngIf="!isView">
                         <option selected disabled value="null">Please select language</option>
-                        <option [value]="language.code" *ngFor="let language of languageCode">{{language.name}}</option>
+                        <option [value]="language.id" *ngFor="let language of languageCode">{{language.langNameEn}}</option>
                     </select>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.coreObject?.langCode}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.langCode ? objectData?.langCode.langNameEn : 'None'}}</h6>
                 </div>
             </div>
             <div class="row form-group">
                 <div class="col-md-6">
                     <label for="managingOrg" class="font-style text-capitalize">Managing organisation</label>
-                    <input id="managingOrg" type="text" class="form-control" placeholder="Enter managing organisation"
-                        formControlName="managingOrg" *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.coreObject?.managingOrg}}</h6>
+                    <!-- <input id="managingOrg" type="text" class="form-control" placeholder="Enter managing organisation"
+                        formControlName="managingOrg" *ngIf="!isView" /> -->
+                    <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
+                        formControlName="managingOrg" [multiple]="false" [virtualScroll]="true" class="custom"
+                        notFoundText="No members found" placeholder="Select Organisation"
+                        *ngIf="!isView">
+                    </ng-select>
+
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.managingOrg ? objectData?.managingOrg.defaultName : 'None'}}</h6>
                 </div>
                 <div class="col-md-6">
-                    <label for="accessTypeId" class="font-style text-capitalize">Access type</label>
-                    <select id="accessTypeId" class="form-control" formControlName="accessTypeId" *ngIf="!isView" (change)="onChangeAccessType()">
+                    <label for="accessType" class="font-style text-capitalize">Access type</label>
+                    <select id="accessType" class="form-control" formControlName="accessType" *ngIf="!isView" (change)="onChangeAccessType()">
                         <option selected disabled value="null">Please select type of access </option>
                         <option [value]=access.id *ngFor="let access of accessType">{{access.name}}</option>
                     </select>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{findAccessType(objectData?.coreObject?.accessTypeId)}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessType ? objectData?.accessType.name : 'None'}}</h6>
                 </div>
             </div>
             <hr />
@@ -143,13 +149,13 @@
                     <label for="accessDetails" class="font-style text-capitalize">Description</label>
                     <textarea id="accessDetails" class="form-control" cols="30" rows="5" placeholder="Enter description"
                         formControlName="accessDetails" *ngIf="!isView"></textarea>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.coreObject?.accessDetails ? objectData?.coreObject?.accessDetails : 'None'}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetails ? objectData?.accessDetails : 'None'}}</h6>
                 </div>
                 <div class="col-md-6">
                     <label for="accessDetailsUrl" class="font-style text-capitalize">URL</label>
                     <input id="accessDetailsUrl" type="text" class="form-control" placeholder="https://www.example.org/mydata"
                         formControlName="accessDetailsUrl" *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.coreObject?.accessDetailsUrl ? objectData?.coreObject?.accessDetailsUrl : 'None'}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetailsUrl ? objectData?.accessDetailsUrl : 'None'}}</h6>
                 </div>
             </div>
             <hr />
@@ -162,18 +168,18 @@
                 <br />
                 <div class="row form-group">
                     <div class="col-md-6">
-                        <label for="recordKeysTypeId" class="font-style text-capitalize">Keys type</label>
-                        <select id="recordKeysTypeId" class="form-control" formControlName="recordKeysTypeId" *ngIf="!isView">
+                        <label for="recordkeyType" class="font-style text-capitalize">Keys type</label>
+                        <select id="recordkeyType" class="form-control" formControlName="recordkeyType" *ngIf="!isView">
                             <option selected disabled value="null">Please select deidentification level</option>
                             <option [value]=key.id *ngFor="let key of keyType">{{key.name}}</option>
                         </select>
-                        <h6 style="font-weight: 100;" *ngIf="isView">{{findKeyType(objectData?.objectDatasets[0]?.recordKeysTypeId)}}</h6>
+                        <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.recordkeyType ? objectData?.objectDatasets[0]?.recordkeyType.name : 'None' : 'None'}}</h6>
                     </div>
                     <div class="col-md-6">
-                        <label for="recordKeysDetails" class="font-style text-capitalize">Keys details</label>
-                        <textarea id="recordKeysDetails" class="form-control" cols="30" rows="5" placeholder="Please enter a short summary of the justification for the classification given"
-                            formControlName="recordKeysDetails" *ngIf="!isView"></textarea>
-                        <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0]?.recordKeysDetails ? objectData?.objectDatasets[0]?.recordKeysDetails : 'None'}}</h6>
+                        <label for="recordkeyDetails" class="font-style text-capitalize">Keys details</label>
+                        <textarea id="recordkeyDetails" class="form-control" cols="30" rows="5" placeholder="Please enter a short summary of the justification for the classification given"
+                            formControlName="recordkeyDetails" *ngIf="!isView"></textarea>
+                        <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0]?.recordkeyDetails ? objectData?.objectDatasets[0]?.recordkeyDetails : 'None'}}</h6>
                     </div>
                 </div>
                 <hr />
@@ -186,14 +192,14 @@
                 <br />
                 <div class="row form-group">
                     <div class="col-md-4">
-                        <label for="deidentTypeId" class="font-style text-capitalize"> Type</label>
+                        <label for="deidentType" class="font-style text-capitalize"> Type</label>
                         <!-- <i class="fa fa-info-circle pl-1"></i> -->
-                        <select id="deidentTypeId" class="form-control" formControlName="deidentTypeId" *ngIf="!isView">
+                        <select id="deidentType" class="form-control" formControlName="deidentType" *ngIf="!isView">
                             <option selected disabled value="null">Please select deidentification type</option>
                             <option [value]=identification.id *ngFor="let identification of deidentificationType">
                                 {{identification.name}}</option>
                         </select>
-                        <h6 style="font-weight: 100;" *ngIf="isView">{{findDeidentificationType(objectData?.objectDatasets[0]?.deidentTypeId)}}</h6>
+                        <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.deidentType ? objectData?.objectDatasets[0]?.deidentType.name : 'None' : 'None'}}</h6>
                     </div>
                     <div class="col-md-4 form-check m-auto">
                         <label class="form-check-label font-style text-capitalize" for="deidentDirect">Direct ID's</label>
@@ -249,13 +255,13 @@
                 <br />
                 <div class="row form-group">
                     <div class="col-md-4">
-                        <label for="consentTypeId" class="font-style text-capitalize">Type</label>
+                        <label for="consentType" class="font-style text-capitalize">Type</label>
                         <!-- <i class="fa fa-info-circle pl-1"></i> -->
-                        <select id="consentTypeId" class="form-control" formControlName="consentTypeId" *ngIf="!isView">
+                        <select id="consentType" class="form-control" formControlName="consentType" *ngIf="!isView">
                             <option selected disabled value="null">Please select consent type</option>
                             <option [value]=consent.id *ngFor="let consent of consentType">{{consent.name}}</option>
                         </select>
-                        <h6 style="font-weight: 100;" *ngIf="isView">{{findConsentType(objectData?.objectDatasets[0]?.consentTypeId)}}</h6>
+                        <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.consentType ? objectData?.objectDatasets[0]?.consentType.name : 'None' : 'None'}}</h6>
                     </div>
                     <div class="col-md-4 form-check m-auto">
                         <label class="form-check-label font-style text-capitalize" for="consentNoncommercial">Noncommercial only</label>
@@ -310,33 +316,33 @@
             </div>
             <hr>
             <ng-container *ngIf="isEdit || isView">
-                <mat-expansion-panel [expanded]="objectData?.objectIdentifiers.length > 0 ? true : false">
+                <mat-expansion-panel [expanded]="objectData?.objectInstances.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Object instance(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-object-instance [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
+                    <app-object-instance [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
                 </mat-expansion-panel>            
                 <hr />
                 <mat-expansion-panel [expanded]="objectData?.objectTitles.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Object title(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-object-title [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-title>
+                    <app-object-title [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-title>
                 </mat-expansion-panel>
                 <hr />
                 <mat-expansion-panel [expanded]="objectData?.objectDates.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Object date(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-object-date [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-date>
+                    <app-object-date [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-date>
                 </mat-expansion-panel>
                 <hr />
                 <ng-container *ngIf="showTopic">
-                    <mat-expansion-panel [expanded]="objectData?.objectIdentifiers.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="objectData?.objectContributors.length > 0 ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object contributor(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-contributor [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-contributor>
+                        <app-object-contributor [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-contributor>
                     </mat-expansion-panel>
                     <hr />
                 </ng-container>
@@ -345,7 +351,7 @@
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object topic(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-topic [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-topic>
+                        <app-object-topic [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-topic>
                     </mat-expansion-panel>
                     <hr />
                 </ng-container>
@@ -353,28 +359,28 @@
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Object identifier(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-object-identifier [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-identifier>
+                    <app-object-identifier [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-identifier>
                 </mat-expansion-panel>        
                 <hr />
                 <mat-expansion-panel [expanded]="objectData?.objectDescriptions.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Object descriptions(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-object-description [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-description>
+                    <app-object-description [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-description>
                 </mat-expansion-panel>
                 <hr />
                 <mat-expansion-panel [expanded]="objectData?.objectRights.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Object right(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-object-right [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-right>
+                    <app-object-right [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-right>
                 </mat-expansion-panel>
                 <hr />
                 <mat-expansion-panel [expanded]="objectData?.objectRelationships.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Object relationship(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-object-relationship [sdOid]="id" [isView]="isView" [isEdit]="isEdit"></app-object-relationship>
+                    <app-object-relationship [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-relationship>
                 </mat-expansion-panel>
                 <hr />
             </ng-container>

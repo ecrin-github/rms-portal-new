@@ -67,25 +67,25 @@
                 </div>
                 <div class="row form-group">
                     <div class="col-md-3">
-                        <label for="studyStatusId" class="font-style text-capitalize">status</label>
-                        <select class="form-control" id="studyStatusId" formControlName="studyStatusId" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStatusId.errors }">
+                        <label for="studyStatus" class="font-style text-capitalize">status</label>
+                        <select class="form-control" id="studyStatus" formControlName="studyStatus" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStatus.errors }">
                             <option selected disabled value="null">Please select...</option>
                             <option [value]=status.id *ngFor="let status of studyStatuses">{{status.name}}</option>
                         </select>
-                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyStatusId.errors">
-                            <p *ngIf="isSubmitted && g.studyStatusId.errors.required"> Please enter the study status</p>
+                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyStatus.errors">
+                            <p *ngIf="isSubmitted && g.studyStatus.errors.required"> Please enter the study status</p>
                         </div>
                         <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyStatusView?.name}}</h6>
                     </div>
                     <div class="col-md-3">
-                        <label for="studyTypeId" class="font-style text-capitalize">type</label>
-                        <select class="form-control" id="studyTypeId" formControlName="studyTypeId" *ngIf="!isView"
-                            (change)="studyTypeChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.studyTypeId.errors }">
+                        <label for="studyType" class="font-style text-capitalize">type</label>
+                        <select class="form-control" id="studyType" formControlName="studyType" *ngIf="!isView"
+                            (change)="studyTypeChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.studyType.errors }">
                             <option selected disabled value="null">Please select...</option>
                             <option [value]=type.id *ngFor="let type of studyTypes">{{type.name}}</option>
                         </select>
-                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyTypeId.errors">
-                            <p *ngIf="isSubmitted && g.studyTypeId.errors.required"> Please enter the study type</p>
+                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyType.errors">
+                            <p *ngIf="isSubmitted && g.studyType.errors.required"> Please enter the study type</p>
                         </div>
                         <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyTypeView?.name}}</h6>
                     </div>
@@ -126,18 +126,18 @@
                 </div>
                 <div class="row form-group">
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
-                        <label for="studyGenderEligId" class="font-style text-capitalize">Study gender eligibility</label>
-                        <select class="form-control" id="studyGenderEligId" formControlName="studyGenderEligId" *ngIf="!isView">
+                        <label for="studyGenderElig" class="font-style text-capitalize">Study gender eligibility</label>
+                        <select class="form-control" id="studyGenderElig" formControlName="studyGenderElig" *ngIf="!isView">
                             <option selected disabled value="null">Please select...</option>
                             <option [value]=gender.id *ngFor="let gender of genderEligibility">{{gender.name}}</option>
                         </select>
                         <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyGenderView?.name}}</h6>
                     </div>
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
-                        <label for="studyEnrolment" class="font-style text-capitalize">Study enrollment</label>
+                        <label for="studyEnrollment" class="font-style text-capitalize">Study enrollment</label>
                         <input type="text" class="form-control" placeholder="Estimated or actual number of participants in the study"
-                            formControlName="studyEnrolment" *ngIf="!isView" id="studyEnrolment" />
-                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyEnrolment}}</h6>
+                            formControlName="studyEnrollment" *ngIf="!isView" id="studyEnrollment" />
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyEnrollment}}</h6>
                     </div>
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
                         <div class="row">
@@ -150,7 +150,7 @@
                             </div>
                             <div class="col-4">
                                 <label for="minAgeUnits" class="font-style text-capitalize">Units</label>
-                                <select id="minAgeUnits" class="form-control" formControlName="minAgeUnitsId" *ngIf="!isView">
+                                <select id="minAgeUnits" class="form-control" formControlName="minAgeUnit" *ngIf="!isView">
                                     <option selected disabled value="null">Please select...</option>
                                     <option [value]=unit.id *ngFor="let unit of timeUnits">{{unit.name}}</option>
                                 </select>
@@ -169,7 +169,7 @@
                             </div>
                             <div class="col-4">
                                 <label for="maxAgeUnits" class="font-style text-capitalize">Units</label>
-                                <select id="maxAgeUnits" class="form-control" formControlName="maxAgeUnitsId" *ngIf="!isView">
+                                <select id="maxAgeUnits" class="form-control" formControlName="maxAgeUnit" *ngIf="!isView">
                                     <option selected disabled value="null">Please select...</option>
                                     <option [value]=unit.id *ngFor="let unit of timeUnits">{{unit.name}}</option>
                                 </select>
@@ -188,48 +188,48 @@
             </div>
             <hr />
             <ng-container *ngIf="isEdit || isView">
-                <mat-expansion-panel [expanded]="studyFull?.studyIdentifiers.length > 0 ? true : false">
+                <mat-expansion-panel [expanded]="studyData?.studyIdentifiers.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Study identifier(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-study-identifier [sdSid]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-identifier>
+                    <app-study-identifier [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-identifier>
                 </mat-expansion-panel>
                 <hr />
-                <mat-expansion-panel [expanded]="studyFull?.studyTitles.length > 0 ? true : false">
+                <mat-expansion-panel [expanded]="studyData?.studyTitles.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Study title(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-study-title [sdSid]="id" [isView]="isView" [isEdit]="isEdit" [publicTitle]="publicTitle"></app-study-title>
+                    <app-study-title [studyId]="id" [isView]="isView" [isEdit]="isEdit" [publicTitle]="publicTitle"></app-study-title>
                 </mat-expansion-panel>
                 <hr />
                 <ng-container *ngIf="studyType">
-                    <mat-expansion-panel [expanded]="studyFull?.studyFeatures.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="studyData?.studyFeatures.length > 0 ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study feature(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-study-feature [sdSid]="id" [isView]="isView" [isEdit]="isEdit" [studyType]="studyType" *ngIf="studyType"></app-study-feature>
+                        <app-study-feature [studyId]="id" [isView]="isView" [isEdit]="isEdit" [studyType]="studyType" *ngIf="studyType"></app-study-feature>
                     </mat-expansion-panel>
                     <hr />
                 </ng-container>
-                <mat-expansion-panel [expanded]="studyFull?.studyTopics.length > 0 ? true : false">
+                <mat-expansion-panel [expanded]="studyData?.studyTopics.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Study topic(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-study-topic [sdSid]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-topic>
+                    <app-study-topic [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-topic>
                 </mat-expansion-panel>
                 <hr />
-                <mat-expansion-panel [expanded]="studyFull?.studyRelationships.length > 0 ? true : false">
+                <mat-expansion-panel [expanded]="studyData?.studyRelationships.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Study relationship(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-study-relationship [sdSid]="id" [isView]="isView" [isEdit]="isEdit"></app-study-relationship>
+                    <app-study-relationship [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-relationship>
                 </mat-expansion-panel>
                 <hr />
-                <mat-expansion-panel [expanded]="studyFull?.studyContributors.length > 0 ? true : false">
+                <mat-expansion-panel [expanded]="studyData?.studyContributors.length > 0 ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Study contributor(s)</h6>
                     </mat-expansion-panel-header>
-                    <app-study-contributor [sdSid]="id" [isView]="isView" [isEdit]="isEdit"></app-study-contributor>
+                    <app-study-contributor [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-contributor>
                 </mat-expansion-panel>
                 <hr />
             </ng-container>

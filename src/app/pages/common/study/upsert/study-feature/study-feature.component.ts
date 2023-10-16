@@ -43,6 +43,7 @@ export class StudyFeatureComponent implements OnInit {
   @Output() emitFeature: EventEmitter<any> = new EventEmitter();
   studyFeature = [];
   showAll: boolean = true;
+  pageSize: Number = 10000;
 
 
   constructor(private fb: UntypedFormBuilder, private router: Router, private studyService: StudyService, private studyLookupService: StudyLookupService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal) {
@@ -97,8 +98,8 @@ export class StudyFeatureComponent implements OnInit {
     })
   }
   getFeature() {
-    const getFeatureType$ =  this.isBrowsing ? this.studyLookupService.getBrowsingFeatureTypes() : this.studyLookupService.getFeatureTypes();
-    const getFeatureValue$ = this.isBrowsing ? this.studyLookupService.getBrowsingFeatureValues() : this.studyLookupService.getFeatureValues();
+    const getFeatureType$ =  this.studyLookupService.getFeatureTypes(this.pageSize);
+    const getFeatureValue$ = this.studyLookupService.getFeatureValues(this.pageSize);
     this.spinner.show();
     const combine$ = combineLatest([getFeatureType$, getFeatureValue$]).subscribe(([featureType, featureValue] : [any, any]) => {
       this.spinner.hide();

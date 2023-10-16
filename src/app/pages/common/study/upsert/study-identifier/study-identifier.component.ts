@@ -26,7 +26,7 @@ export class StudyIdentifierComponent implements OnInit {
   organizationList:[] = [];
   @Input() isView: boolean;
   @Input() isEdit: boolean;
-  @Input() sdSid: string;
+  @Input() studyId: string;
   @Input() set initiateEmit(initiateEmit: any) {
     if (initiateEmit) {
       this.emitData();
@@ -36,6 +36,7 @@ export class StudyIdentifierComponent implements OnInit {
   isBrowsing: boolean = false;
   @Output() emitIdentifier: EventEmitter<any> = new EventEmitter();
   @ViewChildren("panel", { read: ElementRef }) panel: QueryList<ElementRef>;
+  pageSize: Number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private studyService: StudyService, private studyLookupService: StudyLookupService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private router: Router, private commonLookup: CommonLookupService) { 
     this.form = this.fb.group({
@@ -58,12 +59,12 @@ export class StudyIdentifierComponent implements OnInit {
   newStudyIdentifier(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdSid: '',
+      studyId: '',
       identifierValue: '',
-      identifierTypeId: null,
+      identifierType: null,
       identifierDate: null,
       identifierLink: '',
-      identifierOrgId: null,
+      identifierOrg: null,
       alreadyExist: false
     });
   }
@@ -71,7 +72,7 @@ export class StudyIdentifierComponent implements OnInit {
   addStudyIdentifier() {
     this.len = this.studyIdentifiers().value.length;
     if (this.len) {
-      if (this.studyIdentifiers().value[this.len - 1].identifierValue !== null && this.studyIdentifiers().value[this.len - 1].identifierTypeId !== null && this.studyIdentifiers().value[this.len - 1].identifierOrgId !== null) {
+      if (this.studyIdentifiers().value[this.len - 1].identifierValue !== null && this.studyIdentifiers().value[this.len - 1].identifierType !== null && this.studyIdentifiers().value[this.len - 1].identifierOrg !== null) {
         this.studyIdentifiers().push(this.newStudyIdentifier());
         this.showIdentifierLinks.push(false);
       } else {
@@ -96,7 +97,7 @@ export class StudyIdentifierComponent implements OnInit {
       const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
       removeModal.componentInstance.type = 'studyIdentifier';
       removeModal.componentInstance.id = this.studyIdentifiers().value[i].id;
-      removeModal.componentInstance.sdSid = this.studyIdentifiers().value[i].sdSid;
+      removeModal.componentInstance.studyId = this.studyIdentifiers().value[i].studyId;
       removeModal.result.then((data) => {
         if (data) {
           this.studyIdentifiers().removeAt(i);
@@ -107,11 +108,10 @@ export class StudyIdentifierComponent implements OnInit {
   }
   getOrganization() {
     this.spinner.show();
-    const getOrganisationList$ = this.isBrowsing ? this.commonLookup.getBrowsingOrganizationList() : this.commonLookup.getOrganizationList();
-    getOrganisationList$.subscribe((res: any) => {
+    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.organizationList = res.data;
+      if (res && res.results) {
+        this.organizationList = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -122,10 +122,9 @@ export class StudyIdentifierComponent implements OnInit {
     setTimeout(() => {
       this.spinner.show(); 
     });
-    const getIdentifierType$ = this.isBrowsing ? this.studyLookupService.getBrowsingStudyIdentifierTypes() : this.studyLookupService.getStudyIdentifierTypes();
-    getIdentifierType$.subscribe((res: any) => {
-      if(res && res.data) {
-        this.identifierTypes = res.data;
+    this.studyLookupService.getStudyIdentifierTypes(this.pageSize).subscribe((res: any) => {
+      if(res && res.results) {
+        this.identifierTypes = res.results;
       }
       this.spinner.hide();
     }, error => {
@@ -134,11 +133,10 @@ export class StudyIdentifierComponent implements OnInit {
     });
   }
   getStudyIdentifier() {
-    const studyIdentifier$ = this.isBrowsing ? this.studyService.getBrowsingStudyIdentifiers(this.sdSid) : this.studyService.getStudyIdentifiers(this.sdSid);
     this.spinner.show();
-    studyIdentifier$.subscribe((res:any) => {
-      if(res && res.data) {
-        this.studyIdentifier = res.data.length ? res.data : [];
+    this.studyService.getStudyIdentifiers(this.studyId).subscribe((res:any) => {
+      if(res && res.results) {
+        this.studyIdentifier = res.results.length ? res.results : [];
         this.patchForm(this.studyIdentifier);
       }
       this.spinner.hide();
@@ -155,27 +153,27 @@ export class StudyIdentifierComponent implements OnInit {
     identifiers.forEach((identifier, index) => {
       formArray.push(this.fb.group({
         id: identifier.id,
-        sdSid: identifier.sdSid,
+        studyId: identifier.studyId,
         identifierValue: identifier.identifierValue,
-        identifierTypeId: identifier.identifierTypeId,
+        identifierType: identifier.identifierType ? identifier.identifierType.id : null,
         identifierDate: identifier.identifierDate ? this.stringTodate(identifier.identifierDate) : '',
         identifierLink: identifier.identifierLink,
-        identifierOrgId: identifier.identifierOrgId,
+        identifierOrg: identifier.identifierOrg ? identifier.identifierOrg.id : null,
         alreadyExist: true
       }))
       const arr: any = this.identifierTypes.filter((item: any) => item.name.includes('Funder'));
-      this.showIdentifierLinks[index] = arr && arr.length ? identifier.identifierTypeId === arr[0].id ? true : false : false;
+      this.showIdentifierLinks[index] = arr && arr.length ? identifier.identifierType === arr[0].id ? true : false : false;
     });
     return formArray;
   }
   addIdentifier(index) {
     this.spinner.show();
     const payload = this.form.value.studyIdentifiers[index];
-    payload.sdSid = this.sdSid;
-    payload.identifierDate = this.dateToString(payload.identifierDate);
+    payload.studyId = this.studyId;
+    payload.identifierDate = new Date(this.dateToString(payload.identifierDate));
     delete payload.id;
     
-    this.studyService.addStudyIdentifier(this.sdSid, payload).subscribe((res: any) => {
+    this.studyService.addStudyIdentifier(this.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Study Identifier added successfully');
@@ -190,9 +188,9 @@ export class StudyIdentifierComponent implements OnInit {
   }
   editIdentifier(identifierObject) {
     const payload = identifierObject.value;
-    payload.identifierDate = this.dateToString(payload.identifierDate);
+    payload.identifierDate = new Date(this.dateToString(payload.identifierDate));
     this.spinner.show();
-    this.studyService.editStudyIdentifier(payload.id, payload.sdSid, payload).subscribe((res: any) => {
+    this.studyService.editStudyIdentifier(payload.id, payload.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if(res.statusCode === 200) {
         this.toastr.success('Study Identifier updated successfully');
@@ -219,7 +217,7 @@ export class StudyIdentifierComponent implements OnInit {
   }
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
-    return organizationArray && organizationArray.length ? organizationArray[0].name : ''
+    return organizationArray && organizationArray.length ? organizationArray[0].defaultName : ''
   }
   emitData() {
     const payload = this.form.value.studyIdentifiers.map(item => {
@@ -227,8 +225,8 @@ export class StudyIdentifierComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if(this.sdSid) {
-        item.sdSid = this.sdSid;
+      if(this.studyId) {
+        item.studyId = this.studyId;
       }
       return item;
     })
@@ -236,7 +234,7 @@ export class StudyIdentifierComponent implements OnInit {
   }
   onChange(index) {
     const arr: any = this.identifierTypes.filter((item: any) => item.name.includes('Funder'));
-    this.showIdentifierLinks[index] = arr && arr.length ? parseInt(this.form.value.studyIdentifiers[index].identifierTypeId) === arr[0].id ? true : false : false
+    this.showIdentifierLinks[index] = arr && arr.length ? parseInt(this.form.value.studyIdentifiers[index].identifierType) === arr[0].id ? true : false : false
   }
   scrollToElement(): void {
     setTimeout(() => {

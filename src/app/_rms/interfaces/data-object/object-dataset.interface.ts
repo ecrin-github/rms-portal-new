@@ -1,16 +1,16 @@
 export interface ObjectDatasetInterface {
     id: number;
-    sdOid: string;
-    recordKeysTypeId: number;
-    recordKeysDetails: string;
-    deidentTypeId: number;
+    objectId: string;
+    recordkeyType: {id: number, name: string};
+    recordkeyDetails: string;
+    deidentType: {id: number, name: string};
     deidentDirect: boolean;
     deidentHipaa: boolean;
     deidentDates: boolean;
     deidentNonarr: boolean;
     deidentKanon: boolean;
     deidentDetails: string;
-    consentTypeId: number;
+    consentType: {id: number, name: string};
     consentNoncommercial: boolean;
     consentGeogRestrict: boolean;
     consentResearchType: boolean;

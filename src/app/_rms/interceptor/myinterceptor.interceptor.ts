@@ -5,12 +5,14 @@ import {
   HttpEvent,
   HttpInterceptor,
   HttpResponse,
-  HttpErrorResponse
+  HttpErrorResponse,
+  HttpContextToken
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { tap } from 'rxjs/operators';
+export const BYPASS_LOG = new HttpContextToken(() => false);
 
 @Injectable()
 export class MyinterceptorInterceptor implements HttpInterceptor {
@@ -22,12 +24,16 @@ export class MyinterceptorInterceptor implements HttpInterceptor {
     let path = '';
     if (!request.url.includes('https://login.elixir-czech.org/oidc')) {
       path += request.url;
-      request = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-        url: path
-      })
+      if (request.context.get(BYPASS_LOG) === true) {
+
+      } else {
+        request = request.clone({
+          setHeaders: {
+            Authorization: `Bearer ${token}`,
+          },
+          url: path
+        })
+      }
     } else {
       path = request.url;
     }
@@ -38,8 +44,8 @@ export class MyinterceptorInterceptor implements HttpInterceptor {
     }, error => {
       if (error instanceof HttpErrorResponse) {
         if (error.status === 401 || error.status === 404) {
-          localStorage.clear();
-          document.location.reload();
+          // localStorage.clear();
+          // document.location.reload();
         }
       }
     }
