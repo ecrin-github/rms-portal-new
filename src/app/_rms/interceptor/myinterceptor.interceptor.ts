@@ -44,8 +44,8 @@ export class MyinterceptorInterceptor implements HttpInterceptor {
     }, error => {
       if (error instanceof HttpErrorResponse) {
         if (error.status === 401 || error.status === 404) {
-          // localStorage.clear();
-          // document.location.reload();
+          localStorage.clear();
+          document.location.reload();
         }
       }
     }
