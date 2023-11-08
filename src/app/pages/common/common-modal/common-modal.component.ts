@@ -7,6 +7,7 @@ import { DataObjectService } from 'src/app/_rms/services/entities/data-object/da
 import { DtpService } from 'src/app/_rms/services/entities/dtp/dtp.service';
 import { DupService } from 'src/app/_rms/services/entities/dup/dup.service';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-common-modal',
@@ -27,7 +28,8 @@ export class CommonModalComponent implements OnInit {
   sdSidArray: any;
 
   constructor( private activeModal: NgbActiveModal, private listService: ListService, private spinner: NgxSpinnerService, 
-    private toastr: ToastrService, private objectService: DataObjectService, private fb: UntypedFormBuilder, private dtpService: DtpService, private dupService: DupService) { 
+    private toastr: ToastrService, private objectService: DataObjectService, private fb: UntypedFormBuilder,
+               private dtpService: DtpService, private dupService: DupService, private httpClient: HttpClient) {
       this.studyForm = this.fb.group({
         targetSdSid: ''
       });
@@ -203,12 +205,12 @@ export class CommonModalComponent implements OnInit {
   }
   getPeopleList() {
     this.spinner.show();
-    this.listService.getPeopleList().subscribe((res: any) => {
+    this.httpClient.get('https://api-test.ecrin-rms.org/api/users/?page=1&page_size=100').subscribe((data) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.userList = res.data;
+      console.log(data);
+      if (data && data['results']) {
+        this.userList = data['results'];
       }
-      console.log(res);
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);

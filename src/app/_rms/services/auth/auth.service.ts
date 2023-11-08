@@ -81,20 +81,20 @@ export class AuthService implements OnDestroy {
     }
 
     this.statesService.isLoadingSubject = true;
-    return this.authHttpService.getUserByToken(auth.accessToken).pipe(
-      map((user: UserInterface) => {
-        if (user) {
-          this.statesService.currentUser = user;
-          this.privilegesService.setPrivileges(user);
-        } else {
-          this.logout();
-        }
-        return user;
-      }),
-      finalize(() => {
-        this.statesService.isLoadingSubject = false;
-      })
-    );
+    // return this.authHttpService.getUserByToken(auth.accessToken).pipe(
+    //   map((user: UserInterface) => {
+    //     if (user) {
+    //       this.statesService.currentUser = user;
+    //       this.privilegesService.setPrivileges(user);
+    //     } else {
+    //       this.logout();
+    //     }
+    //     return user;
+    //   }),
+    //   finalize(() => {
+    //     this.statesService.isLoadingSubject = false;
+    //   })
+    // );
   }
 
   // private methods

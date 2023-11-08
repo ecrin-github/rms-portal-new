@@ -5,7 +5,7 @@ import { map, catchError } from 'rxjs/operators';
 import {environment} from '../../../../../environments/environment';
 import {UserInterface} from '../../../interfaces/user/user.interface';
 import {AuthInterface} from '../../../interfaces/user/auth.interface';
-import {UsersTable} from '../../../../_fake/fake-db/users.table';
+// import {UsersTable} from '../../../../_fake/fake-db/users.table';
 
 
 
@@ -51,17 +51,17 @@ export class AuthHTTPService {
     );
   }
 
-  getUserByToken(token: string): Observable<UserInterface> {
-    const user = UsersTable.users.find((u) => {
-      return u.token.accessToken === token;
-    });
-
-    if (!user) {
-      return of(undefined);
-    }
-
-    return of(user);
-  }
+  // getUserByToken(token: string): Observable<UserInterface> {
+  //   const user = UsersTable.users.find((u) => {
+  //     return u.token.accessToken === token;
+  //   });
+  //
+  //   if (!user) {
+  //     return of(undefined);
+  //   }
+  //
+  //   return of(user);
+  // }
 
   getAllUsers(): Observable<UserInterface[]> {
     return this.http.get<UserInterface[]>(API_USERS_URL);

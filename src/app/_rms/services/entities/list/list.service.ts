@@ -74,7 +74,7 @@ export class ListService {
   // DTP lists
 
   getDtpList() {
-    return this.http.get(`${base}/data-transfers/list`);
+    return this.http.get(`${base}/rms/dtp`);
   }
   
   getFilteredDtpList(title_fragment: string, page: number, size: number) {
@@ -92,7 +92,7 @@ export class ListService {
   // DUP lists
 
   getDupList() {
-    return this.http.get(`${base}/data-uses/list`);
+    return this.http.get(`${base}/rms/dup`);
   }
   
   getFilteredDuptList(title_fragment: string, page: number, size: number) {

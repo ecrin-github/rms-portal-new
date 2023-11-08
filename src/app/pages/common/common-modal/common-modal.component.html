@@ -50,12 +50,12 @@
                 [multiple]="true" [virtualScroll]="true" class="custom" notFoundText="No members found"
                     placeholder="Select object" [searchFn]="customSearchUser">
                     <ng-template ng-label-tmp let-item="item">
-                        {{item.name}}
+                        {{item.firstName}} {{item.lastName}}
                     </ng-template>
                     <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                         <div class="row m-0">
                             <div class="col-md-8 col-8 p-0 m-0">
-                                <div class="col-md-12">{{item.name}}</div>
+                                <div class="col-md-12">{{item.firstName}} {{item.lastName}}</div>
                             </div>
                         </div>
                     </ng-template>

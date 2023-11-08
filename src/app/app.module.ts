@@ -14,7 +14,7 @@ import { environment } from 'src/environments/environment';
 import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { SplashScreenModule } from './_rms/partials/layout/splash-screen/splash-screen.module';
 // #fake-start#
-import { FakeAPIService } from './_fake/fake-api.service';
+// import { FakeAPIService } from './_fake/fake-api.service';
 import {AuthService} from './_rms/services/auth/auth.service';
 import { AuthModule, LogLevel, OidcConfigService } from 'angular-auth-oidc-client';
 import { AuthGuard } from './_rms/guards/auth/auth.guard';
@@ -51,12 +51,12 @@ function appInitializer(authService: AuthService) {
     ClipboardModule,
     FileSaverModule,
     // #fake-start#
-    environment.isMockEnabled
-        ? HttpClientInMemoryWebApiModule.forRoot(FakeAPIService, {
-          passThruUnknownUrl: true,
-          dataEncapsulation: false,
-        })
-        : [],
+    // environment.isMockEnabled
+    //     ? HttpClientInMemoryWebApiModule.forRoot(FakeAPIService, {
+    //       passThruUnknownUrl: true,
+    //       dataEncapsulation: false,
+    //     })
+    //     : [],
     // #fake-end#
     AppRoutingModule,
     InlineSVGModule.forRoot(),
