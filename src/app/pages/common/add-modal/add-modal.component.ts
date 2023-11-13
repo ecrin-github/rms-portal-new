@@ -32,9 +32,9 @@ export class AddModalComponent implements OnInit {
   constructor( private spinner: NgxSpinnerService, private fb: UntypedFormBuilder, private dtpService: DtpService, private toastr: ToastrService, private processLookup: ProcessLookupService,
     private activeModal: NgbActiveModal, private objectLookupService: ObjectLookupService, private dupService: DupService) { 
     this.preReqForm = this.fb.group({
-      sdOid: '',
-      preRequisiteTypeId: '',
-      preRequisiteNotes: ''
+      objectId: '',
+      prereqType: '',
+      prereqNotes: ''
     });
     this.embargoForm = this.fb.group({
       accessCheckStatusId: null,
@@ -46,14 +46,14 @@ export class AddModalComponent implements OnInit {
       embargoRegime: '',
       embargoRequested: null,
       embargoStillApplies: null,
-      sdOid: ''
+      objectId: ''
     });
     this.dupPreReqForm = this.fb.group({
       preRequisiteId: '',
       preRequisiteNotes: '',
       preRequisiteMet: '',
       metNotes: '',
-      sdOid: ''
+      objectId: ''
     })
 }
 
@@ -74,9 +74,9 @@ export class AddModalComponent implements OnInit {
     }
   }
   getPrereqTypes() {
-    this.processLookup.getPrereqTypes().subscribe((res: any) => {
+    this.processLookup.getPrereqTypes(this.pageSize).subscribe((res: any) => {
       if (res) {
-        this.preRequTypes = res.data;
+        this.preRequTypes = res.results;
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -95,8 +95,8 @@ export class AddModalComponent implements OnInit {
     this.spinner.show();
     this.dtpService.getDtpObjects(id).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.objectList = res.data;
+      if (res && res.results) {
+        this.objectList = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -124,7 +124,8 @@ export class AddModalComponent implements OnInit {
     if (this.type === 'dtpPrereq') {
       this.spinner.show();
       const payload = this.preReqForm.value;
-      this.dtpService.addDtpObjectPrereq(this.dtpId,payload.sdOid, payload).subscribe((res: any) => {
+      payload.dtpId = this.dtpId;
+      this.dtpService.addDtpObjectPrereq(this.dtpId,payload).subscribe((res: any) => {
         this.spinner.hide();
         if(res.statusCode === 200) {
           this.toastr.success('Pre-Requisite added successfully');
@@ -140,7 +141,7 @@ export class AddModalComponent implements OnInit {
     if (this.type === 'dtpEmbargo') {
       this.spinner.show();
       const payload = this.embargoForm.value;
-      this.dtpService.addDtpObject(this.dtpId, payload.sdOid, payload).subscribe((res: any) => {
+      this.dtpService.addDtpObject(this.dtpId, payload).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Object Embargo added successfully');
@@ -157,7 +158,7 @@ export class AddModalComponent implements OnInit {
       this.spinner.show();
       const payload = this.dupPreReqForm.value;
       payload.preRequisiteMet = this.dateToString(payload.preRequisiteMet);
-      this.dupService.addDupObjectPrereq(this.dupId, payload.sdOid, payload).subscribe((res: any) => {
+      this.dupService.addDupObjectPrereq(this.dupId, payload.objectId, payload).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Pre-Requisite added successfully');

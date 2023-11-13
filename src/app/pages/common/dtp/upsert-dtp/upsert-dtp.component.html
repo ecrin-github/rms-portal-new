@@ -20,7 +20,7 @@
                 <button class="btn btn-warning" *ngIf="!isView" (click)="close()"> Cancel </button>
             </div>
             <div class="pl-5">
-                <h6>{{dtpData?.coreDtp.displayName}}</h6>
+                <h6>{{dtpData?.displayName}}</h6>
             </div>
         </div>
         <!-- <div id="navbar" [ngClass]="sticky ? 'text-center' : ''">
@@ -59,15 +59,15 @@
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize">organization</label>
                                     <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
-                                        formControlName="orgId" [multiple]="false" [virtualScroll]="true" class="custom"
+                                        formControlName="organisation" [multiple]="false" [virtualScroll]="true" class="custom"
                                         notFoundText="No members found" placeholder="Select Organisation"
-                                        *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.orgId.errors }" [readonly]="isEdit">
+                                        *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }" [readonly]="isEdit">
                                     </ng-select>
-                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.orgId.errors">
-                                        <p *ngIf="submitted && g.orgId.errors.required"> Please select Organization</p>
+                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.organisation.errors">
+                                        <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>
                                     </div>
                                     <h6 style="font-weight: 100;" *ngIf="isView">
-                                        {{findOrganization(dtpData?.coreDtp.orgId)}}</h6>
+                                        {{findOrganization(dtpData?.organisation?.id)}}</h6>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize">display name</label>
@@ -78,7 +78,7 @@
                                             Name
                                         </p>
                                     </div>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.coreDtp.displayName}}</h6>
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.displayName}}</h6>
                                 </div>
                             </div>
                             <div class="row form-group" *ngIf="isEdit || isView">
@@ -86,14 +86,14 @@
                                     <label for="" class="font-style text-capitalize pr-5">Status</label>
                                     <button class="btn btn-danger btn-sm" *ngIf="!isView"
                                         (click)="resetAll()">Change Submission Status</button>
-                                    <select class="form-control" formControlName="statusId" *ngIf="showStatus"
+                                    <select class="form-control" formControlName="status" *ngIf="showStatus"
                                         (change)="onChange()">
                                         <option disabled selected value="">Select an option...</option>
                                         <option [value]=status.id *ngFor="let status of statusList">{{status.name}}
                                         </option>
                                     </select>
                                     <h6 style="font-weight: 100;" *ngIf="!showStatus || isView">
-                                        {{findStatus(dtpData?.coreDtp.statusId)}}</h6>
+                                        {{findStatus(dtpData?.status.id)}}</h6>
                                 </div>
                             </div>
                             <div #wizard class="wizard wizard-1" id="kt_wizard_v1" data-wizard-state="step-first"
@@ -191,7 +191,7 @@
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.initialContactDate)}}</h6>
+                                                    {{viewDate(dtpData?.initialContactDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -202,21 +202,21 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="setUpCompleted" ngbDatepicker
-                                                            #setUpCompleted="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.setUpCompleted.errors }"
-                                                            (click)="setUpCompleted.toggle()"
-                                                            formControlName="setUpCompleted" [maxDate]="todayDate" container='body'>
+                                                            name="setUpCompleteDate" ngbDatepicker
+                                                            #setUpCompleteDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.setUpCompleteDate.errors }"
+                                                            (click)="setUpCompleteDate.toggle()"
+                                                            formControlName="setUpCompleteDate" [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="setUpCompleted.toggle()" type="button">
+                                                                (click)="setUpCompleteDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.setUpCompleted)}}</h6>
+                                                    {{viewDate(dtpData?.setUpCompleteDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -228,21 +228,21 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="mdAccessGranted" ngbDatepicker
-                                                            #mdAccessGranted="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.mdAccessGranted.errors }"
-                                                            (click)="mdAccessGranted.toggle()"
-                                                            formControlName="mdAccessGranted" [maxDate]="todayDate" container='body'>
+                                                            name="mdAccessGrantedDate" ngbDatepicker
+                                                            #mdAccessGrantedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.mdAccessGrantedDate.errors }"
+                                                            (click)="mdAccessGrantedDate.toggle()"
+                                                            formControlName="mdAccessGrantedDate" [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="mdAccessGranted.toggle()" type="button">
+                                                                (click)="mdAccessGrantedDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.mdAccessGranted)}}</h6>
+                                                    {{viewDate(dtpData?.mdAccessGrantedDate)}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="" class="font-style text-capitalize">MD completed
@@ -264,7 +264,7 @@
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.mdCompleteDate)}}</h6>
+                                                    {{viewDate(dtpData?.mdCompleteDate)}}</h6>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -287,7 +287,7 @@
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.dtaAgreedDate)}}</h6>
+                                                    {{viewDate(dtpData?.dtaAgreedDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -299,22 +299,22 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="uploadAccessRequested" ngbDatepicker
-                                                            #uploadAccessRequested="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadAccessRequested.errors }"
-                                                            (click)="uploadAccessRequested.toggle()"
-                                                            formControlName="uploadAccessRequested"
+                                                            name="uploadAccessRequestedDate" ngbDatepicker
+                                                            #uploadAccessRequestedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadAccessRequestedDate.errors }"
+                                                            (click)="uploadAccessRequestedDate.toggle()"
+                                                            formControlName="uploadAccessRequestedDate"
                                                             [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="uploadAccessRequested.toggle()" type="button">
+                                                                (click)="uploadAccessRequestedDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.uploadAccessRequested)}}</h6>
+                                                    {{viewDate(dtpData?.uploadAccessRequestedDate)}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="" class="font-style text-capitalize">upload access
@@ -322,22 +322,22 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="uploadAccessConfirmed" ngbDatepicker
-                                                            #uploadAccessConfirmed="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadAccessConfirmed.errors }"
-                                                            (click)="uploadAccessConfirmed.toggle()"
-                                                            formControlName="uploadAccessConfirmed"
+                                                            name="uploadAccessConfirmedDate" ngbDatepicker
+                                                            #uploadAccessConfirmedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadAccessConfirmedDate.errors }"
+                                                            (click)="uploadAccessConfirmedDate.toggle()"
+                                                            formControlName="uploadAccessConfirmedDate"
                                                             [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="uploadAccessConfirmed.toggle()" type="button">
+                                                                (click)="uploadAccessConfirmedDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.uploadAccessConfirmed)}}</h6>
+                                                    {{viewDate(dtpData?.uploadAccessConfirmedDate)}}</h6>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -346,21 +346,21 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="uploadsComplete" ngbDatepicker
-                                                            #uploadsComplete="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadsComplete.errors }"
-                                                            (click)="uploadsComplete.toggle()"
-                                                            formControlName="uploadsComplete" [maxDate]="todayDate" container='body'>
+                                                            name="uploadCompleteDate" ngbDatepicker
+                                                            #uploadCompleteDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.uploadCompleteDate.errors }"
+                                                            (click)="uploadCompleteDate.toggle()"
+                                                            formControlName="uploadCompleteDate" [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="uploadsComplete.toggle()" type="button">
+                                                                (click)="uploadCompleteDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.uploadsComplete)}}</h6>
+                                                    {{viewDate(dtpData?.uploadCompleteDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -372,21 +372,21 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="qcChecksCompleted" ngbDatepicker
-                                                            #qcChecksCompleted="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.qcChecksCompleted.errors }"
-                                                            (click)="qcChecksCompleted.toggle()"
-                                                            formControlName="qcChecksCompleted" [maxDate]="todayDate" container='body'>
+                                                            name="qcChecksCompleteDate" ngbDatepicker
+                                                            #qcChecksCompleteDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.qcChecksCompleteDate.errors }"
+                                                            (click)="qcChecksCompleteDate.toggle()"
+                                                            formControlName="qcChecksCompleteDate" [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="qcChecksCompleted.toggle()" type="button">
+                                                                (click)="qcChecksCompleteDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.qcChecksCompleted)}}</h6>
+                                                    {{viewDate(dtpData?.qcChecksCompleteDate)}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="" class="font-style text-capitalize">MD integrated with
@@ -394,21 +394,21 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="mdIntegratedWithMdr" ngbDatepicker
-                                                            #mdIntegratedWithMdr="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.mdIntegratedWithMdr.errors }"
-                                                            (click)="mdIntegratedWithMdr.toggle()"
-                                                            formControlName="mdIntegratedWithMdr" [maxDate]="todayDate" container='body'>
+                                                            name="mdIntegratedWithMdrDate" ngbDatepicker
+                                                            #mdIntegratedWithMdrDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.mdIntegratedWithMdrDate.errors }"
+                                                            (click)="mdIntegratedWithMdrDate.toggle()"
+                                                            formControlName="mdIntegratedWithMdrDate" [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="mdIntegratedWithMdr.toggle()" type="button">
+                                                                (click)="mdIntegratedWithMdrDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.mdIntegratedWithMdr)}}</h6>
+                                                    {{viewDate(dtpData?.mdIntegratedWithMdrDate)}}</h6>
 
                                             </div>
                                         </div>
@@ -419,22 +419,22 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="availabilityRequested" ngbDatepicker
-                                                            #availabilityRequested="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityRequested.errors }"
-                                                            (click)="availabilityRequested.toggle()"
-                                                            formControlName="availabilityRequested"
+                                                            name="availabilityRequestedDate" ngbDatepicker
+                                                            #availabilityRequestedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityRequestedDate.errors }"
+                                                            (click)="availabilityRequestedDate.toggle()"
+                                                            formControlName="availabilityRequestedDate"
                                                             [maxDate]="todayDate" container='body' container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="availabilityRequested.toggle()" type="button">
+                                                                (click)="availabilityRequestedDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.availabilityRequested)}}</h6>
+                                                    {{viewDate(dtpData?.availabilityRequestedDate)}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="" class="font-style text-capitalize">Availability
@@ -442,22 +442,22 @@
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd"
-                                                            name="availabilityConfirmed" ngbDatepicker
-                                                            #availabilityConfirmed="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityConfirmed.errors }"
-                                                            (click)="availabilityConfirmed.toggle()"
-                                                            formControlName="availabilityConfirmed"
+                                                            name="availabilityConfirmedDate" ngbDatepicker
+                                                            #availabilityConfirmedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityConfirmedDate.errors }"
+                                                            (click)="availabilityConfirmedDate.toggle()"
+                                                            formControlName="availabilityConfirmedDate"
                                                             [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
                                                             <button class="btn btn-primary"
-                                                                (click)="availabilityConfirmed.toggle()" type="button">
+                                                                (click)="availabilityConfirmedDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dtpData?.coreDtp.availabilityConfirmed)}}</h6>
+                                                    {{viewDate(dtpData?.availabilityConfirmedDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -490,16 +490,16 @@
                                         <label class="form-check-label font-style text-capitalize" for="conformsToDefault">conforms to
                                             default</label>
                                         <input class="form-check-input ml-4" type="checkbox" id="conformsToDefault"
-                                            formControlName="conformsToDefaultChange" (change)="conformsToDefaultChange()" *ngIf="!isView">
+                                            formControlName="conformsToDefault" (change)="conformsToDefaultChange()" *ngIf="!isView">
                                         <h6 style="font-weight: 100;" *ngIf="isView">
-                                            {{dtpData?.dtas[0]?.conformsToDefault}}
+                                            {{dtaData ? dtaData[0]?.conformsToDefault : ''}}
                                         </h6>
                                     </div>
                                     <div class="col-md-6" *ngIf="!showVariations">
                                         <label for="variations" class="font-style text-capitalize">variations</label>
                                         <textarea cols="30" rows="3" class="form-control" id="variations" formControlName="variations"
                                             *ngIf="!isView"></textarea>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.dtas[0]?.variations}}
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? dtaData[0]?.variations : ''}}
                                         </h6>
                                     </div>
                                 </div>
@@ -507,7 +507,7 @@
                                     <div class="col-md-6">
                                         <label for="filePath" class="font-style text-capitalize">DTA file path</label>
                                         <input type="text" class="form-control" id="filePath" formControlName="dtaFilePath" *ngIf="!isView">
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.dtas[0]?.dtaFilePath}}
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? dtaData[0]?.dtaFilePath : ''}}
                                         </h6>
                                     </div>
                                 </div>
@@ -515,23 +515,23 @@
                                     <div class="col-md-6">
                                         <label for="rsignatory1" class="font-style text-capitalize">Repository Signatory
                                             1</label>
-                                        <select id="rsignatory1" class="form-control" formControlName="repoSignatory1" *ngIf="!isView">
+                                        <select id="rsignatory1" class="form-control" formControlName="repoSignature1" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.personId *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]=user.id *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dtpData?.dtas[0]?.repoSignatory1)}}
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? findPeopleById(dtaData[0]?.repoSignature1) : ''}}
                                         </h6>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="rsignatory2" class="font-style text-capitalize">Repository Signatory
                                             2</label>
-                                        <select id="rsignatory2" class="form-control" formControlName="repoSignatory2" *ngIf="!isView">
+                                        <select id="rsignatory2" class="form-control" formControlName="repoSignature2" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]="user.personId" *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]="user.id" *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dtpData?.dtas[0]?.repoSignatory2)}}
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? findPeopleById(dtaData[0]?.repoSignature2) : ''}}
                                         </h6>
                                     </div>
                                 </div>
@@ -539,25 +539,25 @@
                                     <div class="col-md-6">
                                         <label for="psignatory1" class="font-style text-capitalize">Provider Signatory
                                             1</label>
-                                        <select id="psignatory1" class="form-control" formControlName="providerSignatory1" *ngIf="!isView">
+                                        <select id="psignatory1" class="form-control" formControlName="providerSignature1" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]="user.personId" *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]="user.id" *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">
-                                            {{findPeopleById(dtpData?.dtas[0]?.providerSignatory1)}}
+                                            {{dtaData ? findPeopleById(dtaData[0]?.providerSignature1) : ''}}
                                         </h6>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="psignatory2" class="font-style text-capitalize">Provider Signatory
                                             2</label>
-                                        <select id="psignatory2" class="form-control" formControlName="providerSignatory2" *ngIf="!isView">
+                                        <select id="psignatory2" class="form-control" formControlName="providerSignature2" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]="user.personId" *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]="user.id" *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">
-                                            {{findPeopleById(dtpData?.dtas[0]?.providerSignatory2)}}
+                                            {{dtaData ? findPeopleById(dtaData[0]?.providerSignature2) : ''}}
                                         </h6>
                                     </div>
                                 </div>
@@ -577,10 +577,10 @@
                                                         (click)="deleteDtpNote(i)" *ngIf="!isView"></i>
                                                     <i class="fa fa-check float-right pr-2 text-success" style="cursor: pointer;"
                                                         (click)="saveDtpNote(note)" *ngIf="!isView"></i>
-                                                    <h6>{{findPeopleById(dtpData.dtpNotes[i].author)}} <small>{{dtpData.dtpNotes[i].createdOn | date}}</small></h6>
+                                                    <h6>{{findPeopleById(dtpNotes[i]?.author)}} <small>{{dtpNotes[i]?.createdOn | date}}</small></h6>
                                                     <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="text"
                                                         *ngIf="!isView"></textarea>
-                                                    <span style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpNotes[i].text}}</span>
+                                                    <span style="font-weight: 100;" *ngIf="isView">{{dtpNotes[i]?.text}}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -604,8 +604,8 @@
                                 <ng-container *ngIf="associatedStudies.length > 0">
                                     <ul>
                                         <li *ngFor="let study of associatedStudies; let i = index" class="pl-4">
-                                            {{study.studyName}}({{study.sdSid}})
-                                            <i class="fa fa-times pl-3" (click)="removeDtpStudy(study.id, study.sdSid)"
+                                            {{study.studyName}}({{study.studyId}})
+                                            <i class="fa fa-times pl-3" (click)="removeDtpStudy(study.id, study.studyId)"
                                                 *ngIf="!isView"></i>
                                         </li>
                                     </ul>
@@ -621,7 +621,7 @@
                                 <ng-container *ngIf="associatedObject.length > 0">
                                     <ul>
                                         <li *ngFor="let object of associatedObject; let i = index" class="pl-4">
-                                            {{object.sdOid}}<span title="{{object.objectName}}">({{object.objectName | slice:0:50}}...)</span>
+                                            {{object.objectId}}<span title="{{object.objectName}}">({{object.objectName | slice:0:50}}...)</span>
                                             <i class="fa fa-times pl-3" (click)="removeDtpObject(object.id)"
                                                 *ngIf="!isView"></i>
                                             <ng-container *ngIf="instanceArray[i]?.length <= 0">
@@ -652,7 +652,7 @@
                                 <ng-container *ngIf="associatedUser.length > 0">
                                     <ul>
                                         <li *ngFor="let user of associatedUser; let i = index" class="pl-4">
-                                            {{user.personName}}
+                                            {{user.person?.firstName}} {{user.person?.lastName}}
                                             <i class="fa fa-times pl-3" (click)="removeDtpUser(user.id)"
                                                 *ngIf="!isView"></i>
                                         </li>
@@ -670,52 +670,52 @@
                                 <div class="col-md-12" *ngFor="let embargo of embargos().controls;let i = index" [formGroupName]="i">
                                     <br>
                                     <mat-expansion-panel [expanded]="isView ? 'true' : 'false'">
-                                        <mat-expansion-panel-header>{{dtpData.dtpObjects[i].sdOid}}
-                                           <div class="col text-right"><i class="fas fa-square" [ngClass]="dtpData.dtpObjects[i].accessTypeId === 11 || dtpData.dtpObjects[i].accessTypeId === 12 ? 'text-success' : 'text-warning'"></i></div>
+                                        <mat-expansion-panel-header>{{embargoData[i].objectId}}
+                                           <div class="col text-right"><i class="fas fa-square" [ngClass]="embargoData[i].accessType === 11 || embargoData[i].accessType === 12 ? 'text-success' : 'text-warning'"></i></div>
                                         </mat-expansion-panel-header>
                                         <div class="row form-group">
                                             <div class="col-md-4">
-                                                <label for="accessTypeId" class="font-style text-capitalize">Access Type</label>
-                                                <select id="accessTypeId" formControlName="accessTypeId" class="form-control" *ngIf="!isView">
+                                                <label for="accessType" class="font-style text-capitalize">Access Type</label>
+                                                <select id="accessType" formControlName="accessType" class="form-control" *ngIf="!isView">
                                                     <option [value]=accessType.id *ngFor="let accessType of accessTypes">{{accessType.name}}
                                                     </option>
                                                 </select>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{findAccessType(dtpData.dtpObjects[i].accessTypeId)}}</h6>
+                                                    {{findAccessType(embargoData[i]?.accessType?.id)}}</h6>
                                             </div>
                                             <div class="col-md-4">
                                                 <label for="accessDetails" class="font-style text-capitalize">access details</label>
                                                 <textarea id="accessDetails" cols="30" rows="3" class="form-control" formControlName="accessDetails"
                                                     *ngIf="!isView"></textarea>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpObjects[i].accessDetails}}</h6>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{embargoData[i]?.accessDetails}}</h6>
                                             </div>
                                             <div class="col-md-4 form-check m-auto">
                                                 <label class="form-check-label font-style text-capitalize" for="embargoRequested">embargo requested</label>
                                                 <input class="form-check-input ml-4" type="checkbox" id="embargoRequested" formControlName="embargoRequested" *ngIf="!isView" (change)="onEmbargoChange(i)">
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpObjects[i].embargoRequested}}</h6>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{embargoData[i]?.embargoRequested}}</h6>
                                             </div>
                                         </div>
                                         <div class="row form-group" *ngIf="isEmbargoRequested[i]">
                                             <div class="col-md-8">
                                                 <label for="embargoRegime" class="font-style text-capitalize">embargo Regime</label>
                                                 <input type="text" class="form-control" id="embargoRegime" formControlName="embargoRegime" *ngIf="!isView">
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpObjects[i].embargoRegime}}</h6>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{embargoData[i]?.embargoRegime}}</h6>
                                             </div>
                                             <div class="col-md-4 form-check m-auto">
                                                 <label class="form-check-label font-style text-capitalize" for="embargoStillApplies">Emmbargo still applies</label>
                                                 <input class="form-check-input ml-4" type="checkbox" id="embargoStillApplies" formControlName="embargoStillApplies" *ngIf="!isView">
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpObjects[i].embargoStillApplies}}</h6>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{embargoData[i]?.embargoStillApplies}}</h6>
                                             </div>                        
                                         </div>
                                         <div class="row form-group">
                                             <div class="col-md-4">
-                                                <label for="accessCheckStatusId" class="font-style text-capitalize">Access check status</label>
-                                                <select id="accessCheckStatusId" formControlName="accessCheckStatusId" class="form-control" *ngIf="!isView">
+                                                <label for="accessCheckStatus" class="font-style text-capitalize">Access check status</label>
+                                                <select id="accessCheckStatus" formControlName="accessCheckStatus" class="form-control" *ngIf="!isView">
                                                     <option [value]=accessStatusType.id *ngFor="let accessStatusType of accessStatusTypes">{{accessStatusType.name}}
                                                     </option>
                                                 </select>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{findCheckSatus(dtpData.dtpObjects[i].accessCheckStatusId)}}</h6>
+                                                    {{findCheckSatus(embargoData[i]?.accessCheckStatus?.id)}}</h6>
                                             </div>
                                             <div class="col-md-4">
                                                 <label for="accessCheckBy" class="font-style text-capitalize">access check by</label>
@@ -725,7 +725,7 @@
                                                         {{user.personName}}</option>
                                                 </select>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{findPeopleById(dtpData.dtpObjects[i].accessCheckBy)}}
+                                                    {{findPeopleById(embargoData[i]?.accessCheckBy?.id)}}
                                                 </h6>        
                                             </div>
                                             <div class="col-md-4">
@@ -735,7 +735,7 @@
                                                 #accessCheckDate="ngbDatepicker"
                                                 (click)="accessCheckDate.toggle()"
                                                 formControlName="accessCheckDate" [maxDate]="todayDate" *ngIf="!isView" container='body'>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{viewDate(dtpData.dtpObjects[i].accessCheckDate)}}</h6>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{viewDate(embargoData[i]?.accessCheckDate)}}</h6>
                                             </div>
                                         </div>
                                         <mat-action-row *ngIf="!isView">
@@ -757,26 +757,26 @@
                             <div formArrayName="preRequisite">
                                 <div class="col-md-12" *ngFor="let preReq of preReqs().controls;let i = index" [formGroupName]="i">
                                     <br>
-                                    <label for="preReqId" class="font-style text-capitalize">{{(preReqs()?.controls[i-1]?.value?.sdOid ===
-                                        preReqs()?.controls[i]?.value?.sdOid) && i!==0 ? '' : 'Pre-Requisite for Data Object' +
-                                        preReq.value.sdOid}}</label>
+                                    <label for="preReqId" class="font-style text-capitalize">{{(preReqs()?.controls[i-1]?.value?.objectId ===
+                                        preReqs()?.controls[i]?.value?.objectId) && i!==0 ? '' : 'Pre-Requisite for Data Object ' +
+                                        preReq.value.objectId}}</label>
                                     <mat-expansion-panel [expanded]="isView ? 'true' : 'true'">
-                                        <mat-expansion-panel-header>{{findPrereqType(dtpData.dtpPrereqs[i].preRequisiteTypeId)}}</mat-expansion-panel-header>
+                                        <mat-expansion-panel-header>{{findPrereqType(prereqs[i]?.prereqType?.id)}}</mat-expansion-panel-header>
                                         <div class="row form-group">
                                             <div class="col-md-6" *ngIf="!isView">
                                                 <label for="preReqId" class="font-style text-capitalize">Pre-Requisite Type</label>
-                                                <select id="preReqId" formControlName="preRequisiteTypeId" class="form-control" *ngIf="!isView">
+                                                <select id="preReqId" formControlName="prereqType" class="form-control" *ngIf="!isView">
                                                     <option [value]=preReqType.id *ngFor="let preReqType of preRequTypes">{{preReqType.name}}
                                                     </option>
                                                 </select>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{findPrereqType(dtpData.dtpPrereqs[i].preRequisiteTypeId)}}</h6>
+                                                    {{findPrereqType(prereqs[i]?.prereqType?.id)}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="notes" class="font-style text-capitalize">Note</label>
-                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="preRequisiteNotes"
+                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="prereqNotes"
                                                     *ngIf="!isView"></textarea>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData.dtpPrereqs[i].preRequisiteNotes}}</h6>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{prereqs[i]?.prereqNotes}}</h6>
                                             </div>
                                         </div>
                                         <mat-action-row *ngIf="!isView">

@@ -28,7 +28,7 @@ export class DtpService {
   // DTP record - core record only
 
   getDtpById(id) {
-    return this.http.get(`${base}/data-transfers/${id}`);
+    return this.http.get(`${base}/rms/dtp/${id}`);
   }
 
   getDtpByIdWfkn(id) {
@@ -36,11 +36,11 @@ export class DtpService {
   }
 
   addDtp(payload) {
-    return this.http.post(`${base}/data-transfers`, payload);
+    return this.http.post(`${base}/rms/dtp`, payload);
   }
 
   editDtp(id, payload) {
-    return this.http.put(`${base}/data-transfers/${id}`, payload);
+    return this.http.put(`${base}/rms/dtp/${id}`, payload);
   }
 
   deleteDtpById(id) {
@@ -51,16 +51,16 @@ export class DtpService {
   // DTAs - only ever one dta / dtp, therefore code can be simpler
 
   addDta(dtpId, payload) {
-    return this.http.post(`${base}/data-transfers/${dtpId}/dta`, payload);
+    return this.http.post(`${base}/rms/dtp/${dtpId}/dta`, payload);
   }
   getDta(dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/dta`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/dta`);
   }
   getDtaWfkn(dtpId) {
     return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/dta`);
   }
-  editDta(dtpId, payload) {
-    return this.http.put(`${base}/data-transfers/${dtpId}/dta`, payload);
+  editDta(dtpId, payload, id) {
+    return this.http.put(`${base}/rms/dtp/${dtpId}/dta/${id}`, payload);
   }
   deleteDta(dtpId) {
     return this.http.delete(`${base}/data-transfers/${dtpId}/dta`);
@@ -70,125 +70,125 @@ export class DtpService {
   // DTP Studies
 
   getDtpStudies(dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/studies`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/studies`);
   }
   getDtpStudiesWfkn(dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/studies`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/studies`);
   }
-  addDtpStudy(dtpId, sdSid, payload) {
-    return this.http.post(`${base}/data-transfers/${dtpId}/studies/${sdSid}`, payload);
+  addDtpStudy(dtpId, payload) {
+    return this.http.post(`${base}/rms/dtp/${dtpId}/studies`, payload);
   }
   getDtpStudy(id, dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/studies/${id}`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/studies/${id}`);
   }
   getDtpStudyWfkn(id, dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/studies/${id}`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/studies/${id}`);
   }
   editDtpStudy(id, dtpId, payload) {
-    return this.http.put(`${base}/data-transfers/${dtpId}/studies/${id}`, payload);
+    return this.http.put(`${base}/rms/dtp/${dtpId}/studies/${id}`, payload);
   }
   deleteDtpStudy(id, dtpId) {
-    return this.http.delete(`${base}/data-transfers/${dtpId}/studies/${id}`);
+    return this.http.delete(`${base}/rms/dtp/${dtpId}/studies/${id}`);
   }
 
 
   // DTP Objects
 
   getDtpObjects(dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/objects`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/objects`);
   }
   getDtpObjectsWfkn(dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/objects`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/objects`);
   }
-  addDtpObject(dtpId, sdOid, payload) {
-    return this.http.post(`${base}/data-transfers/${dtpId}/objects/${sdOid}`, payload);
+  addDtpObject(dtpId, payload) {
+    return this.http.post(`${base}/rms/dtp/${dtpId}/objects`, payload);
   }
   getDtpObject(id, dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/objects/${id}`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/objects/${id}`);
   }
   getDtpObjectWfkn(id, dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/objects/${id}`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/objects/${id}`);
   }
   editDtpObject(id, dtpId, payload) {
-    return this.http.put(`${base}/data-transfers/${dtpId}/objects/${id}`, payload);
+    return this.http.put(`${base}/rms/dtp/${dtpId}/objects/${id}`, payload);
   }
   deleteDtpObject(id, dtpId) {
-    return this.http.delete(`${base}/data-transfers/${dtpId}/objects/${id}`);
+    return this.http.delete(`${base}/rms/dtp/${dtpId}/objects/${id}`);
   }
   
 
   // DTP People
 
   getDtpPeople(dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/people`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/people`);
   }
   getDtpPeopleWfkn(dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/people`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/people`);
   }
-  addDtpPerson(dtpId, personId, payload) {
-    return this.http.post(`${base}/data-transfers/${dtpId}/people/${personId}`, payload);
+  addDtpPerson(dtpId, payload) {
+    return this.http.post(`${base}/rms/dtp/${dtpId}/people`, payload);
   }
   getDtpPerson(id, dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/people/${id}`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/people/${id}`);
   }
   getDtpPersonWfkn(id, dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/people/${id}`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/people/${id}`);
   }
   editDtpPerson(id, dtpId, payload) {
-    return this.http.put(`${base}/data-transfers/${dtpId}/people/${id}`, payload);
+    return this.http.put(`${base}/rms/dtp/${dtpId}/people/${id}`, payload);
   }
   deleteDtpPerson(id, dtpId) {
-    return this.http.delete(`${base}/data-transfers/${dtpId}/people/${id}`);
+    return this.http.delete(`${base}/rms/dtp/${dtpId}/people/${id}`);
   }
 
 
   // DTP Notes
 
   getDtpNotes(dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/notes`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/notes`);
   }
   getDtpNotesWfkn(dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/notes`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/notes`);
   }
-  addDtpNote(dtpId, personId, payload) {
-    return this.http.post(`${base}/data-transfers/${dtpId}/notes/${personId}`, payload);
+  addDtpNote(dtpId, payload) {
+    return this.http.post(`${base}/rms/dtp/${dtpId}/notes`, payload);
   }
   getDtpNote(id, dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/notes/${id}`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/notes/${id}`);
   }
   getDtpNoteWfkn(id, dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/notes/${id}`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/notes/${id}`);
   }
   editDtpNote(id, dtpId, payload) {
-    return this.http.put(`${base}/data-transfers/${dtpId}/notes/${id}`, payload);
+    return this.http.put(`${base}/rms/dtp/${dtpId}/notes/${id}`, payload);
   }
   deleteDtpNote(id, dtpId) {
-    return this.http.delete(`${base}/data-transfers/${dtpId}/notes/${id}`);
+    return this.http.delete(`${base}/rms/dtp/${dtpId}/notes/${id}`);
   }
 
 
   // DTP Object pre-requisites
 
-  getDtpObjectPrereqs(sdOid, dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/objects/${sdOid}/prereqs`);
+  getDtpObjectPrereqs(dtpId) {
+    return this.http.get(`${base}/rms/dtp/${dtpId}/prereqs`);
   }
   getDtpObjectPrereqsWfkn(sdOid, dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/objects/${sdOid}/prereqs`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/objects/${sdOid}/prereqs`);
   }
-  addDtpObjectPrereq(dtpId, sdOid, payload) {
-    return this.http.post(`${base}/data-transfers/${dtpId}/objects/${sdOid}/prereqs`, payload);
+  addDtpObjectPrereq(dtpId, payload) {
+    return this.http.post(`${base}/rms/dtp/${dtpId}/prereqs`, payload);
   }
   getDtpObjectPrereq(id, sdOid, dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}/objects/${sdOid}/prereqs/${id}`);
+    return this.http.get(`${base}/rms/dtp/${dtpId}/objects/${sdOid}/prereqs/${id}`);
   }
   getDtpObjectPrereqWfkn(id, sdOid, dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/objects/${sdOid}/prereqs/${id}`);
+    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/objects/${sdOid}/prereqs/${id}`);
   }
-  editDtpObjectPrereq(id, sdOid, dtpId, payload) {
-    return this.http.put(`${base}/data-transfers/${dtpId}/objects/${sdOid}/prereqs/${id}`, payload);
+  editDtpObjectPrereq(id, dtpId, payload) {
+    return this.http.put(`${base}/rms/dtp/${dtpId}/prereqs/${id}`, payload);
   }
-  deleteDtpObjectPrereq(id, sdOid, dtpId) {
-    return this.http.delete(`${base}/data-transfers/${dtpId}/objects/${sdOid}/prereqs/${id}`);
+  deleteDtpObjectPrereq(id, dtpId) {
+    return this.http.delete(`${base}/rms/dtp/${dtpId}/prereqs/${id}`);
   }
 
 

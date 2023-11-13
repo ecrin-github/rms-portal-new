@@ -77,9 +77,9 @@ export class SummaryDtpComponent implements OnInit {
 
   getAllDtpList() {
     this.spinner.show();
-    this.listService.getDtpList().subscribe((res: any) => {
+    const pageSize = 10000;
+    this.listService.getDtpList(pageSize, '').subscribe((res: any) => {
       this.spinner.hide();
-      console.log(res);
       if (res && res.results) {
         this.dataSource = new MatTableDataSource<DtpListEntryInterface>(res.results);
       } else {

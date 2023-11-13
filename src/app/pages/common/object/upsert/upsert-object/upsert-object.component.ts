@@ -165,11 +165,10 @@ export class UpsertObjectComponent implements OnInit {
         this.spinner.hide();
       })
     } else {
-      const getStudyList$ = this.isBrowsing ? this.listService.getBrowsingStudyList() : this.listService.getStudyList();
-      getStudyList$.subscribe((res: any) => {
+      this.listService.getStudyList(this.pageSize, '').subscribe((res: any) => {
         this.spinner.hide();
-        if (res && res.data) {
-          this.studyList = res.data;
+        if (res && res.results) {
+          this.studyList = res.results;
         }
       }, error => {
         this.toastr.error(error.error.title);
@@ -437,9 +436,9 @@ export class UpsertObjectComponent implements OnInit {
       } else {
         this.objectService.addDataObject(payload).subscribe((res: any) => {
           this.spinner.hide();
-          if (res.statusCode === 200) {
+          if (res.statusCode === 201) {
             this.objectService.addObjectDatasete(res.data[0].sdOid, datasetPayload).subscribe((res: any) => {
-              if (res.statusCode === 200) {
+              if (res.statusCode === 201) {
               }
             }, error => {
               this.toastr.error(res.messages[0]);

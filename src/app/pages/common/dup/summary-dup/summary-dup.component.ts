@@ -59,10 +59,11 @@ export class SummaryDupComponent implements OnInit {
 
   getAllDupList() {
     this.spinner.show();
-    this.listService.getDupList().subscribe((res: any) => {
+    const pageSize = 10000;
+    this.listService.getDupList(pageSize, '').subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<DupListEntryInterface>(res.data);
+      if (res && res.results) {
+        this.dataSource = new MatTableDataSource<DupListEntryInterface>(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
       }

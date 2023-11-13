@@ -64,6 +64,10 @@ export class UpsertDtpComponent implements OnInit {
   showUploadButton: boolean = false;
   instanceArray = [];
   pageSize: number = 10000;
+  dtaData: any;
+  embargoData: any;
+  prereqs: any;
+  dtpNotes: any;
 
   constructor( private router: Router, private fb: UntypedFormBuilder, private dtpService: DtpService, private spinner: NgxSpinnerService, private toastr: ToastrService,
     private activatedRoute: ActivatedRoute, private modalService: NgbModal, private commonLookup: CommonLookupService, private processLookup: ProcessLookupService,
@@ -71,28 +75,28 @@ export class UpsertDtpComponent implements OnInit {
                private dataObjectService: DataObjectService, private oidcSecurityService: OidcSecurityService, private http: HttpClient,
                private redirectService: RedirectService) {
     this.form = this.fb.group({
-      orgId: ['', Validators.required],
+      organisation: ['', Validators.required],
       displayName: ['', Validators.required],
-      statusId: '',
+      status: '',
       initialContactDate: null,
-      setUpCompleted: null,
-      mdAccessGranted: null,
+      setUpCompleteDate: null,
+      mdAccessGrantedDate: null,
       mdCompleteDate: null,
       dtaAgreedDate: null,
-      uploadAccessRequested: null,
-      uploadAccessConfirmed: null,
-      uploadsComplete: null,
-      qcChecksCompleted: null,
-      mdIntegratedWithMdr: null,
-      availabilityRequested: null,
-      availabilityConfirmed: null,
-      conformsToDefaultChange: false,
+      uploadAccessRequestedDate: null,
+      uploadAccessConfirmedDate: null,
+      uploadCompleteDate: null,
+      qcChecksCompleteDate: null,
+      mdIntegratedWithMdrDate: null,
+      availabilityRequestedDate: null,
+      availabilityConfirmedDate: null,
+      conformsToDefault: false,
       variations: '',
       dtaFilePath: '',
-      repoSignatory1: '',
-      repoSignatory2: '',
-      providerSignatory1: '',
-      providerSignatory2: '',
+      repoSignature1: '',
+      repoSignature2: '',
+      providerSignature1: '',
+      providerSignature2: '',
       notes: this.fb.array([])
     });
     this.preReqForm = this.fb.group({
@@ -154,27 +158,27 @@ export class UpsertDtpComponent implements OnInit {
           }
         }
         if (this.nextStep - 1 === 2) {
-          if (this.form.value.setUpCompleted === null || this.form.value.setUpCompleted === '') {
+          if (this.form.value.setUpCompleteDate === null || this.form.value.setUpCompleteDate === '') {
             this.wizard.stop();
             this.toastr.error('Complete all the fields to go to the next phase')
           }
         }
         if (this.nextStep - 1 === 3) {
-          if (this.form.value.mdAccessGranted === null || this.form.value.mdAccessGranted === '' || this.form.value.mdCompleteDate === null || this.form.value.mdCompleteDate === '' || this.form.value.dtaAgreedDate === null || this.form.value.dtaAgreedDate === '') {
+          if (this.form.value.mdAccessGrantedDate === null || this.form.value.mdAccessGrantedDate === '' || this.form.value.mdCompleteDate === null || this.form.value.mdCompleteDate === '' || this.form.value.dtaAgreedDate === null || this.form.value.dtaAgreedDate === '') {
             this.wizard.stop();
             this.toastr.error('Complete all the fields to go to the next phase')
           }
         }
         if (this.nextStep - 1 === 4) {
-          if (this.form.value.uploadAccessRequested === null || this.form.value.uploadAccessRequested === '' ||
-            this.form.value.uploadAccessConfirmed === null || this.form.value.uploadAccessConfirmed === '' || this.form.value.uploadsComplete === null || this.form.value.uploadsComplete === '') {
+          if (this.form.value.uploadAccessRequestedDate === null || this.form.value.uploadAccessRequestedDate === '' ||
+            this.form.value.uploadAccessConfirmedDate === null || this.form.value.uploadAccessConfirmedDate === '' || this.form.value.uploadCompleteDate === null || this.form.value.uploadCompleteDate === '') {
             this.wizard.stop();
             this.toastr.error('Complete all the fields to go to the next phase')
           }
         }
         if (this.nextStep - 1 === 5) {
-          if (this.form.value.qcChecksCompleted === null || this.form.value.qcChecksCompleted === '' || this.form.value.mdIntegratedWithMdr === null || this.form.value.mdIntegratedWithMdr === ''
-            || this.form.value.availabilityRequested === '' || this.form.value.availabilityRequested === null || this.form.value.availabilityConfirmed === '' || this.form.value.availabilityConfirmed === null) {
+          if (this.form.value.qcChecksCompleteDate === null || this.form.value.qcChecksCompleteDate === '' || this.form.value.mdIntegratedWithMdrDate === null || this.form.value.mdIntegratedWithMdrDate === ''
+            || this.form.value.availabilityRequestedDate === '' || this.form.value.availabilityRequestedDate === null || this.form.value.availabilityConfirmedDate === '' || this.form.value.availabilityConfirmedDate === null) {
             this.wizard.stop();
             this.toastr.error('Complete all the fields to go to the next phase')
           }
@@ -187,7 +191,7 @@ export class UpsertDtpComponent implements OnInit {
   }
   newDtpNote(): UntypedFormGroup {
     return this.fb.group({
-      id: '',
+      dtpId: '',
       text: '',
       alreadyExist: false
     })
@@ -203,6 +207,7 @@ export class UpsertDtpComponent implements OnInit {
     notes.forEach(note => {
       formArray.push(this.fb.group({
         id: note.id,
+        dtpId: note.dtpId,
         text: note.text,
         alreadyExist: true
       }))
@@ -213,8 +218,9 @@ export class UpsertDtpComponent implements OnInit {
     this.spinner.show();
     this.dtpService.getDtpNotes(id).subscribe((res:any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.patchNote(res.data);
+      if (res && res.results) {
+        this.patchNote(res.results);
+        this.dtpNotes = res.results
       }
     }, error => {
       this.spinner.hide();
@@ -257,8 +263,8 @@ export class UpsertDtpComponent implements OnInit {
     } else {
       this.spinner.show();
       const payload = note.value;
-      delete payload.id;
-      this.dtpService.addDtpNote(this.id, 400002, payload).subscribe((res: any) => {
+      payload.dtpId = this.id;
+      this.dtpService.addDtpNote(this.id, payload).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Note added successfully');
@@ -277,9 +283,9 @@ export class UpsertDtpComponent implements OnInit {
   newPreReq(): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      preRequisiteNotes: '',
-      preRequisiteTypeId: '',
-      sdOid: ''
+      prereqNotes: '',
+      prereqType: '',
+      objectId: ''
     })
   }
  
@@ -302,9 +308,9 @@ export class UpsertDtpComponent implements OnInit {
     preReqs.forEach(preReq => {
       formArray.push(this.fb.group({
         id: preReq.id,
-        preRequisiteNotes: preReq.preRequisiteNotes,
-        preRequisiteTypeId: preReq.preRequisiteTypeId,
-        sdOid: preReq.sdOid
+        prereqNotes: preReq.prereqNotes,
+        prereqType: preReq.prereqType ? preReq.prereqType.id : null,
+        objectId: preReq.objectId
       }))
     });
     return formArray;
@@ -312,7 +318,7 @@ export class UpsertDtpComponent implements OnInit {
   editPreReq(preReqsObject) {
     const payload = preReqsObject.value;
     this.spinner.show();
-    this.dtpService.editDtpObjectPrereq(payload.id, payload.sdOid, this.id, payload).subscribe((res: any) => {
+    this.dtpService.editDtpObjectPrereq(payload.id, this.id, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Pre-Requisite updated successfully');
@@ -328,7 +334,7 @@ export class UpsertDtpComponent implements OnInit {
     const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
     removeModal.componentInstance.type = 'objectPreReqDtp';
     removeModal.componentInstance.id = this.preReqs().value[i].id;
-    removeModal.componentInstance.sdOid = this.preReqs().value[i].sdOid;
+    removeModal.componentInstance.objectId = this.preReqs().value[i].objectId;
     removeModal.componentInstance.dtpId = this.id;
     removeModal.result.then((data) => {
       if (data) {
@@ -341,18 +347,18 @@ export class UpsertDtpComponent implements OnInit {
   }
   newEmbargo(): UntypedFormGroup{
     return this.fb.group({
-      accessCheckStatusId: '',
+      accessCheckStatus: '',
       accessCheckBy: '',
       accessDetails: '',
       accessCheckDate: '',
-      accessTypeId: '',
+      accessType: '',
       downloadAllowed: '',
       dtpId: '',
       embargoRegime: '',
       embargoRequested: '',
       embargoStillApplies: '',
       id: '',
-      sdOid: ''
+      objectId: ''
     })
   }
   addEmbargo() {
@@ -373,18 +379,18 @@ export class UpsertDtpComponent implements OnInit {
     const formArray = new UntypedFormArray([]);
     embargos.forEach((embargo, index) => {
       formArray.push(this.fb.group({
-        accessCheckStatusId: embargo.accessCheckStatusId,
-        accessCheckBy: embargo.accessCheckBy,
+        accessCheckStatus: embargo.accessCheckStatus ? embargo.accessCheckStatus.id : null,
+        accessCheckBy: embargo.accessCheckBy ? embargo.accessCheckBy.id : null,
         accessDetails: embargo.accessDetails,
         accessCheckDate: this.stringTodate(embargo.accessCheckDate),
-        accessTypeId: embargo.accessTypeId,
+        accessType: embargo.accessType ? embargo.accessType.id : null,
         downloadAllowed: embargo.downloadAllowed,
         dtpId: embargo.dtpId,
         embargoRegime: embargo.embargoRegime,
         embargoRequested: embargo.embargoRequested,
         embargoStillApplies: embargo.embargoStillApplies,
         id: embargo.id,
-        sdOid: embargo.sdOid
+        objectId: embargo.objectId
       }))
       this.isEmbargoRequested[index] = embargo.embargoRequested ? true : false;
     });
@@ -421,9 +427,9 @@ export class UpsertDtpComponent implements OnInit {
     }, error => {});
   }
   getAccessType() {
-    const getAccessType$ = this.processLookup.getRepoAccessTypes().subscribe((res: any) => {
-      if(res.data) {
-        this.accessTypes = res.data;
+    const getAccessType$ = this.processLookup.getRepoAccessTypes(this.pageSize).subscribe((res: any) => {
+      if(res && res.results) {
+        this.accessTypes = res.results;
         this.getDtpById(this.id, 'isEmbargo');
       }
     }, error => {
@@ -436,8 +442,8 @@ export class UpsertDtpComponent implements OnInit {
     this.spinner.show();
     this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.organizationList = res.data;
+      if (res && res.results) {
+        this.organizationList = res.results;
       }
     }, error => {
       this.spinner.hide();
@@ -450,12 +456,12 @@ export class UpsertDtpComponent implements OnInit {
     });
     this.processLookup.getDtpStatusTypes().subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.statusList = res.data;
+      if (res && res.results) {
+        this.statusList = res.results;
         const arr: any = this.statusList.filter((item: any) => item.name === 'Set up');
         if (arr && arr.length) {
           this.form.patchValue({
-            statusId: arr[0].id
+            status: arr[0].id
           })
         }
       }
@@ -465,9 +471,10 @@ export class UpsertDtpComponent implements OnInit {
     })
   }
   getPrereqTypes() {
-    this.processLookup.getPrereqTypes().subscribe((res: any) => {
+    this.processLookup.getPrereqTypes(this.pageSize).subscribe((res: any) => {
       if (res) {
-        this.preRequTypes = res.data;
+        this.preRequTypes = res.results;
+        console.log('prereq', this.preRequTypes)
         this.getDtpById(this.id, 'isPreReq');
       }
     }, error => {
@@ -475,9 +482,9 @@ export class UpsertDtpComponent implements OnInit {
     })
   }
   getAccessCheckStauts() {
-    this.processLookup.getObjectAccessTypes().subscribe((res: any) => {
+    this.processLookup.getObjectAccessTypes(this.pageSize).subscribe((res: any) => {
       if (res) {
-        this.accessStatusTypes = res.data;
+        this.accessStatusTypes = res.results;
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -531,47 +538,47 @@ export class UpsertDtpComponent implements OnInit {
     }
     const payload = JSON.parse(JSON.stringify(this.form.value));
     payload.initialContactDate = this.dateToString(payload.initialContactDate);
-    payload.setUpCompleted = this.dateToString(payload.setUpCompleted);
-    payload.mdAccessGranted = this.dateToString(payload.mdAccessGranted);
+    payload.setUpCompleteDate = this.dateToString(payload.setUpCompleteDate);
+    payload.mdAccessGrantedDate = this.dateToString(payload.mdAccessGrantedDate);
     payload.mdCompleteDate = this.dateToString(payload.mdCompleteDate);
     payload.dtaAgreedDate = this.dateToString(payload.dtaAgreedDate);
-    payload.uploadAccessRequested = this.dateToString(payload.uploadAccessRequested);
-    payload.uploadAccessConfirmed = this.dateToString(payload.uploadAccessConfirmed);
-    payload.uploadsComplete = this.dateToString(payload.uploadsComplete);
-    payload.qcChecksCompleted = this.dateToString(payload.qcChecksCompleted);
-    payload.mdIntegratedWithMdr = this.dateToString(payload.mdIntegratedWithMdr);
-    payload.availabilityRequested = this.dateToString(payload.availabilityRequested);
-    payload.availabilityConfirmed = this.dateToString(payload.availabilityConfirmed);
+    payload.uploadAccessRequestedDate = this.dateToString(payload.uploadAccessRequestedDate);
+    payload.uploadAccessConfirmedDate = this.dateToString(payload.uploadAccessConfirmedDate);
+    payload.uploadCompleteDate = this.dateToString(payload.uploadCompleteDate);
+    payload.qcChecksCompleteDate = this.dateToString(payload.qcChecksCompleteDate);
+    payload.mdIntegratedWithMdrDate = this.dateToString(payload.mdIntegratedWithMdrDate);
+    payload.availabilityRequestedDate = this.dateToString(payload.availabilityRequestedDate);
+    payload.availabilityConfirmedDate = this.dateToString(payload.availabilityConfirmedDate);
     //dynamically updating the status based on the filled in dates
     let status = ''
     if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '') {
       status = 'set up';
     }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleted !== null && this.form.value.setUpCompleted !== '') {
+    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '') {
       status = 'preparation';
     }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleted !== null && this.form.value.setUpCompleted !== '' && this.form.value.mdAccessGranted !== null && this.form.value.mdAccessGranted !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '') {
+    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '' && this.form.value.mdAccessGrantedDate !== null && this.form.value.mdAccessGrantedDate !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '') {
       status = 'transfer';
     }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleted !== null && this.form.value.setUpCompleted !== '' && this.form.value.mdAccessGranted !== null && this.form.value.mdAccessGranted !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequested !== null && this.form.value.uploadAccessRequested !== '' &&
-          this.form.value.uploadAccessConfirmed !== null && this.form.value.uploadAccessConfirmed !== '' && this.form.value.uploadsComplete !== null && this.form.value.uploadsComplete !== '') {
+    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '' && this.form.value.mdAccessGrantedDate !== null && this.form.value.mdAccessGrantedDate !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequestedDate !== null && this.form.value.uploadAccessRequestedDate !== '' &&
+          this.form.value.uploadAccessConfirmedDate !== null && this.form.value.uploadAccessConfirmedDate !== '' && this.form.value.uploadCompleteDate !== null && this.form.value.uploadCompleteDate !== '') {
       status = 'checking';
     }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleted !== null && this.form.value.setUpCompleted !== '' && this.form.value.mdAccessGranted !== null && this.form.value.mdAccessGranted !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequested !== null && this.form.value.uploadAccessRequested !== '' &&
-      this.form.value.uploadAccessConfirmed !== null && this.form.value.uploadAccessConfirmed !== '' && this.form.value.uploadsComplete !== null && this.form.value.uploadsComplete !== '' && this.form.value.qcChecksCompleted !== null && this.form.value.qcChecksCompleted !== '' && this.form.value.mdIntegratedWithMdr !== null && this.form.value.mdIntegratedWithMdr !== '' && this.form.value.availabilityRequested !== '' && this.form.value.availabilityRequested !== null && this.form.value.availabilityConfirmed !== '' && this.form.value.availabilityRequested !== null) {
+    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '' && this.form.value.mdAccessGrantedDate !== null && this.form.value.mdAccessGrantedDate !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequestedDate !== null && this.form.value.uploadAccessRequestedDate !== '' &&
+      this.form.value.uploadAccessConfirmedDate !== null && this.form.value.uploadAccessConfirmedDate !== '' && this.form.value.uploadCompleteDate !== null && this.form.value.uploadCompleteDate !== '' && this.form.value.qcChecksCompleteDate !== null && this.form.value.qcChecksCompleteDate !== '' && this.form.value.mdIntegratedWithMdrDate !== null && this.form.value.mdIntegratedWithMdrDate !== '' && this.form.value.availabilityRequestedDate !== '' && this.form.value.availabilityRequestedDate !== null && this.form.value.availabilityConfirmedDate !== '' && this.form.value.availabilityRequestedDate !== null) {
       status = 'complete';
     }
-    payload.statusId = this.getStatusByName(status);
+    payload.status = this.getStatusByName(status);
     //checking if the entered dates are greater than the previous ones
-    if (payload.initialContactDate > payload.setUpCompleted) {
+    if (payload.initialContactDate > payload.setUpCompleteDate) {
       this.toastr.error('Initial contact date cannot be greater than Set Up completed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.setUpCompleted > payload.mdAccessGranted) {
+    if (payload.setUpCompleteDate > payload.mdAccessGrantedDate) {
       this.toastr.error('set Up completed date cannot be greater than MD Access Granted date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.mdAccessGranted > payload.mdCompleteDate) {
+    if (payload.mdAccessGrantedDate > payload.mdCompleteDate) {
       this.toastr.error('MD Access Granted date cannot be greater than MD Completed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
@@ -579,31 +586,31 @@ export class UpsertDtpComponent implements OnInit {
       this.toastr.error('MD Completed date cannot be greater than DTA agreed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.dtaAgreedDate > payload.uploadAccessRequested) {
+    if (payload.dtaAgreedDate > payload.uploadAccessRequestedDate) {
       this.toastr.error('DTA Agreed date cannot be greater than Upload Access Requested date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.uploadAccessRequested > payload.uploadAccessConfirmed) {
+    if (payload.uploadAccessRequestedDate > payload.uploadAccessConfirmedDate) {
       this.toastr.error('Upload Access Requested date cannot be greater than Upload Access Confirmed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.uploadAccessConfirmed > payload.uploadsComplete) {
+    if (payload.uploadAccessConfirmedDate > payload.uploadCompleteDate) {
       this.toastr.error('Upload Confirmed date cannot be greater than Upload Completed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.uploadsComplete > payload.qcChecksCompleted) {
+    if (payload.uploadCompleteDate > payload.qcChecksCompleteDate) {
       this.toastr.error('Upload completed date cannot be greater than QC Checks Completed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.qcChecksCompleted > payload.mdIntegratedWithMdr) {
+    if (payload.qcChecksCompleteDate > payload.mdIntegratedWithMdrDate) {
       this.toastr.error('QC Checks completed date cannot be greater than MD integrated with MDR date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.mdIntegratedWithMdr > payload.availabilityRequested) {
+    if (payload.mdIntegratedWithMdrDate > payload.availabilityRequestedDate) {
       this.toastr.error('MD integrated with MDR date cannot be greater than availability requested date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
-    if (payload.availabilityRequested > payload.availabilityConfirmed) {
+    if (payload.availabilityRequestedDate > payload.availabilityConfirmedDate) {
       this.toastr.error('Availability Reuested date cannot be greater than Availability Confirmed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
       return
     }
@@ -611,9 +618,9 @@ export class UpsertDtpComponent implements OnInit {
     if (this.form.valid) {
       if (this.isEdit) {
         this.spinner.show();
-        payload.id = this.id;
+        payload.dtpId = this.id;
         const editCoreDtp$ = this.dtpService.editDtp(this.id, payload);
-        const editDta$ = this.dtpData.dtas.length ? this.dtpService.editDta(this.id, payload) : this.dtpService.addDta(this.id, payload);
+        const editDta$ = this.dtaData?.length ? this.dtpService.editDta(this.id, payload, this.dtaData[0].id) : this.dtpService.addDta(this.id, payload);
         delete payload.notes;
         const combine$ = combineLatest([editCoreDtp$, editDta$]).subscribe(([coreDtpRes, dtaRes] : [any, any]) => {
           this.spinner.hide();
@@ -638,7 +645,7 @@ export class UpsertDtpComponent implements OnInit {
         this.spinner.show();
         this.dtpService.addDtp(payload).subscribe((res: any) => {
           this.spinner.hide();
-          if (res.statusCode === 200) {
+          if (res.statusCode === 201) {
             this.toastr.success('DTP added successfully');
             localStorage.setItem('updateDtpList', 'true');
             setTimeout(() => {
@@ -663,17 +670,41 @@ export class UpsertDtpComponent implements OnInit {
     setTimeout(() => {
      this.spinner.show();; 
     });
-    this.dtpService.getFullDtpById(id).subscribe((res: any) => {
+    this.dtpService.getDtpById(id).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dtpData = res.data[0];
+      if (res) {
+        this.dtpData = res;
         this.patchForm(this.dtpData);
+        this.getDtpNotes(res.id);
+        this.dtpService.getDta(res.id).subscribe((res: any) => {
+          if(res && res.results) {
+            console.log('dta', res.results);
+            this.dtaData = res.results;
+          }
+          this.patchDta(this.dtaData);
+        }, error => {
+          console.log(error);
+        })
         if (type === 'isPreReq') {
-          const preReqArray = (this.dtpData.dtpPrereqs.sort((a, b) => (a.sdOid > b.sdOid ? 1 : -1)))
-          this.patchPreReq(preReqArray);
+          this.dtpService.getDtpObjectPrereqs(res.id).subscribe((res: any) => {
+            if (res && res.results) {
+              this.prereqs = res.results;
+              const preReqArray = (this.prereqs.sort((a, b) => (a.objectId > b.objectId ? 1 : -1)))
+              this.patchPreReq(preReqArray);
+            }
+          }, error => {
+            console.log('error', error);
+          })
         }
         if (type === 'isEmbargo') {
-          this.patchEmbargo(this.dtpData.dtpObjects)
+          this.dtpService.getDtpObjects(id).subscribe((res: any) => {
+            if (res && res.results) {
+              this.embargoData = res.results;
+              this.patchEmbargo(res.results);
+            }
+          }, error => {
+            console.log('error', error);
+          })
         }
       }
     }, error => {
@@ -683,41 +714,45 @@ export class UpsertDtpComponent implements OnInit {
   }
   patchForm(data) {
     this.form.patchValue({
-      orgId: data.coreDtp.orgId,
-      displayName: data.coreDtp.displayName,
-      statusId: data.coreDtp.statusId,
-      initialContactDate: this.stringTodate(data.coreDtp.initialContactDate),
-      setUpCompleted: this.stringTodate(data.coreDtp.setUpCompleted),
-      mdAccessGranted: this.stringTodate(data.coreDtp.mdAccessGranted),
-      mdCompleteDate: this.stringTodate(data.coreDtp.mdCompleteDate),
-      dtaAgreedDate: this.stringTodate(data.coreDtp.dtaAgreedDate),
-      uploadAccessRequested: this.stringTodate(data.coreDtp.uploadAccessRequested),
-      uploadAccessConfirmed: this.stringTodate(data.coreDtp.uploadAccessConfirmed),
-      uploadsComplete: this.stringTodate(data.coreDtp.uploadsComplete),
-      qcChecksCompleted: this.stringTodate(data.coreDtp.qcChecksCompleted),
-      mdIntegratedWithMdr: this.stringTodate(data.coreDtp.mdIntegratedWithMdr),
-      availabilityRequested: this.stringTodate(data.coreDtp.availabilityRequested),
-      availabilityConfirmed: this.stringTodate(data.coreDtp.availabilityConfirmed),
-      conformsToDefaultChange: data.dtas[0]?.conformsToDefault,
-      variations: data.dtas[0]?.variations,
-      dtaFilePath: data.dtas[0]?.dtaFilePath,
-      repoSignatory1: data.dtas[0]?.repoSignatory1,
-      repoSignatory2: data.dtas[0]?.repoSignatory2,
-      providerSignatory1: data.dtas[0]?.providerSignatory1,
-      providerSignatory2: data.dtas[0]?.providerSignatory2
+      organisation: data.organisation ? data.organisation.id : null,
+      displayName: data.displayName,
+      status: data.status ? data.status.id : null,
+      initialContactDate: this.stringTodate(data.initialContactDate),
+      setUpCompleteDate: this.stringTodate(data.setUpCompleteDate),
+      mdAccessGrantedDate: this.stringTodate(data.mdAccessGrantedDate),
+      mdCompleteDate: this.stringTodate(data.mdCompleteDate),
+      dtaAgreedDate: this.stringTodate(data.dtaAgreedDate),
+      uploadAccessRequestedDate: this.stringTodate(data.uploadAccessRequestedDate),
+      uploadAccessConfirmedDate: this.stringTodate(data.uploadAccessConfirmedDate),
+      uploadCompleteDate: this.stringTodate(data.uploadCompleteDate),
+      qcChecksCompleteDate: this.stringTodate(data.qcChecksCompleteDate),
+      mdIntegratedWithMdrDate: this.stringTodate(data.mdIntegratedWithMdrDate),
+      availabilityRequestedDate: this.stringTodate(data.availabilityRequestedDate),
+      availabilityConfirmedDate: this.stringTodate(data.availabilityConfirmedDate),
     });
-    this.patchNote(data.dtpNotes);
-    const arr: any = this.statusList.filter((item: any) => item.id === this.dtpData.coreDtp.statusId);
+    const arr: any = this.statusList.filter((item: any) => item.id === this.dtpData.status);
     if (arr && arr.length) {
       this.currentStatus = arr[0].name.toLowerCase() === 'creation' ? 1 : arr[0].name.toLowerCase() === 'set up' ? 2 : arr[0].name.toLowerCase() === 'preparation' ? 3 : arr[0].name.toLowerCase() === 'transfer' ? 4 : arr[0].name.toLowerCase() === 'checking' ? 5 : arr[0].name.toLowerCase() === 'complete' ? 6 : 1;
       this.wizard.goTo(this.currentStatus);
     }
-    this.showVariations = data.dtas[0]?.conformsToDefault ? true : false;
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleted !== null && this.form.value.setUpCompleted !== '' && this.form.value.mdAccessGranted !== null && this.form.value.mdAccessGranted !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequested !== null && this.form.value.uploadAccessRequested !== '' &&
-      this.form.value.uploadAccessConfirmed !== null && this.form.value.uploadAccessConfirmed !== '' && this.form.value.uploadsComplete !== null && this.form.value.uploadsComplete !== '' && this.form.value.qcChecksCompleted !== null && this.form.value.qcChecksCompleted !== '' && this.form.value.mdIntegratedWithMdr !== null && this.form.value.mdIntegratedWithMdr !== '' && this.form.value.availabilityRequested !== '' && this.form.value.availabilityRequested !== null && this.form.value.availabilityConfirmed !== '' && this.form.value.availabilityRequested !== null) {
+    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '' && this.form.value.mdAccessGrantedDate !== null && this.form.value.mdAccessGrantedDate !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequestedDate !== null && this.form.value.uploadAccessRequestedDate !== '' &&
+      this.form.value.uploadAccessConfirmedDate !== null && this.form.value.uploadAccessConfirmedDate !== '' && this.form.value.uploadCompleteDate !== null && this.form.value.uploadCompleteDate !== '' && this.form.value.qcChecksCompleteDate !== null && this.form.value.qcChecksCompleteDate !== '' && this.form.value.mdIntegratedWithMdrDate !== null && this.form.value.mdIntegratedWithMdrDate !== '' && this.form.value.availabilityRequestedDate !== '' && this.form.value.availabilityRequestedDate !== null && this.form.value.availabilityConfirmedDate !== '' && this.form.value.availabilityRequestedDate !== null) {
         this.showUploadButton = this.role === 'User' ? true : false;
     }
 
+  }
+  patchDta(dtaData) {
+    this.form.patchValue({
+      conformsToDefault: dtaData[0]?.conformsToDefault,
+      variations: dtaData[0]?.variations,
+      dtaFilePath: dtaData[0]?.dtaFilePath,
+      repoSignature1: dtaData[0]?.repoSignature1,
+      repoSignature2: dtaData[0]?.repoSignature2,
+      providerSignature1: dtaData[0]?.providerSignature1,
+      providerSignature2: dtaData[0]?.providerSignature2
+    });
+    // this.patchNote(dtaData.dtpNotes);
+    this.showVariations = dtaData[0]?.conformsToDefault ? true : false;
   }
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
@@ -739,7 +774,7 @@ export class UpsertDtpComponent implements OnInit {
     if (this.associatedStudies.length) {
       const sdSidArray = [];
       this.associatedStudies.map((item: any) => {
-        sdSidArray.push(item.sdSid);
+        sdSidArray.push(item.studyId);
       })
       studyModal.componentInstance.sdSidArray = sdSidArray.toString();
     }
@@ -756,9 +791,9 @@ export class UpsertDtpComponent implements OnInit {
     }, error => {})
   }
   getDtpStudies(id) {
-    this.dtpService.getDtpStudiesWfkn(id).subscribe((res: any) => {
+    this.dtpService.getDtpStudies(id).subscribe((res: any) => {
       if (res) {
-        this.associatedStudies = res.data ? res.data : [];
+        this.associatedStudies = res.results ? res.results : [];
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -791,7 +826,7 @@ export class UpsertDtpComponent implements OnInit {
     if (this.associatedStudies.length) {
       const sdSidArray = [];
       this.associatedStudies.map((item: any) => {
-        sdSidArray.push(item.sdSid);
+        sdSidArray.push(item.studyId);
       })
       dataModal.componentInstance.sdSidArray = sdSidArray.toString();
     }
@@ -806,13 +841,13 @@ export class UpsertDtpComponent implements OnInit {
     }, error => {});
   }
   getDtpObjects(id) {
-    this.dtpService.getDtpObjectsWfkn(id).subscribe((res: any) => {
+    this.dtpService.getDtpObjects(id).subscribe((res: any) => {
       if (res) {
-        this.associatedObject = res.data ? res.data : [];
+        this.associatedObject = res.results ? res.results : [];
         this.associatedObject.map( (item, index) => {
-          this.dataObjectService.getObjectInstances(item.sdOid, this.pageSize).subscribe((res:any) => {
+          this.dataObjectService.getObjectInstances(item.objectId, this.pageSize).subscribe((res:any) => {
             console.log('object instances', res);
-            this.instanceArray[index] = res.data;
+            this.instanceArray[index] = res.results;
             console.log('instarr', this.instanceArray);
           }, error => {
             this.toastr.error(error.error.title);
@@ -847,9 +882,9 @@ export class UpsertDtpComponent implements OnInit {
     }, error => {});
   }
   getDtpPeople(id) {
-    this.dtpService.getDtpPeopleWfkn(id).subscribe((res: any) => {
+    this.dtpService.getDtpPeople(id).subscribe((res: any) => {
       if (res) {
-        this.associatedUser = res.data ? res.data : [];
+        this.associatedUser = res.results ? res.results : [];
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -869,24 +904,24 @@ export class UpsertDtpComponent implements OnInit {
   }
   printDocument() {
     const payload = JSON.parse(JSON.stringify(this.dtpData));
-    payload.coreDtp.orgId = this.findOrganization(payload.coreDtp.orgId);
-    payload.coreDtp.statusId = this.findStatus(payload.coreDtp.statusId);
+    payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
+    payload.coreDtp.status = this.findStatus(payload.coreDtp.status);
     payload.coreDtp.initialContactDate = this.viewDate(payload.coreDtp.initialContactDate);
-    payload.coreDtp.setUpCompleted = this.viewDate(payload.coreDtp.setUpCompleted);
-    payload.coreDtp.mdAccessGranted = this.viewDate(payload.coreDtp.mdAccessGranted);
+    payload.coreDtp.setUpCompleteDate = this.viewDate(payload.coreDtp.setUpCompleteDate);
+    payload.coreDtp.mdAccessGrantedDate = this.viewDate(payload.coreDtp.mdAccessGrantedDate);
     payload.coreDtp.mdCompleteDate = this.viewDate(payload.coreDtp.mdCompleteDate);
     payload.coreDtp.dtaAgreedDate = this.viewDate(payload.coreDtp.dtaAgreedDate);
-    payload.coreDtp.uploadAccessRequested = this.viewDate(payload.coreDtp.uploadAccessRequested);
-    payload.coreDtp.uploadAccessConfirmed = this.viewDate(payload.coreDtp.uploadAccessConfirmed);
-    payload.coreDtp.uploadsComplete = this.viewDate(payload.coreDtp.uploadsComplete);
-    payload.coreDtp.qcChecksCompleted = this.viewDate(payload.coreDtp.qcChecksCompleted);
-    payload.coreDtp.mdIntegratedWithMdr = this.viewDate(payload.coreDtp.mdIntegratedWithMdr);
-    payload.coreDtp.availabilityRequested = this.viewDate(payload.coreDtp.availabilityRequested);
-    payload.coreDtp.availabilityConfirmed = this.viewDate(payload.coreDtp.availabilityConfirmed);
-    payload.dtas[0].repoSignatory1 = this.findPeopleById(payload.dtas[0].repoSignatory1);
-    payload.dtas[0].repoSignatory2 = this.findPeopleById(payload.dtas[0].repoSignatory2);
-    payload.dtas[0].providerSignatory1 = this.findPeopleById(payload.dtas[0].providerSignatory1);
-    payload.dtas[0].providerSignatory2 = this.findPeopleById(payload.dtas[0].providerSignatory2);
+    payload.coreDtp.uploadAccessRequestedDate = this.viewDate(payload.coreDtp.uploadAccessRequestedDate);
+    payload.coreDtp.uploadAccessConfirmedDate = this.viewDate(payload.coreDtp.uploadAccessConfirmedDate);
+    payload.coreDtp.uploadCompleteDate = this.viewDate(payload.coreDtp.uploadCompleteDate);
+    payload.coreDtp.qcChecksCompleteDate = this.viewDate(payload.coreDtp.qcChecksCompleteDate);
+    payload.coreDtp.mdIntegratedWithMdrDate = this.viewDate(payload.coreDtp.mdIntegratedWithMdrDate);
+    payload.coreDtp.availabilityRequestedDate = this.viewDate(payload.coreDtp.availabilityRequestedDate);
+    payload.coreDtp.availabilityConfirmedDate = this.viewDate(payload.coreDtp.availabilityConfirmedDate);
+    payload.dtas[0].repoSignature1 = this.findPeopleById(payload.dtas[0].repoSignature1);
+    payload.dtas[0].repoSignature2 = this.findPeopleById(payload.dtas[0].repoSignature2);
+    payload.dtas[0].providerSignature1 = this.findPeopleById(payload.dtas[0].providerSignature1);
+    payload.dtas[0].providerSignature2 = this.findPeopleById(payload.dtas[0].providerSignature2);
     payload.dtpNotes.map(item => {
       item.author = this.findPeopleById(item.author);
       item.createdOn = this.viewDate(item.createdOn);
@@ -895,33 +930,33 @@ export class UpsertDtpComponent implements OnInit {
       item.studyName = this.findStudyById(item.sdSid);
     })
     payload.dtpObjects.map(item => {
-      item.objectName  =  this.findObjectById(item.sdOid);
-      item.accessTypeId = this.findAccessType(payload.accessTypeId);
-      item.accessCheckStatusId = this.findCheckSatus(item.accessCheckStatusId);
+      item.objectName  =  this.findObjectById(item.objectId);
+      item.accessType = this.findAccessType(payload.accessType);
+      item.accessCheckStatus = this.findCheckSatus(item.accessCheckStatus);
       item.accessCheckBy = this.findPeopleById(item.accessCheckBy);
     });
     this.pdfGeneratorService.dtpPdfGenerator(payload, this.associatedUser);
   }
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.dtpData));
-    payload.coreDtp.orgId = this.findOrganization(payload.coreDtp.orgId);
-    payload.coreDtp.statusId = this.findStatus(payload.coreDtp.statusId);
+    payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
+    payload.coreDtp.status = this.findStatus(payload.coreDtp.status);
     payload.coreDtp.initialContactDate = this.viewDate(payload.coreDtp.initialContactDate);
-    payload.coreDtp.setUpCompleted = this.viewDate(payload.coreDtp.setUpCompleted);
-    payload.coreDtp.mdAccessGranted = this.viewDate(payload.coreDtp.mdAccessGranted);
+    payload.coreDtp.setUpCompleteDate = this.viewDate(payload.coreDtp.setUpCompleteDate);
+    payload.coreDtp.mdAccessGrantedDate = this.viewDate(payload.coreDtp.mdAccessGrantedDate);
     payload.coreDtp.mdCompleteDate = this.viewDate(payload.coreDtp.mdCompleteDate);
     payload.coreDtp.dtaAgreedDate = this.viewDate(payload.coreDtp.dtaAgreedDate);
-    payload.coreDtp.uploadAccessRequested = this.viewDate(payload.coreDtp.uploadAccessRequested);
-    payload.coreDtp.uploadAccessConfirmed = this.viewDate(payload.coreDtp.uploadAccessConfirmed);
-    payload.coreDtp.uploadsComplete = this.viewDate(payload.coreDtp.uploadsComplete);
-    payload.coreDtp.qcChecksCompleted = this.viewDate(payload.coreDtp.qcChecksCompleted);
-    payload.coreDtp.mdIntegratedWithMdr = this.viewDate(payload.coreDtp.mdIntegratedWithMdr);
-    payload.coreDtp.availabilityRequested = this.viewDate(payload.coreDtp.availabilityRequested);
-    payload.coreDtp.availabilityConfirmed = this.viewDate(payload.coreDtp.availabilityConfirmed);
-    payload.dtas[0].repoSignatory1 = this.findPeopleById(payload.dtas[0].repoSignatory1);
-    payload.dtas[0].repoSignatory2 = this.findPeopleById(payload.dtas[0].repoSignatory2);
-    payload.dtas[0].providerSignatory1 = this.findPeopleById(payload.dtas[0].providerSignatory1);
-    payload.dtas[0].providerSignatory2 = this.findPeopleById(payload.dtas[0].providerSignatory2);
+    payload.coreDtp.uploadAccessRequestedDate = this.viewDate(payload.coreDtp.uploadAccessRequestedDate);
+    payload.coreDtp.uploadAccessConfirmedDate = this.viewDate(payload.coreDtp.uploadAccessConfirmedDate);
+    payload.coreDtp.uploadCompleteDate = this.viewDate(payload.coreDtp.uploadCompleteDate);
+    payload.coreDtp.qcChecksCompleteDate = this.viewDate(payload.coreDtp.qcChecksCompleteDate);
+    payload.coreDtp.mdIntegratedWithMdrDate = this.viewDate(payload.coreDtp.mdIntegratedWithMdrDate);
+    payload.coreDtp.availabilityRequestedDate = this.viewDate(payload.coreDtp.availabilityRequestedDate);
+    payload.coreDtp.availabilityConfirmedDate = this.viewDate(payload.coreDtp.availabilityConfirmedDate);
+    payload.dtas[0].repoSignature1 = this.findPeopleById(payload.dtas[0].repoSignature1);
+    payload.dtas[0].repoSignature2 = this.findPeopleById(payload.dtas[0].repoSignature2);
+    payload.dtas[0].providerSignature1 = this.findPeopleById(payload.dtas[0].providerSignature1);
+    payload.dtas[0].providerSignature2 = this.findPeopleById(payload.dtas[0].providerSignature2);
     payload.dtpNotes.map(item => {
       item.author = this.findPeopleById(item.author);
       item.createdOn = this.viewDate(item.createdOn);
@@ -930,9 +965,9 @@ export class UpsertDtpComponent implements OnInit {
       item.studyName = this.findStudyById(item.sdSid);
     })
     payload.dtpObjects.map(item => {
-      item.objectName  =  this.findObjectById(item.sdOid);
-      item.accessTypeId = this.findAccessType(payload.accessTypeId);
-      item.accessCheckStatusId = this.findCheckSatus(item.accessCheckStatusId);
+      item.objectName  =  this.findObjectById(item.objectId);
+      item.accessType = this.findAccessType(payload.accessType);
+      item.accessCheckStatus = this.findCheckSatus(item.accessCheckStatus);
       item.accessCheckBy = this.findPeopleById(item.accessCheckBy);
     });
     this.jsonGenerator.jsonGenerator(payload, 'dtp');
@@ -947,75 +982,75 @@ export class UpsertDtpComponent implements OnInit {
   }
   onChange() {
     //resetting the value when the status is changed
-    const status = this.findStatus(parseInt(this.form.value.statusId));
+    const status = this.findStatus(parseInt(this.form.value.status));
     if (status.toLowerCase() === 'creation') {
       this.form.patchValue({
-        setUpCompleted: null,
-        mdAccessGranted: null,
+        setUpCompleteDate: null,
+        mdAccessGrantedDate: null,
         mdCompleteDate: null,
         dtaAgreedDate: null,
-        uploadAccessRequested: null,
-        uploadAccessConfirmed: null,
-        uploadsComplete: null,
-        qcChecksCompleted: null,
-        mdIntegratedWithMdr: null,
-        availabilityRequested: null,
-        availabilityConfirmed: null,
+        uploadAccessRequestedDate: null,
+        uploadAccessConfirmedDate: null,
+        uploadCompleteDate: null,
+        qcChecksCompleteDate: null,
+        mdIntegratedWithMdrDate: null,
+        availabilityRequestedDate: null,
+        availabilityConfirmedDate: null,
       })
     }
     if (status.toLowerCase() === 'set up') {
       this.form.patchValue({
-        setUpCompleted: null,
-        mdAccessGranted: null,
+        setUpCompleteDate: null,
+        mdAccessGrantedDate: null,
         mdCompleteDate: null,
         dtaAgreedDate: null,
-        uploadAccessRequested: null,
-        uploadAccessConfirmed: null,
-        uploadsComplete: null,
-        qcChecksCompleted: null,
-        mdIntegratedWithMdr: null,
-        availabilityRequested: null,
-        availabilityConfirmed: null,
+        uploadAccessRequestedDate: null,
+        uploadAccessConfirmedDate: null,
+        uploadCompleteDate: null,
+        qcChecksCompleteDate: null,
+        mdIntegratedWithMdrDate: null,
+        availabilityRequestedDate: null,
+        availabilityConfirmedDate: null,
       })
     }
     if (status.toLowerCase() === 'preparation') {
       this.form.patchValue({
-        mdAccessGranted: null,
+        mdAccessGrantedDate: null,
         mdCompleteDate: null,
         dtaAgreedDate: null,
-        uploadAccessRequested: null,
-        uploadAccessConfirmed: null,
-        uploadsComplete: null,
-        qcChecksCompleted: null,
-        mdIntegratedWithMdr: null,
-        availabilityRequested: null,
-        availabilityConfirmed: null,
+        uploadAccessRequestedDate: null,
+        uploadAccessConfirmedDate: null,
+        uploadCompleteDate: null,
+        qcChecksCompleteDate: null,
+        mdIntegratedWithMdrDate: null,
+        availabilityRequestedDate: null,
+        availabilityConfirmedDate: null,
       })
     }
     if (status.toLowerCase() === 'transfer') {
       this.form.patchValue({
-        uploadAccessRequested: null,
-        uploadAccessConfirmed: null,
-        uploadsComplete: null,
-        qcChecksCompleted: null,
-        mdIntegratedWithMdr: null,
-        availabilityRequested: null,
-        availabilityConfirmed: null,
+        uploadAccessRequestedDate: null,
+        uploadAccessConfirmedDate: null,
+        uploadCompleteDate: null,
+        qcChecksCompleteDate: null,
+        mdIntegratedWithMdrDate: null,
+        availabilityRequestedDate: null,
+        availabilityConfirmedDate: null,
       })
     }
     if (status.toLowerCase() === 'checking') {
       this.form.patchValue({
-        qcChecksCompleted: null,
-        mdIntegratedWithMdr: null,
-        availabilityRequested: null,
-        availabilityConfirmed: null,
+        qcChecksCompleteDate: null,
+        mdIntegratedWithMdrDate: null,
+        availabilityRequestedDate: null,
+        availabilityConfirmedDate: null,
       })
     }
     this.currentStatus = status.toLowerCase() === 'creation' ? 1 : status.toLowerCase() === 'set up' ? 2 : status.toLowerCase() === 'preparation' ? 3 : status.toLowerCase() === 'transfer' ? 4 : status.toLowerCase() === 'checking' ? 5 : status.toLowerCase() === 'complete' ? 6 : 1;
     this.wizard.goTo(this.currentStatus);
   }
   conformsToDefaultChange() {
-    this.showVariations = this.form.value.conformsToDefaultChange ? true : false
+    this.showVariations = this.form.value.conformsToDefault ? true : false
   }
   getStudyList() {
     this.listService.getStudyList().subscribe((res: any) => {
@@ -1039,8 +1074,8 @@ export class UpsertDtpComponent implements OnInit {
     const arr: any = this.studyList.filter((item: any) => item.sdSid === sdSid);
     return arr && arr.length ? arr[0].displayTitle : 'None';
   }
-  findObjectById(sdOid) {
-    const arr: any = this.objectList.filter((item: any) => item.sdOid === sdOid);
+  findObjectById(objectId) {
+    const arr: any = this.objectList.filter((item: any) => item.objectId === objectId);
     return arr && arr.length ? arr[0].displayTitle : 'None';
   }
   goToTsd(instance) {
@@ -1049,7 +1084,7 @@ export class UpsertDtpComponent implements OnInit {
     const headers = new HttpHeaders();
     headers.set('Authorization', userToken);
 
-    this.http.get(`https://api-v2.ecrin-rms.org/api/data-objects/${instance.sdOid}`, {headers}).subscribe(res => {
+    this.http.get(`https://api-v2.ecrin-rms.org/api/data-objects/${instance.objectId}`, {headers}).subscribe(res => {
       // @ts-ignore
       const objectId = res['data'][0].id;
       this.redirectService.postRedirect(instance.id, objectId, userToken);
@@ -1057,7 +1092,7 @@ export class UpsertDtpComponent implements OnInit {
   }
   goToDo(object) {
     console.log(object);
-    this.router.navigate([`/data-objects/${object.sdOid}/edit`]);
+    this.router.navigate([`/data-objects/${object.objectId}/edit`]);
   }
 
   protected readonly window = window;

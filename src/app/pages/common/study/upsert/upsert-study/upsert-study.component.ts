@@ -33,11 +33,6 @@ export class UpsertStudyComponent implements OnInit {
   id: any;
   studyData: StudyInterface;
   studyFull: any;
-  studyTypeView: any;
-  studyStatusView: any;
-  studyGenderView: any;
-  studyMinAgeView: any;
-  studyMaxAgeView: any;
   count = 0;
   publicTitle: string = '';
   monthValues = [{id:'1', name:'January'}, {id:'2', name:'February'}, {id:'3', name: 'March'}, {id:'4', name: 'April'}, {id:'5', name: 'May'}, {id:'6', name: 'June'}, {id:'7', name: 'July'}, {id:'8', name: 'August'}, {id:'9', name: 'September'}, {id:'10', name: 'October'}, {id:'11', name:'November'}, {id:'12', name: 'December'}];
@@ -146,11 +141,6 @@ export class UpsertStudyComponent implements OnInit {
       if(res.results) {
         this.studyTypes = res.results;
       }
-      if (this.isView) {
-        setTimeout(() => {
-          this.studyTypeView = this.findStudyTypeById(this.studyForm.value.studyType);
-        });
-      }
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);
@@ -166,11 +156,6 @@ export class UpsertStudyComponent implements OnInit {
       if(res.results) {
         this.studyStatuses = res.results;
       }
-      if (this.isView) {
-        setTimeout(() => {
-          this.studyStatusView = this.findStudyStatusById(this.studyData.studyStatus);
-        });
-      }
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);
@@ -185,11 +170,6 @@ export class UpsertStudyComponent implements OnInit {
       if (res.results) {
         this.genderEligibility = res.results;
       }
-      if (this.isView) {
-        setTimeout(() => {
-          this.studyGenderView = this.findGenderEligibilityId(this.studyForm.value.studyGenderElig);
-        });
-      }
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);
@@ -203,12 +183,6 @@ export class UpsertStudyComponent implements OnInit {
       this.spinner.hide();
       if(res.results) {
         this.timeUnits = res.results;
-      }
-      if (this.isView) {
-        setTimeout(() => {
-          this.studyMinAgeView = this.findTimeUnitsById(this.studyForm.value.minAgeUnit);
-          this.studyMaxAgeView = this.findTimeUnitsById(this.studyForm.value.maxAgeUnit);
-        });
       }
       if (this.isAdd) {
         const arr: any = this.timeUnits.filter((item: any) => item.name.toLowerCase() === "years");
@@ -240,7 +214,7 @@ export class UpsertStudyComponent implements OnInit {
   }
   findStudyStatusById(id) {
     const statusArray = this.studyStatuses.filter((type: any) => type.id === id);
-    return statusArray && statusArray.length ? statusArray[0] : { name: '' }
+    return statusArray && statusArray.length ? statusArray : { name: '' }
   }
   findStudyTypeById(id) {
     const studyArray = this.studyTypes.filter((type: any) => type.id === id);
@@ -323,10 +297,10 @@ export class UpsertStudyComponent implements OnInit {
           payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
           this.studyService.addStudy(payload).subscribe((res: any) => {
             this.spinner.hide();
-            if (res.statusCode === 200) {
+            if (res.statusCode === 201) {
               this.toastr.success('Study Detail added successfully');
               localStorage.setItem('updateStudyList', 'true');
-              this.close();
+              // this.close();
             } else {
               this.toastr.error(res.messages[0]);
             }
@@ -343,7 +317,7 @@ export class UpsertStudyComponent implements OnInit {
     if (this.addType === 'usingTrialId') {
       this.spinner.show();
       this.studyService.getFullStudyFromMdr(this.registryId, this.trialId).subscribe((res: any) => {
-        if (res.statusCode === 200) {
+        if (res.statusCode === 201) {
           this.toastr.success('Study imported successfully. you will be redirected shortly');
           localStorage.setItem('updateStudyList', 'true');
           setTimeout(() => {
@@ -375,7 +349,7 @@ export class UpsertStudyComponent implements OnInit {
   studyTypeChange() {
     const arrInterventional:any = this.studyTypes.filter((item: any) => item.name.toLowerCase() === 'interventional');
     const arrObservational:any = this.studyTypes.filter((item: any) => item.name.toLowerCase() === 'observational');
-    this.studyType = parseInt(this.studyForm.value.studyType) === arrInterventional[0].id ? 'interventional' : parseInt(this.studyForm.value.studyType) === arrObservational[0].id ? 'observational': ''
+    this.studyType = this.studyForm.value.studyType === arrInterventional[0].id ? 'interventional' : this.studyForm.value.studyType === arrObservational[0].id ? 'observational': ''
   }
   print() {
     this.studyService.getFullStudyById(this.id).subscribe((res: any) => {
@@ -541,7 +515,7 @@ export class UpsertStudyComponent implements OnInit {
     });
   }
   getAssociatedObject(id) {
-    this.listService.getBrowsingObjectByMultiStudies(id).subscribe((res: any) => {
+    this.listService.getObjectByMultiStudies(id).subscribe((res: any) => {
       this.associatedObjects = res.data;
     }, error => {
       this.toastr.error(error.error.title);

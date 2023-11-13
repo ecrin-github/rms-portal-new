@@ -39,12 +39,12 @@
 
       <ng-container matColumnDef="type">
         <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
-        <mat-cell *matCellDef="let row"> {{row.studyType.name}} </mat-cell>
+        <mat-cell *matCellDef="let row"> {{row.studyType?.name}} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="status">
         <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-        <mat-cell *matCellDef="let row"> {{row.studyStatus.name}} </mat-cell>
+        <mat-cell *matCellDef="let row"> {{row.studyStatus?.name}} </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="actions">

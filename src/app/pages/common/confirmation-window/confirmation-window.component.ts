@@ -346,7 +346,7 @@ export class ConfirmationWindowComponent implements OnInit {
     })
   }
   deletePreReqDtp() {
-    this.dtpService.deleteDtpObjectPrereq(this.id, this.objectId, this.dtpId).subscribe((res: any) => {
+    this.dtpService.deleteDtpObjectPrereq(this.id, this.dtpId).subscribe((res: any) => {
       if (res.statusCode === 204) {
         this.toastr.success('Pre-Requisite deleted successfully');
         this.activeModal.close('data');

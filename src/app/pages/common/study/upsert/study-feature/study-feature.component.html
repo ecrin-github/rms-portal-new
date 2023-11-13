@@ -16,22 +16,22 @@
                         <div class="row">
                             <ng-container *ngIf="selectedStudyType === 'interventional'">
                                     <div class="col-md-6 pt-2" *ngFor="let studyFeature of studyFeatures().controls; let i = index;" [formGroupName]="i">
-                                        <label for="'featureValueId'+ i" class="font-style text-capitalize">{{featureInterventional[i]?.name}}</label>
-                                        <select id="'featureValueId'+ i" class="form-control" formControlName="featureValueId" *ngIf="!isView">
+                                        <label for="'featureValue'+ i" class="font-style text-capitalize">{{featureInterventional[i]?.name}}</label>
+                                        <select id="'featureValue'+ i" class="form-control" formControlName="featureValue" *ngIf="!isView">
                                             <option disabled selected value="null">Select an option...</option>
                                             <option [value]="featValue.id" *ngFor="let featValue of featureValInter[i]">{{featValue.name}}</option>
                                         </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findFeatureValue(studyFeature.value.featureValueId)}}</h6>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findFeatureValue(studyFeature.value.featureValue)}}</h6>
                                     </div>
                             </ng-container>
                             <ng-container *ngIf="selectedStudyType === 'observational'">
                                     <div class="col-md-6 pt-2" *ngFor="let studyFeature of studyFeatures().controls; let i = index;" [formGroupName]="i">
-                                        <label for="featureValueId" class="font-style text-capitalize">{{featureObservational[i]?.name}}</label>
-                                        <select id="featureValueId" class="form-control" formControlName="featureValueId" *ngIf="!isView">
+                                        <label for="featureValue" class="font-style text-capitalize">{{featureObservational[i]?.name}}</label>
+                                        <select id="featureValue" class="form-control" formControlName="featureValue" *ngIf="!isView">
                                             <option disabled selected value="null">Select an option...</option>
                                             <option [value]="featValue.id" *ngFor="let featValue of featureValObe[i]">{{featValue.name}}</option>
                                         </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findFeatureValue(studyFeature.value.featureValueId)}}</h6>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{findFeatureValue(studyFeature.value.featureValue)}}</h6>
                                     </div>
                             </ng-container>
                         </div>

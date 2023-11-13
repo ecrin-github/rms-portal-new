@@ -26,18 +26,19 @@ export class CommonModalComponent implements OnInit {
   objectList: [] = [];
   userList: [] = [];
   sdSidArray: any;
+  pageSize = 10000;
 
   constructor( private activeModal: NgbActiveModal, private listService: ListService, private spinner: NgxSpinnerService, 
     private toastr: ToastrService, private objectService: DataObjectService, private fb: UntypedFormBuilder,
                private dtpService: DtpService, private dupService: DupService, private httpClient: HttpClient) {
       this.studyForm = this.fb.group({
-        targetSdSid: ''
+        studyId: '',
       });
       this.objectForm = this.fb.group({
-        targetsdOid: {value: '', disabled: true}
+        objectId: {value: '', disabled: true}
       });
       this.userForm = this.fb.group({
-        targetPersonId: ''
+        person: ''
       })
     }
 
@@ -56,8 +57,8 @@ export class CommonModalComponent implements OnInit {
   closeModal(data) {
     this.activeModal.close(data);
   }
-  addDtpStudy(dtpId, id, payload) {
-    this.dtpService.addDtpStudy(dtpId, id, payload).subscribe((res: any) => {
+  addDtpStudy(dtpId, payload) {
+    this.dtpService.addDtpStudy(dtpId, payload).subscribe((res: any) => {
       if (res.statusCode === 200) {
         this.toastr.success('Studies associated successfully');
       } else {
@@ -67,8 +68,8 @@ export class CommonModalComponent implements OnInit {
       this.toastr.error(error.error.title);
     });
   }
-  addDupStudy(dupId, id, payload) {
-    this.dupService.addDupStudy(dupId, id, payload).subscribe((res: any) => {
+  addDupStudy(dupId, payload) {
+    this.dupService.addDupStudy(dupId, payload).subscribe((res: any) => {
       if (res.statusCode === 200) {
         this.toastr.success('Studies associated successfully');
       } else {
@@ -78,8 +79,8 @@ export class CommonModalComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-  addDtpObject(dtpId, id, payload) {
-    this.dtpService.addDtpObject(dtpId, id, payload).subscribe((res: any) => {
+  addDtpObject(dtpId, payload) {
+    this.dtpService.addDtpObject(dtpId, payload).subscribe((res: any) => {
       if (res.statusCode === 200) {
         this.toastr.success('Objects associated successfully');
       } else {
@@ -89,8 +90,8 @@ export class CommonModalComponent implements OnInit {
       this.toastr.error(error.error.title);
     });
   }
-  addDupObject(dupId, id, payload) {
-    this.dupService.addDupObject(dupId, id, payload).subscribe((res: any) => {
+  addDupObject(dupId, payload) {
+    this.dupService.addDupObject(dupId, payload).subscribe((res: any) => {
       if (res.statusCode === 200) {
         this.toastr.success('Objects associated successfully');
       } else {
@@ -100,8 +101,8 @@ export class CommonModalComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-  addDtpUser(dtpId, id, payload) {
-    this.dtpService.addDtpPerson(dtpId, id, payload).subscribe((res: any) => {
+  addDtpUser(dtpId, payload) {
+    this.dtpService.addDtpPerson(dtpId, payload).subscribe((res: any) => {
       if (res.statusCode === 200) {
         this.toastr.success('User associated successfully');
       } else {
@@ -111,8 +112,8 @@ export class CommonModalComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-  addDupUser(dupId, id, payload) {
-    this.dupService.addDupPerson(dupId, id, payload).subscribe((res: any) => {
+  addDupUser(dupId, payload) {
+    this.dupService.addDupPerson(dupId, payload).subscribe((res: any) => {
       if (res.statusCode === 200) {
         this.toastr.success('User associated successfully');
       } else {
@@ -124,48 +125,56 @@ export class CommonModalComponent implements OnInit {
   }
   save() {
     if (this.type === 'study') {
-      const studyPayload = this.studyForm.value.targetSdSid;
+      const studyPayload = this.studyForm.value.studyId;
       studyPayload.map ((item: any) => {
         if (this.dtpId) {
-          this.addDtpStudy(this.dtpId, item, {});
+          const payload = { dtpId: this.dtpId, studyId: item}
+          this.addDtpStudy(this.dtpId, payload);
         }
         if (this.dupId) {
-          this.addDupStudy(this.dupId, item, {});
+          const payload = {dupId: this.dupId, studyId: item}
+          this.addDupStudy(this.dupId, payload);
         }
       })
-      if (this.objectForm.value.targetsdOid) {
-        const objectPayload = this.objectForm.value.targetsdOid;
+      if (this.objectForm.value.objectId) {
+        const objectPayload = this.objectForm.value.objectId;
         objectPayload.map((item: any) => {
           if (this.dtpId) {
-            this.addDtpObject(this.dtpId, item, {});
+            const payload = {dtpId: this.dtpId, objectId: item}
+            this.addDtpObject(this.dtpId, payload);
           }
           if (this.dupId) {
-            this.addDupObject(this.dupId, item, {});
+            const payload = {dupId: this.dupId, objectId: item}
+            this.addDupObject(this.dupId, payload);
           }
         });
       }
-      this.closeModal(this.studyForm.value.targetSdSid);
+      this.closeModal(this.studyForm.value.studyId);
     }
     if (this.type === 'dataObject') {
-      const payload = this.objectForm.value.targetsdOid;
+      const payload = this.objectForm.value.objectId;
       payload.map ((item : any) => {
         if (this.dtpId) {
-          this.addDtpObject(this.dtpId, item, {});
+          const payload = {dtpId: this.dtpId, objectId: item}
+          this.addDtpObject(this.dtpId, payload);
         }
         if (this.dupId) {
-          this.addDupObject(this.dupId, item, {});
+          const payload = {dupId: this.dupId, objectId: item}
+          this.addDupObject(this.dupId, payload);
         }
       });
       this.closeModal({});
     }
     if (this.type === 'user') {
-      const payload = this.userForm.value.targetPersonId;
+      const payload = this.userForm.value.person;
       payload.map((item: any) => {
         if (this.dtpId) {
-          this.addDtpUser(this.dtpId, item, {});
+          const payload = {dtpId: this.dtpId, person: item};
+          this.addDtpUser(this.dtpId, payload);
         }
         if (this.dupId) {
-          this.addDupUser(this.dupId, item, {});
+          const payload = {dupId: this.dupId, person: item}
+          this.addDupUser(this.dupId, payload);
         }
       });
       this.closeModal({});
@@ -173,10 +182,10 @@ export class CommonModalComponent implements OnInit {
   }
   getStudyList() {
     this.spinner.show();
-    this.listService.getStudyList().subscribe((res: any) => {
+    this.listService.getStudyList(this.pageSize, '').subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.studyList = res.data.length ? res.data : [];;
+      if (res && res.results) {
+        this.studyList = res.results.length ? res.results : [];;
       }
     }, error => {
       this.spinner.hide();
@@ -205,27 +214,26 @@ export class CommonModalComponent implements OnInit {
   }
   getPeopleList() {
     this.spinner.show();
-    this.httpClient.get('https://api-test.ecrin-rms.org/api/users/?page=1&page_size=100').subscribe((data) => {
+    this.listService.getPeopleList(this.pageSize, '').subscribe((res: any) => {
       this.spinner.hide();
-      console.log(data);
-      if (data && data['results']) {
-        this.userList = data['results'];
+      if (res && res.results) {
+        this.userList = res.results;
       }
+      console.log(res);
     }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
+      console.log('error', error);
     })
   }
   studyDropdownClose() {
     if (this.type === 'dataObject') {
-      this.objectForm.controls.targetsdOid.enable();
+      this.objectForm.controls.objectId.enable();
     } else if (this.type === 'study') {
-      if (this.studyForm.value.targetSdSid.length) {
-        this.objectForm.controls.targetsdOid.enable();
-        const sdSids = this.sdSidArray ? this.studyForm.value.targetSdSid.toString() + ',' + this.sdSidArray : this.studyForm.value.targetSdSid.toString();
+      if (this.studyForm.value.studyId.length) {
+        this.objectForm.controls.objectId.enable();
+        const sdSids = this.sdSidArray ? this.studyForm.value.studyId.toString() + ',' + this.sdSidArray : this.studyForm.value.studyId.toString();
         this.getObjectListByStudy(sdSids);
       } else {
-        this.objectForm.controls.targetsdOid.disable();
+        this.objectForm.controls.objectId.disable();
       }
     }
   }

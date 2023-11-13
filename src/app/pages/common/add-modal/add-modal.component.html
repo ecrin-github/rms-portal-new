@@ -8,16 +8,16 @@
                 <div class="row form-group">
                     <div class="col-md-12">
                         <label for="object" class="font-style text-capitalize">Object</label>
-                        <ng-select [items]="objectList" bindLabel="sdOid" bindValue="sdOid" formControlName="sdOid"
+                        <ng-select [items]="objectList" bindLabel="objectId" bindValue="objectId" formControlName="objectId"
                             [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No members found"
                             placeholder="Select object" [searchFn]="customSearchFn">
                             <ng-template ng-label-tmp let-item="item">
-                                {{item.sdOid}}
+                                {{item.objectId}}
                             </ng-template>
                             <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                 <div class="row m-0">
                                     <div class="col-md-8 col-8 p-0 m-0">
-                                        <div class="col-md-12">{{item.sdOid}}</div>
+                                        <div class="col-md-12">{{item.objectId}}</div>
                                         <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.displayTitle}}</div>
                                     </div>
                                 </div>
@@ -28,7 +28,7 @@
                 <div class="row form-group">
                     <div class="col-md-6">
                         <label for="preReqId" class="font-style text-capitalize">Pre-Requisite Type</label>
-                        <select id="preReqId" formControlName="preRequisiteTypeId" class="form-control">
+                        <select id="preReqId" formControlName="prereqType" class="form-control">
                             <option [value]=preReqType.id *ngFor="let preReqType of preRequTypes">{{preReqType.name}}
                             </option>
                         </select>
@@ -36,7 +36,7 @@
                     <div class="col-md-6">
                         <label for="notes" class="font-style text-capitalize">Note</label>
                         <textarea id="notes" cols="30" rows="3" class="form-control"
-                            formControlName="preRequisiteNotes"></textarea>
+                            formControlName="prereqNotes"></textarea>
                     </div>
                 </div>
             </form>

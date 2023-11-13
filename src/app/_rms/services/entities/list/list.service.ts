@@ -33,11 +33,6 @@ export class ListService {
     return this.http.get(`${base}/studies/list/recent/${n}`);
   }
 
-  getBrowsingStudyList() {
-    return this.http.get(`${base}/browsing/studies/list`);
-  }
-
-
 
   // object lists
 
@@ -56,10 +51,7 @@ export class ListService {
     return this.http.get(`${base}/studies/${sdSid}/objects`);
   }
   getObjectByMultiStudies(sdSid) {
-    return this.http.get(`${base}/multi-studies/objects?sdSids=${sdSid}`);
-  }
-  getBrowsingObjectByMultiStudies(sdSid) {
-    return this.http.get(`${base}/browsing/multi-studies/objects?sdSids=${sdSid}`);
+    return this.http.get(`${base}/mdm/multi-studies/objects?studiesIds=${sdSid}`);
   }
 
 
@@ -73,8 +65,8 @@ export class ListService {
 
   // DTP lists
 
-  getDtpList() {
-    return this.http.get(`${base}/rms/dtp`);
+  getDtpList(pageSize?, page?) {
+    return this.http.get(`${base}/rms/dtp?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
   }
   
   getFilteredDtpList(title_fragment: string, page: number, size: number) {
@@ -91,8 +83,8 @@ export class ListService {
 
   // DUP lists
 
-  getDupList() {
-    return this.http.get(`${base}/rms/dup`);
+  getDupList(pageSize?, page?) {
+    return this.http.get(`${base}/rms/dup?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
   }
   
   getFilteredDuptList(title_fragment: string, page: number, size: number) {
@@ -109,7 +101,7 @@ export class ListService {
 
   // People Lists
   getPeopleList(pageSize?, page?) {
-    return this.http.get(`${base}/users?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
+    return this.http.get(`${base}/users/?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`, { context: new HttpContext().set(BYPASS_LOG, true) });
   }
   getFilteredPeopleList(name_fragment: string, page: number, size: number) {
     return this.http.get(`${base}/people/list/name-contains/${name_fragment}`);

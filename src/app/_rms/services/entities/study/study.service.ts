@@ -26,7 +26,7 @@ export class StudyService {
   // MDR related calls
  
   getFullStudyFromMdr(regId: number, sdSid: string) {
-    return this.http.get(`${base}/studies/mdr/${regId}/${sdSid}`);
+    return this.http.get(`${base}/mdm/studies/mdr?regId=${regId}&sdSid=${sdSid}`);
   }
   
   getStudyFromMdr(regId: number, sdSid: string) {
@@ -93,22 +93,19 @@ export class StudyService {
 
   // study features
   getStudyFeatures(sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/features`);
-  }
-  getBrowsingStudyFeatures(sdSid) {
-    return this.http.get(`${base}/browsing/studies/${sdSid}/features`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-features`);
   }
   addStudyFeature(sdSid, payload) {
-    return this.http.post(`${base}/studies/${sdSid}/features`, payload);
+    return this.http.post(`${base}/mdm/studies/${sdSid}/study-features`, payload);
   }
   getStudyFeature(id, sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/features/${id}`);
+    return this.http.get(`${base}/mdm/studies/${sdSid}/study-features/${id}`);
   }
   editStudyFeature(id, sdSid, payload) {
-    return this.http.put(`${base}/studies/${sdSid}/features/${id}`, payload);
+    return this.http.put(`${base}/mdm/studies/${sdSid}/study-features/${id}`, payload);
   }
   deleteStudyFeature(id, sdSid) {
-    return this.http.delete(`${base}/studies/${sdSid}/features/${id}`);
+    return this.http.delete(`${base}/mdm/studies/${sdSid}/study-features/${id}`);
   }
 
 

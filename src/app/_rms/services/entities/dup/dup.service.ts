@@ -29,7 +29,7 @@ export class DupService {
     // DUP record - core record only
 
   getDupById(id) {
-    return this.http.get(`${base}/data-uses/${id}`);
+    return this.http.get(`${base}/rms/dup/${id}`);
   }
 
   getDupByIdWfkn(id) {
@@ -37,11 +37,11 @@ export class DupService {
   }
 
   addDup(payload) {
-    return this.http.post(`${base}/data-uses`, payload);
+    return this.http.post(`${base}/rms/dup`, payload);
   }
 
   editDup(id, payload) {
-    return this.http.put(`${base}/data-uses/${id}`, payload);
+    return this.http.put(`${base}/rms/dup/${id}`, payload);
   }
 
   deleteDupById(id) {
@@ -52,16 +52,16 @@ export class DupService {
   // DUAs - only ever one Dua / Dup, therefore code can be simpler
 
   addDua(dupId, payload) {
-    return this.http.post(`${base}/data-uses/${dupId}/Dua`, payload);
+    return this.http.post(`${base}/rms/dup/${dupId}/dua`, payload);
   }
   getDua(dupId) {
-    return this.http.get(`${base}/data-uses/${dupId}/Dua`);
+    return this.http.get(`${base}/rms/dup/${dupId}/dua`);
   }
   getDuaWfkn(dupId) {
     return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/dta`);
   }
-  editDua(dupId, payload) {
-    return this.http.put(`${base}/data-uses/${dupId}/Dua`, payload);
+  editDua(dupId, id, payload) {
+    return this.http.put(`${base}/rms/dup/${dupId}/dua/${id}`, payload);
   }
   deleteDua(dupId) {
     return this.http.delete(`${base}/data-uses/${dupId}/Dua`);
@@ -71,13 +71,13 @@ export class DupService {
   // Dup Studies
 
   getDupStudies(dupId) {
-    return this.http.get(`${base}/data-uses/${dupId}/studies`);
+    return this.http.get(`${base}/rms/dup/${dupId}/studies`);
   }
   getDupStudiesWfkn(dupId) {
     return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/studies`);
   }
-  addDupStudy(dupId, sdSid, payload) {
-    return this.http.post(`${base}/data-uses/${dupId}/studies/${sdSid}`, payload);
+  addDupStudy(dupId, payload) {
+    return this.http.post(`${base}/rms/dup/${dupId}/studies`, payload);
   }
   getDupStudy(id, dupId) {
     return this.http.get(`${base}/data-uses/${dupId}/studies/${id}`);
@@ -96,13 +96,13 @@ export class DupService {
   // Dup Objects
 
   getDupObjects(dupId) {
-    return this.http.get(`${base}/data-uses/${dupId}/objects`);
+    return this.http.get(`${base}/rms/dup/${dupId}/objects`);
   }
   getDupObjectsWfkn(dupId) {
     return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/objects`);
   }
-  addDupObject(dupId, sdOid, payload) {
-    return this.http.post(`${base}/data-uses/${dupId}/objects/${sdOid}`, payload);
+  addDupObject(dupId, payload) {
+    return this.http.post(`${base}/rms/dup/${dupId}/objects`, payload);
   }
   getDupObject(id, dupId) {
     return this.http.get(`${base}/data-uses/${dupId}/objects/${id}`);
@@ -121,13 +121,13 @@ export class DupService {
   // Dup People
 
   getDupPeople(dupId) {
-    return this.http.get(`${base}/data-uses/${dupId}/people`);
+    return this.http.get(`${base}/rms/dup/${dupId}/people`);
   }
   getDupPeopleWfkn(dupId) {
     return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/people`);
   }
-  addDupPerson(dupId, personId, payload) {
-    return this.http.post(`${base}/data-uses/${dupId}/people/${personId}`, payload);
+  addDupPerson(dupId, payload) {
+    return this.http.post(`${base}/rms/dup/${dupId}/people`, payload);
   }
   getDupPerson(id, dupId) {
     return this.http.get(`${base}/data-uses/${dupId}/people/${id}`);
@@ -146,13 +146,13 @@ export class DupService {
   // Dup Notes
 
   getDupNotes(dupId) {
-    return this.http.get(`${base}/data-uses/${dupId}/notes`);
+    return this.http.get(`${base}/rms/dup/${dupId}/notes`);
   }
   getDupNotesWfkn(dupId) {
     return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/notes`);
   }
-  addDupNote(dupId, personId, payload) {
-    return this.http.post(`${base}/data-uses/${dupId}/notes/${personId}`, payload);
+  addDupNote(dupId, payload) {
+    return this.http.post(`${base}/rms/dup/${dupId}/notes`, payload);
   }
   getDupNote(id, dupId) {
     return this.http.get(`${base}/data-uses/${dupId}/notes/${id}`);
@@ -161,17 +161,17 @@ export class DupService {
     return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/notes/${id}`);
   }
   editDupNote(id, dupId, payload) {
-    return this.http.put(`${base}/data-uses/${dupId}/notes/${id}`, payload);
+    return this.http.put(`${base}/rms/dup/${dupId}/notes/${id}`, payload);
   }
   deleteDupNote(id, dupId) {
-    return this.http.delete(`${base}/data-uses/${dupId}/notes/${id}`);
+    return this.http.delete(`${base}/rms/dup/${dupId}/notes/${id}`);
   }
 
 
   // Dup Object pre-requisites
 
-  getDupObjectPrereqs(sdOid, dupId) {
-    return this.http.get(`${base}/data-uses/${dupId}/objects/${sdOid}/prereqs`);
+  getDupObjectPrereqs(dupId) {
+    return this.http.get(`${base}/rms/dup/${dupId}/prereqs`);
   }
   getDupObjectPrereqsWfkn(sdOid, dupId) {
     return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/objects/${sdOid}/prereqs`);
@@ -185,8 +185,8 @@ export class DupService {
   getDupObjectPrereqWfkn(id, sdOid, dupId) {
     return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/objects/${sdOid}/prereqs/${id}`);
   }
-  editDupObjectPrereq(id, sdOid, dupId, payload) {
-    return this.http.put(`${base}/data-uses/${dupId}/objects/${sdOid}/prereqs/${id}`, payload);
+  editDupObjectPrereq(id, dupId, payload) {
+    return this.http.put(`${base}/rms/dup/${dupId}/prereqs/${id}`, payload);
   }
   deleteDupObjectPrereq(id, sdOid, dupId) {
     return this.http.delete(`${base}/data-uses/${dupId}/objects/${sdOid}/prereqs/${id}`);

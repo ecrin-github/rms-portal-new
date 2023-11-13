@@ -66,10 +66,11 @@ export class SummaryStudyComponent implements OnInit {
 
   getAllStudyList() {
     this.spinner.show();
-    this.listService.getStudyList().subscribe((res: any) => {
+    const pageSize = 10000
+    this.listService.getStudyList(pageSize, '').subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res.data);
+      if (res && res.results) {
+        this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res.results);
         this.studyLength = res.total;
       } else {
         this.dataSource = new MatTableDataSource();
@@ -100,33 +101,11 @@ export class SummaryStudyComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-  getBrowsingStudy() {
-    this.spinner.show();
-    this.listService.getBrowsingStudyList().subscribe((res: any) => {
-      this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res.data);
-        this.studyLength = res.total;
-      } else {
-        this.dataSource = new MatTableDataSource();
-        this.studyLength = res.total;
-      }
-      this.dataSource.paginator = this.paginator;
-      this.searchText = '';
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
-  }
   getStudyList() {
     if (this.role === 'User') {
       this.getStudyListByOrg();
     } else {
-      if (this.isBrowsing) {
-        this.getBrowsingStudy();
-      } else {
-        this.getAllStudyList();
-      }
+      this.getAllStudyList();
     }
   }
  

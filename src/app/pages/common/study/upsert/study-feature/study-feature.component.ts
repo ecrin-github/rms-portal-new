@@ -15,13 +15,10 @@ import { StudyService } from 'src/app/_rms/services/entities/study/study.service
 })
 export class StudyFeatureComponent implements OnInit {
   form: UntypedFormGroup;
-  // featureTypes: [] = [];
-  featureTypes = [{id:20, name:"Phase",context: 'interventional'},{id:21, name :"Primary purpose", context: 'interventional'},{id:22, name:"Allocation type", context: 'interventional'},{id:23, name:"Intervention model", context: 'interventional'},{id:24, name:"Masking", context: 'interventional'},{id:30, name:"Observational model", context: 'observational'},{id:31, name:"Time perspective", context: 'observational'},{id:32, name:"Biospecimens retained", context: 'observational'}];
-  // featureValues = [];
-  featureValuesAll = [{id:400, name:"Treatment", featureTypeId: 21},{id:205, name:"Randomised", featureTypeId: 22},{id:300, name :"Single group assignment", featureTypeId:23},{id:500, name :"None (Open Label)", featureTypeId:24},{id:600, name:"Cohort", featureTypeId:30},{id:105, name:"Early phase 1", featureTypeId:20},{id:700, name:"Retrospective", featureTypeId:31},{id:800, name :"None retained", featureTypeId:32},{id:502, name:"Blinded (no details)", featureTypeId:24},{id:110, name:"Phase 1", featureTypeId:20},{id:405, name:"Prevention", featureTypeId:21},{id:210, name:"Nonrandomised", featureTypeId:22},{id:305, name:"Parallel assignment", featureTypeId:23},{id:505, name:"Single", featureTypeId:24},{id:605, name:"Case-control", featureTypeId:30},{id:705, name:"Prospective", featureTypeId:31},{id:805, name:"Samples with DNA ", featureTypeId:32},{id:410, name:"Diagnostic", featureTypeId:21},{id:200, name:"Not applicable", featureTypeId:22},{id:310, name:"Crossover assignment", featureTypeId:23},{id:510, name:"Double", featureTypeId: 24},{id:610, name:"Case-only", featureTypeId:30},{id:115, name:"Phase 1/2", featureTypeId:20},{id:710, name:"Cross-sectional", featureTypeId:31},{id:810, name:"Samples without DNA", featureTypeId:32},{id:120, name:"Phase 2", featureTypeId:20},{id:215, name:"Not provided", featureTypeId:22},{id:315, name:"Factorial assignment", featureTypeId:23},{id:515, name:"Triple", featureTypeId:24},{id:615, name:"Case-crossover", featureTypeId:30},{id:815, name:"Not provided", featureTypeId:32},{id:415, name:"Supportive care", featureTypeId:21},{id:725, name:"Retrospective / prospective", featureTypeId:31},{id:420, name:"Screening", featureTypeId:21},{id:320, name:"Sequential assignment", featureTypeId:23},{id:520, name:"Quadruple", featureTypeId:24},{id:125,"name":"Phase 2/3", featureTypeId:20},{id:620, name:"Ecologic or community study", featureTypeId:30},{id:730, name:"Longitudinal", featureTypeId:31},{id:130, name:"Phase 3", featureTypeId:20},{id:325, name:"Not provided", featureTypeId:23},{id:425, name:"Health services research", featureTypeId:21},{id:625, name:"Family-based", featureTypeId:30},{id:599, name:"Not applicable", featureTypeId:24},{id:135, name:"Phase 4", featureTypeId:20},{id:640, name:"Defined population", featureTypeId:30},{id:430, name:"Basic science",featureTypeId:21},{id:100, name:"Not applicable", featureTypeId:20},{id:645, name:"Natural history", featureTypeId:30},{id:435, name:"Device feasibility", featureTypeId:21},{id:140, name:"Not provided", featureTypeId:20},{id:525, name:"Not provided", featureTypeId:24},{id:450, name:"Educational / counselling / training", featureTypeId:21},{id:440, name:"Other", featureTypeId:21},{id:630, name:"Other", featureTypeId:30},{id:715, name:"Other", featureTypeId:31},{id:445, name:"Not provided", featureTypeId:21},{id:635, name:"Not provided", featureTypeId:30},{id:720, name:"Not provided", featureTypeId:31}]
+  featureTypes: [] = [];
   featureValInter = [];
   featureValObe = [];
-  // featureValuesAll: [] = [];
+  featureValuesAll: [] = [];
   featureInterventional = [];
   featureObservational = [];
   selectedStudyType: any;
@@ -29,7 +26,7 @@ export class StudyFeatureComponent implements OnInit {
   subscription: Subscription = new Subscription();
   @Input() isView: boolean;
   @Input() isEdit: boolean;
-  @Input() sdSid: string;
+  @Input() studyId: string;
   @Input() set initiateEmit(initiateEmit: any) {
     if (initiateEmit) {
       this.emitData();
@@ -64,28 +61,27 @@ export class StudyFeatureComponent implements OnInit {
     return this.form.get('studyFeatures') as UntypedFormArray;
   }
 
-  newStudyFeature(featureTypeId): UntypedFormGroup {
+  newStudyFeature(featureType): UntypedFormGroup {
     return this.fb.group({
       id: '',
-      sdSid: '',
-      featureTypeId: featureTypeId,
-      featureValueId: null,
+      studyId: '',
+      featureType: featureType,
+      featureValue: null,
       alreadyExist: false
     });
   }
   getStudyFeature() {
     this.spinner.show();
-    const studyFeature$ = this.isBrowsing ? this.studyService.getBrowsingStudyFeatures(this.sdSid) : this.studyService.getStudyFeatures(this.sdSid);
-    studyFeature$.subscribe((res: any) => {
+    this.studyService.getStudyFeatures(this.studyId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.studyFeature = res.data.length ? res.data : [];
+      if (res && res.results) {
+        this.studyFeature = res.results.length ? res.results : [];
         if (this.isEdit || this.isView) {
           this.form.value.studyFeatures.map((item1, index) => {
-            const arr = this.studyFeature.filter((item:any) => item1.featureTypeId === item.featureTypeId);
+            const arr = this.studyFeature.filter((item:any) => item1.featureType === item.featureType.id);
             if (arr && arr.length) {
               this.studyFeatures().at(index).patchValue({
-                featureValueId: arr[0].featureValueId
+                featureValue: arr[0].featureValue.id
               })
             }
           })
@@ -103,11 +99,11 @@ export class StudyFeatureComponent implements OnInit {
     this.spinner.show();
     const combine$ = combineLatest([getFeatureType$, getFeatureValue$]).subscribe(([featureType, featureValue] : [any, any]) => {
       this.spinner.hide();
-      if (featureType.data) {
-        // this.featureTypes = featureType.data;
+      if (featureType.results) {
+        this.featureTypes = featureType.results;
       }
-      if (featureValue.data) {
-        // this.featureValuesAll = featureValue.data;
+      if (featureValue.results) {
+        this.featureValuesAll = featureValue.results;
       }
       this.featureArrayFormation();
     }, error => {
@@ -124,13 +120,13 @@ export class StudyFeatureComponent implements OnInit {
     console.log(this.form.get('studyFeatures') as UntypedFormArray);
     if (this.selectedStudyType === 'interventional') {
       this.featureInterventional.map((item1, index) => {
-        this.featureValInter[index] = this.featureValuesAll.filter((item: any) => item.featureTypeId === item1.id);
+        this.featureValInter[index] = this.featureValuesAll.filter((item: any) => item.featureType.id === item1.id);
         this.studyFeatures().push(this.newStudyFeature(item1.id));
       });
     }
     if (this.selectedStudyType === 'observational') {
       this.featureObservational.map((item2, index) => {
-        this.featureValObe[index] = this.featureValuesAll.filter((item:any) => item.featureTypeId === item2.id);
+        this.featureValObe[index] = this.featureValuesAll.filter((item:any) => item.featureType.id === item2.id);
         this.studyFeatures().push(this.newStudyFeature(item2.id));
       })
     }
@@ -138,13 +134,13 @@ export class StudyFeatureComponent implements OnInit {
   addFeature() {
     this.spinner.show();
     const payload = JSON.parse(JSON.stringify(this.form.value.studyFeatures)).map(item =>{
-      item.sdSid = this.sdSid;
+      item.studyId = this.studyId;
       delete item.id;
       return item;
     });
     console.log('payload ', payload);
     payload.map((item: any) => {
-      this.studyService.addStudyFeature(this.sdSid, item).subscribe((res: any) => {
+      this.studyService.addStudyFeature(this.studyId, item).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Study Feature updated successfully');
@@ -160,7 +156,7 @@ export class StudyFeatureComponent implements OnInit {
   editFeature(featureObject) {
     const payload = featureObject.value;
     this.spinner.show();
-    this.studyService.editStudyFeature(payload.id, payload.sdSid, payload).subscribe((res: any) => {
+    this.studyService.editStudyFeature(payload.id, payload.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Study Feature updated successfully');
@@ -185,8 +181,8 @@ export class StudyFeatureComponent implements OnInit {
       if (!item.id) {
         delete item.id;
       }
-      if (this.sdSid) {
-        item.sdSid = this.sdSid;
+      if (this.studyId) {
+        item.studyId = this.studyId;
       }
       return item;
     })

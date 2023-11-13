@@ -1,8 +1,8 @@
 import { Component, HostListener, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { DashboardService } from 'src/app/_rms/services/entities/dashboard/dashboard.service';
 import { DtpListEntryInterface } from 'src/app/_rms/interfaces/dtp/dtp-listentry.interface';
+import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 
 @Component({
   selector: 'app-recent-dtu',
@@ -14,16 +14,17 @@ export class RecentDtuComponent {
   displayedColumns = ['id', 'organisation', 'title', 'status', 'actions'];
   dataSource: MatTableDataSource<DtpListEntryInterface>;
 
-  constructor(private dashboardService: DashboardService, 
+  constructor(private listService: ListService, 
               private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.getDtpList();
   }
   getDtpList() {
-    this.dashboardService.getMostRecent10Dtps().subscribe((res: any) => {
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource(res.data);
+    const page = 1;
+    this.listService.getDtpList('', page).subscribe((res: any) => {
+      if (res && res.results) {
+        this.dataSource = new MatTableDataSource(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
       }

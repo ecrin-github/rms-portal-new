@@ -1,8 +1,8 @@
 import { Component, HostListener, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ToastrService } from 'ngx-toastr';
-import { DashboardService } from 'src/app/_rms/services/entities/dashboard/dashboard.service';
 import { DupListEntryInterface } from 'src/app/_rms/interfaces/dup/dup-listentry.interface';
+import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 
 @Component({
   selector: 'app-recent-dup',
@@ -15,7 +15,7 @@ export class RecentDupComponent {
   displayedColumns = ['id', 'organisation', 'title', 'status', 'actions'];
   dataSource: MatTableDataSource<DupListEntryInterface>;
    
-  constructor( private dashboardService: DashboardService, 
+  constructor( private listService: ListService, 
                private toastr: ToastrService) { }
 
   ngOnInit(): void {
@@ -23,9 +23,10 @@ export class RecentDupComponent {
   }
 
   getDupList() {
-    this.dashboardService.getMostRecent10Dups().subscribe((res: any) => {
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource(res.data);
+    const page = 1;
+    this.listService.getDupList('', page).subscribe((res: any) => {
+      if (res && res.results) {
+        this.dataSource = new MatTableDataSource(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
       }

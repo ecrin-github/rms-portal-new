@@ -44,7 +44,7 @@
             <ng-container matColumnDef="organisation">
                 <mat-header-cell *matHeaderCellDef> Organisation </mat-header-cell>
                 <mat-cell *matCellDef="let row">
-                    <strong>{{row.orgName}}</strong>
+                    <strong>{{row.organisation?.defaultName}}</strong>
                 </mat-cell>
             </ng-container>
 
@@ -57,7 +57,7 @@
 
             <ng-container matColumnDef="status">
                 <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{row.statusName}} </mat-cell>
+                <mat-cell *matCellDef="let row"> {{row.status?.name}} </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="actions">

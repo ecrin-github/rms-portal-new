@@ -21,7 +21,7 @@
                 <button class="btn btn-warning" *ngIf="!isView" (click)="close()"> Cancel</button>
             </div>
             <div class="pl-5">
-                <h6>{{dupData?.coreDup.displayName}}</h6>
+                <h6>{{dupData?.displayName}}</h6>
             </div>
         </div>
     </div>
@@ -53,16 +53,16 @@
                             <div class="row form-group">
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize">organization</label>
-                                    <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="orgId"
+                                    <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="organisation"
                                         [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No members found"
                                         placeholder="Select Organisation" *ngIf="!isView"
-                                        [ngClass]="{ 'is-invalid': submitted && g.orgId.errors }" [readonly]="isEdit">
+                                        [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }" [readonly]="isEdit">
                                     </ng-select>
-                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.orgId.errors">
-                                        <p *ngIf="submitted && g.orgId.errors.required"> Please select Organization</p>
+                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.organisation.errors">
+                                        <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>
                                     </div>
                                     <h6 *ngIf="isView" style="font-weight: 100;">
-                                        {{findOrganization(dupData?.coreDup.orgId)}}</h6>
+                                        {{findOrganization(dupData?.organisation)}}</h6>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize">Display Name</label>
@@ -72,20 +72,20 @@
                                         <p *ngIf="submitted && g.displayName.errors.required"> Please enter the Display
                                             Name</p>
                                     </div>
-                                    <h6 *ngIf="isView" style="font-weight: 100;">{{dupData?.coreDup.displayName}}</h6>
+                                    <h6 *ngIf="isView" style="font-weight: 100;">{{dupData?.displayName}}</h6>
                                 </div>
                             </div>
                             <div class="row form-group" *ngIf="isEdit || isView">
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize pr-5">Status</label>
                                     <button class="btn btn-danger btn-sm" *ngIf="!isView" (click)="resetAll()">Change Submission Status</button>
-                                    <select class="form-control" formControlName="statusId" *ngIf="showStatus" (change)="onChange()">
+                                    <select class="form-control" formControlName="status" *ngIf="showStatus" (change)="onChange()">
                                         <option disabled selected value="">Select an option...</option>
                                         <option [value]=status.id *ngFor="let status of statusList">{{status.name}}
                                         </option>
                                     </select>
                                     <h6 *ngIf="!showStatus || isView" style="font-weight: 100;">
-                                        {{findStatus(dupData?.coreDup.statusId)}}</h6>
+                                        {{findStatus(dupData?.status.id)}}</h6>
                                 </div>
                             </div>
                             <div #wizard class="wizard wizard-1" id="kt_wizard_v1" data-wizard-state="step-first" data-wizard-clickable="true">
@@ -159,7 +159,7 @@
                                                     </div>
                                                 </div>
                                                 <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.coreDup.initialContactDate)}}</h6>
+                                                    {{viewDate(dupData?.initialContactDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -169,20 +169,20 @@
                                                 <label for="" class="font-style text-capitalize">SetUp Completed</label>
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="setUpCompleted" ngbDatepicker
-                                                            #setUpCompleted="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.setUpCompleted.errors }"
-                                                            (click)="setUpCompleted.toggle()" formControlName="setUpCompleted"
+                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="setUpCompletedDate" ngbDatepicker
+                                                            #setUpCompletedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.setUpCompletedDate.errors }"
+                                                            (click)="setUpCompletedDate.toggle()" formControlName="setUpCompletedDate"
                                                             [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="setUpCompleted.toggle()" type="button">
+                                                            <button class="btn btn-primary" (click)="setUpCompletedDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.coreDup.setUpCompleted)}}</h6>
+                                                    {{viewDate(dupData?.setUpCompletedDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -192,19 +192,19 @@
                                                 <label for="" class="font-style text-capitalize">PreRequest Met</label>
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="prereqsMet" ngbDatepicker
-                                                            #prereqsMet="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.prereqsMet.errors }"
-                                                            (click)="prereqsMet.toggle()" formControlName="prereqsMet" [maxDate]="todayDate" container='body'>
+                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="prereqsMetDate" ngbDatepicker
+                                                            #prereqsMetDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.prereqsMetDate.errors }"
+                                                            (click)="prereqsMetDate.toggle()" formControlName="prereqsMetDate" [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="prereqsMet.toggle()" type="button">
+                                                            <button class="btn btn-primary" (click)="prereqsMetDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.coreDup.prereqsMet)}}</h6>
+                                                    {{viewDate(dupData?.prereqsMetDate)}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="" class="font-style text-capitalize">DUA Agreed Date</label>
@@ -223,7 +223,7 @@
                                                     </div>
                                                 </div>
                                                 <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.coreDup.duaAgreedDate)}}</h6>
+                                                    {{viewDate(dupData?.duaAgreedDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -234,13 +234,13 @@
                                                     Requested</label>
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="availabilityRequested"
-                                                            ngbDatepicker #availabilityRequested="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityRequested.errors }"
-                                                            (click)="availabilityRequested.toggle()" formControlName="availabilityRequested"
+                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="availabilityRequestedDate"
+                                                            ngbDatepicker #availabilityRequestedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityRequestedDate.errors }"
+                                                            (click)="availabilityRequestedDate.toggle()" formControlName="availabilityRequestedDate"
                                                             [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="availabilityRequested.toggle()"
+                                                            <button class="btn btn-primary" (click)="availabilityRequestedDate.toggle()"
                                                                 type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
@@ -248,7 +248,7 @@
                                                     </div>
                                                 </div>
                                                 <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.coreDup.availabilityRequested)}}
+                                                    {{viewDate(dupData?.availabilityRequestedDate)}}
                                                 </h6>
                                             </div>
                                             <div class="col-md-6">
@@ -256,13 +256,13 @@
                                                     Confirmed</label>
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="availabilityConfirmed"
-                                                            ngbDatepicker #availabilityConfirmed="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityConfirmed.errors }"
-                                                            (click)="availabilityConfirmed.toggle()" formControlName="availabilityConfirmed"
+                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="availabilityConfirmedDate"
+                                                            ngbDatepicker #availabilityConfirmedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityConfirmedDate.errors }"
+                                                            (click)="availabilityConfirmedDate.toggle()" formControlName="availabilityConfirmedDate"
                                                             [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="availabilityConfirmed.toggle()"
+                                                            <button class="btn btn-primary" (click)="availabilityConfirmedDate.toggle()"
                                                                 type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
@@ -270,7 +270,7 @@
                                                     </div>
                                                 </div>
                                                 <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.coreDup.availabilityConfirmed)}}
+                                                    {{viewDate(dupData?.availabilityConfirmedDate)}}
                                                 </h6>
                                             </div>
                                         </div>
@@ -282,20 +282,20 @@
                                                     Confirmed</label>
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="accessConfirmed"
-                                                            ngbDatepicker #accessConfirmed="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.accessConfirmed.errors }"
-                                                            (click)="accessConfirmed.toggle()" formControlName="accessConfirmed"
+                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="accessConfirmedDate"
+                                                            ngbDatepicker #accessConfirmedDate="ngbDatepicker"
+                                                            [ngClass]="{ 'is-invalid': submitted && g.accessConfirmedDate.errors }"
+                                                            (click)="accessConfirmedDate.toggle()" formControlName="accessConfirmedDate"
                                                             [maxDate]="todayDate" container='body'>
                                                         <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="accessConfirmed.toggle()" type="button">
+                                                            <button class="btn btn-primary" (click)="accessConfirmedDate.toggle()" type="button">
                                                                 <i class="fa fa-calendar"></i>
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.coreDup.accessConfirmed)}}</h6>
+                                                    {{viewDate(dupData?.accessConfirmedDate)}}</h6>
                                             </div>
                                         </div>
                                     </div>
@@ -358,8 +358,8 @@
                                             1</label>
                                         <select id="rsignatory1" class="form-control" formControlName="repoSignatory1" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.personId *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]=user.id *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dupData?.duas[0]?.repoSignatory1)}}</h6>
                                     </div>
@@ -368,8 +368,8 @@
                                             2</label>
                                         <select id="rsignatory2" class="form-control" formControlName="repoSignatory2" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.personId *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]=user.id *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dupData?.duas[0]?.repoSignatory2)}}</h6>
                                     </div>
@@ -380,8 +380,8 @@
                                             1</label>
                                         <select id="psignatory1" class="form-control" formControlName="providerSignatory1" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.personId *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]=user.id *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dupData?.duas[0]?.providerSignatory1)}}
                                         </h6>
@@ -391,8 +391,8 @@
                                             2</label>
                                         <select id="psignatory2" class="form-control" formControlName="providerSignatory2" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.personId *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]=user.id *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dupData?.duas[0]?.providerSignatory2)}}
                                         </h6>
@@ -404,8 +404,8 @@
                                             1</label>
                                         <select id="reqsignatory1" class="form-control" formControlName="requesterSignatory1" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.personId *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]=user.id *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dupData?.duas[0]?.requesterSignatory1)}}
                                         </h6>
@@ -415,8 +415,8 @@
                                             2</label>
                                         <select id="reqsignatory2" class="form-control" formControlName="requesterSignatory2" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.personId *ngFor="let user of associatedUser">
-                                                {{user.personName}}</option>
+                                            <option [value]=user.id *ngFor="let user of associatedUser">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{findPeopleById(dupData?.duas[0]?.requesterSignatory2)}}
                                         </h6>
@@ -437,11 +437,11 @@
                                                         (click)="deleteDupNote(i)" *ngIf="!isView"></i>
                                                     <i class="fa fa-check float-right pr-2 text-success" style="cursor: pointer;"
                                                         (click)="saveDupNote(note)" *ngIf="!isView"></i>
-                                                    <h6>{{findPeopleById(dupData.dupNotes[i].author)}} <small>{{dupData.dupNotes[i].createdOn | date}}</small></h6>
+                                                    <h6>{{findPeopleById(dupNotes[i]?.author)}} <small>{{dupNotes[i]?.createdOn | date}}</small></h6>
                                                     <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="text"
                                                         *ngIf="!isView"></textarea>
                                                     <span style="font-weight: 100;" *ngIf="isView">
-                                                        {{dupData?.dupNotes[i].text}}</span>
+                                                        {{dupNotes[i]?.text}}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -465,7 +465,7 @@
                                 <ng-container *ngIf="associatedStudies.length > 0">
                                     <ul>
                                         <li *ngFor="let study of associatedStudies; let i = index" class="pl-4">
-                                            {{study.studyName}}({{study.sdSid}})
+                                            {{study.studyName}}({{study.studyId}})
                                             <i class="fa fa-times pl-3" (click)="removeDupStudy(study.id, study.sdSid)"
                                                 *ngIf="!isView"></i>
                                         </li>
@@ -482,7 +482,7 @@
                                 <ng-container *ngIf="associatedObjects.length > 0">
                                     <ul>
                                         <li *ngFor="let object of associatedObjects; let i = index" class="pl-4">
-                                            {{object.sdOid}}<span title="{{object.objectName}}">({{object.objectName | slice:0:50}}...)</span>
+                                            {{object.objectId}}<span title="{{object.objectName}}">({{object.objectName | slice:0:50}}...)</span>
                                             <i class="fa fa-times pl-3" (click)="removeDupObject(object.id)"
                                                 *ngIf="!isView"></i>
                                         </li>
@@ -499,7 +499,7 @@
                                 <ng-container *ngIf="associatedUser.length > 0">
                                     <ul>
                                         <li *ngFor="let user of associatedUser; let i = index" class="pl-4">
-                                            {{user.personName}}
+                                            {{user.person?.firstName}} {{user.person?.lastName}}
                                             <i class="fa fa-times pl-3" (click)="removeDupUser(user.id)"
                                                 *ngIf="!isView"></i>
                                         </li>
@@ -520,41 +520,41 @@
                                         preReqs()?.controls[i]?.value?.sdOid) && i!==0 ? '' : 'Pre-Requisite for Data Object' +
                                         preReq.value.sdOid}}</label>
                                     <mat-expansion-panel [expanded]="isView ? 'true' : 'true'">
-                                        <mat-expansion-panel-header> {{findPrereqType(dupData.dupPrereqs[i].preRequisiteId)}}
+                                        <mat-expansion-panel-header> {{findPrereqType(prereqs[i].prereqType)}}
                                         </mat-expansion-panel-header>
                                         <div class="row form-group">
                                             <div class="col-md-6" *ngIf="!isView">
                                                 <label for="notes" class="font-style text-capitalize">Pre-Requisite Type</label>
-                                                <select id="preReqId" formControlName="preRequisiteId" class="form-control" *ngIf="!isView" disabled>
+                                                <select id="preReqId" formControlName="prereqType" class="form-control" *ngIf="!isView" disabled>
                                                     <option [value]=preReqType.id *ngFor="let preReqType of preRequTypes">
                                                         {{preReqType.name}}</option>
                                                 </select>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{findPrereqType(dupData.dupPrereqs[i].preRequisiteId)}}</h6>
+                                                    {{findPrereqType(prereqs[i].prereqType)}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="notes" class="font-style text-capitalize">Note</label>
-                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="preRequisiteNotes"
+                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="prereqNotes"
                                                     *ngIf="!isView" disabled></textarea>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dupData.dupPrereqs[i].preRequisiteNotes}}
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{prereqs[i].prereqNotes}}
                                                 </h6>
                                             </div>
                                         </div>
                                         <div class="row form-group">
                                             <div class="col-md-6">
                                                 <label for="notes" class="font-style text-capitalize">Pre-Requisite met</label>
-                                                <!-- <input type="text" class="form-control" formControlName="preRequisiteMet" *ngIf="!isView"> -->
-                                                <input class="form-control" placeholder="yyyy-mm-dd" name="preRequisiteMet" ngbDatepicker
-                                                    #preRequisiteMet="ngbDatepicker" (click)="preRequisiteMet.toggle()"
-                                                    formControlName="preRequisiteMet" [maxDate]="todayDate" *ngIf="!isView" container='body'>
+                                                <!-- <input type="text" class="form-control" formControlName="prereqMet" *ngIf="!isView"> -->
+                                                <input class="form-control" placeholder="yyyy-mm-dd" name="prereqMet" ngbDatepicker
+                                                    #prereqMet="ngbDatepicker" (click)="prereqMet.toggle()"
+                                                    formControlName="prereqMet" [maxDate]="todayDate" *ngIf="!isView" container='body'>
                                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(dupData.dupPrereqs[i].preRequisiteMet)}}</h6>
+                                                    {{viewDate(prereqs[i].prereqMet)}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="notes" class="font-style text-capitalize">Pre-Requisite met Note</label>
-                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="metNotes"
+                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="notes"
                                                     *ngIf="!isView"></textarea>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{dupData.dupPrereqs[i].metNotes}}</h6>
+                                                <h6 style="font-weight: 100;" *ngIf="isView">{{prereqs[i].notes}}</h6>
                                             </div>
                                         </div>
                                         <mat-action-row *ngIf="!isView">
