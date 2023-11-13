@@ -35,8 +35,8 @@ export class CompletedDupComponent implements OnInit {
   }
   
   getStatistics() {
-    this.dashboardService.getDupStatistics().subscribe((res: any) => {
-    this.dataCompleted = Math.round((res.data[0].statValue-res.data[1].statValue)*100/res.data[0].statValue);
+    this.dashboardService.getStatistics().subscribe((res: any) => {
+    this.dataCompleted = Math.round((res.dup.total-(res.dup.total-res.dup.completed))*100/res.dup.total);
     this.chartOptions = this.getChartOptions();
     }, error => {
       this.toastr.error(error.error.title);

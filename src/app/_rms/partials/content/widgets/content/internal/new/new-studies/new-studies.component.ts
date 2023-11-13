@@ -35,8 +35,8 @@ export class NewStudiesComponent implements OnInit {
   }
 
   getStatistics() {
-    this.dashboardService.getStudyStatistics().subscribe((res: any) => {
-      this.dataCompleted = res.total;
+    this.dashboardService.getStatistics().subscribe((res: any) => {
+      this.dataCompleted = res.totalStudies;
       this.chartOptions = this.getChartOptions();
     }, error => {
       this.toastr.error(error.error.title);

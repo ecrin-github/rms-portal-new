@@ -47,13 +47,7 @@ export class InternalMainPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.getUserData();
-    this.getDtpStatistics();
-    this.getDupStatistics();
-    this.getStudyStatistics();
-    this.getObjectStatistics();
-    this.getPeopleStatistics();
-    // const perm = localStorage.getItem('role');
-    // this.permissionService.loadPermissions([perm]);
+    this.getStatistics();
   }
 
   getUserData() {
@@ -86,51 +80,24 @@ export class InternalMainPageComponent implements OnInit {
       })
     }
   }
-
-  getDtpStatistics() {
-    this.dashboardService.getDtpStatistics().subscribe((res: any) => {
-      this.dtpTotal = res.data[0].statValue;
-      this.dtpChartOptions = this.getChartOptions(this.dtpTotal, 'Completed DTs', false);
+  getStatistics() {
+    this.dashboardService.getStatistics().subscribe((res: any) => {
+      if(res) {
+        this.studyTotal = res.totalStudies;
+        this.studyChartOptions = this.getChartOptions(this.studyTotal, 'Total Studies', false);
+        this.objectTotal = res.totalObjects;
+        this.objectChartOptions = this.getChartOptions(this.objectTotal, 'Total Objects', false);
+        this.peopleTotal = res.totalUsers;
+        this.peopleChartOptions = this.getChartOptions(this.peopleTotal, 'Total People', false);
+        this.dtpTotal = res.dtp.total;
+        this.dtpChartOptions = this.getChartOptions(this.dtpTotal, 'Completed DTs', false);  
+        this.dupTotal = res.dtp.total;
+        this.dupChartOptions = this.getChartOptions(this.dupTotal, 'Completed DUs', false);
+        }
     }, error => {
-      this.toastr.error(error.error.title);
+
     })
   }
-  
-  getDupStatistics() {
-    this.dashboardService.getDupStatistics().subscribe((res: any) => {
-      this.dupTotal = res.data[0].statValue;
-      this.dupChartOptions = this.getChartOptions(this.dupTotal, 'Completed DUs', false);
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
-
-  getStudyStatistics() {
-    this.dashboardService.getStudyStatistics().subscribe((res: any) => {
-      this.studyTotal = res.data[0].statValue;
-      this.studyChartOptions = this.getChartOptions(this.studyTotal, 'Total Studies', false);
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  } 
-  getObjectStatistics() {
-    this.dashboardService.getObjectStatistics().subscribe((res: any) => {
-      this.objectTotal = res.data[0].statValue;
-      this.objectChartOptions = this.getChartOptions(this.objectTotal, 'Total Objects', false);
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
-  getPeopleStatistics() {
-    this.dashboardService.getPeopleStatistics().subscribe((res: any) => {
-      this.peopleTotal = res.data[0].statValue;
-      this.peopleChartOptions = this.getChartOptions(this.peopleTotal, 'Total People', false);
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  } 
-
-
   getChartOptions(data, label, format) {
     this.valuePer = {
       color: this.colorsGrayGray700,

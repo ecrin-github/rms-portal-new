@@ -47,10 +47,11 @@ export class SummaryUserComponent implements OnInit {
   }
   getAllPeople() {
     this.spinner.show();
-    this.listService.getPeopleList().subscribe((res: any) => {
+    const pageSize = 10000;
+    this.listService.getPeopleList(pageSize, '').subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<any>(res.data);
+      if (res && res.results) {
+        this.dataSource = new MatTableDataSource<any>(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
       }

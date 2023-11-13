@@ -35,8 +35,8 @@ export class CompletedDtuComponent implements OnInit {
   }
   
   getStatistics() {
-    this.dashboardService.getDtpStatistics().subscribe((res: any) => {
-      this.dataCompleted = Math.round((res.data[0].statValue-res.data[1].statValue)*100/res.data[0].statValue);
+    this.dashboardService.getStatistics().subscribe((res: any) => {
+      this.dataCompleted = Math.round((res.dtp.total-(res.dtp.total-res.dtp.completed))*100/res.dtp.total);
       this.chartOptions = this.getChartOptions();
     }, error => {
       this.toastr.error(error.error.title);

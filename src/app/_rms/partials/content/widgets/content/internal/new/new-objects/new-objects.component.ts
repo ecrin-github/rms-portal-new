@@ -33,8 +33,8 @@ export class NewObjectsComponent implements OnInit {
     this.getStatistics();
   }
   getStatistics() {
-    this.dashboardService.getObjectStatistics().subscribe((res: any) => {
-      this.dataCompleted = res.total;
+    this.dashboardService.getStatistics().subscribe((res: any) => {
+      this.dataCompleted = res.totalObjects;
       this.chartOptions = this.getChartOptions();
     }, error => {
       this.toastr.error(error.error.title);

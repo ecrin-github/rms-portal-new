@@ -29,17 +29,17 @@
 
             <ng-container matColumnDef="name">
                 <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
-                <mat-cell *matCellDef="let row"> <a [routerLink]="['/people', row.id, 'view']" target="_blank">{{row.name}}</a></mat-cell>
+                <mat-cell *matCellDef="let row"> <a [routerLink]="['/people', row.id, 'view']" target="_blank">{{row.firstName}} {{row.lastName}}</a></mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="roleName">
                 <mat-header-cell *matHeaderCellDef> Role </mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{row.roleName}} </mat-cell>
+                <mat-cell *matCellDef="let row">{{row.userProfile?.role}}  </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="orgName">
                 <mat-header-cell *matHeaderCellDef> Organization </mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{row.orgName}} </mat-cell>
+                <mat-cell *matCellDef="let row"> {{row.userProfile?.organisation?.defaultName}} </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="actions">
