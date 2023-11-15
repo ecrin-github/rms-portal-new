@@ -30,8 +30,14 @@ export class CommonLookupService {
     return this.http.get(`${base}/general/language-codes?page_size=${pageSize}`);
   }
   //  checks if an object is linked to a dtp/dup without associated study
-  objectInvolvement(sdSid) {
-    return this.http.get(`${base}/mdm/dtp/object-involvement?objectId=${sdSid}`);
+  // objectInvolvement(sdSid) {
+  //   return this.http.get(`${base}/mdm/dtp/object-involvement?objectId=${sdSid}`);
+  // }
+  objectInvolvementDtp(dtpId, sdSid) {
+    return this.http.get(`${base}/mdm/dtp/${dtpId}/study-involvement?studyId=${sdSid}`);
+  }
+  objectInvolvementDup(dupId, sdSid) {
+    return this.http.get(`${base}/mdm/dup/${dupId}/study-involvement?studyId=${sdSid}`);
   }
   emailAPI(payload) {
     return this.http.post(`${contactUrl}/app/send-email`, payload);

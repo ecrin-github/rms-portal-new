@@ -9,6 +9,7 @@ import { CommonLookupService } from 'src/app/_rms/services/entities/common-looku
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
+import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 
 @Component({
   selector: 'app-object-contributor',
@@ -34,8 +35,9 @@ export class ObjectContributorComponent implements OnInit {
   len: any;
   isBrowsing: boolean = false;
   pagesize: Number = 10000;
+  personList = [];
 
-  constructor( private fb: UntypedFormBuilder,private router: Router, private commonLooupService: CommonLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal) { 
+  constructor( private fb: UntypedFormBuilder,private router: Router, private commonLooupService: CommonLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private listService: ListService) { 
     this.form = this.fb.group({
       objectContributors: this.fb.array([])
     });
@@ -45,6 +47,7 @@ export class ObjectContributorComponent implements OnInit {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getContributorType();
     this.getOrganization();
+    this.getPersonList();
     if (this.isEdit || this.isView) {
       this.getObjectContributor();
     }
@@ -60,10 +63,7 @@ export class ObjectContributorComponent implements OnInit {
       contributorType: '',
       isIndividual: false,
       organisation: '',
-      personGivenName: '',
-      personFamilyName: '',
-      orcidId: '',
-      personAffiliation: '',
+      person: '',
       alreadyExist: false
     });
   }
@@ -134,10 +134,7 @@ export class ObjectContributorComponent implements OnInit {
         contributorType: contributor.contributorType ? contributor.contributorType.id : null,
         isIndividual: contributor.isIndividual,
         organisation: contributor.organisation ? contributor.organisation.id : null,
-        personGivenName: contributor.personGivenName,
-        personFamilyName: contributor.personFamilyName,
-        orcidId: contributor.orcidId,
-        personAffiliation: contributor.personAffiliation,
+        person: contributor.person ? contributor.person.id : null,
         alreadyExist: true
       }))
     });
@@ -192,6 +189,10 @@ export class ObjectContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+  findOrganization(id) {
+    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
+    return organizationArray && organizationArray.length ? organizationArray[0].defaultName : '';
+  }
   findContributorType(id) {
     const contributorArray: any = this.contributorType.filter((type: any) => type.id === id);
     return contributorArray && contributorArray.length ? contributorArray[0].name : '';
@@ -219,6 +220,19 @@ export class ObjectContributorComponent implements OnInit {
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({top: y, behavior: 'smooth'});
     });
+  }
+  getPersonList() {
+    this.listService.getPeopleList(this.pagesize, '').subscribe((res: any) => {
+      if (res && res.results) {
+        this.personList = res.results;
+      }
+    }, error => {
+
+    })
+  }
+  findPerson(id) {
+    const personArray: any = this.personList.filter((item: any) => item.id === id);
+    return personArray && personArray.length ? personArray[0].firstName + ' ' + personArray[0].lastName : ''
   }
   ngOnDestroy() {
     this.subscription.unsubscribe();

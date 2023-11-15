@@ -11,7 +11,7 @@ import { DataObjectService } from 'src/app/_rms/services/entities/data-object/da
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { ConfirmationWindowComponent } from '../../confirmation-window/confirmation-window.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Subject, combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-summary-object',
@@ -153,10 +153,12 @@ export class SummaryObjectComponent implements OnInit {
   }
 
   deleteRecord(id) {
-    this.dataObjectService.objectInvolvement(id).subscribe((res: any) => {
-      if (res && res.data) {
-        const dtpLinked = res.data[0].statValue;
-        const dupLinked = res.data[1].statValue;  
+    const objectInvolvementDtp$ = this.dataObjectService.objectInvolvementDtp(id);
+    const objectInvolvementDup$ = this.dataObjectService.objectInvolvementDup(id);
+    const combine$ = combineLatest([objectInvolvementDtp$, objectInvolvementDup$]).subscribe(([objectInvolvementDtpRes, objectInvolvementDupRes] : [any, any]) => {
+      if (objectInvolvementDtpRes && objectInvolvementDupRes) {
+        const dtpLinked = objectInvolvementDtpRes.count;
+        const dupLinked = objectInvolvementDupRes.count;
         if (dtpLinked > 0 && dupLinked > 0) {
           this.title = `There are ${dtpLinked} DTP's and ${dupLinked} DUP's linked to this object. So you can't delete the object`;
           this.warningModal = this.modalService.open(this.objectDeleteModal, { size: 'lg', backdrop: 'static' });
@@ -187,8 +189,45 @@ export class SummaryObjectComponent implements OnInit {
         }, error => { });
       }
     }, error => {
-      this.toastr.error(error.error.title);
-    });
+      console.log('error', error);
+    })
+    // this.dataObjectService.objectInvolvement(id).subscribe((res: any) => {
+    //   console.log('res', res);
+    //   if (res && res.data) {
+    //     const dtpLinked = res.data[0].statValue;
+    //     const dupLinked = res.data[1].statValue;  
+    //     if (dtpLinked > 0 && dupLinked > 0) {
+    //       this.title = `There are ${dtpLinked} DTP's and ${dupLinked} DUP's linked to this object. So you can't delete the object`;
+    //       this.warningModal = this.modalService.open(this.objectDeleteModal, { size: 'lg', backdrop: 'static' });
+    //     } else if (dtpLinked > 0) {
+    //       this.title = `There are ${dtpLinked} DTP's linked to this object. So you can't delete the object`;
+    //       this.warningModal = this.modalService.open(this.objectDeleteModal, { size: 'lg', backdrop: 'static' });
+    //     } else if (dupLinked > 0) {
+    //       this.title = ` There are ${dupLinked} DUP's linked to this object. So you can't delete the object`;
+    //       this.warningModal = this.modalService.open(this.objectDeleteModal, { size: 'lg', backdrop: 'static' });
+    //     } else {
+    //       const deleteModal = this.modalService.open(ConfirmationWindowComponent, { size: 'lg', backdrop: 'static' });
+    //       deleteModal.componentInstance.type = 'dataObject';
+    //       deleteModal.componentInstance.id = id;
+    //       deleteModal.result.then((data: any) => {
+    //         if (data) {
+    //           this.getObjectList();
+    //         }
+    //       }, error => { });
+    //     }
+    //   } else {
+    //     const deleteModal = this.modalService.open(ConfirmationWindowComponent, { size: 'lg', backdrop: 'static' });
+    //     deleteModal.componentInstance.type = 'dataObject';
+    //     deleteModal.componentInstance.id = id;
+    //     deleteModal.result.then((data: any) => {
+    //       if (data) {
+    //         this.getObjectList();
+    //       }
+    //     }, error => { });
+    //   }
+    // }, error => {
+    //   this.toastr.error(error.error.title);
+    // });
   }
   closeModal() {
     this.warningModal.close();

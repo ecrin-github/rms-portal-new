@@ -466,7 +466,7 @@
                                     <ul>
                                         <li *ngFor="let study of associatedStudies; let i = index" class="pl-4">
                                             {{study.studyName}}({{study.studyId}})
-                                            <i class="fa fa-times pl-3" (click)="removeDupStudy(study.id, study.sdSid)"
+                                            <i class="fa fa-times pl-3" (click)="removeDupStudy(study.id, study.studyId)"
                                                 *ngIf="!isView"></i>
                                         </li>
                                     </ul>

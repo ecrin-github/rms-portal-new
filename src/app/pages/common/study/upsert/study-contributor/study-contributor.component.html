@@ -24,8 +24,7 @@
                         *ngIf="!isView">
                         <mat-expansion-panel-header class="text-truncate">
                             {{findContributorType(studyContributor.value.contributorType)}}:
-                            {{studyContributor.value.isIndividual ? studyContributor.value.personGivenName +' '+
-                            studyContributor.value.personFamilyName : findOrganization(studyContributor.value.organisation)}}
+                            {{studyContributor.value.isIndividual ? findPerson(studyContributor.value.person) : findOrganization(studyContributor.value.organisation)}}
                         </mat-expansion-panel-header>
                         <div class="row form-group">
                             <div class="col-md-6">
@@ -38,8 +37,7 @@
                                 </select>
                                 <!-- <h6 style="font-weight: 100;" *ngIf="isView">{{studyContributor.value.isIndividual}}</h6> -->
                             </div>
-                            <div class="col-md-6"
-                                *ngIf="isIndividual[i] ? isIndividual[i] : ( studyContributor.value.isIndividual==='true' || studyContributor.value.isIndividual===true)">
+                            <div class="col-md-6" *ngIf="isIndividual[i] ? isIndividual[i] : ( studyContributor.value.isIndividual==='true' || studyContributor.value.isIndividual===true)">
                                 <label for="contributorType" class="font-style text-capitalize">Contributor type</label>
                                 <select class="form-control" id="contributorType" formControlName="contributorType"
                                     *ngIf="!isView">
@@ -73,45 +71,20 @@
 
                             </div>
                         </div>
-                        <!-- <div class="row form-group"
-                            *ngIf="isIndividual[i] ? isIndividual[i] : ( studyContributor.value.isIndividual==='true' || studyContributor.value.isIndividual===true)">
-                            <div class="col-md-4">
-                                <label for="personGivenName" class="font-style text-capitalize">Given
-                                    name</label>
-                                <input type="text" id="personGivenName" class="form-control"
-                                    placeholder="Please enter name" formControlName="personGivenName"
-                                    *ngIf="!isView">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="personFamilyName" class="font-style text-capitalize">Family name</label>
-                                <input type="text" id="personFamilyName" class="form-control"
-                                    placeholder="Please enter surname" formControlName="personFamilyName"
-                                    *ngIf="!isView">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="orcidId" class="font-style text-capitalize">ORCID</label>
-                                <input type="text" id="orcidId" class="form-control" placeholder="Please enter ORCID id"
-                                    formControlName="orcidId" *ngIf="!isView">
-                            </div>
-                        </div> -->
                         <div class="row form-group"
                             *ngIf="isIndividual[i] ? isIndividual[i] : ( studyContributor.value.isIndividual==='true' || studyContributor.value.isIndividual===true)">
                             <div class="col-md-6">
                                 <label for="person" class="font-style text-capitalize">Person</label>
-                                <!-- <input type="text" id="person" class="form-control"
-                                    placeholder="Please enter department" formControlName="person"
-                                    *ngIf="!isView"> -->
                                 <ng-select [items]="personList" bindLabel="id" bindValue="id" formControlName="person"
                                     [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No members found"
                                     placeholder="Please select a person" *ngIf="!isView">
                                     <ng-template ng-label-tmp let-item="item">
-                                        {{item.id}}
+                                        {{item.firstName}} {{item.lastName}}
                                     </ng-template>
                                     <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                         <div class="row m-0">
                                             <div class="col-md-8 col-8 p-0 m-0">
-                                                <div class="col-md-12">{{item.firstName}}</div>
-                                                <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.lastName}}</div>
+                                                <div class="col-md-12">{{item.firstName}} {{item.lastName}}</div>
                                             </div>
                                         </div>
                                     </ng-template>
@@ -120,9 +93,6 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="organisationName" class="font-style text-capitalize">Organisation</label>
-                                <!-- <input type="text" id="organisationName" class="form-control"
-                                    placeholder="Enter a parameter..." formControlName="organisationName"
-                                    *ngIf="!isView" /> -->
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="organisation"
                                     [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No members found"
                                     placeholder="Please select organisation" *ngIf="!isView">

@@ -15,7 +15,7 @@ import { StudyService } from 'src/app/_rms/services/entities/study/study.service
 export class ConfirmationWindowComponent implements OnInit {
   type: any;
   id: any;
-  sdSid: any;
+  studyId: any;
   objectId: any;
   dtpId: any;
   dupId: any;
@@ -166,7 +166,7 @@ export class ConfirmationWindowComponent implements OnInit {
     })
   }
   deleletStudyIdentifier() {
-    this.studyService.deleteStudyIdentifier(this.id, this.sdSid).subscribe((res: any) => {
+    this.studyService.deleteStudyIdentifier(this.id, this.studyId).subscribe((res: any) => {
       if (res.statusCode === 204) {
         this.toastr.success('Study Identifier deleted successfully');
         this.activeModal.close('data');
@@ -178,7 +178,7 @@ export class ConfirmationWindowComponent implements OnInit {
     })
   }
   deleteStudyTitle() {
-    this.studyService.deleteStudyTitle(this.id, this.sdSid).subscribe((res: any) => {
+    this.studyService.deleteStudyTitle(this.id, this.studyId).subscribe((res: any) => {
       if (res.statusCode === 204) {
         this.toastr.success('Study Title deleted successfully');
         this.activeModal.close('data');
@@ -190,7 +190,7 @@ export class ConfirmationWindowComponent implements OnInit {
     })
   }
   deleteStudyFeature() {
-    this.studyService.deleteStudyFeature(this.id, this.sdSid).subscribe((res: any) => {
+    this.studyService.deleteStudyFeature(this.id, this.studyId).subscribe((res: any) => {
       if (res.statusCode === 204) {
         this.toastr.success('Study Feature deleted successfully');
         this.activeModal.close('data');
@@ -202,7 +202,7 @@ export class ConfirmationWindowComponent implements OnInit {
     })
   }
   deleteStudyTopic() {
-    this.studyService.deleteStudyTopic(this.id, this.sdSid).subscribe((res: any) => {
+    this.studyService.deleteStudyTopic(this.id, this.studyId).subscribe((res: any) => {
       if (res.statusCode === 204) {
         this.toastr.success('Study Toic deleted successfully');
         this.activeModal.close('data');
@@ -214,7 +214,7 @@ export class ConfirmationWindowComponent implements OnInit {
     })
   }
   deleteStudyRelationship() {
-    this.studyService.deleteStudyRelationship(this.id, this.sdSid).subscribe((res: any) => {
+    this.studyService.deleteStudyRelationship(this.id, this.studyId).subscribe((res: any) => {
       if (res.statusCode === 204) {
         this.toastr.success('Study Relationship deleted successfully');
         this.activeModal.close('data');
@@ -226,7 +226,7 @@ export class ConfirmationWindowComponent implements OnInit {
     })
   }
   deleteStudyContributor() {
-    this.studyService.deleteStudyContributor(this.id, this.sdSid).subscribe((res: any) => {
+    this.studyService.deleteStudyContributor(this.id, this.studyId).subscribe((res: any) => {
       if (res.statusCode === 204) {
         this.toastr.success('Study Contributor deleted successfully');
         this.activeModal.close('data');

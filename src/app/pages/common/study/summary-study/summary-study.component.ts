@@ -163,12 +163,13 @@ export class SummaryStudyComponent implements OnInit {
   }
 
   deleteRecord(id) {
-    const studyInvolvement$ = this.studyService.studyInvolvement(id);
-    const linkedObject$ = this.studyService.linkedObject(id);
-    const combine$ = combineLatest([studyInvolvement$, linkedObject$]).subscribe(([studyInvolvementRes, linkedObjectRes]: [any, any]) => {
-      if (studyInvolvementRes && studyInvolvementRes.data && linkedObjectRes && linkedObjectRes.data) {
-        const dtpLinked = studyInvolvementRes.data[0].statValue;
-        const dupLinked = studyInvolvementRes.data[1].statValue;
+    const studyInvolvementDtp$ = this.studyService.studyInvolvementDtp(id);
+    const studyInvolvementDup$ = this.studyService.studyInvolvementDup(id);
+    const linkedObject$ = this.listService.getObjectByMultiStudies(id);
+    const combine$ = combineLatest([studyInvolvementDtp$, studyInvolvementDup$, linkedObject$]).subscribe(([studyInvolvementDtpRes, studyInvolvementDupRes, linkedObjectRes]: [any, any, any]) => {
+      if (studyInvolvementDtpRes && studyInvolvementDupRes && linkedObjectRes && linkedObjectRes.data) {
+        const dtpLinked = studyInvolvementDtpRes.count;
+        const dupLinked = studyInvolvementDupRes.count;
         if (dtpLinked > 0 && dupLinked > 0) {
           this.title = `There are ${dtpLinked} DTP's and ${dupLinked} DUP's linked to this study. So you can't delete the study`;
           this.warningModal = this.modalService.open(this.studyDeleteModal, { size: 'lg', backdrop: 'static' });
@@ -178,7 +179,7 @@ export class SummaryStudyComponent implements OnInit {
         } else if (dupLinked > 0) {
           this.title = ` There are ${dupLinked} DUP's linked to this study. So you can't delete the study`;
           this.warningModal = this.modalService.open(this.studyDeleteModal, { size: 'lg', backdrop: 'static' });
-        } else if (linkedObjectRes.data) {
+        } else if (linkedObjectRes.data.length) {
           this.title = `Objects are linked to this study. So you can't delete the study`;
           this.warningModal = this.modalService.open(this.studyDeleteModal, { size: 'lg', backdrop: 'static' });
         } else {

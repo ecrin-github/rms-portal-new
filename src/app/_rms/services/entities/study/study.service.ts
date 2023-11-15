@@ -49,7 +49,7 @@ export class StudyService {
   }
   deleteStudyById(sdSid) {
     // full delete would normally be more useful
-    return this.http.delete(`${base}/studies/${sdSid}`);
+    return this.http.delete(`${base}/mdm/studies/${sdSid}`);
   }
 
 
@@ -163,8 +163,11 @@ export class StudyService {
   }
 
   // check number of linked DTP and DUP
-  studyInvolvement(sdSid) {
-    return this.http.get(`${base}/studies/${sdSid}/involvement`);
+  studyInvolvementDtp(sdSid) {
+    return this.http.get(`${base}/mdm/dtp/study-involvement?studyId=${sdSid}`);
+  }
+  studyInvolvementDup(sdSid) {
+    return this.http.get(`${base}/mdm/dup/study-involvement?studyId=${sdSid}`);
   }
 
   // check number of linked objects

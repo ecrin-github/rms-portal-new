@@ -800,11 +800,9 @@ export class UpsertDtpComponent implements OnInit {
     })
   }
   removeDtpStudy(id, sdSid) {
-    this.commonLookup.objectInvolvement(sdSid).subscribe((res: any) => {
-      if (res && res.data) {
-        this.dtpArr = res.data.filter((item: any) => item.statType === 'DtpTotal');
-      }
-      if (this.dtpArr.length && this.dtpArr[0].statValue > 0) {
+    this.commonLookup.objectInvolvementDtp(this.id, sdSid).subscribe((res: any) => {
+      console.log('res', res);
+      if (res.studyAssociated && res.objectsAssociated) {
         this.toastr.error(`Objects linked to this study is linked to this DTP. So, delete the objects before deleting this study`);
       } else {
         this.dtpService.deleteDtpStudy(id, this.id).subscribe((res: any) => {

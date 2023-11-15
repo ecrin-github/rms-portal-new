@@ -136,8 +136,8 @@ export class StudyContributorComponent implements OnInit {
   }
   getPersonList() {
     this.listService.getPeopleList(this.pageSize, '').subscribe((res: any) => {
-      if (res) {
-        this.personList = res;
+      if (res && res.results) {
+        this.personList = res.results;
       }
     }, error => {
 
@@ -168,7 +168,7 @@ export class StudyContributorComponent implements OnInit {
         contributorType: contributor.contributorType ? contributor.contributorType.id : null,
         isIndividual: contributor.isIndividual,
         organisation: contributor.organisation ? contributor.organisation.id : null,
-        person: contributor.person,
+        person: contributor.person ? contributor.person.id : null,
         alreadyExist: true
       }))
     });
@@ -222,6 +222,10 @@ export class StudyContributorComponent implements OnInit {
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
     return organizationArray && organizationArray.length ? organizationArray[0].defaultName : '';
+  }
+  findPerson(id) {
+    const personArray: any = this.personList.filter((item: any) => item.id === id);
+    return personArray && personArray.length ? personArray[0].firstName + ' ' + personArray[0].lastName : ''
   }
   emitData() {
     const payload = this.form.value.studyContributors.map(item => {

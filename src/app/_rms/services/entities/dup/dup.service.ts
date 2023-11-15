@@ -89,7 +89,7 @@ export class DupService {
     return this.http.put(`${base}/data-uses/${dupId}/studies/${id}`, payload);
   }
   deleteDupStudy(id, dupId) {
-    return this.http.delete(`${base}/data-uses/${dupId}/studies/${id}`);
+    return this.http.delete(`${base}/rms/dup/${dupId}/studies/${id}`);
   }
 
 
@@ -114,7 +114,7 @@ export class DupService {
     return this.http.put(`${base}/data-uses/${dupId}/objects/${id}`, payload);
   }
   deleteDupObject(id, dupId) {
-    return this.http.delete(`${base}/data-uses/${dupId}/objects/${id}`);
+    return this.http.delete(`${base}/rms/dup/${dupId}/objects/${id}`);
   }
 
 
@@ -139,7 +139,7 @@ export class DupService {
     return this.http.put(`${base}/data-uses/${dupId}/people/${id}`, payload);
   }
   deleteDupPerson(id, dupId) {
-    return this.http.delete(`${base}/data-uses/${dupId}/people/${id}`);
+    return this.http.delete(`${base}/rms/dup/${dupId}/people/${id}`);
   }
 
 

@@ -36,7 +36,7 @@ export class DataObjectService {
   }
   deleteDataObjectById(sdOid) {
     // full delete would normally be more useful
-    return this.http.delete(`${base}/data-objects/${sdOid}`);
+    return this.http.delete(`${base}/mdm/data-objects/${sdOid}`);
   }
   
 
@@ -166,7 +166,7 @@ export class DataObjectService {
     return this.http.get(`${base}/data-objects/${sdOid}/contributors/${id}`);
   }
   editObjectContributor(id, sdOid, payload) {
-    return this.http.put(`${base}/data-objects/${sdOid}/contributors/${id}`, payload);
+    return this.http.put(`${base}/mdm/data-objects/${sdOid}/object-contributors/${id}`, payload);
   }
   deleteObjectContributor(id, sdOid) {
     return this.http.delete(`${base}/data-objects/${sdOid}/contributors/${id}`);
@@ -230,8 +230,11 @@ export class DataObjectService {
   }
 
   // check number of linked DTP and DUP
-  objectInvolvement(sdOid) {
-    return this.http.get(`${base}/data-objects/${sdOid}/involvement`);
+  objectInvolvementDtp(sdOid) {
+    return this.http.get(`${base}/mdm/dtp/object-involvement?objectId=${sdOid}`);
+  }
+  objectInvolvementDup(sdOid) {
+    return this.http.get(`${base}/mdm/dup/object-involvement?objectId=${sdOid}`);
   }
   
  }
