@@ -149,9 +149,9 @@ export class SummaryDupComponent implements OnInit {
     }
   }
   deleteRecord(id) {
-    this.dupService.checkDupAgreed(id).subscribe((res: any) => {
-      if (res && res.data) {
-        if (res.data[0].statusId === 14 || res.data[0].statusId === 16) {
+    this.dupService.getDupById(id).subscribe((res: any) => {
+      if (res) {
+        if (res.status?.id === '5f7846ba-0627-49f7-acf6-9b362db5af1b' || res.status?.id === '16f2eb8a-9694-46c9-830e-b961e3371500') {
           this.warningModal = this.modalService.open(this.deleteModal, {size: 'lg', backdrop: 'static'});
         } else {
           const deleteModal = this.modalService.open(ConfirmationWindowComponent, { size: 'lg', backdrop: 'static' });

@@ -151,9 +151,9 @@ export class SummaryDtpComponent implements OnInit {
     }
   }
   deleteRecord(id) {
-    this.dtpService.checkDtaAgreed(id).subscribe((res: any) => {
-      if (res && res.data) {
-        if (res.data[0].statusId === 14 || res.data[0].statusId === 15 || res.data[0].statusId === 16) {
+    this.dtpService.getDtpById(id).subscribe((res: any) => {
+      if (res) {
+        if (res.status?.id === 'd28ae345-8ee6-4997-b989-f871f79f3ce9' || res.status?.id === '1e87d5ce-1f95-49ca-98b7-44418f1fc5aa' || res.status?.id === 'a1e891ef-3d88-4884-851a-d2c7b098b68f') {
           this.warningModal = this.modalService.open(this.exampleModal, { size: 'lg', backdrop: 'static' });
         } else {
           const deleteModal = this.modalService.open(ConfirmationWindowComponent, { size: 'lg', backdrop: 'static' });

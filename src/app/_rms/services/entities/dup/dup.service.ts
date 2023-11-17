@@ -21,9 +21,9 @@ export class DupService {
   }
 
   // check for deletion
-  checkDupAgreed(dupId) {
-    return this.http.get(`${base}/data-uses/${dupId}`);
-  }
+  // checkDupAgreed(dupId) {
+  //   return this.http.get(`${base}/data-uses/${dupId}`);
+  // }
 
 
     // DUP record - core record only
@@ -45,7 +45,7 @@ export class DupService {
   }
 
   deleteDupById(id) {
-    return this.http.delete(`${base}/data-uses/${id}`);
+    return this.http.delete(`${base}/rms/dup/${id}`);
   }
   
 

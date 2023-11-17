@@ -517,10 +517,10 @@
                                             1</label>
                                         <select id="rsignatory1" class="form-control" formControlName="repoSignature1" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.id *ngFor="let user of associatedUser">
+                                            <option [value]=user.person?.id *ngFor="let user of associatedUser">
                                                 {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? findPeopleById(dtaData[0]?.repoSignature1) : ''}}
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? findPeopleById(dtaData[0]?.repoSignature1?.id) : ''}}
                                         </h6>
                                     </div>
                                     <div class="col-md-6">
@@ -528,10 +528,10 @@
                                             2</label>
                                         <select id="rsignatory2" class="form-control" formControlName="repoSignature2" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]="user.id" *ngFor="let user of associatedUser">
+                                            <option [value]="user.person?.id" *ngFor="let user of associatedUser">
                                                 {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? findPeopleById(dtaData[0]?.repoSignature2) : ''}}
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? findPeopleById(dtaData[0]?.repoSignature2?.id) : ''}}
                                         </h6>
                                     </div>
                                 </div>
@@ -541,11 +541,11 @@
                                             1</label>
                                         <select id="psignatory1" class="form-control" formControlName="providerSignature1" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]="user.id" *ngFor="let user of associatedUser">
+                                            <option [value]="user.person?.id" *ngFor="let user of associatedUser">
                                                 {{user.person?.firstName}} {{user.person?.lastName}}</option>
-                                        </select>
+                                        </select>   
                                         <h6 style="font-weight: 100;" *ngIf="isView">
-                                            {{dtaData ? findPeopleById(dtaData[0]?.providerSignature1) : ''}}
+                                            {{dtaData ? findPeopleById(dtaData[0]?.providerSignature1?.id) : ''}}
                                         </h6>
                                     </div>
                                     <div class="col-md-6">
@@ -553,11 +553,11 @@
                                             2</label>
                                         <select id="psignatory2" class="form-control" formControlName="providerSignature2" *ngIf="!isView">
                                             <option selected disabled value="">Select an option...</option>
-                                            <option [value]="user.id" *ngFor="let user of associatedUser">
+                                            <option [value]="user.person?.id" *ngFor="let user of associatedUser">
                                                 {{user.person?.firstName}} {{user.person?.lastName}}</option>
                                         </select>
                                         <h6 style="font-weight: 100;" *ngIf="isView">
-                                            {{dtaData ? findPeopleById(dtaData[0]?.providerSignature2) : ''}}
+                                            {{dtaData ? findPeopleById(dtaData[0]?.providerSignature2?.id) : ''}}
                                         </h6>
                                     </div>
                                 </div>

@@ -165,7 +165,7 @@ export class StudyTopicComponent implements OnInit {
 
     this.studyService.addStudyTopic(this.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.statusCode === 200) {
+      if (res.statusCode === 201) {
         this.toastr.success('Study Topic added successfully');
         this.getStudyTopic();
       } else {

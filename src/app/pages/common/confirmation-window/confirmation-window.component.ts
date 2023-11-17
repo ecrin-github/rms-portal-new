@@ -106,13 +106,13 @@ export class ConfirmationWindowComponent implements OnInit {
       localStorage.removeItem('deleteDtp');
     }
     this.dtpService.deleteDtpById(this.id).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('DTP deleted successfully');
         localStorage.setItem('deleteDtp', 'true');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
@@ -122,13 +122,13 @@ export class ConfirmationWindowComponent implements OnInit {
       localStorage.removeItem('deleteDup');
     }
     this.dupService.deleteDupById(this.id).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('DUP deleted successfully');
         localStorage.setItem('deleteDup', 'true');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
@@ -138,13 +138,13 @@ export class ConfirmationWindowComponent implements OnInit {
       localStorage.removeItem('studyDelete');
     }
     this.studyService.deleteStudyById(this.id).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Study deleted successfully');
         localStorage.setItem('studyDelete', 'true');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0])
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0])
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
@@ -154,239 +154,239 @@ export class ConfirmationWindowComponent implements OnInit {
       localStorage.removeItem('deleteDataObject');
     }
     this.objectService.deleteDataObjectById(this.id).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Data Object deleted successfully');
         localStorage.setItem('deleteDataObject', 'true');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0])
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0])
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleletStudyIdentifier() {
     this.studyService.deleteStudyIdentifier(this.id, this.studyId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Study Identifier deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteStudyTitle() {
     this.studyService.deleteStudyTitle(this.id, this.studyId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Study Title deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteStudyFeature() {
     this.studyService.deleteStudyFeature(this.id, this.studyId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Study Feature deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteStudyTopic() {
     this.studyService.deleteStudyTopic(this.id, this.studyId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Study Toic deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteStudyRelationship() {
     this.studyService.deleteStudyRelationship(this.id, this.studyId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Study Relationship deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteStudyContributor() {
     this.studyService.deleteStudyContributor(this.id, this.studyId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Study Contributor deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.erro.title);
     })
   }
   deleteObjectInstance() {
     this.objectService.deleteObjectInstance(this.id, this.objectId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Instance deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteObjectTitle() {
     this.objectService.deleteObjectTitle(this.id, this.objectId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Title deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteObjectDate() {
     this.objectService.deleteObjectDate(this.id, this.objectId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Date deleted successfully');
         this.activeModal.close('data')
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteObjectIdentifier() {
     this.objectService.deleteObjectIdentifier(this.id, this.objectId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Identifier deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title)
     })
   }
   deleteObjectDescription() {
     this.objectService.deleteObjectDescription(this.id, this.objectId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Description deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteObjectRight() {
     this.objectService.deleteObjectRight(this.id, this.objectId).subscribe((res:any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Right deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteObjectRelationship() {
     this.objectService.deleteObjectRelationship(this.id, this.objectId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Relationship deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteObjectTopic() {
     this.objectService.deleteObjectTopic(this.id, this.objectId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Topic deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deleteObjectContributor() {
     this.objectService.deleteObjectContributor(this.id, this.objectId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Contributor deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deletePreReqDtp() {
     this.dtpService.deleteDtpObjectPrereq(this.id, this.dtpId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Pre-Requisite deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.erro.title);
     })
   }
   deleteEmbargo() {
     this.dtpService.deleteDtpObject(this.id, this.dtpId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Object Access details deleted successfully');
         this.activeModal.close('data');
-      }
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
   deletePreReqDup() {
     this.dupService.deleteDupObjectPrereq(this.id, this.objectId, this.dupId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('Pre-Requisite deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.erro.title);
     })
   }
   deletePeople() {
     this.peopleService.deletePeopleById(this.peopleId).subscribe((res: any) => {
-      if (res.statusCode === 204) {
+      // if (res.statusCode === 204) {
         this.toastr.success('People deleted successfully');
         this.activeModal.close('data');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
+      // } else {
+      //   this.toastr.error(res.messages[0]);
+      // }
     }, error => {
       this.toastr.error(error.error.title);
     })

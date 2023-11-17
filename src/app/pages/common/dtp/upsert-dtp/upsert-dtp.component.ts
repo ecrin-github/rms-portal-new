@@ -232,12 +232,12 @@ export class UpsertDtpComponent implements OnInit {
       this.spinner.show();
       this.dtpService.deleteDtpNote(this.notes().value[i].id, this.id).subscribe((res: any) => {
         this.spinner.hide();
-        if (res.statusCode === 204) {
+        // if (res.statusCode === 204) {
           this.toastr.success('Note deleted successfully');
           this.getDtpNotes(this.id);
-        } else {
-          this.toastr.error(res.messages[0])
-        }
+        // } else {
+        //   this.toastr.error(res.messages[0])
+        // }
       }, error => {
         this.spinner.hide();
         this.toastr.error(error.error.title);
@@ -266,7 +266,7 @@ export class UpsertDtpComponent implements OnInit {
       payload.dtpId = this.id;
       this.dtpService.addDtpNote(this.id, payload).subscribe((res: any) => {
         this.spinner.hide();
-        if (res.statusCode === 200) {
+        if (res.statusCode === 201) {
           this.toastr.success('Note added successfully');
         } else {
           this.toastr.error(res.messages[0]);
@@ -746,10 +746,10 @@ export class UpsertDtpComponent implements OnInit {
       conformsToDefault: dtaData[0]?.conformsToDefault,
       variations: dtaData[0]?.variations,
       dtaFilePath: dtaData[0]?.dtaFilePath,
-      repoSignature1: dtaData[0]?.repoSignature1,
-      repoSignature2: dtaData[0]?.repoSignature2,
-      providerSignature1: dtaData[0]?.providerSignature1,
-      providerSignature2: dtaData[0]?.providerSignature2
+      repoSignature1: dtaData[0]?.repoSignature1?.id,
+      repoSignature2: dtaData[0]?.repoSignature2?.id,
+      providerSignature1: dtaData[0]?.providerSignature1?.id,
+      providerSignature2: dtaData[0]?.providerSignature2?.id
     });
     // this.patchNote(dtaData.dtpNotes);
     this.showVariations = dtaData[0]?.conformsToDefault ? true : false;
@@ -889,8 +889,8 @@ export class UpsertDtpComponent implements OnInit {
     })
   }
   findPeopleById(id) {
-    const arr: any = this.associatedUser.filter((item: any) => item.personId === id);
-    return arr && arr.length ? arr[0].personName : 'None';
+    const arr: any = this.associatedUser.filter((item: any) => item.person?.id === id);
+    return arr && arr.length ? arr[0].person?.firstName + ' ' + arr[0].person?.lastName : 'None';
   }
   removeDtpUser(id) {
     this.dtpService.deleteDtpPerson(id, this.id).subscribe((res: any) => {

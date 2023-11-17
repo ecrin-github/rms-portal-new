@@ -168,9 +168,9 @@ export class ObjectRelationshipComponent implements OnInit {
       payload.objectId = this.objectId;
       delete payload.id;
 
-      this.objectService.addObjectDescription(this.objectId, payload).subscribe((res: any) => {
+      this.objectService.addObjectRelationship(this.objectId, payload).subscribe((res: any) => {
         this.spinner.hide();
-        if (res.statusCode === 200) {
+        if (res.statusCode === 201) {
           this.toastr.success('Object Relationship is added successfully');
         } else {
           this.toastr.error(res.messages[0]);

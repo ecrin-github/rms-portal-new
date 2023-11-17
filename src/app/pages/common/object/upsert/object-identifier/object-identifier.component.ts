@@ -173,7 +173,7 @@ export class ObjectIdentifierComponent implements OnInit {
 
     this.objectService.addObjectIdentifier(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.statusCode === 200) {
+      if (res.statusCode === 201) {
         this.toastr.success('Object Identifier added successfully');
         this.getObjectIdentifier();
       } else {

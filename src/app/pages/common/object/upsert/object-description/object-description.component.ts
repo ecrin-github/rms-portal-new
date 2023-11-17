@@ -170,7 +170,7 @@ export class ObjectDescriptionComponent implements OnInit {
 
     this.objectService.addObjectDescription(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.statusCode === 200) {
+      if (res.statusCode === 201) {
         this.toastr.success('Object Description added successfully');
         this.getObjectDescription();
       } else {

@@ -277,8 +277,7 @@ export class UpsertStudyComponent implements OnInit {
         const payload = JSON.parse(JSON.stringify(this.studyForm.value));
         this.spinner.show();
         if (this.isEdit) {
-          // payload.id = this.studyData.id;
-          // payload.sdSid = this.id;
+          delete payload.sdSid;
           payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
           this.studyService.editStudy(this.id, payload).subscribe((res: any) => {
             this.spinner.hide();
@@ -300,7 +299,7 @@ export class UpsertStudyComponent implements OnInit {
             if (res.statusCode === 201) {
               this.toastr.success('Study Detail added successfully');
               localStorage.setItem('updateStudyList', 'true');
-              // this.close();
+              this.close();
             } else {
               this.toastr.error(res.messages[0]);
             }

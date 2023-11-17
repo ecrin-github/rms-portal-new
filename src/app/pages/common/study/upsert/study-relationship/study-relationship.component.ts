@@ -158,7 +158,7 @@ export class StudyRelationshipComponent implements OnInit {
 
       this.studyService.addStudyRelationship(this.studyId, payload).subscribe((res: any) => {
         this.spinner.hide();
-        if (res.statusCode === 200) {
+        if (res.statusCode === 201) {
           this.toastr.success('Study Relationship added successfully');
           this.getStudyRelationship();
         } else {

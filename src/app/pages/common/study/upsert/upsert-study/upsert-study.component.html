@@ -239,7 +239,7 @@
                         <h6 class="pt-3 font-style">Study object(s)</h6>
                     </mat-expansion-panel-header>
                     <ul>
-                        <li *ngFor="let object of associatedObjects"><a href="javascript:void(0)" (click)="goToObject(object.sdOid)">{{object.displayTitle}}({{object.sdOid}})</a></li>
+                        <li *ngFor="let object of associatedObjects"><a href="javascript:void(0)" (click)="goToObject(object.id)">{{object.displayTitle}}({{object.id}})</a></li>
                     </ul>
                 </mat-expansion-panel>
             </ng-container>

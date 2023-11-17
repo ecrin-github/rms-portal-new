@@ -60,7 +60,7 @@ export class UpsertObjectComponent implements OnInit {
   constructor(private fb: UntypedFormBuilder, private router: Router, private commonLookupService: CommonLookupService, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService,
     private toastr: ToastrService, private activatedRoute: ActivatedRoute, private listService: ListService, private pdfGenerator: PdfGeneratorService, private jsonGenerator: JsonGeneratorService) {
     this.objectForm = this.fb.group({
-      SdSid: '',
+      linkedStudy: '',
       doi: '',
       displayTitle: ['', Validators.required],
       version: '',
@@ -333,7 +333,7 @@ export class UpsertObjectComponent implements OnInit {
       this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0].id ? false : true;
     }
     this.objectForm.patchValue({
-      // SdSid: this.objectData.linkedStudies[0] ? this.objectData.linkedStudies[0].sdSid : null,
+      linkedStudy: this.objectData.linkedStudy ? this.objectData.linkedStudy.id : null,
       doi: this.objectData.doi,
       displayTitle: this.objectData.displayTitle,
       version: this.objectData.version,
@@ -392,7 +392,7 @@ export class UpsertObjectComponent implements OnInit {
         urlLastChecked: this.objectForm.value.urlLastChecked,
         addStudyContributors: true,
         addStudyTopics: true,
-        studyId: this.objectForm.value.sdSid,
+        linkedStudy: this.objectForm.value.linkedStudy,
         objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass : null,
         objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType : null,
         managingOrg: this.objectForm.value.managingOrg ? this.objectForm.value.managingOrg : null,
@@ -437,7 +437,7 @@ export class UpsertObjectComponent implements OnInit {
         this.objectService.addDataObject(payload).subscribe((res: any) => {
           this.spinner.hide();
           if (res.statusCode === 201) {
-            this.objectService.addObjectDatasete(res.data[0].sdOid, datasetPayload).subscribe((res: any) => {
+            this.objectService.addObjectDatasete(res.id, datasetPayload).subscribe((res: any) => {
               if (res.statusCode === 201) {
               }
             }, error => {
@@ -446,7 +446,7 @@ export class UpsertObjectComponent implements OnInit {
             this.toastr.success('Data Object added successfully and this window will close shortly.');
             localStorage.setItem('updateObjectList', 'true');
             setTimeout(() => {
-              this.close();
+              // this.close();
             }, 3000);
           } else {
             this.toastr.error(res.messages[0]);

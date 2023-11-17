@@ -21,9 +21,9 @@ export class DtpService {
   }
 
   // check for the deletion
-  checkDtaAgreed(dtpId) {
-    return this.http.get(`${base}/data-transfers/${dtpId}`);
-  }
+  // checkDtaAgreed(dtpId) {
+  //   return this.http.get(`${base}/rms/dtp/${dtpId}`);
+  // }
   
   // DTP record - core record only
 
@@ -44,7 +44,7 @@ export class DtpService {
   }
 
   deleteDtpById(id) {
-    return this.http.delete(`${base}/data-transfers/${id}`);
+    return this.http.delete(`${base}/rms/dtp/${id}`);
   }
    
 

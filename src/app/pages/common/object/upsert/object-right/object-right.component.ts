@@ -129,7 +129,7 @@ export class ObjectRightComponent implements OnInit {
 
     this.objectService.addObjectRight(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.statusCode === 200) {
+      if (res.statusCode === 201) {
         this.toastr.success('Object Right added successfully');
         this.getObjectRight();
       } else {

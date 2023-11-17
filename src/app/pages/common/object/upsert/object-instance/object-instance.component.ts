@@ -180,7 +180,7 @@ export class ObjectInstanceComponent implements OnInit {
 
     this.objectService.addObjectInstance(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if( res.statusCode === 200) {
+      if( res.statusCode === 201) {
         this.toastr.success('Object Instance added successfully');
         this.getObjectInstance();
       } else {

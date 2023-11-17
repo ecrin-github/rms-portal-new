@@ -196,7 +196,7 @@ export class StudyTitleComponent implements OnInit {
 
     this.studyService.addStudyTitle(this.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.statusCode === 200) {
+      if (res.statusCode === 201) {
         this.toastr.success('Study Title added successfully');
         this.getStudyTitle();
       } else {

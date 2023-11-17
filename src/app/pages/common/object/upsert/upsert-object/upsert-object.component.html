@@ -32,9 +32,9 @@
             <div class="row form-group">
                 <div class="col-md-12">
                     <label for="studyId" class="font-style text-capitalize">parent study</label>
-                    <ng-select id="study" [items]="studyList" bindLabel="id" bindValue="id" formControlName="id"
+                    <ng-select id="study" [items]="studyList" bindLabel="id" bindValue="id" formControlName="linkedStudy"
                     [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No study found"
-                        placeholder="Please select parent study" [searchFn]="customSearchFn" *ngIf="isAdd"  [ngClass]="{ 'is-invalid': isSubmitted && g.SdSid.errors }">
+                        placeholder="Please select parent study" [searchFn]="customSearchFn" *ngIf="isAdd"  [ngClass]="{ 'is-invalid': isSubmitted && g.linkedStudy.errors }">
                         <ng-template ng-label-tmp let-item="item">
                             {{item.sdSid}}
                         </ng-template>
@@ -49,8 +49,8 @@
                     </ng-select>
                     <br *ngIf="isView || isEdit">
                     <!-- <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.linkedStudies[0]?.sdSid)" *ngIf="isView || isEdit" style="cursor: pointer;">{{findStudyById(objectData?.linkedStudies[0]?.sdSid)}}</a> -->
-                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.SdSid.errors">
-                        <p *ngIf="isSubmitted && g.SdSid.errors.required"> Please enter parent study ID</p>
+                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.linkedStudy.errors">
+                        <p *ngIf="isSubmitted && g.linkedStudy.errors.required"> Please enter parent study ID</p>
                     </div>  
                 </div>
             </div>

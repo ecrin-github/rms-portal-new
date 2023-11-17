@@ -205,12 +205,12 @@ export class UpsertDupComponent implements OnInit {
       this.spinner.show();
       this.dupService.deleteDupNote(this.notes().value[i].id, this.id).subscribe((res: any) => {
         this.spinner.hide();
-        if(res.statusCode === 204) {
+        // if(res.statusCode === 204) {
           this.toastr.success('Note deleted successfully');
           this.getDupNotes(this.id);
-        } else {
-          this.toastr.error(res.messages[0]);
-        }
+        // } else {
+        //   this.toastr.error(res.messages[0]);
+        // }
       }, error => {
         this.spinner.hide();
         this.toastr.error(error.error.title);
@@ -239,7 +239,7 @@ export class UpsertDupComponent implements OnInit {
       payload.dupId = this.id;
       this.dupService.addDupNote(this.id, payload).subscribe((res: any) => {
         this.spinner.hide();
-        if (res.statusCode === 200) {
+        if (res.statusCode === 201) {
           this.toastr.success('Note added successfully');
         } else {
           this.toastr.error(res.messages[0]);
@@ -475,7 +475,7 @@ export class UpsertDupComponent implements OnInit {
         this.spinner.show();
         this.dupService.addDup(payload).subscribe((res: any) => {
           this.spinner.hide();
-          if (res.statusCode === 200) {
+          if (res.statusCode === 201) {
             this.toastr.success('DUP added successfully');
             localStorage.setItem('updateDupList', 'true');
             setTimeout(() => {
@@ -561,12 +561,12 @@ export class UpsertDupComponent implements OnInit {
       conformsToDefault: data[0]?.conformsToDefault,
       repoIsProxyProvider: data[0]?.repoIsProxyProvider,
       duaFilePath: data[0]?.duaFilePath,
-      repoSignatory1: data[0]?.repoSignatory1,
-      repoSignatory2: data[0]?.repoSignatory2,
-      providerSignatory1: data[0]?.providerSignatory1,
-      providerSignatory2: data[0]?.providerSignatory2,
-      requesterSignatory1: data[0]?.requesterSignatory1,
-      requesterSignatory2: data[0]?.requesterSignatory2,
+      repoSignatory1: data[0]?.repoSignatory1?.id,
+      repoSignatory2: data[0]?.repoSignatory2?.id,
+      providerSignatory1: data[0]?.providerSignatory1?.id,
+      providerSignatory2: data[0]?.providerSignatory2?.id,
+      requesterSignatory1: data[0]?.requesterSignatory1?.id,
+      requesterSignatory2: data[0]?.requesterSignatory2?.id,
     });
     this.showVariations = data[0]?.conformsToDefault ? true : false;
   }
@@ -694,8 +694,8 @@ export class UpsertDupComponent implements OnInit {
     })
   }
   findPeopleById(id) {
-    const arr: any = this.associatedUser.filter((item: any) => item.personId === id);
-    return arr && arr.length ? arr[0].personName : 'None';
+    const arr: any = this.associatedUser.filter((item: any) => item.person?.id === id);
+    return arr && arr.length ? arr[0].person?.firstName + ' ' + arr[0].person.lastName : 'None';
   }
   removeDupUser(id) {
     this.dupService.deleteDupPerson(id, this.id).subscribe((res: any) => {

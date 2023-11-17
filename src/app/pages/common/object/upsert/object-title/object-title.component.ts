@@ -166,7 +166,7 @@ export class ObjectTitleComponent implements OnInit {
 
     this.objectService.addObjectTitle(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.statusCode === 200) {
+      if (res.statusCode === 201) {
         this.toastr.success('Object Title added successfully');
         this.getObjectTitle();
       } else {

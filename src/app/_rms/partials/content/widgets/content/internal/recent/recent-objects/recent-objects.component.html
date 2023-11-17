@@ -29,7 +29,7 @@
 
       <ng-container matColumnDef="sdOid">
           <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-          <mat-cell *matCellDef="let row"><a [routerLink]="['/data-objects', row.id, 'view']" target="_blank">{{row.sdOid}}</a> </mat-cell>
+          <mat-cell *matCellDef="let row"><a [routerLink]="['/data-objects', row.id, 'view']" target="_blank">{{row.id}}</a> </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="title">

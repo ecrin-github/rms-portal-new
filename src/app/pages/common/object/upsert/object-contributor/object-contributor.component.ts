@@ -149,7 +149,7 @@ export class ObjectContributorComponent implements OnInit {
 
     this.objectService.addObjectContributor(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.statusCode === 200) {
+      if (res.statusCode === 201) {
         this.toastr.success('Object Contributor added successfully');
         this.getObjectContributor();
       } else {

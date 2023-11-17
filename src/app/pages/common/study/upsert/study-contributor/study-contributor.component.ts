@@ -187,7 +187,7 @@ export class StudyContributorComponent implements OnInit {
 
     this.studyService.addStudyContributor(this.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
-      if (res.statusCode === 200) {
+      if (res.statusCode === 201) {
         this.toastr.success('Study Contributor added successfully');
         this.getStudyContributor();
       } else {
