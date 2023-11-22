@@ -95,7 +95,8 @@ export class SummaryUserComponent implements OnInit {
     let people_fragment = this.searchText;
     if (this.searchText !== '') {
       this.spinner.show();
-      this.listService.getFilteredPeopleList(people_fragment, page, size).subscribe((res: any) => {
+      const filterService$ = this.role === 'Manager' ? this.listService.getFilteredPeopleList(people_fragment, page, size) : this.listService.getFilteredPeopleListByOrg(people_fragment, this.orgId, page, size)
+      filterService$.subscribe((res: any) => {
         this.spinner.hide()
         if (res && res.results) {
           this.dataSource = new MatTableDataSource<any>(res.results);

@@ -119,6 +119,9 @@ export class ListService {
   getFilteredPeopleList(name_fragment: string, page: number, size: number) {
     return this.http.get(`${base}/users/by-name?name=${name_fragment}`);
   }
+  getFilteredPeopleListByOrg(name_fragment: string, orgId, page: number, size: number) {
+    return this.http.get(`${base}/users/by-name-and-organisation?name=${name_fragment}&orgId=${orgId}`);
+  }
 
   getPeopleListByOrg(orgId: number) {
     return this.http.get(`${base}/users/by-org?orgId=${orgId}`);

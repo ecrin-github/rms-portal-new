@@ -349,9 +349,9 @@ export class UpsertStudyComponent implements OnInit {
           localStorage.setItem('updateStudyList', 'true');
           setTimeout(() => {
             this.spinner.hide();
-            // window.close();
+            window.close();
             this.router.navigate([]).then((result) => {
-              window.open(`studies/${res?.data[0]?.coreStudy?.sdSid}/edit`, '_blank');
+              window.open(`studies/${res?.id}/edit`, '_blank');
             });
           }, 2000);
         } else {
