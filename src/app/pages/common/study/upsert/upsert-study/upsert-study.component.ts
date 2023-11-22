@@ -27,7 +27,7 @@ export class UpsertStudyComponent implements OnInit {
   studyStatuses: [] = [];
   genderEligibility: [] = [];
   timeUnits: [] =[];
-  trialRegistries: [] = [];
+  trialRegistries: any;
   subscription: Subscription = new Subscription();
   isSubmitted: boolean = false;
   id: any;
@@ -229,13 +229,41 @@ export class UpsertStudyComponent implements OnInit {
     return ageArray && ageArray.length ? ageArray[0] : { name: '' };
 }
   getTrialRegistries() {
-    this.studyLookupService.getTrialRegistries(this.pageSize).subscribe((res: any) => {
-      if (res && res.results) {
-        this.trialRegistries = res.results;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
+    // this.studyLookupService.getTrialRegistries(this.pageSize).subscribe((res: any) => {
+    //   if (res && res.results) {
+    //     this.trialRegistries = res.results;
+    //   }
+    // }, error => {
+    //   this.toastr.error(error.error.title);
+    // })
+    this.trialRegistries = [
+      {id: '100116', name: 'Australian / New Zealand Clinical Trials Registry'},
+      {id: '100117', name: 'Registro Brasileiro de Ensaios Clínicos'},
+      {id: '100118', name: 'Chinese Clinical Trial Register'},
+      {id: '100119', name: 'Clinical Research Information Service (S Korea)'},
+      {id: '100120', name: 'ClinicalTrials.gov'},
+      {id: '100121', name: 'Clinical Trials Registry - India'},
+      {id: '100122', name: 'Registro Público Cubano de Ensayos Clínicos'},
+      {id: '100123', name: 'EU Clinical Trials Register / EMA CTIS'},
+      {id: '100124', name: 'Deutschen Register Klinischer Studien'},
+      {id: '100125', name: 'Iranian Registry of Clinical Trials'},
+      {id: '100126', name: 'ISRCTN'},
+      {id: '100127', name: 'Japan Primary Registries Network'},
+      {id: '100128', name: 'Pan-African Clinical Trials Registry'},
+      {id: '100129', name: 'Registro Peruano de Ensayos Clínicos'},
+      {id: '100130', name: 'Sri Lanka Clinical Trials Registry'},
+      {id: '100131', name: 'Thai Clinical Trials Register'},
+      {id: '100132', name: 'The Netherlands National Trial Register'},
+      {id: '100135', name: 'PubMed'},
+      {id: '101405', name: 'CSDR*'},
+      {id: '101900', name: 'BioLINCC (NIH)'},
+      {id: '101901', name: 'Yoda'},
+      {id: '101940', name: 'Vivli*'},
+      {id: '101989', name: 'Lebenon Clinical Trial Registry'},
+      {id: '109108', name: 'International Traditional Medicine Clinical Trial Registry'},
+      {id: '110426', name: 'BBMRI-ERIC'}
+
+    ]
   }
   patchStudyForm() {
     this.studyForm.patchValue({
@@ -316,12 +344,12 @@ export class UpsertStudyComponent implements OnInit {
     if (this.addType === 'usingTrialId') {
       this.spinner.show();
       this.studyService.getFullStudyFromMdr(this.registryId, this.trialId).subscribe((res: any) => {
-        if (res.statusCode === 201) {
+        if (res.statusCode === 200) {
           this.toastr.success('Study imported successfully. you will be redirected shortly');
           localStorage.setItem('updateStudyList', 'true');
           setTimeout(() => {
             this.spinner.hide();
-            window.close();
+            // window.close();
             this.router.navigate([]).then((result) => {
               window.open(`studies/${res?.data[0]?.coreStudy?.sdSid}/edit`, '_blank');
             });

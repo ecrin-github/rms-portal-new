@@ -78,8 +78,8 @@ export class SummaryDupComponent implements OnInit {
     this.spinner.show();
     this.listService.getDupListByOrg(this.orgId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<DupListEntryInterface>(res.data);
+      if (res) {
+        this.dataSource = new MatTableDataSource<DupListEntryInterface>(res);
       } else {
         this.dataSource = new MatTableDataSource();
       }
@@ -109,11 +109,12 @@ export class SummaryDupComponent implements OnInit {
     let title_fragment = this.searchText;
     if (this.filterOption === 'title' && this.searchText !== '') {
       this.spinner.show();
-      this.listService.getFilteredDuptList(title_fragment, page, size).subscribe((res: any) => {
+      const filterService$ = this.role === 'Manager' ? this.listService.getFilteredDuptList(title_fragment, page, size) : this.listService.getFilteredDuptListByOrg(title_fragment, this.orgId, page, size);
+      filterService$.subscribe((res: any) => {
         this.spinner.hide()
-        if (res && res.data) {
-          this.dataSource = new MatTableDataSource<DupListEntryInterface>(res.data);
-          this.dupLength = res.total;
+        if (res) {
+          this.dataSource = new MatTableDataSource<DupListEntryInterface>(res);
+          // this.dupLength = res.count;
         } else {
           this.dataSource = new MatTableDataSource();
         }

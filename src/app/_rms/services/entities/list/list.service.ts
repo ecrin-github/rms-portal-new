@@ -22,11 +22,14 @@ export class ListService {
     // at the moment the whole filtered set is returned as pagination is done in the UI
     // page and size therefore not used
     // return this.http.get(`${base}/studies/list/title-contains/${title}?pagenum=${page}&pagesize=${size}`);
-    return this.http.get(`${base}/studies/list/title-contains/${title_fragment}`);
+    return this.http.get(`${base}/mdm/studies/by-title?title=${title_fragment}`);
+  }
+  getFilteredStudyListByOrg(title_fragment: string, orgId, page: number, size: number) {
+    return this.http.get(`${base}/mdm/studies/by-title-and-organisation?title=${title_fragment}&orgId=${orgId}`);
   }
 
   getStudyListByOrg(orgId :number) {
-    return this.http.get(`${base}/studies/list/by-org/${orgId}`);
+    return this.http.get(`${base}/mdm/studies/by-org?orgId=${orgId}`);
   }
 
   getRecentStudiesList(n :number) {
@@ -44,8 +47,12 @@ export class ListService {
       // at the moment the whole filtered set is returned as pagination is done in the UI
       // page and size therefore not used
       // return this.http.get(`${base}/data-objects/list/title-contains/${title}?pagenum=${page}&pagesize=${size}`);
-      return this.http.get(`${base}/data-objects/list/title-contains/${title_fragment}`);
+      return this.http.get(`${base}/mdm/data-objects/by-title?title=${title_fragment}`);
   }
+  getFilteredObjectListByOrg(title_fragment: string, orgId, page: number, size: number) {
+    return this.http.get(`${base}/mdm/data-objects/by-title-and-organisation?title=${title_fragment}&orgId=${orgId}`);
+  }
+
 
   getObjectListByStudy(sdSid) {
     return this.http.get(`${base}/studies/${sdSid}/objects`);
@@ -56,7 +63,7 @@ export class ListService {
 
 
   getObjectListByOrg(orgId :number) {
-    return this.http.get(`${base}/data-objects/list/by-org/${orgId}`);
+    return this.http.get(`${base}/mdm/data-objects/by-org?orgId=${orgId}`);
   }
 
   getRecentObjectsList(n :number) {
@@ -70,11 +77,14 @@ export class ListService {
   }
   
   getFilteredDtpList(title_fragment: string, page: number, size: number) {
-      return this.http.get(`${base}/data-transfers/list/title-contains/${title_fragment}`);
+      return this.http.get(`${base}/mdm/dtp/by-title?title=${title_fragment}`);
   }
+  getFilteredDtpListByOrg(title_fragment: string, orgId, page: number, size: number) {
+    return this.http.get(`${base}/mdm/dtp/by-title-and-organisation?title=${title_fragment}&orgId=${orgId}`);
+}
 
   getDtpListByOrg(orgId :number) {
-    return this.http.get(`${base}/data-transfers/list/by-org/${orgId}`);
+    return this.http.get(`${base}/mdm/dtp/by-org?orgId=${orgId}`);
   }
 
   getRecentDtpList(n :number) {
@@ -88,11 +98,14 @@ export class ListService {
   }
   
   getFilteredDuptList(title_fragment: string, page: number, size: number) {
-      return this.http.get(`${base}/data-uses/list/title-contains/${title_fragment}`);
+      return this.http.get(`${base}/mdm/dup/by-title?title=${title_fragment}`);
   }
+  getFilteredDuptListByOrg(title_fragment: string, orgId, page: number, size: number) {
+    return this.http.get(`${base}/mdm/dup/by-title-and-organisation?title=${title_fragment}&orgId=${orgId}`);
+}
 
   getDupListByOrg(orgId :number) {
-    return this.http.get(`${base}/data-uses/list/by-org/${orgId}`);
+    return this.http.get(`${base}/mdm/dup/by-org?orgId=${orgId}`);
   }
 
   getRecentDupList(n :number) {
@@ -104,11 +117,11 @@ export class ListService {
     return this.http.get(`${base}/users/?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`, { context: new HttpContext().set(BYPASS_LOG, true) });
   }
   getFilteredPeopleList(name_fragment: string, page: number, size: number) {
-    return this.http.get(`${base}/people/list/name-contains/${name_fragment}`);
+    return this.http.get(`${base}/users/by-name?name=${name_fragment}`);
   }
 
   getPeopleListByOrg(orgId: number) {
-    return this.http.get(`${base}/people/list/by-org/${orgId}`);
+    return this.http.get(`${base}/users/by-org?orgId=${orgId}`);
   }
 
   getRecentPeopleList(n: number) {

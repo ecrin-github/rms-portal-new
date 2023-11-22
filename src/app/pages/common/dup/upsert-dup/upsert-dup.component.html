@@ -62,7 +62,7 @@
                                         <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>
                                     </div>
                                     <h6 *ngIf="isView" style="font-weight: 100;">
-                                        {{findOrganization(dupData?.organisation)}}</h6>
+                                        {{findOrganization(dupData?.organisation?.id)}}</h6>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize">Display Name</label>
@@ -85,7 +85,7 @@
                                         </option>
                                     </select>
                                     <h6 *ngIf="!showStatus || isView" style="font-weight: 100;">
-                                        {{findStatus(dupData?.status.id)}}</h6>
+                                        {{findStatus(dupData?.status?.id)}}</h6>
                                 </div>
                             </div>
                             <div #wizard class="wizard wizard-1" id="kt_wizard_v1" data-wizard-state="step-first" data-wizard-clickable="true">

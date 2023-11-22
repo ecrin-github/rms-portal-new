@@ -71,10 +71,10 @@ export class SummaryStudyComponent implements OnInit {
       this.spinner.hide();
       if (res && res.results) {
         this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res.results);
-        this.studyLength = res.total;
+        this.studyLength = res.count;
       } else {
         this.dataSource = new MatTableDataSource();
-        this.studyLength = res.total;
+        this.studyLength = res.count;
       }
       this.dataSource.paginator = this.paginator;
       this.searchText = '';
@@ -87,12 +87,12 @@ export class SummaryStudyComponent implements OnInit {
     this.spinner.show();
     this.listService.getStudyListByOrg(this.orgId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res.data);
-        this.studyLength = res.total;
+      if (res) {
+        this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res);
+        // this.studyLength = res.count;
       } else {
         this.dataSource = new MatTableDataSource();
-        this.studyLength = res.total;
+        // this.studyLength = res.count;
       }
       this.dataSource.paginator = this.paginator;
       this.searchText = '';
@@ -120,12 +120,13 @@ export class SummaryStudyComponent implements OnInit {
     let title_fragment = this.searchText;
     if (this.filterOption === 'title' && this.searchText !== '') {
       this.spinner.show();
-      this.listService.getFilteredStudyList(title_fragment, page, size).subscribe((res: any) => {
+      const filterService$ = this.role === 'Manager' ? this.listService.getFilteredStudyList(title_fragment, page, size) : this.listService.getFilteredStudyListByOrg(title_fragment, this.orgId, page, size);
+      filterService$.subscribe((res: any) => {
         this.spinner.hide()
-        if (res && res.data) {
-          this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res.data);
+        if (res) {
+          this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res);
           // this.studyLength = res.totalRecords; // use this for database-paged record retrieval
-          this.studyLength = res.total
+          // this.studyLength = res.count
         } else {
           this.dataSource = new MatTableDataSource();
         }

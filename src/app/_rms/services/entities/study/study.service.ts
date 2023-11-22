@@ -26,7 +26,7 @@ export class StudyService {
   // MDR related calls
  
   getFullStudyFromMdr(regId: number, sdSid: string) {
-    return this.http.get(`${base}/mdm/studies/mdr?regId=${regId}&sdSid=${sdSid}`);
+    return this.http.get(`${base}/mdm/studies/new-mdr?regId=${regId}&sdSid=${sdSid}`);
   }
   
   getStudyFromMdr(regId: number, sdSid: string) {

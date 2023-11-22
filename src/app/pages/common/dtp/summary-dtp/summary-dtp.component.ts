@@ -62,8 +62,8 @@ export class SummaryDtpComponent implements OnInit {
     this.spinner.show();
     this.listService.getDtpListByOrg(this.orgId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<DtpListEntryInterface>(res.data);
+      if (res) {
+        this.dataSource = new MatTableDataSource<DtpListEntryInterface>(res);
       } else {
         this.dataSource = new MatTableDataSource();
       }
@@ -111,11 +111,12 @@ export class SummaryDtpComponent implements OnInit {
     let title_fragment = this.searchText;
     if (this.filterOption === 'title' && this.searchText !== '') {
       this.spinner.show();
-      this.listService.getFilteredDtpList(title_fragment, page, size).subscribe((res: any) => {
+      const filterService$ = this.role === 'Manager' ? this.listService.getFilteredDtpList(title_fragment, page, size) : this.listService.getFilteredDtpListByOrg(title_fragment, this.orgId, page, size);
+      filterService$.subscribe((res: any) => {
         this.spinner.hide()
-        if (res && res.data) {
-          this.dataSource = new MatTableDataSource<DtpListEntryInterface>(res.data);
-          this.dtpLength = res.total;
+        if (res) {
+          this.dataSource = new MatTableDataSource<DtpListEntryInterface>(res);
+          // this.dtpLength = res.count;
         } else {
           this.dataSource = new MatTableDataSource();
         }

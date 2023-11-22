@@ -30,6 +30,8 @@ export class InternalMainPageComponent implements OnInit {
   valueNum: any = {};
   userData: any;
   organisation: string = '';
+  organisationName: string = '';
+  role: string = '';
   
   constructor( private layout: LayoutService, private dashboardService: DashboardService, private toastr: ToastrService, private permissionService: NgxPermissionsService, 
     private userService: UserService) { 
@@ -54,10 +56,14 @@ export class InternalMainPageComponent implements OnInit {
     if (localStorage.getItem('userData')) {
       this.userData = JSON.parse(localStorage.getItem('userData'));
       this.userService.getUserRoleInfo(this.userData).subscribe((res: any) => {
-        this.permissionService.loadPermissions([res.role]);
-        this.organisation = res.organisation;
-        localStorage.setItem('role', res.role);
-        localStorage.setItem('organisationId', res.organisationId);
+        this.role = res.isSuperuser && res.isStaff ? 'Manager' : 'User'
+        // this.permissionService.loadPermissions([res.role]);
+        this.permissionService.loadPermissions([this.role]);
+        this.organisation = res.userProfile?.organisation?.id;
+        this.organisationName = res.userProfile?.organisation?.defaultName;
+        // localStorage.setItem('role', res.userProfile?.role);
+        localStorage.setItem('role', this.role);
+        localStorage.setItem('organisationId', res.userProfile?.organisation?.id);
       }, error => {
         console.log(error);
       })
@@ -67,10 +73,14 @@ export class InternalMainPageComponent implements OnInit {
           localStorage.setItem('userData', JSON.stringify(res));
           this.userData = res;
           this.userService.getUserRoleInfo(this.userData).subscribe((res: any) => {
-            this.permissionService.loadPermissions([res.role]);
-            this.organisation = res.organisation;
-            localStorage.setItem('role', res.role);
-            localStorage.setItem('organisationId', res.organisationId);
+            this.role = res.isSuperuser && res.isStaff ? 'Manager' : 'User'
+            // this.permissionService.loadPermissions([res.role]);
+            this.permissionService.loadPermissions([this.role]);
+            this.organisation = res.userProfile?.organisation?.id;
+            this.organisationName = res.userProfile?.organisation?.defaultName;
+            // localStorage.setItem('role', res.userProfile?.role);
+            localStorage.setItem('role', this.role);
+            localStorage.setItem('organisationId', res.userProfile?.organisation?.id);
           }, error => {
             console.log(error);
           })

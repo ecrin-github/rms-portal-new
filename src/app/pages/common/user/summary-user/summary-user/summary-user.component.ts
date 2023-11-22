@@ -66,8 +66,8 @@ export class SummaryUserComponent implements OnInit {
     this.spinner.show();
     this.listService.getPeopleListByOrg(this.orgId).subscribe((res: any) => {
       this.spinner.hide();
-      if (res && res.data) {
-        this.dataSource = new MatTableDataSource<any>(res.data);
+      if (res && res.results) {
+        this.dataSource = new MatTableDataSource<any>(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
       }
@@ -97,9 +97,9 @@ export class SummaryUserComponent implements OnInit {
       this.spinner.show();
       this.listService.getFilteredPeopleList(people_fragment, page, size).subscribe((res: any) => {
         this.spinner.hide()
-        if (res && res.data) {
-          this.dataSource = new MatTableDataSource<any>(res.data);
-          this.peopleLength = res.total;
+        if (res && res.results) {
+          this.dataSource = new MatTableDataSource<any>(res.results);
+          this.peopleLength = res.count;
         } else {
           this.dataSource = new MatTableDataSource();
         }

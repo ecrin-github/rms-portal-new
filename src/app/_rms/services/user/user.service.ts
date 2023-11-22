@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 const aaiUrl = 'https://proxy.aai.lifescience-ri.eu/OIDC/userinfo';
-const userUrl = 'https://user.ecrin-rms.org/api/v1/UserApi'
+const baseUrl = environment.baseUrl;
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,6 @@ export class UserService {
     return this.http.get(`${aaiUrl}`);
   }
   getUserRoleInfo(payload) {
-    return this.http.post(`${userUrl}/GetOrCreateUser`, payload);
+    return this.http.post(`${baseUrl}/users/`, payload);
   }
 }
