@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import {StatesService} from "../../../_rms/services/states/states.service";
+import {UserInterface} from "../../../_rms/interfaces/user/user.interface";
 
 @Component({
   selector: 'app-main-page-external',
@@ -7,9 +9,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ExternalMainPageComponent implements OnInit {
 
-  constructor() { }
+  user: UserInterface;
+
+  constructor(private stateService: StatesService) { }
 
   ngOnInit(): void {
+    this.user = this.stateService.currentUser;
+    console.log("User data: ", this.user);
   }
-
 }

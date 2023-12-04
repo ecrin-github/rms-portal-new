@@ -34,6 +34,7 @@ export class SummaryObjectComponent implements OnInit {
   searchDebounec: Subject<string> = new Subject();
   sticky: boolean = false;
   notDashboard:boolean = false;
+  isOrgIdValid: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('objectDeleteModal') objectDeleteModal : TemplateRef<any>;
@@ -48,7 +49,9 @@ export class SummaryObjectComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isBrowsing = this.router.url.includes('browsing') ? true : false;
+    this.orgId = localStorage.getItem('organisationId');
+    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
+    this.isBrowsing = this.router.url.includes('browsing') && this.isOrgIdValid;
     if (!this.isBrowsing) {
       if (localStorage.getItem('role')) {
         this.role = localStorage.getItem('role');
@@ -95,7 +98,7 @@ export class SummaryObjectComponent implements OnInit {
     })
   }
   getObjectList() {
-    if (this.role === 'User') {
+    if (this.role === 'User' && this.isOrgIdValid) {
       this.getObjectListByOrg();
     } else {
       this.getAllObjectList();

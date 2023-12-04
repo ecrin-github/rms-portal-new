@@ -130,26 +130,31 @@
     <br />
 </ng-container>
 <ng-container *ngxPermissionsOnly="['User']">
-    <div class="card">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-12 text-center" style="font-size: 16px; font-weight: bold;">
-                    Data shown below are for the {{organisationName}} organization
+    <ng-container *ngIf="organisation">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 text-center" style="font-size: 16px; font-weight: bold;">
+                        Data shown below are for the {{organisationName}} organization
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <app-summary-dtp></app-summary-dtp>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-12">
-            <app-summary-dup></app-summary-dup>
+        <div class="row">
+            <div class="col-12">
+                <app-summary-dtp></app-summary-dtp>
+            </div>
         </div>
-    </div>
+
+        <div class="row">
+            <div class="col-12">
+                <app-summary-dup></app-summary-dup>
+            </div>
+        </div>
+    </ng-container>
+
+
 
     <div class="row">
         <div class="col-12">
@@ -162,10 +167,14 @@
             <app-summary-object></app-summary-object>
         </div>
     </div>
-    <div class="row">
-        <div class="col-12">
-            <app-summary-user></app-summary-user>
+
+    <ng-container *ngIf="organisation">
+        <div class="row">
+            <div class="col-12">
+                <app-summary-user></app-summary-user>
+            </div>
         </div>
-    </div>
+    </ng-container>
+
     <br />
 </ng-container>

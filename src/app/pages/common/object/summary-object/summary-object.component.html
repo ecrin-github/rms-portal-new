@@ -4,7 +4,7 @@
             <div class="col-md-6">
                 <h2>Data Objects</h2>
             </div>
-            <div class="col-md-6 text-right" *ngIf="!isBrowsing">
+            <div class="col-md-6 text-right" *ngIf="!isBrowsing && isOrgIdValid">
                 <a [routerLink]="['/data-objects', 'add']" class="btn btn-success" target="tempTab">
                     <i class="fa fa-plus"></i> New data object
                 </a>    
@@ -42,12 +42,12 @@
 
             <ng-container matColumnDef="sdOid">
                 <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.id, 'view'] : ['/data-objects', row.id, 'view']" target="_blank">{{row.id}}</a> </mat-cell>
+                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing || !isOrgIdValid ? ['/browsing/data-objects', row.id, 'view'] : ['/data-objects', row.id, 'view']" target="_blank">{{row.id}}</a> </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="title">
                 <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
-                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.id, 'view'] : ['/data-objects', row.id, 'view']" target="_blank">{{row.displayTitle}}</a></mat-cell>
+                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing || !isOrgIdValid ? ['/browsing/data-objects', row.id, 'view'] : ['/data-objects', row.id, 'view']" target="_blank">{{row.displayTitle}}</a></mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="type">
@@ -68,10 +68,10 @@
                     <a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.id, 'view'] : ['/data-objects', row.id, 'view']" target="tempTab">
                         <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <a [routerLink]="['/data-objects', row.id, 'edit']" target="tempTab" *ngIf="!isBrowsing">
+                    <a [routerLink]="['/data-objects', row.id, 'edit']" target="tempTab" *ngIf="!isBrowsing && isOrgIdValid">
                         <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngIf="!isBrowsing">
+                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngIf="!isBrowsing && isOrgIdValid">
 
                     </i>
                 </mat-cell>

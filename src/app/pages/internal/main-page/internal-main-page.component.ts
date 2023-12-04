@@ -173,4 +173,6 @@ export class InternalMainPageComponent implements OnInit {
     var topOfElement = $element.offsetTop - 135;
     window.scroll({ top: topOfElement, behavior: "smooth" });
   }
+
+  protected readonly localStorage = localStorage;
 }

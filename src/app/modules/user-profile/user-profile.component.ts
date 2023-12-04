@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { UserService } from 'src/app/_rms/services/user/user.service';
+import {environment} from "../../../environments/environment";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-user-profile',
@@ -11,7 +13,10 @@ export class UserProfileComponent implements OnInit {
   form: UntypedFormGroup;
   avatarPic = 'none';
   user: any;
-  constructor( private fb: UntypedFormBuilder, private userService: UserService) { 
+  orgId: string;
+  orgName: string;
+
+  constructor( private fb: UntypedFormBuilder, private userService: UserService, private http: HttpClient) {
     this.form = this.fb.group({
       pic: ['', Validators.required],
       userName: ['', Validators.required],
@@ -25,7 +30,19 @@ export class UserProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getUserData();
+    this.orgId = localStorage.getItem('organisationId');
+    if (this.orgId !== null && this.orgId !== undefined && this.orgId !== 'null' && this.orgId !== 'undefined') {
+      const orgUrl = environment.baseUrl + '/general/organisations/' + this.orgId;
+      this.http.get(orgUrl).subscribe((response) => {
+        if (response != null) {
+          this.orgName = response['defaultName'];
+        }
+        this.getUserData();
+      })
+    }
+    else{
+      this.getUserData();
+    }
   }
 
   patchForm() {
@@ -37,7 +54,7 @@ export class UserProfileComponent implements OnInit {
       email: this.user.email,
       phone: this.user.phone,
       country: this.user.location,
-      organisation: this.user.organisation ? this.user.organisation : ''
+      organisation: this.user.organisation ? this.orgName : this.orgName
     });
   }
   getUserData() {
@@ -46,6 +63,7 @@ export class UserProfileComponent implements OnInit {
       this.user.pic = 'none';
       this.user.country = '';
       this.user.phone = '';
+      this.user.organisation = this.orgName
       this.patchForm();
     } else {
       this.userService.getUser().subscribe((res: any) => {
@@ -55,6 +73,7 @@ export class UserProfileComponent implements OnInit {
           this.user.pic = 'none';
           this.user.country = '';
           this.user.phone = '';
+          this.user.organisation = this.orgName
           this.patchForm();
         }
       }, error => {

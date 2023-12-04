@@ -35,6 +35,7 @@ export class SummaryStudyComponent implements OnInit {
   searchDebounec: Subject<string> = new Subject();
   sticky: boolean = false;
   notDashboard:boolean = false;
+  isOrgIdValid: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('studyDeleteModal') studyDeleteModal : TemplateRef<any>;
@@ -49,7 +50,9 @@ export class SummaryStudyComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isBrowsing = this.router.url.includes('browsing') ? true : false
+    this.orgId = localStorage.getItem('organisationId');
+    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
+    this.isBrowsing = this.router.url.includes('browsing');
     if (!this.isBrowsing) {
       if (localStorage.getItem('role')) {
         this.role = localStorage.getItem('role');
@@ -102,7 +105,7 @@ export class SummaryStudyComponent implements OnInit {
     })
   }
   getStudyList() {
-    if (this.role === 'User') {
+    if (this.role === 'User' && this.isOrgIdValid) {
       this.getStudyListByOrg();
     } else {
       this.getAllStudyList();
