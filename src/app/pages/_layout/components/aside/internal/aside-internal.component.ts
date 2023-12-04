@@ -20,10 +20,16 @@ export class AsideInternalComponent implements OnInit {
   asideMenuScroll = 1;
   asideSelfMinimizeToggle = false;
   menuSelected: string = 'dashboard';
+  isElementShownForManager: boolean = false;
 
   constructor(private layout: LayoutService, private loc: Location) { }
 
   ngOnInit(): void {
+    const orgId = localStorage.getItem('organisationId');
+    if (orgId !== null && orgId !== undefined && orgId !== 'null' && orgId !== 'undefined'){
+      this.isElementShownForManager = true;
+    }
+
     // load view settings
     this.disableAsideSelfDisplay =
       this.layout.getProp('aside.self.display') === false;
