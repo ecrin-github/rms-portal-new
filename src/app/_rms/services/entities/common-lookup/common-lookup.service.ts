@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
 const base = environment.baseUrl;
-const contactUrl = 'https://api-v2.ecrin-rms.org';
+const contactUrl = 'https://api-test.ecrin-rms.org';
 
 @Injectable({
   providedIn: 'root'
