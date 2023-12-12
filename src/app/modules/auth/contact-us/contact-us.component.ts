@@ -57,10 +57,11 @@ export class ContactUsComponent implements OnInit {
     if (this.contactForm.valid) {
       if (this.contactForm.value.email === this.contactForm.value.confirmEmail) {
         const payload = {
-          recipients: 'frequenteen@gmail.com,Sergio.CONTRINO@ecrin.org',
+          recipients: 'crr@ecrin.org',
           subject: this.contactForm.value.reason,
           message: this.contactForm.value.message,
-          sender: this.contactForm.value.email
+          sender: this.contactForm.value.email,
+          cc: this.contactForm.value.email
         }
         this.commonLookUpService.emailAPI(payload).subscribe((res: any) => {
           if (res.status === 'success') {
