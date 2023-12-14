@@ -43,9 +43,9 @@
                             repository</label>
                         <select class="form-control" id="reason" formControlName="reason" (change)="onChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.reason.errors }">
                             <option disabled selected value="">Select an option...</option>
-                            <option value="upload">I would like to upload data</option>
-                            <option value="access">I would like to access data</option>
-                            <option value="info">I would like more information</option>
+                            <option value="I would like to upload data">I would like to upload data</option>
+                            <option value="I would like to access data">I would like to access data</option>
+                            <option value="I would like more information">I would like more information</option>
                         </select>
                         <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.reason.errors">
                             <p *ngIf="isSubmitted && g.reason.errors.required"> Please select an option</p>

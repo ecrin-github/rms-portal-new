@@ -52,6 +52,21 @@ export class ContactUsComponent implements OnInit {
     this.router.navigate([])
     .then(result => { window.open('https://crr.ecrin.org', '_self'); });
   }
+
+  private emailBuilder(
+      fName: string,
+      lName: string,
+      organisation: string,
+      email: string,
+      message: string
+  ): string {
+    return '<b>Requestor name: </b>' + fName + ' ' + lName + '<br />' +
+        '<b>Requestor organisation: </b>' + organisation + '<br />' +
+        '<b>Requestor Email: </b>' + email + '<br />' +
+        '<b>Requestor message:</b><br />' +
+        message;
+  }
+
   submitContact() {
     this.isSubmitted = true;
     if (this.contactForm.valid) {
@@ -59,7 +74,13 @@ export class ContactUsComponent implements OnInit {
         const payload = {
           recipients: 'crr@ecrin.org',
           subject: this.contactForm.value.reason,
-          message: this.contactForm.value.message,
+          message: this.emailBuilder(
+              this.contactForm.value.firstName,
+              this.contactForm.value.lastName,
+              this.contactForm.value.organization,
+              this.contactForm.value.email,
+              this.contactForm.value.message
+          ),
           sender: this.contactForm.value.email,
           cc: this.contactForm.value.email
         }
