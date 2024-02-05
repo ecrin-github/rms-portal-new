@@ -419,43 +419,55 @@ export class UpsertObjectComponent implements OnInit {
         objectId: this.id
       }
       if (this.isEdit) {
-        const editDataObject$ = this.objectService.editDataObject(this.id, payload);
-        const editDataset$ = this.objectData.objectDatasets.length > 0 ? this.objectService.editObjecDataset(this.objectData.objectDatasets[0].id, this.id, datasetPayload) : this.objectService.addObjectDatasete(this.id, datasetPayload);
-        this.spinner.show();
-        const combine$ = combineLatest([editDataObject$, editDataset$]).subscribe(([editRes, datasetRes] : [any, any]) => {
+        if (payload.linkedStudy === null || payload.linkedStudy === undefined){
           this.spinner.hide();
-          if (editRes.statusCode === 200 && datasetRes.statusCode === 200) {
-            this.toastr.success('Data Object updated successfully');
-          }
-          localStorage.setItem('updateObjectList', 'true');
-          this.getObjectById(this.id);
-        }, error => {
-          this.spinner.hide();
-          this.toastr.error(error.error.title);
-        })
-      } else {
-        this.objectService.addDataObject(payload).subscribe((res: any) => {
-          this.spinner.hide();
-          if (res.statusCode === 201) {
-            this.objectService.addObjectDatasete(res.id, datasetPayload).subscribe((res: any) => {
-              if (res.statusCode === 201) {
-              }
-            }, error => {
-              this.toastr.error(res.messages[0]);
-            })
-            this.toastr.success('Data Object added successfully and this window will close shortly.');
+          this.toastr.error("You have to specify linked study");
+        }else{
+          const editDataObject$ = this.objectService.editDataObject(this.id, payload);
+          const editDataset$ = this.objectData.objectDatasets.length > 0 ? this.objectService.editObjecDataset(this.objectData.objectDatasets[0].id, this.id, datasetPayload) : this.objectService.addObjectDatasete(this.id, datasetPayload);
+          this.spinner.show();
+          const combine$ = combineLatest([editDataObject$, editDataset$]).subscribe(([editRes, datasetRes] : [any, any]) => {
+            this.spinner.hide();
+            if (editRes.statusCode === 200 && datasetRes.statusCode === 200) {
+              this.toastr.success('Data Object updated successfully');
+            }
             localStorage.setItem('updateObjectList', 'true');
-            setTimeout(() => {
-              // this.close();
-            }, 3000);
-          } else {
-            this.toastr.error(res.messages[0]);
-          }
-        }, error => {
-          console.log(error.error.title)
+            this.getObjectById(this.id);
+          }, error => {
+            this.spinner.hide();
+            this.toastr.error(error.error.title);
+          })
+        }
+      } else {
+        if (payload.linkedStudy === null || payload.linkedStudy === undefined){
           this.spinner.hide();
-          this.toastr.error(error.error.title);
-        })
+          this.toastr.error("You have to specify linked study");
+        }
+        else
+        {
+          this.objectService.addDataObject(payload).subscribe((res: any) => {
+            this.spinner.hide();
+            if (res.statusCode === 201) {
+              this.objectService.addObjectDatasete(res.id, datasetPayload).subscribe((res: any) => {
+                if (res.statusCode === 201) {
+                }
+              }, error => {
+                this.toastr.error(res.messages[0]);
+              })
+              this.toastr.success('Data Object added successfully and this window will close shortly.');
+              localStorage.setItem('updateObjectList', 'true');
+              setTimeout(() => {
+                // this.close();
+              }, 3000);
+            } else {
+              this.toastr.error(res.messages[0]);
+            }
+          }, error => {
+            console.log(error.error.title)
+            this.spinner.hide();
+            this.toastr.error(error.error.title);
+          })
+        }
       }
     } else {
       this.gotoTop();
