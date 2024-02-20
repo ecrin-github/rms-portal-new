@@ -104,6 +104,13 @@ export class SummaryObjectComponent implements OnInit {
       this.getAllObjectList();
     }
   } 
+  getFilteredObjectList(title_fragment, page, size) {
+    if (this.role === 'User' && this.isOrgIdValid) {
+      return this.listService.getFilteredObjectListByOrg(title_fragment, this.orgId, page, size);
+    } else {
+      return this.listService.getFilteredObjectList(title_fragment, page, size);
+    }
+  }
   applyFilter(filterValue: string) {
     filterValue = filterValue.trim(); // Remove whitespace
     filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
@@ -115,7 +122,7 @@ export class SummaryObjectComponent implements OnInit {
     let title_fragment = this.searchText;
     if (this.filterOption === 'title' && this.searchText != '') {
       this.spinner.show();
-      const filterService$ = this.role === 'Manager' ? this.listService.getFilteredObjectList(title_fragment, page, size) : this.listService.getFilteredObjectListByOrg(title_fragment, this.orgId, page, size);
+      const filterService$ = this.getFilteredObjectList(title_fragment, page, size);
       filterService$.subscribe((res: any) => {
         this.spinner.hide();
         if (res) {
@@ -237,10 +244,7 @@ export class SummaryObjectComponent implements OnInit {
     this.warningModal.close();
   }
   onInputChange(e) {
-    const searchText = e.target.value;
-    if (!!searchText) {
-      this.searchDebounec.next(searchText);
-    }
+    this.searchDebounec.next(e.target.value);
   }
   setupSearchDeBouncer() {
     const search$ = this.searchDebounec.pipe(
