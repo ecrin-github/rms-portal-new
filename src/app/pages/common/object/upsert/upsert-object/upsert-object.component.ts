@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -57,7 +58,7 @@ export class UpsertObjectComponent implements OnInit {
   isBrowsing: boolean = false;
   pageSize: Number = 10000;
 
-  constructor(private fb: UntypedFormBuilder, private router: Router, private commonLookupService: CommonLookupService, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService,
+  constructor(private location: Location, private fb: UntypedFormBuilder, private router: Router, private commonLookupService: CommonLookupService, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService,
     private toastr: ToastrService, private activatedRoute: ActivatedRoute, private listService: ListService, private pdfGenerator: PdfGeneratorService, private jsonGenerator: JsonGeneratorService) {
     this.objectForm = this.fb.group({
       linkedStudy: '',
@@ -506,6 +507,15 @@ export class UpsertObjectComponent implements OnInit {
   }
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+  back(): void {
+    const state: { [k: string]: any; } = this.location.getState();
+    // navigationId counts the number of pages visited for the current site
+    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/browsing']);
+    }
   }
   close() {
     window.close();

@@ -8,7 +8,7 @@ import {NgbActiveModal, NgbDatepickerModule, NgbModule} from '@ng-bootstrap/ng-b
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {RouterModule} from '@angular/router';
+import {RouterModule, RouteReuseStrategy} from '@angular/router';
 import {CalendarModule} from 'primeng/calendar';
 
 // Pages
@@ -114,61 +114,105 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
             {
                 path: 'data-context',
                 pathMatch: 'full',
-                component: ContextPageComponent
+                component: ContextPageComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'contextpagecomponent'
+                }
             },
             // DUP details pages
             {
                 path: 'data-use/:id/view',
                 pathMatch: 'full',
-                component: UpsertDupComponent
+                component: UpsertDupComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertdupcomponentview'
+                }
             },
             {
                 path: 'data-use/:id/edit',
                 pathMatch: 'full',
-                component: UpsertDupComponent
+                component: UpsertDupComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertdupcomponentedit'
+                }
             },
             // DTP details pages
             {
                 path: 'data-transfers/:id/view',
                 pathMatch: 'full',
-                component: UpsertDtpComponent
+                component: UpsertDtpComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertdtpcomponentview'
+                }
             },
             {
                 path: 'data-transfers/:id/edit',
                 pathMatch: 'full',
-                component: UpsertDtpComponent
+                component: UpsertDtpComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertdtpcomponentedit'
+                }
             },
             // Studies details pages
             {
                 path: 'studies/:id/edit',
                 pathMatch: 'full',
-                component: UpsertStudyComponent
+                component: UpsertStudyComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertstudycomponentedit'
+                }
             },
             {
                 path: 'studies/:id/view',
                 pathMatch: 'full',
-                component: UpsertStudyComponent
+                component: UpsertStudyComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertstudycomponentview'
+                }
             },
             // Object details pages
             {
                 path: 'data-objects/:id/edit',
                 pathMatch: 'full',
-                component: UpsertObjectComponent
+                component: UpsertObjectComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertobjectcomponentedit'
+                }
             },
             {
                 path: 'data-objects/:id/view',
                 pathMatch: 'full',
-                component: UpsertObjectComponent
+                component: UpsertObjectComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertobjectcomponentview'
+                }
             },
             {
                 path: 'people/:id/edit',
                 pathMatch: 'full',
-                component: UpsertUserComponent
+                component: UpsertUserComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertusercomponentedit'
+                }
             },
             {
                 path: 'people/:id/view',
                 pathMatch: 'full',
-                component: UpsertUserComponent
+                component: UpsertUserComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertusercomponentview'
+                }
             }
         ]),
         MatTableModule,

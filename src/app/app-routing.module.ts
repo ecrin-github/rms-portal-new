@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { Routes, RouterModule, RouteReuseStrategy } from '@angular/router';
 import { LayoutComponent } from './pages/_layout/layout.component';
 import {AuthGuard} from './_rms/guards/auth/auth.guard';
+import { CustomRouteReuseStrategy } from "./_rms/route-strategy";
 
 
 export const routes: Routes = [
@@ -10,7 +11,6 @@ export const routes: Routes = [
     component: LayoutComponent,
     loadChildren: () =>
     import('./pages/browsing/browsing/browsing.module').then((m) => m.BrowsingModule),
-
   },
   {
     path: '',
@@ -32,7 +32,10 @@ export const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {
+    scrollPositionRestoration: "enabled",
+  })],
   exports: [RouterModule],
+  providers: [{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }]
 })
 export class AppRoutingModule { }

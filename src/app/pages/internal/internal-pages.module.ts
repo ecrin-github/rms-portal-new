@@ -45,68 +45,116 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
             {
                 path: '',
                 pathMatch: 'full',
-                component: InternalMainPageComponent
+                component: InternalMainPageComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'internalmainpagecomponent'
+                }
             },
             // Data transfers
             {
                 path: 'data-transfers',
                 pathMatch: 'full',
-                component: SummaryDtpComponent
+                component: SummaryDtpComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'summarydtpcomponent'
+                }
             },
             {
                 path: 'data-transfers/add',
                 pathMatch: 'full',
                 component: UpsertDtpComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertdtpcomponentadd'
+                }
             },
             // Data use
             {
                 path: 'data-use',
                 pathMatch: 'full',
-                component: SummaryDupComponent
+                component: SummaryDupComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'summarydupcomponent'
+                }
             },
             {
                 path: 'data-use/add',
                 pathMatch: 'full',
-                component: UpsertDupComponent
+                component: UpsertDupComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertdupcomponentadd'
+                }
             },
             // Studies
             {
                 path: 'studies',
                 pathMatch: 'full',
-                component: SummaryStudyComponent
+                component: SummaryStudyComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'summarystudycomponent'
+                }
             },
             {
                 path: 'studies/add',
                 pathMatch: 'full',
-                component: UpsertStudyComponent
+                component: UpsertStudyComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertstudycomponentadd'
+                }
             },
             // Data objects
             {
                 path: 'data-objects',
                 pathMatch: 'full',
-                component: SummaryObjectComponent
+                component: SummaryObjectComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'summaryobjectcomponent'
+                }
             },
             {
                 path: 'data-objects/add',
                 pathMatch: 'full',
-                component: UpsertObjectComponent
+                component: UpsertObjectComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertobjectcomponentadd'
+                }
             },
             // Reports
             {
                 path: 'reports',
                 pathMatch: 'full',
-                component: ReportsPageInternalComponent
+                component: ReportsPageInternalComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'reportspageinternalcomponent'
+                }
             },
             // People
             {
                 path: 'people',
                 pathMatch: 'full',
-                component: SummaryUserComponent
+                component: SummaryUserComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'summaryusercomponent'
+                }
             },
             {
                 path: 'people/add',
                 pathMatch: 'full',
-                component: UpsertUserComponent
+                component: UpsertUserComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertusercomponent'
+                }
             }
         ]),
         NgbDatepickerModule,
@@ -119,6 +167,6 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
         MatButtonModule,
         NgApexchartsModule,
         NgxPermissionsModule.forChild()
-    ]
+    ],
 })
 export class InternalPagesModule {}

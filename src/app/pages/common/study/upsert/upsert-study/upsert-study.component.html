@@ -16,10 +16,10 @@
                     <button class="btn btn-primary mr-1" (click)="jsonExport()">
                         <i class="fa fa-code"></i> JSON
                     </button>
-                    <button class="btn btn-warning" (click)="close()"> {{isView ? 'Back' : 'Cancel'}}</button>
+                    <button class="btn btn-warning" (click)="back()">Back</button>
                 </ng-container>
                 <ng-container *ngIf="isView && isBrowsing">
-                    <button class="btn btn-warning" (click)="close()"> {{isView ? 'Back' : 'Cancel'}}</button>
+                    <button class="btn btn-warning" (click)="back()">Back</button>
                 </ng-container>
             </div>
             <div class="pl-5">
@@ -183,7 +183,7 @@
             <div class="row" *ngIf="!isView">
                 <div class="col-12 justify-content-center text-center">
                     <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
-                    <button class="btn btn-warning" (click)="close()"> {{isView ? 'Back' : 'Cancel'}}</button>
+                    <button class="btn btn-warning" (click)="close()">Cancel</button>
                 </div>
             </div>
             <hr />

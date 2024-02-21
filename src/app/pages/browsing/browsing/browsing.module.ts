@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BrowseComponent } from './browse/browse/browse.component';
 import { CommonPagesModule } from '../../common/common-pages.module';
 import { WidgetsModule } from 'src/app/_rms/partials/content/widgets/widgets.module';
-import { RouterModule } from '@angular/router';
+import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { UpsertStudyComponent } from '../../common/study/upsert/upsert-study/upsert-study.component';
 import { SummaryStudyComponent } from '../../common/study/summary-study/summary-study.component';
 import { SummaryObjectComponent } from '../../common/object/summary-object/summary-object.component';
@@ -20,7 +20,6 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { NgxPermissionsModule } from 'ngx-permissions';
 
 
-
 @NgModule({
   declarations: [
     BrowseComponent
@@ -33,27 +32,47 @@ import { NgxPermissionsModule } from 'ngx-permissions';
       {
         path: '',
         pathMatch: 'full',
-        component: BrowseComponent
+        component: BrowseComponent,
+        data: { 
+          shouldReuse: true,
+          key: 'browsecomponent'
+        }
       },
       {
         path: 'study',
         pathMatch: 'full',
-        component: SummaryStudyComponent
+        component: SummaryStudyComponent,
+        data: { 
+          shouldReuse: false,
+          key: 'summarystudycomponent'
+        }
       },
       {
         path: 'browsing/studies/:id/view',
         pathMatch: 'full',
-        component: UpsertStudyComponent
+        component: UpsertStudyComponent,
+        data: { 
+          shouldReuse: false,
+          key: 'upsertstudycomponent'
+        }
       },
       {
         path: 'data-objects',
         pathMatch: 'full',
-        component: SummaryObjectComponent
+        component: SummaryObjectComponent,
+        data: { 
+          shouldReuse: false,
+          key: 'summaryobjectcomponent'
+        }
       },
       {
         path: 'browsing/data-objects/:id/view',
         pathMatch: 'full',
-        component: UpsertObjectComponent
+        component: UpsertObjectComponent,
+        data: { 
+          shouldReuse: false,
+          key: 'upsertobjectcomponent'
+        }
       }
     ]),
     NgbDatepickerModule,
@@ -69,4 +88,6 @@ import { NgxPermissionsModule } from 'ngx-permissions';
 
   ]
 })
-export class BrowsingModule { }
+export class BrowsingModule {
+  
+}
