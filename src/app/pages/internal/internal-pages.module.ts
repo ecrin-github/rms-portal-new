@@ -47,7 +47,7 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 pathMatch: 'full',
                 component: InternalMainPageComponent,
                 data: { 
-                    shouldReuse: false,
+                    shouldReuse: true,
                     key: 'internalmainpagecomponent'
                 }
             },

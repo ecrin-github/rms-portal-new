@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BrowseComponent } from './browse/browse/browse.component';
 import { CommonPagesModule } from '../../common/common-pages.module';
 import { WidgetsModule } from 'src/app/_rms/partials/content/widgets/widgets.module';
-import { RouterModule, RouteReuseStrategy } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { UpsertStudyComponent } from '../../common/study/upsert/upsert-study/upsert-study.component';
 import { SummaryStudyComponent } from '../../common/study/summary-study/summary-study.component';
 import { SummaryObjectComponent } from '../../common/object/summary-object/summary-object.component';
