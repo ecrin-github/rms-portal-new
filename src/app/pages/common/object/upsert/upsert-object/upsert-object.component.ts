@@ -54,6 +54,7 @@ export class UpsertObjectComponent implements OnInit {
   showAccessDetails: boolean = true;
   role: any;
   orgId: any;
+  isOrgIdValid: boolean;
   isSubmitted: boolean = false;
   isBrowsing: boolean = false;
   pageSize: Number = 10000;
@@ -128,6 +129,7 @@ export class UpsertObjectComponent implements OnInit {
     if (localStorage.getItem('organisationId')) {
       this.orgId = localStorage.getItem('organisationId');
     }
+    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
     if (this.role === 'User') {
       this.objectForm.get('objectType').setValidators(Validators.required);
     }
@@ -155,7 +157,7 @@ export class UpsertObjectComponent implements OnInit {
   get g() { return this.objectForm.controls; }
   getStudyList() {
     this.spinner.show();
-    if (this.role === 'User') {
+    if (this.role === 'User' && this.isOrgIdValid) {
       this.listService.getStudyListByOrg(this.orgId).subscribe((res: any) => {
         this.spinner.hide();
         if (res && res.data) {
