@@ -95,7 +95,7 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 pathMatch: 'full',
                 component: SummaryStudyComponent,
                 data: { 
-                    shouldReuse: false,
+                    shouldReuse: true,
                     key: 'summarystudycomponent'
                 }
             },
@@ -114,7 +114,7 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 pathMatch: 'full',
                 component: SummaryObjectComponent,
                 data: { 
-                    shouldReuse: false,
+                    shouldReuse: true,
                     key: 'summaryobjectcomponent'
                 }
             },

@@ -32,7 +32,11 @@ import { CommonPagesModule } from '../common/common-pages.module';
             {
                 path: '',
                 pathMatch: 'full',
-                component: ExternalMainPageComponent
+                component: ExternalMainPageComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'externalmainpagecomponent'
+                }
             }
         ]),
         MatTableModule,
