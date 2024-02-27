@@ -12,11 +12,13 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { ConfirmationWindowComponent } from '../../confirmation-window/confirmation-window.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subject, combineLatest } from 'rxjs';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-summary-object',
   templateUrl: './summary-object.component.html',
-  styleUrls: ['./summary-object.component.scss']
+  styleUrls: ['./summary-object.component.scss'],
+  providers: [ScrollService]
 })
 export class SummaryObjectComponent implements OnInit {
 
@@ -39,14 +41,14 @@ export class SummaryObjectComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('objectDeleteModal') objectDeleteModal : TemplateRef<any>;
 
-  constructor( private listService: ListService, 
+  constructor( private scrollService: ScrollService,
+               private listService: ListService, 
                private spinner: NgxSpinnerService, 
                private toastr: ToastrService, 
                private modalService: NgbModal,
                private dataObjectService: DataObjectService,
                private permissionService: NgxPermissionsService,
-               private router: Router) {
-  }
+               private router: Router) { }
 
   ngOnInit(): void {
     this.orgId = localStorage.getItem('organisationId');
@@ -64,6 +66,7 @@ export class SummaryObjectComponent implements OnInit {
     this.notDashboard = this.router.url.includes('data-objects') ? true : false;
     this.getObjectList();
     this.setupSearchDeBouncer();
+    this.scrollService.handleScroll(this.router, this.role, ['/data-objects']);
   }
   
   getAllObjectList() {
@@ -147,20 +150,6 @@ export class SummaryObjectComponent implements OnInit {
     console.log('event triggered', event)
     this.getObjectList();
     localStorage.removeItem('updateObjectList');
-  }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    if (!this.isBrowsing && this.role !== 'User' || this.notDashboard) {
-      const navbar = document.getElementById('navbar');
-      const sticky = navbar.offsetTop;
-      if (window.pageYOffset >= sticky) {
-        navbar.classList.add('sticky');
-        this.sticky = true;
-      } else {
-        navbar.classList.remove('sticky');
-        this.sticky = false;
-      }
-    }
   }
 
   deleteRecord(id) {
@@ -255,5 +244,7 @@ export class SummaryObjectComponent implements OnInit {
       this.filterSearch();
     });
   }
-
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
+  }
 }

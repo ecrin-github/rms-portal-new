@@ -13,12 +13,14 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 
 @Component({
   selector: 'app-summary-dtp',
   templateUrl: './summary-dtp.component.html',
-  styleUrls: ['./summary-dtp.component.scss']
+  styleUrls: ['./summary-dtp.component.scss'],
+  providers: [ScrollService]
 })
 
 export class SummaryDtpComponent implements OnInit {
@@ -38,13 +40,13 @@ export class SummaryDtpComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('exampleModal') exampleModal : TemplateRef<any>;
 
-  constructor( private listService: ListService, 
+  constructor( private scrollService: ScrollService,
+               private listService: ListService, 
                private spinner: NgxSpinnerService, 
                private toastr: ToastrService, 
                private modalService: NgbModal,
                private dtpService: DtpService,
-               private permissionService: NgxPermissionsService, private router: Router) {
-  }
+               private permissionService: NgxPermissionsService, private router: Router) { }
 
   ngOnInit() {
     if (localStorage.getItem('role')) {
@@ -57,6 +59,7 @@ export class SummaryDtpComponent implements OnInit {
     this.notDashboard = this.router.url.includes('data-transfers') ? true : false;
     this.getDtpList();
     this.setupSearchDeBouncer();
+    this.scrollService.handleScroll(this.router, this.role, ['/data-transfers']);
   }
   getDtplistByOrg() {
     this.spinner.show();
@@ -137,20 +140,6 @@ export class SummaryDtpComponent implements OnInit {
     this.getDtpList();
     localStorage.removeItem('updateDtpList');
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    if (this.role !== 'User' || this.notDashboard) {
-      const navbar = document.getElementById('navbar');
-      const sticky = navbar.offsetTop;
-      if (window.pageYOffset >= sticky) {
-        navbar.classList.add('sticky');
-        this.sticky = true;
-      } else {
-        navbar.classList.remove('sticky');
-        this.sticky = false;
-      }
-    }
-  }
   deleteRecord(id) {
     this.dtpService.getDtpById(id).subscribe((res: any) => {
       if (res) {
@@ -187,5 +176,8 @@ export class SummaryDtpComponent implements OnInit {
       this.deBouncedInputValue = term;
       this.filterSearch();
     });
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
   }
 }

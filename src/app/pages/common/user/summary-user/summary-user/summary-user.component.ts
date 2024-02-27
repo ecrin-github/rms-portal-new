@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ViewChild, Renderer2 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -8,16 +8,18 @@ import { ToastrService } from 'ngx-toastr';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { PeopleService } from 'src/app/_rms/services/entities/people/people.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { Subject, asapScheduler, fromEvent } from 'rxjs';
+import { debounceTime, distinctUntilChanged, observeOn } from 'rxjs/operators';
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',
-  styleUrls: ['./summary-user.component.scss']
+  styleUrls: ['./summary-user.component.scss'],
+  providers: [ScrollService]
 })
-export class SummaryUserComponent implements OnInit {
+export class SummaryUserComponent implements OnInit, OnDestroy {
 
   displayedColumns = ['name', 'roleName', 'orgName', 'actions'];
   dataSource: MatTableDataSource<any>;
@@ -29,9 +31,10 @@ export class SummaryUserComponent implements OnInit {
   searchDebounec: Subject<string> = new Subject();
   notDashboard:boolean = false;
   sticky: boolean = false;
-
+  detachedRouteHandlesService: any;
+  
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  constructor( private listService: ListService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private permissionService: NgxPermissionsService, private router: Router) { }
+  constructor(private scrollService: ScrollService, private listService: ListService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private permissionService: NgxPermissionsService, private router: Router) { }
 
   ngOnInit(): void {
     if (localStorage.getItem('role')) {
@@ -44,6 +47,7 @@ export class SummaryUserComponent implements OnInit {
     this.notDashboard = this.router.url.includes('people') ? true : false;
     this.getPeople();
     this.setupSearchDeBouncer();
+    this.scrollService.handleScroll(this.router, this.role, ['/people']);
   }
   getAllPeople() {
     this.spinner.show();
@@ -130,8 +134,10 @@ export class SummaryUserComponent implements OnInit {
     this.getPeople();
     localStorage.removeItem('updateUserList');
   }
-  @HostListener('window:scroll', ['$event'])
+  
+  /*@HostListener('window:scroll', ['$event'])
   onScroll() {
+    console.log("on scroll (user component)");
     if (this.role !== 'User' || this.notDashboard) {
       const navbar = document.getElementById('navbar');
       const sticky = navbar.offsetTop;
@@ -143,7 +149,7 @@ export class SummaryUserComponent implements OnInit {
         this.sticky = false;
       }
     }
-  }
+  }*/
   onInputChange(e) {
     const searchText = e.target.value;
     if (!!searchText) {
@@ -159,5 +165,7 @@ export class SummaryUserComponent implements OnInit {
       this.filterSearch();
     });
   }
-
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
+  }
 }

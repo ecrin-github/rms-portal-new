@@ -8,15 +8,17 @@ import { ConfirmationWindowComponent } from '../../confirmation-window/confirmat
 import { StudyListEntryInterface } from 'src/app/_rms/interfaces/study/study-listentry.interface';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
-import { Subject, combineLatest } from 'rxjs';
+import { Subject, combineLatest, fromEvent } from 'rxjs';
 import { NgxPermissionsService } from 'ngx-permissions';
-import { Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-summary-study',
   templateUrl: './summary-study.component.html',
-  styleUrls: ['./summary-study.component.scss']
+  styleUrls: ['./summary-study.component.scss'],
+  providers: [ScrollService]
 })
 
 export class SummaryStudyComponent implements OnInit {
@@ -34,20 +36,21 @@ export class SummaryStudyComponent implements OnInit {
   deBouncedInputValue = this.searchText;
   searchDebounec: Subject<string> = new Subject();
   sticky: boolean = false;
+  scroll: any;
   notDashboard:boolean = false;
   isOrgIdValid: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('studyDeleteModal') studyDeleteModal : TemplateRef<any>;
 
-  constructor( private listService: ListService, 
+  constructor( private scrollService: ScrollService, 
+               private listService: ListService, 
                private spinner: NgxSpinnerService, 
                private toastr: ToastrService, 
                private modalService: NgbModal,
                private studyService: StudyService,
                private permissionService: NgxPermissionsService,
-               private router: Router) {
-  }
+               private router: Router) { }
 
   ngOnInit(): void {
     this.orgId = localStorage.getItem('organisationId');
@@ -65,6 +68,7 @@ export class SummaryStudyComponent implements OnInit {
     this.notDashboard = this.router.url.includes('studies') ? true : false;
     this.getStudyList();
     this.setupSearchDeBouncer();
+    this.scrollService.handleScroll(this.router, this.role, ['/studies']);
   }
 
   getAllStudyList() {
@@ -159,20 +163,6 @@ export class SummaryStudyComponent implements OnInit {
     this.getStudyList();
     localStorage.removeItem('updateStudyList');
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    if (!this.isBrowsing && this.role !== 'User' || this.notDashboard) {
-      const navbar = document.getElementById('navbar');
-      const sticky = navbar.offsetTop;
-      if (window.pageYOffset >= sticky) {
-        navbar.classList.add('sticky');
-        this.sticky = true;
-      } else {
-        navbar.classList.remove('sticky');
-        this.sticky = false;
-      }
-    }
-  }
 
   deleteRecord(id) {
     const studyInvolvementDtp$ = this.studyService.studyInvolvementDtp(id);
@@ -232,5 +222,8 @@ export class SummaryStudyComponent implements OnInit {
       this.deBouncedInputValue = term;
       this.filterSearch();
     });
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
   }
 }
