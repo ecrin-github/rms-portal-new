@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,11 +19,12 @@ export class UpsertUserComponent implements OnInit {
   isEdit: boolean = false;
   isView: boolean = false;
   id: any;
+  role: any;
   userData: any;
   submitte: boolean = false;
   pageSize:Number = 10000;
 
-  constructor( private fb: UntypedFormBuilder, private router: Router, private activatedRoute: ActivatedRoute, private peopleService: PeopleService, private spinner: NgxSpinnerService,
+  constructor(private location: Location, private fb: UntypedFormBuilder, private router: Router, private activatedRoute: ActivatedRoute, private peopleService: PeopleService, private spinner: NgxSpinnerService,
     private toastr: ToastrService, private commonLookup: CommonLookupService) {
     this.userForm = this.fb.group({
       firstName: '',
@@ -36,6 +38,9 @@ export class UpsertUserComponent implements OnInit {
    }
 
   ngOnInit(): void {
+    if(localStorage.getItem('role')) {
+      this.role = localStorage.getItem('role');
+    } 
     this.getOrganization();
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
@@ -118,6 +123,19 @@ export class UpsertUserComponent implements OnInit {
   }
   close() {
     window.close();
+  }
+  back(): void {
+    const state: { [k: string]: any; } = this.location.getState();
+    // navigationId counts the number of pages visited for the current site
+    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
+      this.location.back();
+    } else {
+      if (this.role) {
+        this.router.navigate(['/']);
+      } else {
+        this.router.navigate(['/browsing']);
+      }
+    }
   }
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((item: any) => item.id === id);

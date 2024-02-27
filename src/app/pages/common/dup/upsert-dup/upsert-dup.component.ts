@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -56,7 +57,7 @@ export class UpsertDupComponent implements OnInit {
   dupNotes: any;
   prereqs: any;
 
-  constructor(private router: Router, private fb: UntypedFormBuilder, private dupService: DupService, private spinner: NgxSpinnerService, private toastr: ToastrService,
+  constructor(private location: Location, private router: Router, private fb: UntypedFormBuilder, private dupService: DupService, private spinner: NgxSpinnerService, private toastr: ToastrService,
     private activatedRoute: ActivatedRoute, private modalService: NgbModal, private commonLookup: CommonLookupService, private processLookup: ProcessLookupService, private pdfGeneratorService: PdfGeneratorService,
     private jsonGenerator: JsonGeneratorService, private listService: ListService) {
     this.form = this.fb.group({
@@ -581,6 +582,19 @@ export class UpsertDupComponent implements OnInit {
   close() {
     window.close();
     // this.patchForm(this.dupData);
+  }
+  back(): void {
+    const state: { [k: string]: any; } = this.location.getState();
+    // navigationId counts the number of pages visited for the current site
+    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
+      this.location.back();
+    } else {
+      if (this.role) {
+        this.router.navigate(['/']);
+      } else {
+        this.router.navigate(['/browsing']);
+      }
+    }
   }
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });

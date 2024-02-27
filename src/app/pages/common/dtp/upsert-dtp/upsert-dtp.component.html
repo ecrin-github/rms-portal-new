@@ -11,9 +11,10 @@
                 <button class="btn btn-primary mr-5" (click)="printDocument()">
                     <i class="fa fa-print"></i> PDF
                 </button>
-                <button class="btn btn-primary" (click)="jsonExport()">
+                <button class="btn btn-primary mr-5" (click)="jsonExport()">
                     <i class="fa fa-code"></i> JSON
                 </button>
+                <button class="btn btn-warning" *ngIf="isView" (click)="back()">Back</button>
             </div>
             <div class="text-right col-md-5" *ngIf="!isView && showButton">
                 <button class="btn btn-success mr-5" *ngIf="!isView" (click)="onSave()">{{isEdit ?'Apply Changes' : 'Save'}}</button>

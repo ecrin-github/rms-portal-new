@@ -29,7 +29,7 @@
 
             <ng-container matColumnDef="name">
                 <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
-                <mat-cell *matCellDef="let row"> <a [routerLink]="['/people', row.id, 'view']" target="_blank">{{row.firstName}} {{row.lastName}}</a></mat-cell>
+                <mat-cell *matCellDef="let row"> <a [routerLink]="['/people', row.id, 'view']">{{row.firstName}} {{row.lastName}}</a></mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="roleName">
@@ -45,10 +45,10 @@
             <ng-container matColumnDef="actions">
                 <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
                 <mat-cell *matCellDef="let row">
-                    <a [routerLink]="['/people', row.id, 'view']" target="tempTab">
+                    <a [routerLink]="['/people', row.id, 'view']">
                         <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <a [routerLink]="['/people', row.id, 'edit']" target="tempTab" *ngxPermissionsOnly="['Admin', 'Manager']">
+                    <a [routerLink]="['/people', row.id, 'edit']" *ngxPermissionsOnly="['Admin', 'Manager']">
                         <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
                     </a>
                     <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngxPermissionsOnly="['Admin', 'Manager']">

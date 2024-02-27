@@ -143,7 +143,7 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 pathMatch: 'full',
                 component: SummaryUserComponent,
                 data: { 
-                    shouldReuse: false,
+                    shouldReuse: true,
                     key: 'summaryusercomponent'
                 }
             },

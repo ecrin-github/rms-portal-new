@@ -20,6 +20,7 @@
                         <div class="col-md-5 text-right">
                             <button class="btn btn-success mr-5" *ngIf="!isView" (click)="onSave()">{{isEdit ?'Apply Changes' : 'Save'}}</button>
                             <button class="btn btn-warning" *ngIf="!isView" (click)="close()"> Cancel </button>
+                            <button class="btn btn-warning" *ngIf="isView" (click)="back()">Back</button>
                         </div>
                     </div>
                 </div>    

@@ -374,7 +374,11 @@ export class UpsertStudyComponent implements OnInit {
     if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
       this.location.back();
     } else {
-      this.router.navigate(['/browsing']);
+      if (this.role) {
+        this.router.navigate(['/']);
+      } else {
+        this.router.navigate(['/browsing']);
+      }
     }
   }
   close() {
