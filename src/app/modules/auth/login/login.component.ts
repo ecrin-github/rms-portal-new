@@ -53,11 +53,9 @@ export class LoginComponent implements OnInit {
     this.oidcSecurityService.authorize();
   }
   goToContact() {
-    this.router.navigate([])
-      .then(result => { window.open('/contactUs', '_blank'); });
+    this.router.navigate(['/contactUs']);
   }
   goToBrowse() {
-    this.router.navigate([])
-      .then(result => { window.open('/browsing', '_blank'); });
+    this.router.navigate(['/browsing']);
   }
 }

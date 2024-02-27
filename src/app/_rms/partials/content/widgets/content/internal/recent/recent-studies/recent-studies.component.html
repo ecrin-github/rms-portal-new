@@ -7,18 +7,18 @@
       <span class="text-muted mt-3 font-weight-bold font-size-sm">Showing the 10 most recently added studies, from a total of {{studyTotal}}.</span>
     </h3>
     <div class="card-toolbar">
-      <!-- <a [routerLink]="['/studies', 'add']" target="_blank"
+      <!-- <a [routerLink]="['/studies', 'add']"
         class="btn btn-success font-weight-bolder font-size-sm mr-3">Add</a> -->
         <div class="btn-group pr-2">
           <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Add
           </button>
           <div class="dropdown-menu">
-            <a class="dropdown-item" href="/studies/add?type=usingTrialId" target="temptab">Using Trial Registry</a>
-            <a class="dropdown-item" href="/studies/add?type=manual" target="temptab">Manually</a>
+            <a class="dropdown-item" href="/studies/add?type=usingTrialId">Using Trial Registry</a>
+            <a class="dropdown-item" href="/studies/add?type=manual">Manually</a>
           </div>
         </div>
-        <a [routerLink]="['/studies']" target="_blank" class="btn btn-info font-weight-bolder font-size-sm">See All</a>
+        <a [routerLink]="['/studies']" class="btn btn-info font-weight-bolder font-size-sm">See All</a>
     </div>
   </div>
   <!--end::Header-->
@@ -29,12 +29,12 @@
 
       <ng-container matColumnDef="sdSid">
         <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-        <mat-cell *matCellDef="let row"> <a [routerLink]="['/studies', row.id, 'view']" target="_blank">{{row.sdSid}} </a></mat-cell>
+        <mat-cell *matCellDef="let row"> <a [routerLink]="['/studies', row.id, 'view']">{{row.sdSid}} </a></mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="title">
         <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
-        <mat-cell *matCellDef="let row"><a [routerLink]="['/studies', row.id, 'view']" target="_blank">{{row.displayTitle}}</a> </mat-cell>
+        <mat-cell *matCellDef="let row"><a [routerLink]="['/studies', row.id, 'view']">{{row.displayTitle}}</a> </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="type">
@@ -50,9 +50,9 @@
       <ng-container matColumnDef="actions">
         <mat-header-cell *matHeaderCellDef> </mat-header-cell>
         <mat-cell *matCellDef="let row">
-          <a [routerLink]="['/studies', row.id, 'view']" target="temptab"
+          <a [routerLink]="['/studies', row.id, 'view']"
             class="btn btn-light-primary font-weight-bolder font-size-sm mr-3">View</a>
-          <a [routerLink]="['/studies', row.id, 'edit']" [queryParams]="{type: 'manual'}" target="temptab"
+          <a [routerLink]="['/studies', row.id, 'edit']" [queryParams]="{type: 'manual'}"
             class="btn btn-light-success font-weight-bolder font-size-sm">Edit</a>
         </mat-cell>
       </ng-container>

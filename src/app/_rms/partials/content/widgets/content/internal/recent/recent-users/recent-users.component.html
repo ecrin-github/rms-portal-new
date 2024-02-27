@@ -7,9 +7,9 @@
       <span class="text-muted mt-3 font-weight-bold font-size-sm">Showing the 10 most recently added people, from a total of {{peopleTotal}}.</span>
     </h3>
     <div class="card-toolbar">
-      <a [routerLink]="['/people', 'add']" target="tempTab"
+      <a [routerLink]="['/people', 'add']"
         class="btn btn-success font-weight-bolder font-size-sm mr-3">Add</a>
-      <a [routerLink]="['/people']" target="_blank" class="btn btn-info font-weight-bolder font-size-sm">See All</a>
+      <a [routerLink]="['/people']" class="btn btn-info font-weight-bolder font-size-sm">See All</a>
 
     </div>
   </div>
@@ -21,7 +21,7 @@
 
       <ng-container matColumnDef="name">
         <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
-        <mat-cell *matCellDef="let row"> <a [routerLink]="['/people', row.id, 'view']" target="tempTab">{{row.firstName}} {{row.lastName}}</a> </mat-cell>
+        <mat-cell *matCellDef="let row"> <a [routerLink]="['/people', row.id, 'view']">{{row.firstName}} {{row.lastName}}</a> </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="roleName">
@@ -42,10 +42,8 @@
       <ng-container matColumnDef="actions">
         <mat-header-cell *matHeaderCellDef> </mat-header-cell>
         <mat-cell *matCellDef="let row">
-          <a [routerLink]="['/people', row.id, 'view']" target="tempTab"
-            class="btn btn-light-primary font-weight-bolder font-size-sm mr-3">View</a>
-          <a [routerLink]="['/people', row.id, 'edit']" target="tempTab"
-            class="btn btn-light-success font-weight-bolder font-size-sm">Edit</a>
+          <a [routerLink]="['/people', row.id, 'view']" class="btn btn-light-primary font-weight-bolder font-size-sm mr-3">View</a>
+          <a [routerLink]="['/people', row.id, 'edit']" class="btn btn-light-success font-weight-bolder font-size-sm">Edit</a>
         </mat-cell>
       </ng-container>
 

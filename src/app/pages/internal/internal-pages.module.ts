@@ -57,7 +57,7 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 pathMatch: 'full',
                 component: SummaryDtpComponent,
                 data: { 
-                    shouldReuse: false,
+                    shouldReuse: true,
                     key: 'summarydtpcomponent'
                 }
             },
@@ -76,7 +76,7 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 pathMatch: 'full',
                 component: SummaryDupComponent,
                 data: { 
-                    shouldReuse: false,
+                    shouldReuse: true,
                     key: 'summarydupcomponent'
                 }
             },

@@ -5,13 +5,13 @@
                 <h2>Data Objects</h2>
             </div>
             <div class="col-md-6 text-right" *ngIf="!isBrowsing && isOrgIdValid">
-                <a [routerLink]="['/data-objects', 'add']" class="btn btn-success" target="tempTab">
+                <a [routerLink]="['/data-objects', 'add']" class="btn btn-success">
                     <i class="fa fa-plus"></i> New data object
                 </a>    
             </div>
         </div>
         <!-- <div style="float: right; margin-top: -40px;" *ngIf="!isBrowsing">
-            <a [routerLink]="['/data-objects', 'add']" class="btn btn-success" target="tempTab">
+            <a [routerLink]="['/data-objects', 'add']" class="btn btn-success">
                 <i class="fa fa-plus"></i> New data object
             </a>
         </div> -->
@@ -58,7 +58,7 @@
             <ng-container matColumnDef="linkedStudy">
                 <mat-header-cell *matHeaderCellDef> Linked to studies </mat-header-cell>
                 <mat-cell *matCellDef="let row">
-                    <a [routerLink]="['/studies', row.sdSid, 'view']" target="_blank">{{row.linkedStudies ? row.linkedStudies.displayTitle : ''}}</a>
+                    <a [routerLink]="['/studies', row.sdSid, 'view']">{{row.linkedStudies ? row.linkedStudies.displayTitle : ''}}</a>
                 </mat-cell>
             </ng-container>
 

@@ -49,8 +49,7 @@ export class ContactUsComponent implements OnInit {
     .then(result => { window.open('https://crr.gitbook.io/crr/data-privacy-policy', '_blank'); });
   }
   goToLogin() {
-    this.router.navigate([])
-    .then(result => { window.open('https://crr.ecrin.org', '_self'); });
+    this.router.navigate(['/']);
   }
 
   private emailBuilder(

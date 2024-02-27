@@ -6,8 +6,7 @@
             </div>
             <div class="col-md-8 text-right">
                 <ng-container *ngIf="isView && !isBrowsing">
-                    <a [routerLink]="['/studies', id, 'edit']" [queryParams]="{type: 'manual'}"
-                       class="btn btn-primary mr-1" target="tempTab">
+                    <a [routerLink]="['/studies', id, 'edit']" [queryParams]="{type: 'manual'}" class="btn btn-primary mr-1">
                         <i class="fa fa-edit"></i> Edit
                     </a>
                     <button class="btn btn-primary mr-1" (click)="print()">
@@ -20,6 +19,10 @@
                 </ng-container>
                 <ng-container *ngIf="isView && isBrowsing">
                     <button class="btn btn-warning" (click)="back()">Back</button>
+                </ng-container>
+                <ng-container *ngIf="!isView">
+                    <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
+                    <button class="btn btn-warning" (click)="back()">Cancel</button>
                 </ng-container>
             </div>
             <div class="pl-5">
@@ -179,58 +182,53 @@
                     </div>
                 </div>
             </ng-container>
-            <hr />
-            <div class="row" *ngIf="!isView">
-                <div class="col-12 justify-content-center text-center">
-                    <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
-                    <button class="btn btn-warning" (click)="close()">Cancel</button>
-                </div>
-            </div>
-            <hr />
+            <hr [ngClass]="{'hr-big': isEdit}"/>
             <ng-container *ngIf="isEdit || isView">
-                <mat-expansion-panel [expanded]="studyData?.studyIdentifiers.length > 0 ? true : false">
-                    <mat-expansion-panel-header>
-                        <h6 class="pt-3 font-style">Study identifier(s)</h6>
-                    </mat-expansion-panel-header>
-                    <app-study-identifier [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-identifier>
-                </mat-expansion-panel>
-                <hr />
-                <mat-expansion-panel [expanded]="studyData?.studyTitles.length > 0 ? true : false">
-                    <mat-expansion-panel-header>
-                        <h6 class="pt-3 font-style">Study title(s)</h6>
-                    </mat-expansion-panel-header>
-                    <app-study-title [studyId]="id" [isView]="isView" [isEdit]="isEdit" [publicTitle]="publicTitle"></app-study-title>
-                </mat-expansion-panel>
-                <hr />
-                <ng-container *ngIf="studyType">
-                    <mat-expansion-panel [expanded]="studyData?.studyFeatures.length > 0 ? true : false">
+                <div class="mt-8">
+                    <mat-expansion-panel [expanded]="studyData?.studyIdentifiers.length > 0 ? true : false">
                         <mat-expansion-panel-header>
-                            <h6 class="pt-3 font-style">Study feature(s)</h6>
+                            <h6 class="pt-3 font-style">Study identifier(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-study-feature [studyId]="id" [isView]="isView" [isEdit]="isEdit" [studyType]="studyType" *ngIf="studyType"></app-study-feature>
+                        <app-study-identifier [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-identifier>
                     </mat-expansion-panel>
                     <hr />
-                </ng-container>
-                <mat-expansion-panel [expanded]="studyData?.studyTopics.length > 0 ? true : false">
-                    <mat-expansion-panel-header>
-                        <h6 class="pt-3 font-style">Study topic(s)</h6>
-                    </mat-expansion-panel-header>
-                    <app-study-topic [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-topic>
-                </mat-expansion-panel>
-                <hr />
-                <mat-expansion-panel [expanded]="studyData?.studyRelationships.length > 0 ? true : false">
-                    <mat-expansion-panel-header>
-                        <h6 class="pt-3 font-style">Study relationship(s)</h6>
-                    </mat-expansion-panel-header>
-                    <app-study-relationship [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-relationship>
-                </mat-expansion-panel>
-                <hr />
-                <mat-expansion-panel [expanded]="studyData?.studyContributors.length > 0 ? true : false">
-                    <mat-expansion-panel-header>
-                        <h6 class="pt-3 font-style">Study contributor(s)</h6>
-                    </mat-expansion-panel-header>
-                    <app-study-contributor [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-contributor>
-                </mat-expansion-panel>
+                    <mat-expansion-panel [expanded]="studyData?.studyTitles.length > 0 ? true : false">
+                        <mat-expansion-panel-header>
+                            <h6 class="pt-3 font-style">Study title(s)</h6>
+                        </mat-expansion-panel-header>
+                        <app-study-title [studyId]="id" [isView]="isView" [isEdit]="isEdit" [publicTitle]="publicTitle"></app-study-title>
+                    </mat-expansion-panel>
+                    <hr />
+                    <ng-container *ngIf="studyType">
+                        <mat-expansion-panel [expanded]="studyData?.studyFeatures.length > 0 ? true : false">
+                            <mat-expansion-panel-header>
+                                <h6 class="pt-3 font-style">Study feature(s)</h6>
+                            </mat-expansion-panel-header>
+                            <app-study-feature [studyId]="id" [isView]="isView" [isEdit]="isEdit" [studyType]="studyType" *ngIf="studyType"></app-study-feature>
+                        </mat-expansion-panel>
+                        <hr />
+                    </ng-container>
+                    <mat-expansion-panel [expanded]="studyData?.studyTopics.length > 0 ? true : false">
+                        <mat-expansion-panel-header>
+                            <h6 class="pt-3 font-style">Study topic(s)</h6>
+                        </mat-expansion-panel-header>
+                        <app-study-topic [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-topic>
+                    </mat-expansion-panel>
+                    <hr />
+                    <mat-expansion-panel [expanded]="studyData?.studyRelationships.length > 0 ? true : false">
+                        <mat-expansion-panel-header>
+                            <h6 class="pt-3 font-style">Study relationship(s)</h6>
+                        </mat-expansion-panel-header>
+                        <app-study-relationship [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-relationship>
+                    </mat-expansion-panel>
+                    <hr />
+                    <mat-expansion-panel [expanded]="studyData?.studyContributors.length > 0 ? true : false">
+                        <mat-expansion-panel-header>
+                            <h6 class="pt-3 font-style">Study contributor(s)</h6>
+                        </mat-expansion-panel-header>
+                        <app-study-contributor [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-contributor>
+                    </mat-expansion-panel>
+                </div>
                 <hr />
             </ng-container>
             <ng-container>

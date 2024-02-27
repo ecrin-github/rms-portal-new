@@ -43,7 +43,7 @@ import { NgxPermissionsModule } from 'ngx-permissions';
         pathMatch: 'full',
         component: SummaryStudyComponent,
         data: { 
-          shouldReuse: false,
+          shouldReuse: true,
           key: 'summarystudycomponent'
         }
       },
@@ -61,7 +61,7 @@ import { NgxPermissionsModule } from 'ngx-permissions';
         pathMatch: 'full',
         component: SummaryObjectComponent,
         data: { 
-          shouldReuse: false,
+          shouldReuse: true,
           key: 'summaryobjectcomponent'
         }
       },
