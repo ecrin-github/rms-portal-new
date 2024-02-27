@@ -516,15 +516,19 @@ export class UpsertObjectComponent implements OnInit {
     if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
       this.location.back();
     } else {
+      console.log(this.router.url);
       if (this.role) {
-        this.router.navigate(['/']);
+        const regex = new RegExp(/(?<=\/)\w+/);  // matches the word after the first /
+        const match = regex.exec(this.router.url);
+        if (match) {
+          this.router.navigate(match);
+        } else {
+          this.router.navigate(['/']);
+        }
       } else {
         this.router.navigate(['/browsing']);
       }
     }
-  }
-  close() {
-    window.close();
   }
   onChange() {
     const arr: any = this.objectClass.filter((item:any) => item.name.toLowerCase() === 'dataset');
@@ -723,11 +727,9 @@ export class UpsertObjectComponent implements OnInit {
   }
   goToParentStudy(sdSid) {
     if (this.isBrowsing) {
-      this.router.navigate([])
-      .then(result => { window.open(`/browsing/studies/${sdSid}/view`, '_blank'); });
+      this.router.navigate([`/browsing/studies/${sdSid}/view`]);
     } else {
-      this.router.navigate([])
-      .then(result => { window.open(`/studies/${sdSid}/view`, '_blank'); });  
+      this.router.navigate([`/studies/${sdSid}/view`]);
     }
   }
   gotoTop() {

@@ -328,7 +328,7 @@ export class UpsertStudyComponent implements OnInit {
             if (res.statusCode === 201) {
               this.toastr.success('Study Detail added successfully');
               localStorage.setItem('updateStudyList', 'true');
-              this.close();
+              this.back();
             } else {
               this.toastr.error(res.messages[0]);
             }
@@ -351,9 +351,7 @@ export class UpsertStudyComponent implements OnInit {
           setTimeout(() => {
             this.spinner.hide();
             window.close();
-            this.router.navigate([]).then((result) => {
-              window.open(`studies/${res?.id}/edit`, '_blank');
-            });
+            this.router.navigate([`studies/${res?.id}/edit`]);
           }, 2000);
         } else {
           this.spinner.hide();
@@ -374,15 +372,19 @@ export class UpsertStudyComponent implements OnInit {
     if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
       this.location.back();
     } else {
+      console.log(this.router.url);
       if (this.role) {
-        this.router.navigate(['/']);
+        const regex = new RegExp(/(?<=\/)\w+/);  // matches the word after the first /
+        const match = regex.exec(this.router.url);
+        if (match) {
+          this.router.navigate(match);
+        } else {
+          this.router.navigate(['/']);
+        }
       } else {
         this.router.navigate(['/browsing']);
       }
     }
-  }
-  close() {
-    window.close();
   }
   onChange() {
     this.publicTitle = this.studyForm.value.displayTitle;
@@ -564,11 +566,9 @@ export class UpsertStudyComponent implements OnInit {
   }
   goToObject(sdOid) {
     if (this.isBrowsing) {
-      this.router.navigate([])
-      .then(result => { window.open(`/browsing/data-objects/${sdOid}/view`, '_blank'); });
+      this.router.navigate([`/browsing/data-objects/${sdOid}/view`]);
     } else {
-      this.router.navigate([])
-      .then(result => { window.open(`/data-objects/${sdOid}/view`, '_blank'); });  
+      this.router.navigate([`/data-objects/${sdOid}/view`]);
     }
   }
 }

@@ -121,17 +121,21 @@ export class UpsertUserComponent implements OnInit {
       }
     }
   }
-  close() {
-    window.close();
-  }
   back(): void {
     const state: { [k: string]: any; } = this.location.getState();
     // navigationId counts the number of pages visited for the current site
     if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
       this.location.back();
     } else {
+      console.log(this.router.url);
       if (this.role) {
-        this.router.navigate(['/']);
+        const regex = new RegExp(/(?<=\/)\w+/);  // matches the word after the first /
+        const match = regex.exec(this.router.url);
+        if (match) {
+          this.router.navigate(match);
+        } else {
+          this.router.navigate(['/']);
+        }
       } else {
         this.router.navigate(['/browsing']);
       }
