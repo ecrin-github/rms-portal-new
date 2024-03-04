@@ -395,7 +395,7 @@ export class UpsertObjectComponent implements OnInit {
         urlLastChecked: this.objectForm.value.urlLastChecked,
         addStudyContributors: true,
         addStudyTopics: true,
-        linkedStudy: this.objectForm.value.linkedStudy,
+        linkedStudy: this.objectForm.value.linkedStudy ? this.objectForm.value.linkedStudy : null,
         objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass : null,
         objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType : null,
         managingOrg: this.objectForm.value.managingOrg ? this.objectForm.value.managingOrg : null,
@@ -433,9 +433,10 @@ export class UpsertObjectComponent implements OnInit {
             this.spinner.hide();
             if (editRes.statusCode === 200 && datasetRes.statusCode === 200) {
               this.toastr.success('Data Object updated successfully');
+              localStorage.setItem('updateObjectList', 'true');
+              this.getObjectById(this.id);
+              this.back();
             }
-            localStorage.setItem('updateObjectList', 'true');
-            this.getObjectById(this.id);
           }, error => {
             this.spinner.hide();
             this.toastr.error(error.error.title);
@@ -457,11 +458,9 @@ export class UpsertObjectComponent implements OnInit {
               }, error => {
                 this.toastr.error(res.messages[0]);
               })
-              this.toastr.success('Data Object added successfully and this window will close shortly.');
+              this.toastr.success('Data Object added successfully.');
               localStorage.setItem('updateObjectList', 'true');
-              setTimeout(() => {
-                // this.close();
-              }, 3000);
+              this.back();
             } else {
               this.toastr.error(res.messages[0]);
             }
@@ -516,9 +515,8 @@ export class UpsertObjectComponent implements OnInit {
     if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
       this.location.back();
     } else {
-      console.log(this.router.url);
       if (this.role) {
-        const regex = new RegExp(/(?<=\/)\w+/);  // matches the word after the first /
+        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
         const match = regex.exec(this.router.url);
         if (match) {
           this.router.navigate(match);

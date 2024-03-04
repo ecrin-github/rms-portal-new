@@ -127,9 +127,8 @@ export class UpsertUserComponent implements OnInit {
     if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
       this.location.back();
     } else {
-      console.log(this.router.url);
       if (this.role) {
-        const regex = new RegExp(/(?<=\/)\w+/);  // matches the word after the first /
+        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
         const match = regex.exec(this.router.url);
         if (match) {
           this.router.navigate(match);
