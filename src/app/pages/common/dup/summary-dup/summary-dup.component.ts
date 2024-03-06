@@ -11,8 +11,9 @@ import { DupService } from 'src/app/_rms/services/entities/dup/dup.service';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-summary-dup',
@@ -21,7 +22,7 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
   providers: [ScrollService]
 })
 export class SummaryDupComponent implements OnInit {
-
+  usedURLs = ['/', '/data-use'];
   displayedColumns = ['id', 'organisation', 'title', 'status', 'actions'];
   dataSource: MatTableDataSource<DupListEntryInterface>;
   filterOption: string = 'title';
@@ -34,11 +35,13 @@ export class SummaryDupComponent implements OnInit {
   searchDebounec: Subject<string> = new Subject();
   sticky: boolean = false;
   notDashboard:boolean = false;
+  dataChanged: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('deleteModal') deleteModal : TemplateRef<any>;
 
-  constructor( private scrollService: ScrollService,
+  constructor( private reuseService: ReuseService,
+               private scrollService: ScrollService,
                private listService: ListService, 
                private spinner: NgxSpinnerService, 
                private toastr: ToastrService, 
@@ -57,7 +60,21 @@ export class SummaryDupComponent implements OnInit {
     this.notDashboard = this.router.url.includes('data-use') ? true : false;
     this.getDupList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.router, this.role, ['/data-use']);
+    this.scrollService.handleScroll(this.role, ['/data-use']);
+
+    // Updating data while reusing detached component
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd && this.usedURLs.includes(event.urlAfterRedirects) && this.dataChanged) {
+        this.filterSearch();
+        this.dataChanged = false;
+      }
+    });
+
+    this.reuseService.notification$.subscribe((source) => {
+      if (this.usedURLs.includes(source) && !this.dataChanged) {
+        this.dataChanged = true;
+      }
+    });
   }
 
   getAllDupList() {

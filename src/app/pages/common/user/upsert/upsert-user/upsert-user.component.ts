@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { combineLatest } from 'rxjs';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { PeopleService } from 'src/app/_rms/services/entities/people/people.service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-upsert-user',
@@ -24,8 +25,15 @@ export class UpsertUserComponent implements OnInit {
   submitte: boolean = false;
   pageSize:Number = 10000;
 
-  constructor(private location: Location, private fb: UntypedFormBuilder, private router: Router, private activatedRoute: ActivatedRoute, private peopleService: PeopleService, private spinner: NgxSpinnerService,
-    private toastr: ToastrService, private commonLookup: CommonLookupService) {
+  constructor(private location: Location, 
+              private fb: UntypedFormBuilder, 
+              private router: Router, 
+              private activatedRoute: ActivatedRoute, 
+              private reuseService: ReuseService,
+              private peopleService: PeopleService, 
+              private spinner: NgxSpinnerService,
+              private toastr: ToastrService, 
+              private commonLookup: CommonLookupService) {
     this.userForm = this.fb.group({
       firstName: '',
       lastName: '',
@@ -100,6 +108,8 @@ export class UpsertUserComponent implements OnInit {
           if(userRes.statusCode === 200 && userProfileRes.statusCode === 200) {
             this.toastr.success('Information updated successfully');
             localStorage.setItem('updateUserList', 'true');
+            this.reuseService.notifyComponents();
+            this.back();
           } else {
             this.toastr.error(userRes?.messages[0]);
           }
@@ -113,6 +123,8 @@ export class UpsertUserComponent implements OnInit {
           if (res.statusCode === 200) {
             this.toastr.success('People added successfully');
             localStorage.setItem('updateUserList', 'true');
+            this.reuseService.notifyComponents();
+            this.back();
           }
         }, error => {
           this.spinner.hide();

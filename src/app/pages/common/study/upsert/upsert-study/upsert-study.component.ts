@@ -12,6 +12,7 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generator/pdf-generator.service';
 import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/study-lookup.service';
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-upsert-study',
@@ -54,8 +55,19 @@ export class UpsertStudyComponent implements OnInit {
   associatedObjects: any;
   pageSize: Number = 10000;
 
-  constructor(private location: Location, private fb: UntypedFormBuilder, private router: Router, private studyLookupService: StudyLookupService, private studyService: StudyService, private activatedRoute: ActivatedRoute,
-    private spinner: NgxSpinnerService, private toastr: ToastrService, private pdfGenerator: PdfGeneratorService, private jsonGenerator: JsonGeneratorService, private commonLookupService: CommonLookupService, private listService: ListService) {
+  constructor(private location: Location, 
+              private fb: UntypedFormBuilder, 
+              private router: Router, 
+              private studyLookupService: StudyLookupService, 
+              private studyService: StudyService, 
+              private reuseService: ReuseService,
+              private activatedRoute: ActivatedRoute,
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService, 
+              private pdfGenerator: PdfGeneratorService, 
+              private jsonGenerator: JsonGeneratorService, 
+              private commonLookupService: CommonLookupService, 
+              private listService: ListService) {
     this.studyForm = this.fb.group({
       sdSid: 'RMS-',
       displayTitle: ['', Validators.required],
@@ -313,7 +325,9 @@ export class UpsertStudyComponent implements OnInit {
             if (res.statusCode === 200) {
               this.toastr.success('Study Details updated successfully');
               localStorage.setItem('updateStudyList', 'true');
+              this.reuseService.notifyComponents();
               this.getStudyById(this.id);
+              this.back();
             } else {
               this.toastr.error(res.messages[0]);
             }
@@ -328,6 +342,7 @@ export class UpsertStudyComponent implements OnInit {
             if (res.statusCode === 201) {
               this.toastr.success('Study Detail added successfully');
               localStorage.setItem('updateStudyList', 'true');
+              this.reuseService.notifyComponents();
               this.back();
             } else {
               this.toastr.error(res.messages[0]);

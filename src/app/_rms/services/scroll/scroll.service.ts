@@ -8,19 +8,19 @@ export class ScrollService {
   scroll: any;
   urls: Array<String>;
 
-  constructor() { }
+  constructor(private router: Router) { }
 
-  async handleScroll(router: Router, role: any, urls: Array<String>) {
+  async handleScroll(role: any, urls: Array<String>) {
     /**
      * urls: urls where scroll event should be fired.
      */
-    if (urls.includes(router.url)) {  // Not activating scroll on dashboard
-      this.initScroll(urls);
+    if (urls.includes(this.router.url)) {  // Not activating scroll on dashboard
+      this.initScroll();
     }
-    router.events.subscribe((ev) => {
+    this.router.events.subscribe((ev) => {
       if (!!this.scroll) {
         if (ev instanceof NavigationEnd && urls.includes(ev.urlAfterRedirects) && this.scroll.closed) {
-          this.initScroll(urls);
+          this.initScroll();
         } else if (!this.scroll.closed && ev instanceof NavigationEnd && !(urls.includes(ev.urlAfterRedirects))) {
           this.unsubscribeScroll();
         }
@@ -28,7 +28,7 @@ export class ScrollService {
     });
   }
 
-  async initScroll(urls: Array<String>) {
+  async initScroll() {
     this.scroll = fromEvent(document, 'scroll').subscribe((ev) => {
       const navbar = document.getElementById('navbar');
       if (!!navbar) {

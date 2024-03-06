@@ -1,7 +1,7 @@
 import { Component, HostListener, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -13,6 +13,7 @@ import { ConfirmationWindowComponent } from '../../confirmation-window/confirmat
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subject, combineLatest } from 'rxjs';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-summary-object',
@@ -23,9 +24,10 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 export class SummaryObjectComponent implements OnInit {
 
   displayedColumns = ['sdOid', 'title', 'type', 'linkedStudy', 'actions'];
+  usedURLs = ['/', '/browsing', '/data-objects'];
   dataSource: MatTableDataSource<ObjectListEntryInterface>;
   filterOption: string = 'title';
-  searchText:string = '';
+  searchText: string = '';
   objectLength: number = 0;
   title: string = '';
   warningModal: any;
@@ -37,18 +39,21 @@ export class SummaryObjectComponent implements OnInit {
   sticky: boolean = false;
   notDashboard:boolean = false;
   isOrgIdValid: boolean = false;
+  dataChanged: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('objectDeleteModal') objectDeleteModal : TemplateRef<any>;
 
-  constructor( private scrollService: ScrollService,
+  constructor( private reuseService: ReuseService,
+               private scrollService: ScrollService,
                private listService: ListService, 
                private spinner: NgxSpinnerService, 
                private toastr: ToastrService, 
                private modalService: NgbModal,
                private dataObjectService: DataObjectService,
                private permissionService: NgxPermissionsService,
-               private router: Router) { }
+               private router: Router) {
+  }
 
   ngOnInit(): void {
     this.orgId = localStorage.getItem('organisationId');
@@ -66,12 +71,27 @@ export class SummaryObjectComponent implements OnInit {
     this.notDashboard = this.router.url.includes('data-objects') ? true : false;
     this.getObjectList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.router, this.role, ['/data-objects']);
+    this.scrollService.handleScroll(this.role, ['/data-objects']);
+
+    // Updating data while reusing detached component
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd && this.usedURLs.includes(event.urlAfterRedirects) && this.dataChanged) {
+        this.filterSearch();
+        this.dataChanged = false;
+      }
+    });
+
+    this.reuseService.notification$.subscribe((source) => {
+      if (this.usedURLs.includes(source) && !this.dataChanged) {
+        this.dataChanged = true;
+      }
+    });
   }
   
   getAllObjectList() {
     const pageSize = 10000;
     this.listService.getObjectList(pageSize,'').subscribe((res: any) => {
+      // move spinner hide
       this.spinner.hide();
       if (res && res.results) {
         this.dataSource = new MatTableDataSource<ObjectListEntryInterface>(res.results);
@@ -79,7 +99,6 @@ export class SummaryObjectComponent implements OnInit {
         this.dataSource = new MatTableDataSource();
       }
       this.dataSource.paginator = this.paginator;
-      this.searchText = '';
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);
@@ -94,7 +113,6 @@ export class SummaryObjectComponent implements OnInit {
         this.dataSource = new MatTableDataSource();
       }
       this.dataSource.paginator = this.paginator;
-      this.searchText = '';
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);

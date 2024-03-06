@@ -12,6 +12,7 @@ import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-genera
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generator/pdf-generator.service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-upsert-object',
@@ -59,8 +60,19 @@ export class UpsertObjectComponent implements OnInit {
   isBrowsing: boolean = false;
   pageSize: Number = 10000;
 
-  constructor(private location: Location, private fb: UntypedFormBuilder, private router: Router, private commonLookupService: CommonLookupService, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService,
-    private toastr: ToastrService, private activatedRoute: ActivatedRoute, private listService: ListService, private pdfGenerator: PdfGeneratorService, private jsonGenerator: JsonGeneratorService) {
+  constructor(private location: Location, 
+              private fb: UntypedFormBuilder, 
+              private router: Router, 
+              private commonLookupService: CommonLookupService, 
+              private objectLookupService: ObjectLookupService, 
+              private objectService: DataObjectService, 
+              private spinner: NgxSpinnerService,
+              private toastr: ToastrService, 
+              private activatedRoute: ActivatedRoute, 
+              private listService: ListService, 
+              private reuseService: ReuseService,
+              private pdfGenerator: PdfGeneratorService, 
+              private jsonGenerator: JsonGeneratorService) {
     this.objectForm = this.fb.group({
       linkedStudy: '',
       doi: '',
@@ -435,6 +447,7 @@ export class UpsertObjectComponent implements OnInit {
               this.toastr.success('Data Object updated successfully');
               localStorage.setItem('updateObjectList', 'true');
               this.getObjectById(this.id);
+              this.reuseService.notifyComponents();
               this.back();
             }
           }, error => {
@@ -460,6 +473,7 @@ export class UpsertObjectComponent implements OnInit {
               })
               this.toastr.success('Data Object added successfully.');
               localStorage.setItem('updateObjectList', 'true');
+              this.reuseService.notifyComponents();
               this.back();
             } else {
               this.toastr.error(res.messages[0]);

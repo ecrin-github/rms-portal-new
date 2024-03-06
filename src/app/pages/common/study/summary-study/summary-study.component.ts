@@ -10,9 +10,10 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
 import { Subject, combineLatest, fromEvent } from 'rxjs';
 import { NgxPermissionsService } from 'ngx-permissions';
-import { NavigationStart, Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-summary-study',
@@ -23,6 +24,7 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 export class SummaryStudyComponent implements OnInit {
 
+  usedURLs = ['/', '/browsing', '/studies'];
   displayedColumns = ['sdSid', 'title', 'type', 'status', 'actions'];
   dataSource: MatTableDataSource<StudyListEntryInterface>;
   filterOption: string = 'title';
@@ -39,11 +41,13 @@ export class SummaryStudyComponent implements OnInit {
   scroll: any;
   notDashboard:boolean = false;
   isOrgIdValid: boolean = false;
+  dataChanged: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('studyDeleteModal') studyDeleteModal : TemplateRef<any>;
 
-  constructor( private scrollService: ScrollService, 
+  constructor( private reuseService: ReuseService,
+               private scrollService: ScrollService, 
                private listService: ListService, 
                private spinner: NgxSpinnerService, 
                private toastr: ToastrService, 
@@ -68,7 +72,21 @@ export class SummaryStudyComponent implements OnInit {
     this.notDashboard = this.router.url.includes('studies') ? true : false;
     this.getStudyList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.router, this.role, ['/studies']);
+    this.scrollService.handleScroll(this.role, ['/studies']);
+
+    // Updating data while reusing detached component
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd && this.usedURLs.includes(event.urlAfterRedirects) && this.dataChanged) {
+        this.filterSearch();
+        this.dataChanged = false;
+      }
+    });
+
+    this.reuseService.notification$.subscribe((source) => {
+      if (this.usedURLs.includes(source) && !this.dataChanged) {
+        this.dataChanged = true;
+      }
+    });
   }
 
   getAllStudyList() {

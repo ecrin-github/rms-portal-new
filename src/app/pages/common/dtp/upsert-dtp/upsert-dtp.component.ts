@@ -22,6 +22,7 @@ import { DataObjectService } from 'src/app/_rms/services/entities/data-object/da
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {RedirectService} from './redirect-service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -70,11 +71,24 @@ export class UpsertDtpComponent implements OnInit {
   prereqs: any;
   dtpNotes: any;
 
-  constructor(private location: Location, private router: Router, private fb: UntypedFormBuilder, private dtpService: DtpService, private spinner: NgxSpinnerService, private toastr: ToastrService,
-    private activatedRoute: ActivatedRoute, private modalService: NgbModal, private commonLookup: CommonLookupService, private processLookup: ProcessLookupService,
-    private listService: ListService, private pdfGeneratorService: PdfGeneratorService, private jsonGenerator: JsonGeneratorService,
-               private dataObjectService: DataObjectService, private oidcSecurityService: OidcSecurityService, private http: HttpClient,
-               private redirectService: RedirectService) {
+  constructor(private location: Location, 
+              private router: Router, 
+              private fb: UntypedFormBuilder, 
+              private dtpService: DtpService, 
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService,
+              private activatedRoute: ActivatedRoute, 
+              private modalService: NgbModal, 
+              private commonLookup: CommonLookupService, 
+              private processLookup: ProcessLookupService,
+              private reuseService: ReuseService,
+              private listService: ListService, 
+              private pdfGeneratorService: PdfGeneratorService, 
+              private jsonGenerator: JsonGeneratorService,
+              private dataObjectService: DataObjectService, 
+              private oidcSecurityService: OidcSecurityService, 
+              private http: HttpClient,
+              private redirectService: RedirectService) {
     this.form = this.fb.group({
       organisation: ['', Validators.required],
       displayName: ['', Validators.required],
@@ -630,6 +644,8 @@ export class UpsertDtpComponent implements OnInit {
             localStorage.setItem('updateDtpList', 'true');
             this.getDtpById(this.id);
             this.showStatus = false;
+            this.reuseService.notifyComponents();
+            this.back();
           } else {
             if (coreDtpRes.statusCode !== 200) {
               this.toastr.error(coreDtpRes.messages[0]);
@@ -649,8 +665,9 @@ export class UpsertDtpComponent implements OnInit {
           if (res.statusCode === 201) {
             this.toastr.success('DTP added successfully.');
             localStorage.setItem('updateDtpList', 'true');
-            this.back();
             this.showStatus = false;
+            this.reuseService.notifyComponents();
+            this.back();
           } else {
             this.toastr.error(res.messages[0]);
           }

@@ -12,6 +12,7 @@ import { Subject, asapScheduler, fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, observeOn } from 'rxjs/operators';
 import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-summary-user',
@@ -20,7 +21,7 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
   providers: [ScrollService]
 })
 export class SummaryUserComponent implements OnInit, OnDestroy {
-
+  usedURLs = ['/', '/people'];
   displayedColumns = ['name', 'roleName', 'orgName', 'actions'];
   dataSource: MatTableDataSource<any>;
   peopleLength: number = 0;
@@ -32,9 +33,17 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
   notDashboard:boolean = false;
   sticky: boolean = false;
   detachedRouteHandlesService: any;
+  dataChanged: boolean = false;
   
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  constructor(private scrollService: ScrollService, private listService: ListService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private permissionService: NgxPermissionsService, private router: Router) { }
+  constructor(private reuseService: ReuseService,
+              private scrollService: ScrollService, 
+              private listService: ListService, 
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService, 
+              private modalService: NgbModal, 
+              private permissionService: NgxPermissionsService, 
+              private router: Router) { }
 
   ngOnInit(): void {
     if (localStorage.getItem('role')) {
@@ -47,8 +56,23 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
     this.notDashboard = this.router.url.includes('people') ? true : false;
     this.getPeople();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.router, this.role, ['/people']);
+    this.scrollService.handleScroll(this.role, ['/people']);
+
+    // Updating data while reusing detached component
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd && this.usedURLs.includes(event.urlAfterRedirects) && this.dataChanged) {
+        this.filterSearch();
+        this.dataChanged = false;
+      }
+    });
+
+    this.reuseService.notification$.subscribe((source) => {
+      if (this.usedURLs.includes(source) && !this.dataChanged) {
+        this.dataChanged = true;
+      }
+    });
   }
+
   getAllPeople() {
     this.spinner.show();
     const pageSize = 10000;

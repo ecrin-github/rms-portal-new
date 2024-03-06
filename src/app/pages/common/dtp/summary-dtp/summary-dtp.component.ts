@@ -12,8 +12,9 @@ import { NgxPermission } from 'ngx-permissions/lib/model/permission.model';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 
 @Component({
@@ -24,6 +25,7 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 })
 
 export class SummaryDtpComponent implements OnInit {
+  usedURLs = ['/', '/data-transfers'];
   displayedColumns = ['id', 'organisation', 'title', 'status', 'actions'];
   dataSource: MatTableDataSource<DtpListEntryInterface>;
   filterOption: string = 'title';
@@ -36,11 +38,13 @@ export class SummaryDtpComponent implements OnInit {
   searchDebounec: Subject<string> = new Subject();
   sticky: boolean = false;
   notDashboard:boolean = false;
+  dataChanged: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('exampleModal') exampleModal : TemplateRef<any>;
 
-  constructor( private scrollService: ScrollService,
+  constructor( private reuseService: ReuseService,
+               private scrollService: ScrollService,
                private listService: ListService, 
                private spinner: NgxSpinnerService, 
                private toastr: ToastrService, 
@@ -59,8 +63,23 @@ export class SummaryDtpComponent implements OnInit {
     this.notDashboard = this.router.url.includes('data-transfers') ? true : false;
     this.getDtpList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.router, this.role, ['/data-transfers']);
+    this.scrollService.handleScroll(this.role, ['/data-transfers']);
+
+    // Updating data while reusing detached component
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd && this.usedURLs.includes(event.urlAfterRedirects) && this.dataChanged) {
+        this.filterSearch();
+        this.dataChanged = false;
+      }
+    });
+
+    this.reuseService.notification$.subscribe((source) => {
+      if (this.usedURLs.includes(source) && !this.dataChanged) {
+        this.dataChanged = true;
+      }
+    });
   }
+
   getDtplistByOrg() {
     this.spinner.show();
     this.listService.getDtpListByOrg(this.orgId).subscribe((res: any) => {

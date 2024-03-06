@@ -15,6 +15,8 @@ import * as signalR from '@microsoft/signalr';
 import {ToastrService} from 'ngx-toastr';
 import {Notification} from './_rms/services/notifications/notification';
 import {SignalrService} from './_rms/services/notifications/signalr.service';
+
+
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'body[root]',

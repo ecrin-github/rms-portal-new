@@ -17,6 +17,7 @@ import { AddModalComponent } from '../../add-modal/add-modal.component';
 import { CommonModalComponent } from '../../common-modal/common-modal.component';
 import { ConfirmationWindowComponent } from '../../confirmation-window/confirmation-window.component';
 import { ConfirmationWindow1Component } from '../../confirmation-window1/confirmation-window1.component';
+import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 @Component({
   selector: 'app-upsert-dup',
@@ -57,9 +58,20 @@ export class UpsertDupComponent implements OnInit {
   dupNotes: any;
   prereqs: any;
 
-  constructor(private location: Location, private router: Router, private fb: UntypedFormBuilder, private dupService: DupService, private spinner: NgxSpinnerService, private toastr: ToastrService,
-    private activatedRoute: ActivatedRoute, private modalService: NgbModal, private commonLookup: CommonLookupService, private processLookup: ProcessLookupService, private pdfGeneratorService: PdfGeneratorService,
-    private jsonGenerator: JsonGeneratorService, private listService: ListService) {
+  constructor(private location: Location, 
+              private router: Router, 
+              private fb: UntypedFormBuilder, 
+              private dupService: DupService, 
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService,
+              private activatedRoute: ActivatedRoute, 
+              private modalService: NgbModal, 
+              private reuseService: ReuseService,
+              private commonLookup: CommonLookupService, 
+              private processLookup: ProcessLookupService, 
+              private pdfGeneratorService: PdfGeneratorService,
+              private jsonGenerator: JsonGeneratorService, 
+              private listService: ListService) {
     this.form = this.fb.group({
       organisation: ['', Validators.required],
       displayName: ['', Validators.required],
@@ -460,6 +472,8 @@ export class UpsertDupComponent implements OnInit {
             localStorage.setItem('updateDupList', 'true');
             this.getDupById(this.id);
             this.showStatus = false;
+            this.reuseService.notifyComponents();
+            this.back();
           } else {
             if (coreDupRes.statusCode !== 200) {
               this.toastr.error(coreDupRes.messages[0]);
@@ -479,8 +493,9 @@ export class UpsertDupComponent implements OnInit {
           if (res.statusCode === 201) {
             this.toastr.success('DUP added successfully');
             localStorage.setItem('updateDupList', 'true');
-            this.back();
             this.showStatus = false;
+            this.reuseService.notifyComponents();
+            this.back();
           } else {
             this.toastr.error(res.messages[0]);
           }
