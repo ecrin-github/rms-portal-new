@@ -47,7 +47,7 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 pathMatch: 'full',
                 component: InternalMainPageComponent,
                 data: { 
-                    shouldReuse: true,
+                    shouldReuse: false,
                     key: 'internalmainpagecomponent'
                 }
             },
@@ -58,7 +58,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 component: SummaryDtpComponent,
                 data: { 
                     shouldReuse: true,
-                    key: 'summarydtpcomponent'
+                    key: 'summarydtpcomponent',
+                    reuseRoutesFrom: ['data-transfers/:id/view', 'data-transfers/:id/add', 'data-transfers/:id/edit']
                 }
             },
             {
@@ -77,7 +78,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 component: SummaryDupComponent,
                 data: { 
                     shouldReuse: true,
-                    key: 'summarydupcomponent'
+                    key: 'summarydupcomponent',
+                    reuseRoutesFrom: ['data-use/:id/view', 'data-use/:id/add', 'data-use/:id/edit']
                 }
             },
             {
@@ -96,7 +98,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 component: SummaryStudyComponent,
                 data: { 
                     shouldReuse: true,
-                    key: 'summarystudycomponent'
+                    key: 'summarystudycomponent',
+                    reuseRoutesFrom: ['studies/:id/view', 'studies/:id/add', 'studies/:id/edit']
                 }
             },
             {
@@ -115,7 +118,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 component: SummaryObjectComponent,
                 data: { 
                     shouldReuse: true,
-                    key: 'summaryobjectcomponent'
+                    key: 'summaryobjectcomponent',
+                    reuseRoutesFrom: ['data-objects/:id/view', 'data-objects/:id/add', 'data-objects/:id/edit']
                 }
             },
             {
@@ -144,7 +148,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 component: SummaryUserComponent,
                 data: { 
                     shouldReuse: true,
-                    key: 'summaryusercomponent'
+                    key: 'summaryusercomponent',
+                    reuseRoutesFrom: ['people/:id/view', 'people/:id/add', 'people/:id/edit']
                 }
             },
             {

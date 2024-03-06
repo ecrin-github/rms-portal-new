@@ -43,6 +43,8 @@ export class ScrollService {
   }
 
   unsubscribeScroll() {
-    this.scroll.unsubscribe();
+    if (!!this.scroll) {
+      this.scroll.unsubscribe();
+    }
   }
 }

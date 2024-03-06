@@ -34,7 +34,7 @@ import { NgxPermissionsModule } from 'ngx-permissions';
         pathMatch: 'full',
         component: BrowseComponent,
         data: { 
-          shouldReuse: true,
+          shouldReuse: false,
           key: 'browsecomponent'
         }
       },
@@ -44,7 +44,8 @@ import { NgxPermissionsModule } from 'ngx-permissions';
         component: SummaryStudyComponent,
         data: { 
           shouldReuse: true,
-          key: 'summarystudycomponent'
+          key: 'summarystudycomponent',
+          reuseRoutesFrom: ['studies/:id/view', 'studies/:id/add', 'studies/:id/edit']
         }
       },
       {
@@ -62,7 +63,8 @@ import { NgxPermissionsModule } from 'ngx-permissions';
         component: SummaryObjectComponent,
         data: { 
           shouldReuse: true,
-          key: 'summaryobjectcomponent'
+          key: 'summaryobjectcomponent',
+          reuseRoutesFrom: ['data-objects/:id/view', 'data-objects/:id/add', 'data-objects/:id/edit']
         }
       },
       {

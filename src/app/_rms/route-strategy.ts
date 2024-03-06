@@ -14,6 +14,8 @@ interface RouteStorageObject {
 
 export class CustomRouteReuseStrategy implements RouteReuseStrategy {
 
+    private routeLeftFrom: string;
+
     /** 
      * Object which will store RouteStorageObjects indexed by keys
      * The keys will all be a path (as in route.data['key'])
@@ -30,6 +32,7 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
      * @returns boolean indicating that we want to (true) or do not want to (false) store that route
      */
     shouldDetach(route: ActivatedRouteSnapshot): boolean {
+        this.routeLeftFrom = route.routeConfig.path;
         // Fires if shouldReuseRoute returns False
         return route.data.shouldReuse || false;
     }
@@ -56,8 +59,9 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
      * @returns boolean indicating whether or not to render the stored route
      */
     shouldAttach(route: ActivatedRouteSnapshot): boolean {
-        // this will be true if the route has been stored before
-        return !!route.routeConfig && !!this.storedRoutes[route.data['key']];
+        // true if the route has been stored before + route we're coming from is in reuseRoutesFrom
+        return !!route.routeConfig && !!this.storedRoutes[route.data['key']] 
+            && !!route.data.reuseRoutesFrom && route.data.reuseRoutesFrom.includes(this.routeLeftFrom);
     }
 
     /** 
