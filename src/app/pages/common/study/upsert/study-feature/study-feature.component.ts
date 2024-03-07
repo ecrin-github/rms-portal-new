@@ -34,7 +34,6 @@ export class StudyFeatureComponent implements OnInit {
   }
   @Input() set studyType(studyType: any) {
     this.selectedStudyType = studyType;
-    console.log(this.selectedStudyType);
     this.studyTypeChange();
   }
   @Output() emitFeature: EventEmitter<any> = new EventEmitter();

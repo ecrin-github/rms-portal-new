@@ -4,7 +4,8 @@ import { FormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@an
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
-import { combineLatest, Subscription } from 'rxjs';
+import { combineLatest, Observable, of, Subscription } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { StudyInterface } from 'src/app/_rms/interfaces/study/study.interface';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-generator/json-generator.service';
@@ -44,12 +45,12 @@ export class UpsertStudyComponent implements OnInit {
   registryId: number;
   trialId: string;
   identifierTypes: [] = [];
-  titleType: [] = [];
+  titleTypes: [] = [];
   featureTypes: [] = [];
   featureValuesAll: [] = [];
   topicTypes: [] = [];
   controlledTerminology: [] = [];
-  relationshipType: [] = [];
+  relationshipTypes: [] = [];
   isBrowsing: boolean = false;
   role: any;
   associatedObjects: any;
@@ -106,6 +107,10 @@ export class UpsertStudyComponent implements OnInit {
 
 
   ngOnInit(): void {
+    setTimeout(() => {
+      this.spinner.show(); 
+    });
+
     if (localStorage.getItem('role')) {
       this.role = localStorage.getItem('role');
     }
@@ -121,109 +126,112 @@ export class UpsertStudyComponent implements OnInit {
     if (this.isAdd) {
       this.studyForm.get('sdSid').setValidators(Validators.pattern(/^(RMS-)(?=[^0-9]*[0-9])/));
     }
-    this.getStudyType();
-    this.getStudyStatus();
-    this.getGenderEligibility();
-    this.getTimeUnits();
-    this.getIdentifierType();
-    this.getTitleType();
-    this.getFeature();
-    this.getTopicType();
-    this.getTopicVocabulary();
-    this.getRelationshipType();
 
+    let queryFuncs: Array<Observable<object>> = [
+      this.getStudyTypes(),
+      this.getGenderEligibility(),
+      this.getStudyStatuses(),
+      this.getTimeUnits(),
+      this.getIdentifierTypes(),
+      this.getTitleTypes(),
+      this.getFeatureTypes(),
+      this.getFeatureValues(),
+      this.getTopicTypes(),
+      this.getTopicVocabularies(),
+      this.getRelationshipTypes(),
+    ];
     if (this.isEdit || this.isView) {
       this.id = this.activatedRoute.snapshot.params.id;
-      this.getStudyById(this.id);
-      this.getAssociatedObject(this.id);
+      queryFuncs.push(this.getStudyById(this.id));
+      queryFuncs.push(this.getAssociatedObjects(this.id));
     }
+
+    let obsArr: Array<Observable<any>> = [];
+    queryFuncs.forEach((funct) => {
+      obsArr.push(funct.pipe(catchError(error => of(this.toastr.error(error.error.title)))));
+    });
+
+    combineLatest(obsArr).subscribe(res => {
+      this.setStudyTypes(res[0].results);
+      this.setGenderEligibility(res[1].results);
+      this.setStudyStatuses(res[2].results);
+      this.setTimeUnits(res[3].results);
+      this.setIdentifierTypes(res[4].results);
+      this.setTitleTypes(res[5].results);
+      this.setFeatureTypes(res[6].data);
+      this.setFeatureValues(res[7].data);
+      this.setTopicTypes(res[8].data);
+      this.setTopicVocabularies(res[9].results);
+      this.setRelationshipTypes(res[10].results);
+      if (this.isEdit || this.isView) {
+        this.setStudyById(res[11]);
+        this.setAssociatedObjects(res[12].data);
+      }
+
+      setTimeout(() => {
+        console.log("spinner hide");
+        this.spinner.hide(); 
+      });
+    });
+
     this.activatedRoute.queryParams.subscribe(params => {
       this.addType = params.type;
     })
     if (this.addType === 'usingTrialId') {
       this.getTrialRegistries();
     }
+    
   }
   get g() { return this.studyForm.controls; }
-  getStudyType() {
-    setTimeout(() => {
-      this.spinner.show(); 
-    });
-    this.studyLookupService.getStudyTypes(this.pageSize).subscribe((res:any) => {
-      this.spinner.hide();
-      if(res.results) {
-        this.studyTypes = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+  getStudyTypes() {
+    return this.studyLookupService.getStudyTypes(this.pageSize);
     // this.subscription.add(getStudyType$);
   }
-  getStudyStatus() {
-    setTimeout(() => {
-      this.spinner.show(); 
-    });
-    this.studyLookupService.getStudyStatuses(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if(res.results) {
-        this.studyStatuses = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+  setStudyTypes(studyTypes) {
+    if (studyTypes) {
+      this.studyTypes = studyTypes;
+    }
+  }
+  getStudyStatuses() {
+    return this.studyLookupService.getStudyStatuses(this.pageSize);
+  }
+  setStudyStatuses(studyStatuses) {
+    if (studyStatuses) {
+      this.studyStatuses = studyStatuses;
+    }
   }
   getGenderEligibility() {
-    setTimeout(() => {
-      this.spinner.show(); 
-    });
-    this.studyLookupService.getGenderEligibilities(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.results) {
-        this.genderEligibility = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+    return this.studyLookupService.getGenderEligibilities(this.pageSize);
+  }
+  setGenderEligibility(genderEligibility) {
+    if (genderEligibility) {
+      this.genderEligibility = genderEligibility;
+    }
   }
   getTimeUnits() {
-    setTimeout(() => {
-      this.spinner.show(); 
-    });
-    this.studyLookupService.getTimeUnits(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if(res.results) {
-        this.timeUnits = res.results;
-      }
+    return this.studyLookupService.getTimeUnits(this.pageSize);
+  }
+  setTimeUnits(timeUnits) {
+    if (timeUnits) {
+      this.timeUnits = timeUnits;
       if (this.isAdd) {
         const arr: any = this.timeUnits.filter((item: any) => item.name.toLowerCase() === "years");
         this.studyForm.patchValue({
           minAgeUnit: arr[0].id,
           maxAgeUnit: arr[0].id
-        })
+        });
       }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+    }
+    
   }
   getStudyById(id) {
-    setTimeout(() => {
-     this.spinner.show(); 
-    });
-    this.studyService.getStudyById(id).subscribe((res: any) => {
-      console.log('data', res);
-      this.spinner.hide();
-      if (res) {
-        this.studyData = res;
-        this.patchStudyForm();
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
+    return this.studyService.getStudyById(id);
+  }
+  setStudyById(studyData) {
+    if (studyData) {
+      this.studyData = studyData;
+      this.patchStudyForm();
+    }
   }
   findStudyStatusById(id) {
     const statusArray = this.studyStatuses.filter((type: any) => type.id === id);
@@ -240,7 +248,101 @@ export class UpsertStudyComponent implements OnInit {
   findTimeUnitsById(id) {
     const ageArray = this.timeUnits.filter((type: any) => type.id === id);
     return ageArray && ageArray.length ? ageArray[0] : { name: '' };
-}
+  }
+  // code to get values for id for generating pdf 
+
+  getIdentifierTypes() {
+    return this.studyLookupService.getStudyIdentifierTypes(this.pageSize);
+  }
+  setIdentifierTypes(identifierTypes) {
+    if (identifierTypes) {
+      this.identifierTypes = identifierTypes;
+    }
+  }
+  findIdentifierType(id) {
+    const identifierTypeArray:any = this.identifierTypes.filter((type: any) => type.id === id);
+    return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : ''
+  }
+  getTitleTypes() {
+    return this.studyLookupService.getStudyTitleTypes(this.pageSize);
+  }
+  setTitleTypes(titleTypes) {
+    if (titleTypes) {
+      this.titleTypes = titleTypes;
+    }
+  }
+  findTitleType(id) {
+    const titleTypeArray: any = this.titleTypes.filter((type: any) => type.id === id);
+    return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : '';
+  }
+  getFeatureTypes() {
+    return this.studyLookupService.getFeatureTypes(this.pageSize);
+  }
+  getFeatureValues() {
+    return this.studyLookupService.getFeatureValues(this.pageSize);
+  }
+  setFeatureTypes(featureTypes) {
+    if (featureTypes) {
+      this.featureTypes = featureTypes;
+    }
+  }
+  setFeatureValues(featureValues) {
+    if (featureValues) {
+      this.featureValuesAll = featureValues;
+    }
+  }
+  findFeatureType(id) {
+    const featureTypeArray: any = this.featureTypes.filter((type: any) => type.id === id);
+    return featureTypeArray && featureTypeArray.length ? featureTypeArray[0].name : '';
+  }
+  findFeatureValue(id) {
+    const featureValueArray: any = this.featureValuesAll.filter((type: any) => type.id === id);
+    return featureValueArray && featureValueArray.length ? featureValueArray[0].name : '';
+  }
+  getTopicTypes() {
+    return this.commonLookupService.getTopicTypes(this.pageSize);
+  }
+  setTopicTypes(topicTypes) {
+    if (topicTypes) {
+      this.topicTypes = topicTypes;
+    }
+  }
+  findTopicType(id) {
+    const topicArray: any = this.topicTypes.filter((type: any) => type.id === id);
+    return topicArray && topicArray.length ? topicArray[0].name : '';
+  }
+  getTopicVocabularies() {
+    return this.commonLookupService.getTopicVocabularies(this.pageSize);
+  }
+  setTopicVocabularies(controlledTerminology) {
+    if (controlledTerminology) {
+      this.controlledTerminology = controlledTerminology;
+    }
+  }
+  findTopicVocabulary(id) {
+    const arr: any = this.controlledTerminology.filter((item: any) => item.id === id);
+    return arr && arr.length ? arr[0].name : 'None';
+  }
+  getRelationshipTypes() {
+    return this.studyLookupService.getStudyRelationshipTypes(this.pageSize);
+  }
+  setRelationshipTypes(relationshipTypes) {
+    if (relationshipTypes) {
+      this.relationshipTypes = relationshipTypes;
+    }
+  }
+  findRelationshipType(id) {
+    const relationArray: any = this.relationshipTypes.filter((type: any) => type.id === id);
+    return relationArray && relationArray.length ? relationArray[0].name : '';
+  }
+  getAssociatedObjects(id) {
+    return this.listService.getObjectByMultiStudies(id);
+  }
+  setAssociatedObjects(associatedObjects) {
+    if (associatedObjects) {
+      this.associatedObjects = associatedObjects;
+    }
+  }
   getTrialRegistries() {
     // this.studyLookupService.getTrialRegistries(this.pageSize).subscribe((res: any) => {
     //   if (res && res.results) {
@@ -299,7 +401,6 @@ export class UpsertStudyComponent implements OnInit {
       studyTopics: this.studyData.studyTopics ? this.studyData.studyTopics : [],
       studyRelationships: this.studyData.studyRelationships ? this.studyData.studyRelationships : [],
       studyContributors: this.studyData.studyContributors ? this.studyData.studyContributors : [],
-
     });
     this.studyTypeChange();
   }
@@ -468,111 +569,12 @@ export class UpsertStudyComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-  // code to get values for id for generating pdf 
-
-  getIdentifierType() {
-    this.studyLookupService.getStudyIdentifierTypes(this.pageSize).subscribe((res: any) => {
-      if(res && res.results) {
-        this.identifierTypes = res.results;
-      }
-      this.spinner.hide();
-    }, error => {
-      this.toastr.error(error.error.title);
-    });
-  }
-  findIdentifierType(id) {
-    const identifierTypeArray:any = this.identifierTypes.filter((type: any) => type.id === id);
-    return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : ''
-  }
-  getTitleType() {
-    this.studyLookupService.getStudyTitleTypes(this.pageSize).subscribe((res:any) => {
-      if(res.results) {
-        this.titleType = res.results;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    });
-  }
-  findTitleType(id) {
-    const titleTypeArray: any = this.titleType.filter((type: any) => type.id === id);
-    return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : '';
-  }
-  getFeature() {
-    const getFeatureType$ = this.studyLookupService.getFeatureTypes(this.pageSize);
-    const getFeatureValue$ = this.studyLookupService.getFeatureValues(this.pageSize);
-    const combine$ = combineLatest([getFeatureType$, getFeatureValue$]).subscribe(([featureType, featureValue] : [any, any]) => {
-      if (featureType.data) {
-        this.featureTypes = featureType.data;
-      }
-      if (featureValue.data) {
-        this.featureValuesAll = featureValue.data;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
-  findFeatureType(id) {
-    const featureTypeArray: any = this.featureTypes.filter((type: any) => type.id === id);
-    return featureTypeArray && featureTypeArray.length ? featureTypeArray[0].name : '';
-  }
-  findFeatureValue(id) {
-    const featureValueArray: any = this.featureValuesAll.filter((type: any) => type.id === id);
-    return featureValueArray && featureValueArray.length ? featureValueArray[0].name : '';
-  }
-  getTopicType() {
-    this.commonLookupService.getTopicTypes(this.pageSize).subscribe((res: any) => {
-      if (res.data) {
-        this.topicTypes = res.data;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    });
-  }
-  findTopicType(id) {
-    const topicArray: any = this.topicTypes.filter((type: any) => type.id === id);
-    return topicArray && topicArray.length ? topicArray[0].name : '';
-  }
-  getTopicVocabulary() {
-    this.commonLookupService.getTopicVocabularies(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.results) {
-        this.controlledTerminology = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
-  }
-  findTopicVocabulary(id) {
-    const arr: any = this.controlledTerminology.filter((item: any) => item.id === id);
-    return arr && arr.length ? arr[0].name : 'None';
-  }
-  getRelationshipType() {
-    this.studyLookupService.getStudyRelationshipTypes(this.pageSize).subscribe((res: any) => {
-      if(res.results) {
-        this.relationshipType = res.results;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    });
-  }
-  findRelationshipType(id) {
-    const relationArray: any = this.relationshipType.filter((type: any) => type.id === id);
-    return relationArray && relationArray.length ? relationArray[0].name : '';
-  }
   gotoTop() {
     window.scroll({ 
       top: 0, 
       left: 0, 
       behavior: 'smooth' 
     });
-  }
-  getAssociatedObject(id) {
-    this.listService.getObjectByMultiStudies(id).subscribe((res: any) => {
-      this.associatedObjects = res.data;
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
   }
   goToObject(sdOid) {
     if (this.isBrowsing) {
