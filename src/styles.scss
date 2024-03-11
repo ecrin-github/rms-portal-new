@@ -108,6 +108,12 @@
   }
 }
 
+mat-cell, .mat-cell {
+  display:block; // flex prevents padding from working
+  min-height:auto; // overrides the 'inherit' that set the min height of the row
+  padding: 1rem 2rem 1rem 0;
+}
+
 .cursor-default {
   cursor: default !important;
 }
@@ -119,9 +125,9 @@
 .mat-column-id {
   padding-left: 0px !important;
 }
-.mat-column-title {
+/*.mat-column-title {
   padding: 25px !important;
-}
+}*/
 @media screen and (max-width: 500px) {
   .mat-column-status {
     padding-right: 80px !important;

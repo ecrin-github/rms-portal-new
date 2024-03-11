@@ -1,16 +1,14 @@
+import { OrganisationInterface } from "../organisation/organisation.interface";
+import { UserInterface } from "../user/user.interface";
+import { StudyContributorTypeInterface } from "./study-contributor-type.interface";
+
 export interface StudyContributorInterface {
-    id: number;
-    sdSid: string;
-    contribTypeId: number;
-    isIndividual: boolean;
-    personId: number;
-    personGivenName: string;
-    personFamilyName: string;
-    personFullName: string;
-    orcidId: string;
-    personAffiliation: string;
-    organisationId: number;
-    organisationName: string;
-    organisationRorId: string;
+    contributorType: StudyContributorTypeInterface;
     createdOn: string;
+    id: number;
+    isIndividual: boolean;
+    lastEditedBy: UserInterface;  // TODO: fix (partially) wrong interface
+    organisation: OrganisationInterface;
+    person: UserInterface;  // TODO: fix (partially) wrong interface
+    studyId: string;
 }

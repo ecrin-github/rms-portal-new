@@ -348,7 +348,7 @@ export class UpsertObjectComponent implements OnInit {
       this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0].id ? false : true;
     }
     this.objectForm.patchValue({
-      linkedStudy: this.objectData.linkedStudy ? this.objectData.linkedStudy.id : null,
+      linkedStudy: this.objectData.linkedStudy ? this.objectData.linkedStudy : null,
       doi: this.objectData.doi,
       displayTitle: this.objectData.displayTitle,
       version: this.objectData.version,

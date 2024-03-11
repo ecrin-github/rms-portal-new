@@ -13,7 +13,7 @@ import {ObjectTopicInterface} from './object-topic.interface';
 export interface DataObjectInterface {
     id: number;
     sdOid: string | null;
-    linkedStudy: {id: string} | null;
+    linkedStudy: StudyDataInterface | null;
     doi: string | null;
     displayTitle: string | null;
     version: string | null;
@@ -43,7 +43,6 @@ export interface DataObjectInterface {
     objectRights: ObjectRightInterface[] | null;
     objectTitles: ObjectTitleInterface[] | null;
     objectTopics: ObjectTopicInterface[] | null;
-    linkedStudies: StudyDataInterface[] | null;
 }
 
 

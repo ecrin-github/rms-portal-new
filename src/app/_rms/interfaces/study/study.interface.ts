@@ -37,7 +37,7 @@ export interface StudyInterface {
 }
 
 export interface StudyDataInterface {
-    id: number | null;
+    id: string | null;
     sdSid: string | null;
     mdrSdSid: string | null;
     mdrSourceId: number | null;
