@@ -58,7 +58,7 @@ export class SummaryObjectComponent implements OnInit {
   ngOnInit(): void {
     this.orgId = localStorage.getItem('organisationId');
     this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
-    this.isBrowsing = this.router.url.includes('browsing') && this.isOrgIdValid;
+    this.isBrowsing = this.router.url.includes('browsing');
     if (!this.isBrowsing) {
       if (localStorage.getItem('role')) {
         this.role = localStorage.getItem('role');
