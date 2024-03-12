@@ -6,6 +6,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest, Subscription } from 'rxjs';
 import { DataObjectInterface } from 'src/app/_rms/interfaces/data-object/data-object.interface';
+import { StudyDataInterface } from 'src/app/_rms/interfaces/study/study.interface';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-generator/json-generator.service';
@@ -44,7 +45,7 @@ export class UpsertObjectComponent implements OnInit {
   showDescription: boolean = false;
   sticky: boolean = false;
   EoscCategory = ['0', '1', '2', '3'];
-  studyList: [] = [];
+  studyList: StudyDataInterface[] = [];
   resourceType: [] = [];
   sizeUnit: [] = [];
   titleType: [] = [];
@@ -74,7 +75,7 @@ export class UpsertObjectComponent implements OnInit {
               private pdfGenerator: PdfGeneratorService, 
               private jsonGenerator: JsonGeneratorService) {
     this.objectForm = this.fb.group({
-      linkedStudy: '',
+      linkedStudy: null,
       doi: '',
       displayTitle: ['', Validators.required],
       version: '',
@@ -172,8 +173,8 @@ export class UpsertObjectComponent implements OnInit {
     if (this.role === 'User' && this.isOrgIdValid) {
       this.listService.getStudyListByOrg(this.orgId).subscribe((res: any) => {
         this.spinner.hide();
-        if (res && res.data) {
-          this.studyList = res.data;
+        if (res) {
+          this.studyList = res;
         }
       }, error => {
         this.toastr.error(error.error.title);
@@ -182,7 +183,7 @@ export class UpsertObjectComponent implements OnInit {
     } else {
       this.listService.getStudyList(this.pageSize, '').subscribe((res: any) => {
         this.spinner.hide();
-        if (res && res.results) {
+        if (res?.results) {
           this.studyList = res.results;
         }
       }, error => {
@@ -197,7 +198,7 @@ export class UpsertObjectComponent implements OnInit {
   }
   customSearchFn(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.sdSid.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
+    return item.sdSid?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
   }
   getObjectClass() {
     setTimeout(() => {
@@ -388,7 +389,7 @@ export class UpsertObjectComponent implements OnInit {
       objectDescriptions: this.objectData.objectDescriptions ? this.objectData.objectDescriptions : [],
       objectRights: this.objectData.objectRights ? this.objectData.objectRights : [],
       objectRelationships: this.objectData.objectRelationships ? this.objectData.objectRelationships : []
-    })
+    });
   }
   onSave() {
     if (localStorage.getItem('updateObjectList')) {
@@ -407,7 +408,7 @@ export class UpsertObjectComponent implements OnInit {
         urlLastChecked: this.objectForm.value.urlLastChecked,
         addStudyContributors: true,
         addStudyTopics: true,
-        linkedStudy: this.objectForm.value.linkedStudy ? this.objectForm.value.linkedStudy : null,
+        linkedStudy: this.objectForm.value.linkedStudy ? this.objectForm.value.linkedStudy.id : null,
         objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass : null,
         objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType : null,
         managingOrg: this.objectForm.value.managingOrg ? this.objectForm.value.managingOrg : null,
@@ -743,6 +744,10 @@ export class UpsertObjectComponent implements OnInit {
     } else {
       this.router.navigate([`/studies/${sdSid}/view`]);
     }
+  }
+  compareStudies(s1: StudyDataInterface, s2: StudyDataInterface): boolean {
+    console.log(`compareStudies, s1: ${s1?.id}, s2: ${s2?.id}`);
+    return s1?.id == s2?.id;
   }
   gotoTop() {
     window.scroll({ 
