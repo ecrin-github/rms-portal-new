@@ -1502,6 +1502,11 @@
   dependencies:
     tslib "^2.3.1"
 
+"@ngneat/elf-persist-state@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@ngneat/elf-persist-state/-/elf-persist-state-1.2.1.tgz#9005baf6197b29389b0ff404b72d34dee147bb37"
+  integrity sha512-R+5IRLC35cDT403sSs37UeqqOpHNnCwHl3eicPv/Rc+JJ7Av1bcQClSF2mHC0jE4pkYmEuVghpzUntvmrKCCwA==
+
 "@ngneat/elf@^2.5.1":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@ngneat/elf/-/elf-2.5.1.tgz#bf87146ab4ee9bd9364f03b5cfad6ce180cfb343"
