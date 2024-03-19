@@ -26,7 +26,8 @@ export class AsideInternalComponent implements OnInit {
 
   ngOnInit(): void {
     const orgId = localStorage.getItem('organisationId');
-    if (orgId !== null && orgId !== undefined && orgId !== 'null' && orgId !== 'undefined'){
+    const userRole = localStorage.getItem('role');
+    if (orgId !== null && orgId !== undefined && orgId !== 'null' && orgId !== 'undefined' && userRole === 'Manager'){
       this.isElementShownForManager = true;
     }
 
