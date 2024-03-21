@@ -1,15 +1,17 @@
-<!--begin::Logo-->
-<a href="http://ecrin.org" target="_blank">
-	<img alt="Logo" [attr.src]="headerLogo" style="width: 60px; height: 37px;
-               margin-top: 1px !important;
-               margin-left: -6px !important;" />
-</a>
-<!--end::Logo-->
-<div style="margin-top: 5px !important;">
+<div class="header-logo" style="display: inline-block;">
+  <a [routerLink]="['/']" style="display: inline-block;">
+    <img alt="Logo" [attr.src]="headerLogo"
+      style="width: 60px; height: 60px; margin-top: -30px !important;" />
+  </a>
+  <div style="margin-left: 20px !important; margin-top: 7px !important; display: inline-block;">
+    <h1 style="color: #96b4ff !important; margin-bottom: -0.5px !important;">
+      {{appTitle}}
+    </h1>
 
-  <h3 style="color: #96b4ff !important; margin-bottom: -0.5px !important;">Clinical Research Repository</h3>
-
-  <span style="color: #b4cdff !important; font-weight: 900 !important;">{{status}}</span>
+    <span style="color: #b4cdff !important; font-weight: 900 !important; margin-left: 1px !important;">
+      {{versionString}}
+    </span>
+  </div>
 </div>
 
 <!--begin::Toolbar-->

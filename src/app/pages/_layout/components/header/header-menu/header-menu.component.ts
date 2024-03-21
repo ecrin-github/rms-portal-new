@@ -24,7 +24,6 @@ export class HeaderMenuComponent implements OnInit {
   constructor(private layout: LayoutService, private loc: Location) {
     this.location = this.loc;
     this.version = environment.appVersion;
-    this.status = `BETA (${this.version}), in development`;
   }
 
   ngOnInit(): void {

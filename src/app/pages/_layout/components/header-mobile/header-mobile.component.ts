@@ -17,11 +17,10 @@ export class HeaderMobileComponent implements OnInit, AfterViewInit {
 
   version: string;
   status: string;
+  appTitle: string;
+  versionString: string;
 
-  constructor(private layout: LayoutService) {
-    this.version = environment.appVersion;
-    this.status = `alpha version (${this.version}), in development`;
-  }
+  constructor(private layout: LayoutService) { }
 
   ngOnInit(): void {
     // build view by layout config settings
@@ -35,6 +34,10 @@ export class HeaderMobileComponent implements OnInit, AfterViewInit {
     this.headerMenuSelfDisplay = this.layout.getProp(
       'header.menu.self.display'
     );
+
+    this.version = environment.appVersion;
+    this.versionString = environment.versionString;
+    this.appTitle = environment.appTitle;
   }
 
   ngAfterViewInit() {
