@@ -6,7 +6,7 @@
             </div>
             <div class="col-md-8 text-right">
                 <ng-container *ngIf="isView && !isBrowsing">
-                    <a [routerLink]="['/studies', id, 'edit']" [queryParams]="{type: 'manual'}" class="btn btn-primary mr-1">
+                    <a [routerLink]="['/studies', id, 'edit']" *ngIf="canEdit" [queryParams]="{type: 'manual'}" class="btn btn-primary mr-1">
                         <i class="fa fa-edit"></i> Edit
                     </a>
                     <button class="btn btn-primary mr-1" (click)="print()">
@@ -78,7 +78,7 @@
                         <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyStatus.errors">
                             <p *ngIf="isSubmitted && g.studyStatus.errors.required"> Please enter the study status</p>
                         </div>
-                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyStatus.name}}</h6>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyStatus?.name}}</h6>
                     </div>
                     <div class="col-md-3">
                         <label for="studyType" class="font-style text-capitalize">type</label>
@@ -90,7 +90,7 @@
                         <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyType.errors">
                             <p *ngIf="isSubmitted && g.studyType.errors.required"> Please enter the study type</p>
                         </div>
-                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyType.name}}</h6>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyType?.name}}</h6>
                     </div>
                     <div class="col-md-3">
                         <label for="studyStartMonth" class="font-style text-capitalize">Start Month</label>
@@ -134,7 +134,7 @@
                             <option selected disabled value="null">Please select...</option>
                             <option [value]=gender.id *ngFor="let gender of genderEligibility">{{gender.name}}</option>
                         </select>
-                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyGenderElig.name}}</h6>
+                        <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.studyGenderElig?.name}}</h6>
                     </div>
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
                         <label for="studyEnrollment" class="font-style text-capitalize">Study enrollment</label>
@@ -157,7 +157,7 @@
                                     <option selected disabled value="null">Please select...</option>
                                     <option [value]=unit.id *ngFor="let unit of timeUnits">{{unit.name}}</option>
                                 </select>
-                                <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.minAgeUnit.name}}</h6>
+                                <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.minAgeUnit?.name}}</h6>
                             </div>
                         </div>
                     </div>
@@ -176,7 +176,7 @@
                                     <option selected disabled value="null">Please select...</option>
                                     <option [value]=unit.id *ngFor="let unit of timeUnits">{{unit.name}}</option>
                                 </select>
-                                <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.maxAgeUnit.name}}</h6>
+                                <h6 *ngIf="isView" class="pt-4" style="font-weight: 100;">{{studyData?.maxAgeUnit?.name}}</h6>
                             </div>
                         </div>
                     </div>
