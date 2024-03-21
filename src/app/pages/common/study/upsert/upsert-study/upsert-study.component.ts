@@ -55,6 +55,9 @@ export class UpsertStudyComponent implements OnInit {
   role: any;
   associatedObjects: any;
   pageSize: Number = 10000;
+  orgId: string;
+  isOrgIdValid: boolean;
+  canEdit: boolean = false;
 
   constructor(private location: Location, 
               private fb: UntypedFormBuilder, 
@@ -105,19 +108,21 @@ export class UpsertStudyComponent implements OnInit {
     }
   }
 
-
   ngOnInit(): void {
     setTimeout(() => {
       this.spinner.show(); 
     });
 
+    this.orgId = localStorage.getItem('organisationId');
+    console.log(`this.orgId: ${this.orgId}`);
+    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
     if (localStorage.getItem('role')) {
       this.role = localStorage.getItem('role');
     }
-    this.isEdit = this.router.url.includes('edit') ? true : false;
-    this.isView = this.router.url.includes('view') ? true : false;
-    this.isAdd = this.router.url.includes('add') ? true : false;
-    this.isBrowsing = this.router.url.includes('browsing') ? true : false;
+    this.isEdit = this.router.url.includes('edit');
+    this.isView = this.router.url.includes('view');
+    this.isAdd = this.router.url.includes('add');
+    this.isBrowsing = this.router.url.includes('browsing');
     if (this.role === 'User') {
       this.studyForm.get('studyType').setValidators(Validators.required);
       this.studyForm.get('studyStatus').setValidators(Validators.required);
@@ -168,6 +173,19 @@ export class UpsertStudyComponent implements OnInit {
         this.setAssociatedObjects(res[12].data);
       }
 
+      // Show/hide edit button
+      if (this.isOrgIdValid) {
+        console.log(Object(this.studyData.studyContributors[0]));
+        this.studyData.studyContributors.some((contributor) => {
+          console.log(`${this.orgId} ${contributor.organisation.id}`);
+          if (this.orgId === contributor.organisation.id) {
+            this.canEdit = true;
+            return this.canEdit;
+          }
+        });
+      }
+
+      // TODO: still too early
       setTimeout(() => {
         console.log("spinner hide");
         this.spinner.hide(); 
@@ -180,7 +198,6 @@ export class UpsertStudyComponent implements OnInit {
     if (this.addType === 'usingTrialId') {
       this.getTrialRegistries();
     }
-    
   }
   get g() { return this.studyForm.controls; }
   getStudyTypes() {
