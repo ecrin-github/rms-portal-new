@@ -68,7 +68,7 @@ function appInitializer(authService: AuthService) {
         authority: 'https://proxy.aai.lifescience-ri.eu/',
         redirectUrl: window.location.origin,
         postLogoutRedirectUri: window.location.origin,
-        clientId: 'APP-FDD7EABC-450A-426B-BDFA-3CBD87B7C56A',
+        clientId: 'APP-45A6EC5D-8206-4356-A105-2AFE5FA7A831',
         scope: 'openid profile email offline_access',
         responseType: 'code',
         silentRenew: true,
