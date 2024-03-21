@@ -58,7 +58,7 @@
             <ng-container matColumnDef="linkedStudy">
                 <mat-header-cell *matHeaderCellDef> Linked study </mat-header-cell>
                 <mat-cell *matCellDef="let row">
-                    <a [routerLink]="['/studies', row?.linkedStudy?.id, 'view']">{{row.linkedStudy ? row.linkedStudy.displayTitle : ''}}</a>
+                    <a [routerLink]="isBrowsing ? ['/browsing/studies', row?.linkedStudy?.id, 'view'] : ['/studies', row?.linkedStudy?.id, 'view']">{{row.linkedStudy ? row.linkedStudy.sdSid : ''}}</a>
                 </mat-cell>
             </ng-container>
 
