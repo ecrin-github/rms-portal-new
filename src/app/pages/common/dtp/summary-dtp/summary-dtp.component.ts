@@ -15,6 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { NavigationEnd, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 
 @Component({
@@ -26,7 +27,7 @@ import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 
 export class SummaryDtpComponent implements OnInit {
   usedURLs = ['/', '/data-transfers'];
-  displayedColumns = ['id', 'organisation', 'title', 'status', 'actions'];
+  displayedColumns = ['dtpId', 'organisation', 'title', 'status', 'actions'];
   dataSource: MatTableDataSource<DtpListEntryInterface>;
   filterOption: string = 'title';
   searchText:string = '';
@@ -43,23 +44,21 @@ export class SummaryDtpComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('exampleModal') exampleModal : TemplateRef<any>;
 
-  constructor( private reuseService: ReuseService,
-               private scrollService: ScrollService,
-               private listService: ListService, 
-               private spinner: NgxSpinnerService, 
-               private toastr: ToastrService, 
-               private modalService: NgbModal,
-               private dtpService: DtpService,
-               private permissionService: NgxPermissionsService, private router: Router) { }
+  constructor(private statesService: StatesService,
+              private reuseService: ReuseService,
+              private scrollService: ScrollService,
+              private listService: ListService, 
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService, 
+              private modalService: NgbModal,
+              private dtpService: DtpService,
+              private permissionService: NgxPermissionsService, 
+              private router: Router) { }
 
   ngOnInit() {
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-      this.permissionService.loadPermissions([this.role]);
-    }
-    if (localStorage.getItem('organisationId')) {
-      this.orgId = localStorage.getItem('organisationId');
-    }
+    this.role = this.statesService.currentAuthRole;
+    this.permissionService.loadPermissions([this.role]);
+    this.orgId = this.statesService.currentAuthOrgId;
     this.notDashboard = this.router.url.includes('data-transfers') ? true : false;
     this.getDtpList();
     this.setupSearchDeBouncer();
