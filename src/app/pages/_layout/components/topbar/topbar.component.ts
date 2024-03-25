@@ -1,5 +1,4 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import { LayoutService } from '../../../../_rms';
 import KTLayoutQuickSearch from '../../../../../assets/js/layout/extended/quick-search';
 import KTLayoutQuickNotifications from '../../../../../assets/js/layout/extended/quick-notifications';
@@ -9,10 +8,7 @@ import KTLayoutQuickPanel from '../../../../../assets/js/layout/extended/quick-p
 import KTLayoutQuickUser from '../../../../../assets/js/layout/extended/quick-user';
 import KTLayoutHeaderTopbar from '../../../../../assets/js/layout/base/header-topbar';
 import { KTUtil } from '../../../../../assets/js/components/util';
-import {UserInterface} from '../../../../_rms/interfaces/user/user.interface';
-import {States} from '../../../../_rms/states/states';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { UserService } from 'src/app/_rms/services/user/user.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 export interface UserDataResult {
   sub: string,
   name: string
@@ -29,7 +25,6 @@ export interface UserDataResult {
 })
 export class TopbarComponent implements OnInit, AfterViewInit {
   userData: any;
-  user$: Observable<UserInterface>;
   // tobbar extras
   extraSearchDisplay: boolean;
   extrasSearchLayout: 'offcanvas' | 'dropdown';
@@ -45,13 +40,9 @@ export class TopbarComponent implements OnInit, AfterViewInit {
   extrasUserLayout: 'offcanvas' | 'dropdown';
 
   constructor(
+      private statesService: StatesService,
       private layout: LayoutService,
-      private states: States,
-      private oidcSecurityService: OidcSecurityService,
-      private userService: UserService
-  ) {
-    this.user$ = this.states.currentUser.asObservable();
-  }
+  ) { }
 
   ngOnInit(): void {
     // topbar extras
@@ -79,7 +70,7 @@ export class TopbarComponent implements OnInit, AfterViewInit {
     this.extrasQuickPanelDisplay = this.layout.getProp(
       'extras.quickPanel.display'
     );
-    this.getUserdate();
+    this.userData = this.statesService.currentUser;
   }
 
   ngAfterViewInit(): void {
@@ -124,18 +115,5 @@ export class TopbarComponent implements OnInit, AfterViewInit {
       // Init Header Topbar For Mobile Mode
       KTLayoutHeaderTopbar.init('kt_header_mobile_topbar_toggle');
     });
-  }
-  getUserdate() {
-    if (localStorage.getItem('userData')) {
-      this.userData = JSON.parse(localStorage.getItem('userData'));
-    } else {
-      this.userService.getUser().subscribe((res: any) => {
-        if (res) {
-          this.userData = res;
-        }
-      }, error => {
-        console.log('error', error);
-      })
-    }
   }
 }

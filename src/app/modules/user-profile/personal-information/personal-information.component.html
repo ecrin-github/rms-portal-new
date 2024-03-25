@@ -41,9 +41,8 @@
           <div class="col-lg-9 col-xl-6">
             <div class="image-input image-input-outline"
               id="kt_profile_avatar"
-              [class.image-input-empty]="!user.pic"
               [style.backgroundImage]="'url(./assets/media/users/blank.png)'"
-            >
+            ><!--[class.image-input-empty]="!user.pic" (previous div)-->
               <div class="image-input-wrapper" [style.backgroundImage]="getPic()"></div>
               <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
                 data-action="change"
@@ -59,12 +58,12 @@
                 data-action="cancel" data-toggle="tooltip" title="" data-original-title="Cancel avatar">
                 <i class="ki ki-bold-close icon-xs text-muted"></i>
               </span>
-              <span *ngIf="user.pic"
+              <!--<span *ngIf="user.pic"
                 class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
                 (click)="deletePic()"
                 data-action="remove" data-toggle="tooltip" title="" data-original-title="Remove avatar">
                 <i class="ki ki-bold-close icon-xs text-muted"></i>
-              </span>
+              </span>!-->
             </div>
             <span class="form-text text-muted">Allowed file types: png, jpg, jpeg.</span>
           </div>

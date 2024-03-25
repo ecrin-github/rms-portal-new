@@ -13,6 +13,7 @@ import { debounceTime, distinctUntilChanged, observeOn } from 'rxjs/operators';
 import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-summary-user',
@@ -36,7 +37,8 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
   dataChanged: boolean = false;
   
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  constructor(private reuseService: ReuseService,
+  constructor(private statesService: StatesService,
+              private reuseService: ReuseService,
               private scrollService: ScrollService, 
               private listService: ListService, 
               private spinner: NgxSpinnerService, 
@@ -46,13 +48,9 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
               private router: Router) { }
 
   ngOnInit(): void {
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-      this.permissionService.loadPermissions([this.role]);
-    }
-    if (localStorage.getItem('organisationId')) {
-      this.orgId = localStorage.getItem('organisationId');
-    }
+    this.role = this.statesService.currentAuthRole;
+    this.orgId = this.statesService.currentAuthOrgId;
+    this.permissionService.loadPermissions([this.role]);
     this.notDashboard = this.router.url.includes('people') ? true : false;
     this.getPeople();
     this.setupSearchDeBouncer();

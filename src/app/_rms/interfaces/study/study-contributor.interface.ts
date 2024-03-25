@@ -7,8 +7,8 @@ export interface StudyContributorInterface {
     createdOn: string;
     id: number;
     isIndividual: boolean;
-    lastEditedBy: UserInterface;  // TODO: fix (partially) wrong interface
+    lastEditedBy: UserInterface;
     organisation: OrganisationInterface;
-    person: UserInterface;  // TODO: fix (partially) wrong interface
+    person: UserInterface;
     studyId: string;
 }

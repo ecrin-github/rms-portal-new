@@ -8,7 +8,6 @@ import {Injectable} from '@angular/core';
     providedIn: 'root'
 })
 export class States {
-
     constructor(
         private defaultStates: DefaultStates
     ) {
@@ -24,5 +23,11 @@ export class States {
 
     public currentUser: BehaviorSubject<UserInterface> =
         new BehaviorSubject<UserInterface>(this.defaultStates.defaultCurrentUser);
+    
+    public currentAuthOrgId: BehaviorSubject<string> =
+        new BehaviorSubject<string>(this.defaultStates.defaultAuthOrgId);
+    
+    public currentAuthRole: BehaviorSubject<string> =
+        new BehaviorSubject<string>(this.defaultStates.defaultAuthRole);
 
 }

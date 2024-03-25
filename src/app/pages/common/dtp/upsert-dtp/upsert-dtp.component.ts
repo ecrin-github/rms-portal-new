@@ -23,6 +23,7 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {RedirectService} from './redirect-service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -71,7 +72,8 @@ export class UpsertDtpComponent implements OnInit {
   prereqs: any;
   dtpNotes: any;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private location: Location, 
               private router: Router, 
               private fb: UntypedFormBuilder, 
               private dtpService: DtpService, 
@@ -134,9 +136,7 @@ export class UpsertDtpComponent implements OnInit {
     }
   }
   ngOnInit(): void {
-    if(localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    } 
+    this.role = this.statesService.currentAuthRole;
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
     this.getOrganization();

@@ -14,6 +14,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-summary-study',
@@ -46,28 +47,24 @@ export class SummaryStudyComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('studyDeleteModal') studyDeleteModal : TemplateRef<any>;
 
-  constructor( private reuseService: ReuseService,
-               private scrollService: ScrollService, 
-               private listService: ListService, 
-               private spinner: NgxSpinnerService, 
-               private toastr: ToastrService, 
-               private modalService: NgbModal,
-               private studyService: StudyService,
-               private permissionService: NgxPermissionsService,
-               private router: Router) { }
+  constructor(private statesService: StatesService,
+              private reuseService: ReuseService,
+              private scrollService: ScrollService, 
+              private listService: ListService, 
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService, 
+              private modalService: NgbModal,
+              private studyService: StudyService,
+              private permissionService: NgxPermissionsService,
+              private router: Router) { }
 
   ngOnInit(): void {
-    this.orgId = localStorage.getItem('organisationId');
-    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
+    this.orgId = this.statesService.currentAuthOrgId;
+    this.role = this.statesService.currentAuthRole;
+    this.isOrgIdValid = this.statesService.isOrgIdValid();
     this.isBrowsing = this.router.url.includes('browsing');
     if (!this.isBrowsing) {
-      if (localStorage.getItem('role')) {
-        this.role = localStorage.getItem('role');
-        this.permissionService.loadPermissions([this.role]);
-      }
-      if(localStorage.getItem('organisationId')) {
-        this.orgId = localStorage.getItem('organisationId');
-      }
+      this.permissionService.loadPermissions([this.role]);
     }
     this.notDashboard = this.router.url.includes('studies') ? true : false;
     this.getStudyList();
@@ -108,7 +105,7 @@ export class SummaryStudyComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-    getStudyListByOrg() {
+  getStudyListByOrg() {
     this.spinner.show();
     this.listService.getStudyListByOrg(this.orgId).subscribe((res: any) => {
       this.spinner.hide();

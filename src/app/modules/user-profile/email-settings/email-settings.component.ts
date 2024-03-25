@@ -73,11 +73,6 @@ export class EmailSettingsComponent implements OnInit, OnDestroy {
     });
 
     // Do request to your server for user update, we just imitate user update there
-    this.statesService.isLoadingSubject = true;
-    setTimeout(() => {
-      this.statesService.currentUser = Object.assign({}, this.user);
-      this.statesService.isLoadingSubject = false;
-    }, 2000);
   }
 
   cancel() {

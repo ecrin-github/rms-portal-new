@@ -8,6 +8,7 @@ import { combineLatest } from 'rxjs';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { PeopleService } from 'src/app/_rms/services/entities/people/people.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-upsert-user',
@@ -25,7 +26,8 @@ export class UpsertUserComponent implements OnInit {
   submitte: boolean = false;
   pageSize:Number = 10000;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private location: Location, 
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private activatedRoute: ActivatedRoute, 
@@ -46,9 +48,7 @@ export class UpsertUserComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    if(localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    } 
+    this.role = this.statesService.currentAuthRole;
     this.getOrganization();
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;

@@ -18,6 +18,7 @@ import { CommonModalComponent } from '../../common-modal/common-modal.component'
 import { ConfirmationWindowComponent } from '../../confirmation-window/confirmation-window.component';
 import { ConfirmationWindow1Component } from '../../confirmation-window1/confirmation-window1.component';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-upsert-dup',
@@ -58,7 +59,8 @@ export class UpsertDupComponent implements OnInit {
   dupNotes: any;
   prereqs: any;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private location: Location, 
               private router: Router, 
               private fb: UntypedFormBuilder, 
               private dupService: DupService, 
@@ -113,9 +115,7 @@ export class UpsertDupComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if(localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    } 
+    this.role = this.statesService.currentAuthRole;
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
     this.getOrganization();

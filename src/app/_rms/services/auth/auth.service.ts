@@ -1,123 +1,84 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { Observable, of, Subscription } from 'rxjs';
-import { map, catchError, switchMap, finalize } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+import { Injectable } from '@angular/core';
+import { of } from 'rxjs';
+import { map, catchError, mergeMap, timeout } from 'rxjs/operators';
+import { ToastrService  } from 'ngx-toastr';
 import { Router } from '@angular/router';
-import {UserInterface} from '../../interfaces/user/user.interface';
-import {AuthHTTPService} from '../auth-http';
-import {AuthInterface} from '../../interfaces/user/auth.interface';
-import {PrivilegesService} from '../privileges/privileges.service';
-import {StatesService} from '../states/states.service';
-import {States} from '../../states/states';
+import { UserInterface } from '../../interfaces/user/user.interface';
+import { AuthHTTPService } from '../auth-http';
+import { StatesService } from '../states/states.service';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { UserService } from '../user/user.service';
+import { LsAaiUserInterface } from '../../interfaces/user/ls-aai/ls-aai.user.interface';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService implements OnDestroy {
-  // private fields
-  private unsubscribe: Subscription[] = [];
-  private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;
-
+export class AuthService {
   // public fields
-  currentUser$: Observable<UserInterface>;
-  isLoading$: Observable<boolean>;
   isauthentic: boolean;
 
   constructor(
     private authHttpService: AuthHTTPService,
-    private states: States,
     private statesService: StatesService,
-    private privilegesService: PrivilegesService,
+    private permissionService: NgxPermissionsService, 
     private router: Router,
-    private oidcSecurityService: OidcSecurityService
-  ) {
-    this.currentUser$ = this.states.currentUser.asObservable();
-    this.isLoading$ = this.states.isLoadingSubject.asObservable();
-    const subscr = this.getUserByToken().subscribe();
-    this.unsubscribe.push(subscr);
-  }
-  isAuthenticUser() {
-    this.oidcSecurityService.checkAuth().subscribe(({ isAuthenticated, userData, accessToken, idToken }) => {
-      this.isauthentic = isAuthenticated;
-      // if (localStorage.getItem('role')) {
-      //   localStorage.removeItem('role');
-      // }
-      // localStorage.setItem('role', userData.role);
-    });
-    return this.isauthentic;
-  }
+    private oidcSecurityService: OidcSecurityService,
+    private userService: UserService,
+    private toastr: ToastrService
+  ) { }
 
-  // public methods
-  login(email: string, password: string): Observable<UserInterface> {
-    this.statesService.isLoadingSubject = true;
-    return this.authHttpService.login(email, password).pipe(
-      map((auth: AuthInterface) => {
-        return this.setAuthFromLocalStorage(auth);
+  isAuthenticUser() {
+    // TODO: trigger this function on routes that should have auth checks
+    return this.oidcSecurityService.checkAuth().pipe(
+      timeout(10000),
+      mergeMap(async ({isAuthenticated, userData, accessToken, idToken}) => {
+        if (isAuthenticated) {
+          // Note: userData in checkAuth result is obtained from localStorage (and therefore can be tampered with), so we have to query LS AAI again
+          // Note 2: querying LS AAI even if statesService.currentUser is set for added security (preventing client-side memory tampering)
+          await this.getUser();
+        } else {
+          this.logout();
+        }
+        this.isauthentic = isAuthenticated;
+        return isAuthenticated;
       }),
-      switchMap(() => this.getUserByToken()),
-      catchError((err) => {
-        console.error('err', err);
-        return of(undefined);
-      }),
-      finalize(() => {
-        this.statesService.isLoadingSubject = false;
+      catchError(err => {
+        this.logout(err);
+        return of(false);
       })
     );
   }
 
-  logout() {
-    // localStorage.removeItem(this.authLocalStorageToken);
-    this.router.navigate(['/login'], {
-      queryParams: {},
-    });
-  }
-
-  getUserByToken(): Observable<UserInterface> {
-    const auth = this.getAuthFromLocalStorage();
-    if (!auth || !auth.accessToken) {
-      return of(undefined);
-    }
-
+  getUser() {
+    /* Get user from LS and get role and organisation from our DB. Setting user and permissions as well. */
     this.statesService.isLoadingSubject = true;
-    // return this.authHttpService.getUserByToken(auth.accessToken).pipe(
-    //   map((user: UserInterface) => {
-    //     if (user) {
-    //       this.statesService.currentUser = user;
-    //       this.privilegesService.setPrivileges(user);
-    //     } else {
-    //       this.logout();
-    //     }
-    //     return user;
-    //   }),
-    //   finalize(() => {
-    //     this.statesService.isLoadingSubject = false;
-    //   })
-    // );
+    return this.userService.getUser()
+      .pipe(
+        timeout(10000),
+        mergeMap((userDataClean: LsAaiUserInterface) => {
+          return this.authHttpService.getUserByLSID(userDataClean.sub);
+        }),
+        map((user: UserInterface) => {
+          console.log(`isAuthenticUser result user: ${JSON.stringify(user)}`);
+          this.statesService.currentUser = user;
+          this.permissionService.loadPermissions([this.statesService.currentAuthRole]);
+        }),
+        catchError(err => {
+          this.logout(err);
+          return of(false);
+        })
+      ).toPromise();
   }
 
-  // private methods
-  private setAuthFromLocalStorage(auth: AuthInterface): boolean {
-    if (auth && auth.accessToken) {
-      localStorage.setItem(this.authLocalStorageToken, JSON.stringify(auth));
-      return true;
+  logout(err?) {
+    this.oidcSecurityService.logoff();
+    localStorage.clear();
+    if (err) {
+      // TODO: untested
+      this.toastr.error(err, 'Authentication error');
     }
-    return false;
-  }
-
-  private getAuthFromLocalStorage(): AuthInterface {
-    try {
-      return JSON.parse(
-          localStorage.getItem(this.authLocalStorageToken)
-      );
-    } catch (error) {
-      console.error(error);
-      return undefined;
-    }
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe.forEach((sb) => sb.unsubscribe());
+    this.router.navigate(['login']);
   }
 }

@@ -14,6 +14,7 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generator/pdf-generator.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-upsert-object',
@@ -61,7 +62,8 @@ export class UpsertObjectComponent implements OnInit {
   isBrowsing: boolean = false;
   pageSize: Number = 10000;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private location: Location, 
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private commonLookupService: CommonLookupService, 
@@ -130,19 +132,15 @@ export class UpsertObjectComponent implements OnInit {
     }
   }
 
-
   ngOnInit(): void {
     this.isAdd = this.router.url.includes('add') ? true : false;
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    }
-    if (localStorage.getItem('organisationId')) {
-      this.orgId = localStorage.getItem('organisationId');
-    }
-    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
+
+    this.role = this.statesService.currentAuthRole;
+    this.orgId = this.statesService.currentAuthOrgId;
+    this.isOrgIdValid = this.statesService.isOrgIdValid();
     if (this.role === 'User') {
       this.objectForm.get('objectType').setValidators(Validators.required);
     }

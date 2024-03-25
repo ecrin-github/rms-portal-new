@@ -14,6 +14,7 @@ import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generato
 import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/study-lookup.service';
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-upsert-study',
@@ -59,7 +60,8 @@ export class UpsertStudyComponent implements OnInit {
   isOrgIdValid: boolean;
   canEdit: boolean = false;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private location: Location, 
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private studyLookupService: StudyLookupService, 
@@ -113,12 +115,9 @@ export class UpsertStudyComponent implements OnInit {
       this.spinner.show(); 
     });
 
-    this.orgId = localStorage.getItem('organisationId');
-    console.log(`this.orgId: ${this.orgId}`);
-    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    }
+    this.orgId = this.statesService.currentAuthOrgId;
+    this.role = this.statesService.currentAuthRole;
+    this.isOrgIdValid = this.statesService.isOrgIdValid();
     this.isEdit = this.router.url.includes('edit');
     this.isView = this.router.url.includes('view');
     this.isAdd = this.router.url.includes('add');

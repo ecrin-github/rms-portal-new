@@ -64,10 +64,48 @@ export class StatesService {
 
     set currentUser(value: UserInterface) {
         this.states.currentUser.next(value);
+        if (value.userProfile.organisation) {
+            this.states.currentAuthOrgId.next(value.userProfile.organisation.id);
+        }
+        // TODO: fix this (see issue #28 on GitHub)
+        this.states.currentAuthRole.next(value.isSuperuser && value.isStaff ? 'Manager' : 'User');
     }
 
     setDefaultCurrentUser() {
         this.states.currentUser.next(undefined);
     }
 
+    // Current authorized OrgId state services
+    get currentAuthOrgId(): string {
+        return this.states.currentAuthOrgId.value;
+    }
+
+    set currentAuthOrgId(value: string) {
+        this.states.currentAuthOrgId.next(value);
+    }
+
+    setDefaultCurrentAuthOrgId() {
+        this.states.currentAuthOrgId.next(undefined);
+    }
+
+    isOrgIdValid() {
+        return this.states.currentAuthOrgId.value !== 'null' 
+            && this.states.currentAuthOrgId.value !== 'undefined' 
+            && this.states.currentAuthOrgId.value !== null
+            && this.states.currentAuthOrgId.value !== undefined
+            && this.states.currentAuthOrgId.value !== '';
+    }
+
+    // Current authorized user role state services
+    get currentAuthRole(): string {
+        return this.states.currentAuthRole.value;
+    }
+
+    set currentAuthRole(value: string) {
+        this.states.currentAuthRole.next(value);
+    }
+
+    setDefaultCurrentAuthRole() {
+        this.states.currentAuthRole.next(undefined);
+    }
 }

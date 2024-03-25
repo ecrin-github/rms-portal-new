@@ -56,6 +56,7 @@ import { SummaryUserComponent } from './user/summary-user/summary-user/summary-u
 import { AddModalComponent } from './add-modal/add-modal.component';
 import { UpsertUserComponent } from './user/upsert/upsert-user/upsert-user.component';
 import { UsersComponent } from 'src/app/modules/user-management/users/users.component';
+import { RoleGuard } from 'src/app/_rms/guards/role/role.guard';
 
 
 @NgModule({
@@ -166,7 +167,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertstudycomponentedit'
-                }
+                },
+                canActivate: [RoleGuard]
             },
             {
                 path: 'studies/:id/view',
