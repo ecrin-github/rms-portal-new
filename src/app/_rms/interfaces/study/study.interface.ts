@@ -1,3 +1,5 @@
+import { DataObjectInterface } from '../data-object/data-object.interface';
+import { OrganisationInterface } from '../organisation/organisation.interface';
 import {StudyContributorInterface} from './study-contributor.interface';
 import {StudyFeatureInterface} from './study-feature.interface';
 import {StudyIdentifierInterface} from './study-identifiers.interface';
@@ -27,6 +29,7 @@ export interface StudyInterface {
     maxAge: number | null;
     maxAgeUnit: {id:number, name:string} | null;
     createdOn: string | null;
+    organisation: OrganisationInterface | null;
     studyContributors: StudyContributorInterface[] | null;
     studyFeatures: StudyFeatureInterface[] | null;
     studyIdentifiers: StudyIdentifierInterface[] | null;
@@ -34,6 +37,7 @@ export interface StudyInterface {
     studyRelationships: StudyRelationshipInterface[] | null;
     studyTitles: StudyTitleInterface[] | null;
     studyTopics: StudyTopicInterface[] | null;
+    linkedObjects: DataObjectInterface | null;
 }
 
 export interface StudyDataInterface {

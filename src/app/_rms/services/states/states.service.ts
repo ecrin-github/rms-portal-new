@@ -68,7 +68,7 @@ export class StatesService {
             this.states.currentAuthOrgId.next(value.userProfile.organisation.id);
         }
         // TODO: fix this (see issue #28 on GitHub)
-        this.states.currentAuthRole.next(value.isSuperuser && value.isStaff ? 'Manager' : 'User');
+        this.states.currentAuthRole.next(value.isSuperuser || value.isStaff ? 'Manager' : 'User');
     }
 
     setDefaultCurrentUser() {
@@ -88,12 +88,16 @@ export class StatesService {
         this.states.currentAuthOrgId.next(undefined);
     }
 
-    isOrgIdValid() {
+    isOrgIdValid(): boolean {
         return this.states.currentAuthOrgId.value !== 'null' 
             && this.states.currentAuthOrgId.value !== 'undefined' 
             && this.states.currentAuthOrgId.value !== null
             && this.states.currentAuthOrgId.value !== undefined
             && this.states.currentAuthOrgId.value !== '';
+    }
+
+    isManager(): boolean {
+        return this.currentAuthRole === 'Manager';
     }
 
     // Current authorized user role state services

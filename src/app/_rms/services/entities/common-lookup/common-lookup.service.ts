@@ -24,6 +24,9 @@ export class CommonLookupService {
   getOrganizationList(pageSize) {
     return this.http.get(`${base}/general/organisations?page_size=${pageSize}`);
   }
+  getOrganizationById(orgId) {
+    return this.http.get(`${base}/general/organisations/${orgId}`);
+  }
 
 
   getLanguageCodes(pageSize) {

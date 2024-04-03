@@ -81,6 +81,11 @@
 //   box-shadow: 0 0.5rem 1.5rem 0.5rem rgb(0 0 0 / 8%) !important;
 // }
 
+.calendar {
+  display: block;
+  width: 100%;
+}
+
 .angular-bootstrap-table {
   overflow-x: auto;
 }
@@ -106,6 +111,10 @@
   .table.table-head-custom thead th.sortable-active {
     color: #3699FF !important;
   }
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option { 
+  white-space: break-spaces !important;
 }
 
 mat-cell, .mat-cell {

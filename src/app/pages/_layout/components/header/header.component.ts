@@ -36,10 +36,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   headerMenuCSSClasses: string;
   headerMenuHTMLAttributes: any = {};
   routerLoaderTimout: any;
-  appVersion: string;
   isBrowsing: boolean = false;
   appTitle: string;
-  versionString: string;
+  appVersion: string;
 
   @ViewChild('ktHeaderMenu', { static: true }) ktHeaderMenu: ElementRef;
   loader$: Observable<number>;
@@ -85,7 +84,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.headerMenuSelfDisplay = this.layout.getProp(
       'header.menu.self.display'
     );
-    this.versionString = environment.versionString;
+    this.appVersion = environment.appVersion;
     this.appTitle = environment.appTitle;
     this.headerMenuSelfStatic = this.layout.getProp('header.menu.self.static');
     this.asideSelfDisplay = this.layout.getProp('aside.self.display');

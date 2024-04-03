@@ -4,8 +4,8 @@
             <div class="col-md-6">
                 <h2>Studies</h2>
             </div>
-            <ng-container *ngIf="!isBrowsing">
-                <div class="col-md-6 text-right" *ngxPermissionsOnly="['Admin', 'Manager']">
+            <ng-container *ngIf="!isBrowsing && isOrgIdValid">
+                <div class="col-md-6 text-right">
                     <div class="btn-group">
                         <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false">
@@ -19,20 +19,6 @@
                 </div>    
             </ng-container>
         </div>
-        <!-- <ng-container *ngIf="!isBrowsing">
-            <div style="float: right; margin-top: -40px;" *ngxPermissionsOnly="['Admin', 'Manager']">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                        aria-expanded="false">
-                        <i class="fa fa-plus"></i> New study
-                    </button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="/studies/add?type=usingTrialId">Using Trial Registry</a>
-                        <a class="dropdown-item" href="/studies/add?type=manual">Manually</a>
-                    </div>
-                </div>
-            </div>
-        </ng-container> -->
     </div>
 
     <div class="card-body">
@@ -48,12 +34,6 @@
                     <input type="text" class="form-control" placeholder="Search study..." [(ngModel)]="searchText" (keyup)="onInputChange($event)"/>
                 </div>
             </div>
-            <!-- <div class="col-md-3">
-                <div class="form-group">
-                    <button class="btn btn-primary" (click)="filterSearch()">Search</button>
-                    <span class="pl-2"><button class="btn btn-warning" (click)="getStudyList()">Clear</button></span>
-                </div>
-            </div> -->
         </div>
 
         <mat-table [dataSource]="dataSource">
@@ -84,10 +64,10 @@
                     <a [routerLink]="isBrowsing ? ['/browsing/studies', row.id, 'view'] : ['/studies', row.id, 'view']">
                         <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <a [routerLink]="['/studies', row.id, 'edit']" [queryParams]="{type: 'manual'}" *ngIf="!isBrowsing && isOrgIdValid">
+                    <a [routerLink]="['/studies', row.id, 'edit']" [queryParams]="{type: 'manual'}" *ngIf="!isBrowsing">
                         <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngIf="!isBrowsing && isOrgIdValid">
+                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngIf="!isBrowsing">
 
                     </i>
                 </mat-cell>

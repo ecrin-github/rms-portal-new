@@ -15,10 +15,9 @@ export class HeaderMobileComponent implements OnInit, AfterViewInit {
   headerMobileClasses = '';
   headerMobileAttributes = {};
 
-  version: string;
+  appVersion: string;
   status: string;
   appTitle: string;
-  versionString: string;
 
   constructor(private layout: LayoutService) { }
 
@@ -35,8 +34,7 @@ export class HeaderMobileComponent implements OnInit, AfterViewInit {
       'header.menu.self.display'
     );
 
-    this.version = environment.appVersion;
-    this.versionString = environment.versionString;
+    this.appVersion = environment.appVersion;
     this.appTitle = environment.appTitle;
   }
 

@@ -1,6 +1,8 @@
+import { appVersion } from './version';
+
 export const environment = {
   production: false,
-  appVersion: 'v.0.1.0',
+  appVersion: appVersion,
   //baseUrl: 'https://api.ecrin-rms.org',
   baseUrl: 'https://api-dsrdev.ecrin.org/api',
   // baseUrl: 'https://api-test.ecrin-rms.org/api',

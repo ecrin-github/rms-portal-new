@@ -30,7 +30,6 @@ export class AuthService {
   ) { }
 
   isAuthenticUser() {
-    // TODO: trigger this function on routes that should have auth checks
     return this.oidcSecurityService.checkAuth().pipe(
       timeout(10000),
       mergeMap(async ({isAuthenticated, userData, accessToken, idToken}) => {
@@ -61,7 +60,6 @@ export class AuthService {
           return this.authHttpService.getUserByLSID(userDataClean.sub);
         }),
         map((user: UserInterface) => {
-          console.log(`isAuthenticUser result user: ${JSON.stringify(user)}`);
           this.statesService.currentUser = user;
           this.permissionService.loadPermissions([this.statesService.currentAuthRole]);
         }),
@@ -76,8 +74,7 @@ export class AuthService {
     this.oidcSecurityService.logoff();
     localStorage.clear();
     if (err) {
-      // TODO: untested
-      this.toastr.error(err, 'Authentication error');
+      this.toastr.error(err.message, 'Authentication error');
     }
     this.router.navigate(['login']);
   }

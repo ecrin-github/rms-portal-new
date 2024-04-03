@@ -18,12 +18,6 @@
                     <input type="text" class="form-control" placeholder="Search Person..." [(ngModel)]="searchText" (keydown)="onInputChange($event)"/>
                 </div>
             </div>
-            <!-- <div class="col-md-3">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" (click)="filterSearch()">Search</button>
-                    <span class="pl-2"><button class="btn btn-warning" (click)="getPeople()">Reset</button></span>
-                </div>
-            </div> -->
         </div>
         <mat-table [dataSource]="dataSource">
 
@@ -45,7 +39,7 @@
             <ng-container matColumnDef="actions">
                 <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
                 <mat-cell *matCellDef="let row">
-                    <a [routerLink]="['/people', row.id, 'view']">
+                    <a [routerLink]="['/people', row.id, 'view']" *ngxPermissionsOnly="['Admin', 'Manager']">
                         <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
                     </a>
                     <a [routerLink]="['/people', row.id, 'edit']" *ngxPermissionsOnly="['Admin', 'Manager']">
