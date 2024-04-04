@@ -50,7 +50,9 @@
                                 <label for="url" class="font-style text-capitalize">Access details: URL</label>
                                 <input id="url" type="text" class="form-control" placeholder="https://www.example.org/mydata"
                                     formControlName="url" *ngIf="!isView" />
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
+                                <a href="{{objectInstance.value.url}}">
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
+                                </a>
                             </div>
                             <div class="col-md-6">
                                 <label for="resourceType" class="font-style text-capitalize">Resource details: Resource type</label>
