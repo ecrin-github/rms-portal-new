@@ -70,9 +70,7 @@ export class StudyFeatureComponent implements OnInit {
     });
   }
   getStudyFeature() {
-    this.spinner.show();
     this.studyService.getStudyFeatures(this.studyId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.studyFeature = res.results.length ? res.results : [];
         if (this.isEdit || this.isView) {
@@ -86,18 +84,14 @@ export class StudyFeatureComponent implements OnInit {
           })
         }    
       }
-      this.spinner.hide();
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
   getFeature() {
     const getFeatureType$ =  this.studyLookupService.getFeatureTypes(this.pageSize);
     const getFeatureValue$ = this.studyLookupService.getFeatureValues(this.pageSize);
-    this.spinner.show();
     const combine$ = combineLatest([getFeatureType$, getFeatureValue$]).subscribe(([featureType, featureValue] : [any, any]) => {
-      this.spinner.hide();
       if (featureType.results) {
         this.featureTypes = featureType.results;
       }
@@ -106,7 +100,6 @@ export class StudyFeatureComponent implements OnInit {
       }
       this.featureArrayFormation();
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }

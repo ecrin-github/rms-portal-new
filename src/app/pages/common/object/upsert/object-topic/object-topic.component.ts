@@ -111,15 +111,12 @@ export class ObjectTopicComponent implements OnInit {
     });
   }
   getObjectTopic() {
-    this.spinner.show();
     this.objectService.getObjectTopics(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectTopic = res.results.length ? res.results : [];
         this.patchForm(this.objectTopic);
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {

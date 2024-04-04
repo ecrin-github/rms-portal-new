@@ -115,7 +115,7 @@ export class UpsertStudyComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.spinner.show(); 
+      this.spinner.show();
     });
 
     this.isManager = this.statesService.isManager();
@@ -198,10 +198,8 @@ export class UpsertStudyComponent implements OnInit {
         this.setOrganisation(res.pop());
       }
 
-      // TODO: still too early
       setTimeout(() => {
-        console.log("spinner hide");
-        this.spinner.hide(); 
+        this.spinner.hide();
       });
     });
 

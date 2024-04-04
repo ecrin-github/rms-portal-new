@@ -110,15 +110,12 @@ export class ObjectContributorComponent implements OnInit {
     });
   }
   getObjectContributor() {
-    this.spinner.show();
     this.objectService.getObjectContributors(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectContributor = res.results.length ? res.results : [];
         this.patchForm(this.objectContributor);
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
@@ -178,14 +175,11 @@ export class ObjectContributorComponent implements OnInit {
     })
   }
     getOrganization() {
-    this.spinner.show();
     this.commonLooupService.getOrganizationList(this.pagesize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.organizationList = res.results;
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }

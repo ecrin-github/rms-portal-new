@@ -128,15 +128,12 @@ export class ObjectDescriptionComponent implements OnInit {
     return langArr && langArr.length? langArr[0].id : '';
   }
   getObjectDescription() {
-    this.spinner.show();
     this.objectService.getObjectDescriptions(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectDescription = res.results.length ? res.results : [];
         this.patchForm(this.objectDescription);
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {

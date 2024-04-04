@@ -107,41 +107,30 @@ export class StudyIdentifierComponent implements OnInit {
     }
   }
   getOrganization() {
-    this.spinner.show();
     this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.organizationList = res.results;
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
   getIdentifierType() {
-    setTimeout(() => {
-      this.spinner.show(); 
-    });
     this.studyLookupService.getStudyIdentifierTypes(this.pageSize).subscribe((res: any) => {
       if(res && res.results) {
         this.identifierTypes = res.results;
       }
-      this.spinner.hide();
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     });
   }
   getStudyIdentifier() {
-    this.spinner.show();
     this.studyService.getStudyIdentifiers(this.studyId).subscribe((res:any) => {
       if(res && res.results) {
         this.studyIdentifier = res.results.length ? res.results : [];
         this.patchForm(this.studyIdentifier);
       }
-      this.spinner.hide();
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }

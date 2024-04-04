@@ -130,43 +130,30 @@ export class StudyTitleComponent implements OnInit {
     }
   }
   getTitleType() {
-    setTimeout(() => {
-      this.spinner.show(); 
-    });
     this.studyLookupService.getStudyTitleTypes(this.pageSize).subscribe((res:any) => {
-      this.spinner.hide();
       if(res.results) {
         this.titleType = res.results;
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     });
   }
   getLanguageCode() {
-    setTimeout(() => {
-      this.spinner.show();
-    });
     this.commonLookupService.getLanguageCodes(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res.results) {
         this.languageCodes = res.results;
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
   getStudyTitle() {
-    this.spinner.show();
     this.studyService.getStudyTitles(this.studyId).subscribe((res: any) => {
       if (res && res.results) {
         this.studyTitle = res.results.length ? res.results : [];
         this.patchForm(this.studyTitle);
       }
-      this.spinner.hide();
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }

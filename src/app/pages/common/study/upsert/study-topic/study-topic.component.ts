@@ -107,16 +107,11 @@ export class StudyTopicComponent implements OnInit {
     });
   }
   getTopicVocabulary() {
-    setTimeout(() => {
-      this.spinner.show();
-    });
     this.commonLookupService.getTopicVocabularies(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res.results) {
         this.controlledTerminology = res.results;
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
@@ -125,15 +120,12 @@ export class StudyTopicComponent implements OnInit {
     return arr && arr.length ? arr[0].name : 'None';
   }
   getStudyTopic() {
-    this.spinner.show();
     this.studyService.getStudyTopics(this.studyId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.studyTopic = res.results.length ? res.results : [];
         this.patchForm(this.studyTopic);
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }

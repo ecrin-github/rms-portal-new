@@ -125,15 +125,12 @@ export class ObjectTitleComponent implements OnInit {
     });
   }
   getObjectTitle() {
-    this.spinner.show();
     this.objectService.getObjectTitles(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectTitle = res.results.length ? res.results : [];
         this.patchForm(this.objectTitle);
       }
     }, error => {
-      this.spinner.hide();
       const arr = Object.keys(error.error);
       arr.map((item,index) => {
         this.toastr.error(`${item} : ${error.error[item]}`);
