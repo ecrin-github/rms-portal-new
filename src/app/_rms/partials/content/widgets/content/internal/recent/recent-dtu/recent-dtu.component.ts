@@ -11,7 +11,7 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 export class RecentDtuComponent {
   @Input() cssClass;
   @Input() dtpTotal: number = 0;
-  displayedColumns = ['id', 'organisation', 'title', 'status', 'actions'];
+  displayedColumns = ['dtuId', 'organisation', 'title', 'status', 'actions'];
   dataSource: MatTableDataSource<DtpListEntryInterface>;
 
   constructor(private listService: ListService, 

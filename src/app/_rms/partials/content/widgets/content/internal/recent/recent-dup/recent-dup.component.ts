@@ -12,7 +12,7 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 export class RecentDupComponent {
   @Input() cssClass;
   @Input() dupTotal: number = 0;
-  displayedColumns = ['id', 'organisation', 'title', 'status', 'actions'];
+  displayedColumns = ['dtpId', 'organisation', 'title', 'status', 'actions'];
   dataSource: MatTableDataSource<DupListEntryInterface>;
    
   constructor( private listService: ListService, 
