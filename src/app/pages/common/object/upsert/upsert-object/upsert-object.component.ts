@@ -319,7 +319,8 @@ export class UpsertObjectComponent implements OnInit {
   }
   setLanguageCodes(languageCodes) {
     if (languageCodes?.results) {
-      this.languageCodes = languageCodes.results;
+      const { compare } = Intl.Collator('en-GB');
+      this.languageCodes = languageCodes.results.sort((a, b) => compare(a.langNameEn, b.langNameEn));
       if (this.isAdd) {
         this.objectForm.patchValue({
           langCode: this.findLangCode('English')

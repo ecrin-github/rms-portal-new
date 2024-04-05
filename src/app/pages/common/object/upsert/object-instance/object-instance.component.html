@@ -29,7 +29,7 @@
                                 <!-- <input id="repositoryOrg" type="text" class="form-control" placeholder="Enter an Organisation..."
                                     formControlName="repositoryOrg" *ngIf="!isView" /> -->
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
-                                    formControlName="repositoryOrg" [multiple]="false" [virtualScroll]="true" class="custom"
+                                    formControlName="repositoryOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                                     notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>

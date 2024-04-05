@@ -32,12 +32,17 @@
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{findTitleType(studyTitle.value.titleType)}}</h6>
                             </div>
                             <div class="col-md-6">
-                                <label for="langCode" class="font-style text-capitalize">Language code</label>
-                                <select class="form-control" id="langCode" formControlName="langCode" *ngIf="!isView">
-                                    <option disabled selected value=""></option>
-                                    <option [value]=language.id *ngFor="let language of languageCodes">{{language.langNameEn}}</option>
-                                </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTitle.value.langCode}}</h6>
+                                <label for="langCode" class="font-style text-capitalize">Language</label>
+                                <ng-select class="form-control" appendTo="body" id="langCode" [items]="languageCodes" formControlName="langCode"
+                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" *ngIf="!isView" [searchFn]="customSearchLang">
+                                    <ng-template ng-label-tmp let-item="item">
+                                        {{item.langNameEn}}
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                        {{item.langNameEn}}
+                                    </ng-template>
+                                </ng-select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTitle.value.langCode?.langNameEn}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">

@@ -70,7 +70,7 @@
                         <label for="organisation" class="font-style text-capitalize">Organisation <sup>*</sup> </label>
                         <ng-container *ngIf="!isView && isManager; else displayOrgName">
                             <ng-select id="organisation" [items]="organisations" formControlName="organisation" *ngxPermissionsOnly="['Admin', 'Manager']"
-                            [compareWith]="compareOrganisations" [multiple]="false" [virtualScroll]="true" class="custom"
+                            [compareWith]="compareOrganisations" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                             notFoundText="No organisation found" placeholder="Please select the organisation" [searchFn]="customSearchFn" 
                             [ngClass]="{ 'is-invalid': isSubmitted && g.organisation.errors }">
                                 <ng-template ng-label-tmp let-item="item">

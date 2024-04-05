@@ -39,7 +39,7 @@
                                 <!-- <input id="targetSdOid" type="text" class="form-control" formControlName="targetSdOid"
                                     placeholder="Enter a parameter..." *ngIf="!isView" /> -->
                                 <ng-select [items]="objectList" bindLabel="id" bindValue="id" formControlName="targetObjectId" [multiple]="false"
-                                    [virtualScroll]="true" class="custom" notFoundText="No members found" placeholder="Please select the related data object"
+                                    [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found" placeholder="Please select the related data object"
                                     *ngIf="!isView" [searchFn]="customSearchFn">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.id}}
