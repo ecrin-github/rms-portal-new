@@ -57,7 +57,7 @@ export class AuthService {
       .pipe(
         timeout(10000),
         mergeMap((userDataClean: LsAaiUserInterface) => {
-          return this.authHttpService.getUserByLSID(userDataClean.sub);
+          return this.userService.getUserRoleInfo(userDataClean);
         }),
         map((user: UserInterface) => {
           this.statesService.currentUser = user;
