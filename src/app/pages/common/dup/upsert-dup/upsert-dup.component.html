@@ -55,7 +55,7 @@
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize">organization</label>
                                     <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="organisation"
-                                        [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
+                                        [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
                                         placeholder="Select Organisation" *ngIf="!isView"
                                         [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }" [readonly]="isEdit">
                                     </ng-select>

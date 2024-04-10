@@ -43,7 +43,7 @@
                             <div class="col-md-6">
                                 <label for="originalValue" class="font-style text-capitalize">Controlled Terminology</label>
                                 <ng-select [items]="controlledTerminology" bindLabel="name" bindValue="id" formControlName="originalValue" [multiple]="false"
-                                    [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No terminology found" placeholder="Select Terminology" *ngIf="!isView">
+                                    [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No terminology found" placeholder="Select Terminology" *ngIf="!isView">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.name}}
                                     </ng-template>

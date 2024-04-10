@@ -43,7 +43,7 @@
                             <div class="col-md-6">
                                 <label for="identifierOrg" class="font-style text-capitalize">Identifier organisation</label>
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="identifierOrg"
-                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No organization found"
+                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No organization found"
                                     placeholder="Select Organization" *ngIf="!isView">
                                 </ng-select>
                                 <!-- <input type="text" id="identifierOrgId" class="form-control" placeholder="Enter a parameter..."

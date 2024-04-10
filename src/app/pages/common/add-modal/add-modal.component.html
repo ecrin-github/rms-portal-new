@@ -9,7 +9,7 @@
                     <div class="col-md-12">
                         <label for="object" class="font-style text-capitalize">Object</label>
                         <ng-select [items]="objectList" bindLabel="objectId" bindValue="objectId" formControlName="objectId"
-                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
+                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
                             placeholder="Select object" [searchFn]="customSearchFn">
                             <ng-template ng-label-tmp let-item="item">
                                 {{item.objectId}}
@@ -47,7 +47,7 @@
                     <div class="col-md-12">
                         <label for="object" class="font-style text-capitalize">Object</label>
                         <ng-select [items]="objectList" bindLabel="sdOid" bindValue="sdOid" formControlName="sdOid"
-                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
+                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
                             placeholder="Select object" [searchFn]="customSearchFn">
                             <ng-template ng-label-tmp let-item="item">
                                 {{item.sdOid}}
@@ -123,7 +123,7 @@
                     <div class="col-md-12">
                         <label for="object" class="font-style text-capitalize">Object</label>
                         <ng-select [items]="objectList" bindLabel="sdOid" bindValue="sdOid" formControlName="sdOid"
-                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
+                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
                             placeholder="Select object" [searchFn]="customSearchFn">
                             <ng-template ng-label-tmp let-item="item">
                                 {{item.sdOid}}

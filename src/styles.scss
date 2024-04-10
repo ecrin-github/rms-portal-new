@@ -122,6 +122,10 @@
   padding: 0 !important;
 }
 
+.ng-dropdown-panel .ng-dropdown-panel-items {
+  max-height: 25rem !important;  // trying to match form-control
+}
+
 mat-cell, .mat-cell {
   display:block; // flex prevents padding from working
   min-height:auto; // overrides the 'inherit' that set the min height of the row

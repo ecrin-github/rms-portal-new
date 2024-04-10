@@ -44,10 +44,8 @@
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="identifierOrg" class="font-style text-capitalize">Identifier organisation</label>
-                                <!-- <input id="identifierOrg" type="text" class="form-control" placeholder="Please enter organisation"
-                                formControlName="identifierOrg" *ngIf="!isView" /> -->
                             <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
-                                formControlName="identifierOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
+                                formControlName="identifierOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body"
                                 notFoundText="No members found" placeholder="Select Organisation"
                                 *ngIf="!isView">
                             </ng-select>

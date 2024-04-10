@@ -35,8 +35,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="langCode" class="font-style text-capitalize">Language</label>
-                                <ng-select class="form-control" appendTo="body" id="langCode" [items]="languageCodes" formControlName="langCode"
-                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" *ngIf="!isView" [searchFn]="customSearchLang">
+                                <ng-select class="form-control" id="langCode" [items]="languageCodes" formControlName="langCode"
+                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" *ngIf="!isView" [searchFn]="customSearchLang">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.langNameEn}}
                                     </ng-template>
@@ -54,12 +54,6 @@
                                     placeholder="Enter a parameter..." formControlName="titleText" *ngIf="!isView" />
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{objectTitle.value.titleText}}</h6>
                             </div>
-                            <!-- <div class="col-md-6">
-                                <label for="comments" class="font-style text-capitalize">Comments</label>
-                                <textarea id="comments" class="form-control" cols="30" rows="5"
-                                    formControlName="comments" *ngIf="!isView"></textarea>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectTitle.value.comments}}</h6>
-                            </div> -->
                         </div>
                         <mat-action-row *ngIf="!isView">
                             <button mat-button color="primary"

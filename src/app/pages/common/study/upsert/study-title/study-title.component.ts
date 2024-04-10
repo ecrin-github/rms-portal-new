@@ -217,10 +217,6 @@ export class StudyTitleComponent implements OnInit {
     const titleTypeArray: any = this.titleType.filter((type: any) => type.id === id);
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : '';
   }
-  findLangCode(langCode) {
-    const langArr: any = this.languageCodes.filter((type: any) => type.langNameEn === langCode);
-    return langArr && langArr.length ? langArr[0].id : '';
-  }
   customSearchLang(term: string, item) {
     term = term.toLocaleLowerCase();
     return item.languageCode.toLocaleLowerCase().indexOf(term) > -1 || item.langNameEn.toLocaleLowerCase().indexOf(term) > -1 ||
