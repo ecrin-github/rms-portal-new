@@ -13,10 +13,8 @@ export class BackService {
               private router: Router) { }
 
   back(): void {
-    console.log(`fromEdit: ${this.fromEdit}`)
     const state: { [k: string]: any; } = this.location.getState();
     // navigationId counts the number of pages visited for the current site
-    console.log(`${parseInt(state['navigationId'], 10)} ${this.router.url}`);
     if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1) && !this.fromEdit) {
       this.location.back();
     } else {
