@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +6,8 @@ import { ToastrService } from 'ngx-toastr';
 import { combineLatest, Observable, of, Subscription } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
-import { StudyDataInterface, StudyInterface } from 'src/app/_rms/interfaces/study/study.interface';
+import { StudyInterface } from 'src/app/_rms/interfaces/study/study.interface';
+import { BackService } from 'src/app/_rms/services/back/back.service';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-generator/json-generator.service';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
@@ -63,7 +63,6 @@ export class UpsertStudyComponent implements OnInit {
   showEdit: boolean = false;
 
   constructor(private statesService: StatesService,
-              private location: Location, 
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private studyLookupService: StudyLookupService, 
@@ -75,7 +74,8 @@ export class UpsertStudyComponent implements OnInit {
               private pdfGenerator: PdfGeneratorService, 
               private jsonGenerator: JsonGeneratorService, 
               private commonLookupService: CommonLookupService, 
-              private listService: ListService) {
+              private listService: ListService,
+              private backService: BackService) {
     this.studyForm = this.fb.group({
       sdSid: ['RMS-', Validators.required],
       displayTitle: ['', Validators.required],
@@ -545,23 +545,7 @@ export class UpsertStudyComponent implements OnInit {
     this.subscription.unsubscribe();
   }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (!this.isBrowsing) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   onChange() {
     this.publicTitle = this.studyForm.value.displayTitle;

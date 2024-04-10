@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,6 +18,7 @@ import { ConfirmationWindowComponent } from '../../confirmation-window/confirmat
 import { ConfirmationWindow1Component } from '../../confirmation-window1/confirmation-window1.component';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { BackService } from 'src/app/_rms/services/back/back.service';
 
 @Component({
   selector: 'app-upsert-dup',
@@ -60,7 +60,7 @@ export class UpsertDupComponent implements OnInit {
   prereqs: any;
 
   constructor(private statesService: StatesService,
-              private location: Location, 
+              private backService: BackService, 
               private router: Router, 
               private fb: UntypedFormBuilder, 
               private dupService: DupService, 
@@ -593,23 +593,7 @@ export class UpsertDupComponent implements OnInit {
     return statusArray && statusArray.length ? statusArray[0].name : 'None';
   }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (this.role) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });

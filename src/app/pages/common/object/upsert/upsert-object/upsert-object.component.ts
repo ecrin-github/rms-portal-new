@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +8,7 @@ import { catchError, finalize, map, mergeMap, switchMap, timeout } from 'rxjs/op
 import { DataObjectInterface } from 'src/app/_rms/interfaces/data-object/data-object.interface';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyDataInterface } from 'src/app/_rms/interfaces/study/study.interface';
+import { BackService } from 'src/app/_rms/services/back/back.service';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-generator/json-generator.service';
@@ -66,7 +66,7 @@ export class UpsertObjectComponent implements OnInit {
   pageSize: Number = 10000;
 
   constructor(private statesService: StatesService,
-              private location: Location, 
+              private backService: BackService, 
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private commonLookupService: CommonLookupService, 
@@ -547,23 +547,7 @@ export class UpsertObjectComponent implements OnInit {
     this.subscription.unsubscribe();
   }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (!this.isBrowsing) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   onChange() {
     const arr: any = this.objectClasses.filter((item:any) => item.name.toLowerCase() === 'dataset');

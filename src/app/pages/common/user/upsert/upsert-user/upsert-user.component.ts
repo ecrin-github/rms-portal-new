@@ -1,10 +1,10 @@
-import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest } from 'rxjs';
+import { BackService } from 'src/app/_rms/services/back/back.service';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { PeopleService } from 'src/app/_rms/services/entities/people/people.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
@@ -27,7 +27,7 @@ export class UpsertUserComponent implements OnInit {
   pageSize:Number = 10000;
 
   constructor(private statesService: StatesService,
-              private location: Location, 
+              private backService: BackService, 
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private activatedRoute: ActivatedRoute, 
@@ -134,23 +134,7 @@ export class UpsertUserComponent implements OnInit {
     }
   }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (this.role) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((item: any) => item.id === id);
