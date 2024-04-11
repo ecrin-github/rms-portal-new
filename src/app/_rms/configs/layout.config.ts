@@ -1,4 +1,4 @@
-import {environment} from '../../../environments/environment.prod';
+import {environment} from '../../../environments/environment';
 
 export const LayoutConfig = {
   name: 'rms-portal-' + environment.appVersion,
