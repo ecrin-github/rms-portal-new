@@ -11,6 +11,7 @@ target_path="/var/www/rms-portal-new/dist"
 
 
 usage() {
+    echo "Builds and moves the angular app to a target location, and saves previous build."
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo " -h, --help                   Display this help message"
