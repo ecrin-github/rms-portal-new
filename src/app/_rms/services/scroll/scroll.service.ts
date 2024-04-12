@@ -10,7 +10,7 @@ export class ScrollService {
 
   constructor(private router: Router) { }
 
-  async handleScroll(role: any, urls: Array<String>) {
+  async handleScroll(urls: Array<String>) {
     /**
      * urls: urls where scroll event should be fired.
      */

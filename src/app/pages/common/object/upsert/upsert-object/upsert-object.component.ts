@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest, Observable, of, Subscription } from 'rxjs';
-import { catchError, finalize, map, mergeMap, switchMap, timeout } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap, timeout } from 'rxjs/operators';
 import { DataObjectInterface } from 'src/app/_rms/interfaces/data-object/data-object.interface';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyDataInterface } from 'src/app/_rms/interfaces/study/study.interface';
@@ -17,11 +17,13 @@ import { ObjectLookupService } from 'src/app/_rms/services/entities/object-looku
 import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generator/pdf-generator.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-upsert-object',
   templateUrl: './upsert-object.component.html',
-  styleUrls: ['./upsert-object.component.scss']
+  styleUrls: ['./upsert-object.component.scss'],
+  providers: [ScrollService]
 })
 export class UpsertObjectComponent implements OnInit {
   public isCollapsed: boolean = true;
@@ -66,7 +68,8 @@ export class UpsertObjectComponent implements OnInit {
   pageSize: Number = 10000;
 
   constructor(private statesService: StatesService,
-              private backService: BackService, 
+              private backService: BackService,
+              private scrollService: ScrollService,
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private commonLookupService: CommonLookupService, 
@@ -123,18 +126,6 @@ export class UpsertObjectComponent implements OnInit {
       objectRelationships: [],
     });
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    const navbar = document.getElementById('navbar');
-    const sticky = navbar.offsetTop;
-    if (window.pageYOffset >= sticky) {
-      navbar.classList.add('sticky');
-      this.sticky = true;
-    } else {
-      navbar.classList.remove('sticky');
-      this.sticky = false;
-    }
-  }
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -164,6 +155,7 @@ export class UpsertObjectComponent implements OnInit {
       queryFuncs.push(this.getObjectById(this.id));
     }
     if (this.isView) {
+      this.scrollService.handleScroll([`/data-objects/${this.id}/view`]);
       queryFuncs.push(this.getEditAuth(this.id));
     }
     // Queries required even for view because of pdf/json exports
@@ -543,9 +535,6 @@ export class UpsertObjectComponent implements OnInit {
       return langArr && langArr.length? langArr[0].id : '';
     }, 2000);
   }
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
   back(): void {
     this.backService.back();
   }
@@ -776,5 +765,9 @@ export class UpsertObjectComponent implements OnInit {
       left: 0, 
       behavior: 'smooth' 
     });
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
+    this.subscription.unsubscribe();
   }
 }

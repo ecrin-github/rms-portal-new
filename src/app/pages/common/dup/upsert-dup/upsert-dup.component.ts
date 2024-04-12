@@ -19,11 +19,13 @@ import { ConfirmationWindow1Component } from '../../confirmation-window1/confirm
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-upsert-dup',
   templateUrl: './upsert-dup.component.html',
-  styleUrls: ['./upsert-dup.component.scss']
+  styleUrls: ['./upsert-dup.component.scss'],
+  providers: [ScrollService]
 })
 export class UpsertDupComponent implements OnInit {
   form: UntypedFormGroup;
@@ -60,7 +62,8 @@ export class UpsertDupComponent implements OnInit {
   prereqs: any;
 
   constructor(private statesService: StatesService,
-              private backService: BackService, 
+              private backService: BackService,
+              private scrollService: ScrollService,
               private router: Router, 
               private fb: UntypedFormBuilder, 
               private dupService: DupService, 
@@ -101,33 +104,25 @@ export class UpsertDupComponent implements OnInit {
       preRequisite: this.fb.array([])
     });
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    const navbar = document.getElementById('navbar');
-    const sticky = navbar.offsetTop;
-    if (window.pageYOffset >= sticky) {
-      navbar.classList.add('sticky');
-      this.sticky = true;
-    } else {
-      navbar.classList.remove('sticky');
-      this.sticky = false;
-    }
-  }
 
   ngOnInit(): void {
     this.role = this.statesService.currentAuthRole;
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
+    
     this.getOrganization();
     this.getStatus();
     this.getStudyList();
     this.getObjectList();
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
-    if(this.isEdit || this.isView) {
+    if (this.isEdit || this.isView) {
       this.id = this.activatedRoute.snapshot.params.id;
       this.getDupById(this.id);
       this.getDupPeople(this.id);
+    }
+    if (this.isView) {
+      this.scrollService.handleScroll([`/data-use/${this.id}/view`]);
     }
     if (this.router.url.includes('add')) {
       this.form.patchValue({
@@ -864,6 +859,8 @@ export class UpsertDupComponent implements OnInit {
   goToTsd() {
     this.router.navigate([])
     .then(result => { window.open('https://crr.tsd.usit.no/', '_blank'); });
-}
-
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
+  }
 }

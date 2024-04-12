@@ -16,11 +16,13 @@ import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-upsert-study',
   templateUrl: './upsert-study.component.html',
-  styleUrls: ['./upsert-study.component.scss']
+  styleUrls: ['./upsert-study.component.scss'],
+  providers: [ScrollService]
 })
 export class UpsertStudyComponent implements OnInit {
   public isCollapsed: boolean = false;
@@ -68,6 +70,7 @@ export class UpsertStudyComponent implements OnInit {
               private studyLookupService: StudyLookupService, 
               private studyService: StudyService, 
               private reuseService: ReuseService,
+              private scrollService: ScrollService,
               private activatedRoute: ActivatedRoute,
               private spinner: NgxSpinnerService, 
               private toastr: ToastrService, 
@@ -99,18 +102,6 @@ export class UpsertStudyComponent implements OnInit {
       studyRelationships: [],
       studyContributors: []
     });
-  }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    const navbar = document.getElementById('navbar');
-    const sticky = navbar.offsetTop;
-    if (window.pageYOffset >= sticky) {
-      navbar.classList.add('sticky');
-      this.sticky = true;
-    } else {
-      navbar.classList.remove('sticky');
-      this.sticky = false;
-    }
   }
 
   ngOnInit(): void {
@@ -150,6 +141,7 @@ export class UpsertStudyComponent implements OnInit {
       queryFuncs.push(this.getAssociatedObjects(this.id));
     }
     if (this.isView) {
+      this.scrollService.handleScroll([`/studies/${this.id}/view`]);
       queryFuncs.push(this.getEditAuth(this.id));
     }
     // Queries required even for view because of pdf/json exports
@@ -541,9 +533,6 @@ export class UpsertStudyComponent implements OnInit {
       })
     }
   }
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
   back(): void {
     this.backService.back();
   }
@@ -639,5 +628,9 @@ export class UpsertStudyComponent implements OnInit {
     } else {
       this.router.navigate([`/data-objects/${sdOid}/view`]);
     }
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
+    this.subscription.unsubscribe();
   }
 }

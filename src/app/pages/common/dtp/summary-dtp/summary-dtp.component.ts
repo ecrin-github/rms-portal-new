@@ -62,7 +62,7 @@ export class SummaryDtpComponent implements OnInit {
     this.notDashboard = this.router.url.includes('data-transfers') ? true : false;
     this.getDtpList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.role, ['/data-transfers']);
+    this.scrollService.handleScroll(['/data-transfers']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {

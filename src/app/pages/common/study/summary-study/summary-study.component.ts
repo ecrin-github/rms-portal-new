@@ -69,7 +69,7 @@ export class SummaryStudyComponent implements OnInit {
     this.notDashboard = this.router.url.includes('studies') ? true : false;
     this.getStudyList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.role, ['/studies']);
+    this.scrollService.handleScroll(['/studies']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {

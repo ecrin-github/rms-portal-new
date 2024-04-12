@@ -23,11 +23,13 @@ import {RedirectService} from './redirect-service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-upsert-dtp',
   templateUrl: './upsert-dtp.component.html',
-  styleUrls: ['./upsert-dtp.component.scss']
+  styleUrls: ['./upsert-dtp.component.scss'],
+  providers: [ScrollService]
 })
 export class UpsertDtpComponent implements OnInit {
   form: UntypedFormGroup;
@@ -72,7 +74,8 @@ export class UpsertDtpComponent implements OnInit {
   dtpNotes: any;
 
   constructor(private statesService: StatesService,
-              private backService: BackService, 
+              private backService: BackService,
+              private scrollService: ScrollService,
               private router: Router, 
               private fb: UntypedFormBuilder, 
               private dtpService: DtpService, 
@@ -122,22 +125,12 @@ export class UpsertDtpComponent implements OnInit {
       embargo: this.fb.array([])
     });
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    const navbar = document.getElementById('navbar');
-    const sticky = navbar.offsetTop;
-    if (window.pageYOffset >= sticky) {
-      navbar.classList.add('sticky');
-      this.sticky = true;
-    } else {
-      navbar.classList.remove('sticky');
-      this.sticky = false;
-    }
-  }
+
   ngOnInit(): void {
     this.role = this.statesService.currentAuthRole;
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
+    
     this.getOrganization();
     this.getStatus();
     this.getStudyList();
@@ -148,6 +141,9 @@ export class UpsertDtpComponent implements OnInit {
       this.id = this.activatedRoute.snapshot.params.id;
       this.getDtpPeople(this.id);
       this.getDtpById(this.id);
+    }
+    if (this.isView) {
+      this.scrollService.handleScroll([`/data-transfers/${this.id}/view`]);
     }
     if (this.router.url.includes('add')) {
       this.form.patchValue({
@@ -1105,6 +1101,9 @@ export class UpsertDtpComponent implements OnInit {
   goToDo(object) {
     console.log(object);
     this.router.navigate([`/data-objects/${object.objectId}/edit`]);
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
   }
 
   protected readonly window = window;

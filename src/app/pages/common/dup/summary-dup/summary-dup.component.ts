@@ -58,7 +58,7 @@ export class SummaryDupComponent implements OnInit {
     this.notDashboard = this.router.url.includes('data-use') ? true : false;
     this.getDupList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.role, ['/data-use']);
+    this.scrollService.handleScroll(['/data-use']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {

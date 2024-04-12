@@ -68,7 +68,7 @@ export class SummaryObjectComponent implements OnInit {
     this.notDashboard = this.router.url.includes('data-objects') ? true : false;
     this.getObjectList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.role, ['/data-objects']);
+    this.scrollService.handleScroll(['/data-objects']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {

@@ -54,7 +54,7 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
     this.notDashboard = this.router.url.includes('people') ? true : false;
     this.getPeople();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.role, ['/people']);
+    this.scrollService.handleScroll(['/people']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {
@@ -156,22 +156,6 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
     this.getPeople();
     localStorage.removeItem('updateUserList');
   }
-  
-  /*@HostListener('window:scroll', ['$event'])
-  onScroll() {
-    console.log("on scroll (user component)");
-    if (this.role !== 'User' || this.notDashboard) {
-      const navbar = document.getElementById('navbar');
-      const sticky = navbar.offsetTop;
-      if (window.pageYOffset >= sticky) {
-        navbar.classList.add('sticky');
-        this.sticky = true;
-      } else {
-        navbar.classList.remove('sticky');
-        this.sticky = false;
-      }
-    }
-  }*/
   onInputChange(e) {
     const searchText = e.target.value;
     if (!!searchText) {
