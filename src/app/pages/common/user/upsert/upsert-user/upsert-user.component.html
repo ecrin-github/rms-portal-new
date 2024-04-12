@@ -31,22 +31,25 @@
                 <form [formGroup]="userForm">
                     <div class="card-body">
                         <div class="row form-group">
-                            <div class="col-md-12">
-                                <label for="firstName" class="font-style text-capitalize">family name</label>
+                            <div class="col-md-6">
+                                <label for="firstName" class="font-style text-capitalize">first name</label>
                                 <input id="firstName" type="text" class="form-control" formControlName="firstName" *ngIf="!isView">
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.firstName}}</h6>
                             </div>
-                        </div>
-                        <div class="row form-group">
-                            <div class="col-md-12">
-                                <label for="lastName" class="font-style text-capitalize">given name</label>
+                            <div class="col-md-6">
+                                <label for="lastName" class="font-style text-capitalize">last name</label>
                                 <input id="lastName" type="text" class="form-control" formControlName="lastName" *ngIf="!isView">
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.lastName}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
-                            <div class="col-md-12">
-                                <label for="designation" class="font-style text-capitalize">designation</label>
+                            <div class="col-md-6">
+                                <label for="profTitle" class="font-style text-capitalize">Title</label>
+                                <input id="profTitle" type="text" class="form-control" formControlName="profTitle" *ngIf="!isView">
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.userProfile?.profTitle}}</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="designation" class="font-style text-capitalize">Designation</label>
                                 <input id="designation" type="text" class="form-control" formControlName="designation" *ngIf="!isView">
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.userProfile?.designation}}</h6>
                             </div>
@@ -66,6 +69,13 @@
                                     placeholder="Select Organisation" *ngIf="!isView">
                                 </ng-select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.userProfile?.organisation?.defaultName}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="isSuperuser" class="font-style text-capitalize">Is Super User? (Manager)</label>
+                                <input id="isSuperuser" type="checkbox" class="form-control checkbox-input" formControlName="isSuperuser" *ngIf="!isView">
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.isSuperuser ? 'Yes' : 'No'}}</h6>
                             </div>
                         </div>
                     </div>

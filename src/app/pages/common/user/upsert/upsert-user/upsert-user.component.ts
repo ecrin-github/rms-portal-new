@@ -39,8 +39,10 @@ export class UpsertUserComponent implements OnInit {
     this.userForm = this.fb.group({
       firstName: '',
       lastName: '',
+      profTitle: '',
       designation: '',
       organisation: '',
+      isSuperuser: false,
       email: '',
       password: '',
       username: ''
@@ -74,7 +76,9 @@ export class UpsertUserComponent implements OnInit {
       firstName: userData.firstName,
       lastName: userData.lastName,
       designation: userData.userProfile?.designation,
+      profTitle: userData.userProfile?.profTitle,
       organisation: userData.userProfile?.organisation?.id,
+      isSuperuser: userData.isSuperuser,
       email: userData.email,
       password: userData.password,
       username: userData.username
