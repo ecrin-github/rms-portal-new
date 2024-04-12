@@ -29,10 +29,10 @@ export class ScrollService {
   }
 
   async initScroll() {
+    const sticky = document.getElementById('navbar').offsetTop;
     this.scroll = fromEvent(document, 'scroll').subscribe((ev) => {
       const navbar = document.getElementById('navbar');
       if (!!navbar) {
-        const sticky = navbar.offsetTop;
         if (window.scrollY >= sticky) {
           navbar.classList.add('sticky');
         } else {
