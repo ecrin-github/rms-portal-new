@@ -7,7 +7,7 @@ production=false
 verbose=false
 build_path="dist/rms-portal"
 backup_path="dist/rms-portal-backup"
-target_path="/var/www/rms-portal-new/dist/rms-portal"
+target_path="/var/www/rms-portal-new/dist"
 
 
 usage() {
@@ -16,7 +16,7 @@ usage() {
     echo " -h, --help                   Display this help message"
     echo " -v, --verbose                Enable verbose mode (outputs commands)"
     echo " -p, --production             Build in production mode instead of default dev mode"
-    echo " -b, --build_path [path]      Path of angular build result (probably shouldn't change), default: $build_path"
+    echo " -b, --build_path [path]      Path of angular build result (should match path in angular.json), default: $build_path"
     echo " -s, --backup_path [path]     Path of previous build to be backed up, default: $backup_path"
     echo " -t, --target_path [path]     Path of directory listed in the Nginx config file to move the build to, default: $target_path"
 }

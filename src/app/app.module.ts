@@ -1,4 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -51,6 +52,7 @@ import { FileSaverModule } from 'ngx-filesaver';
     AuthModule.forRoot({
       config: {
         authority: 'https://proxy.aai.lifescience-ri.eu/',
+        // authority: 'https://login.aai.lifescience-ri.eu/oidc/',
         redirectUrl: window.location.origin,
         postLogoutRedirectUri: window.location.origin,
         clientId: 'APP-45A6EC5D-8206-4356-A105-2AFE5FA7A831',
@@ -58,7 +60,7 @@ import { FileSaverModule } from 'ngx-filesaver';
         responseType: 'code',
         silentRenew: true,
         useRefreshToken: true,
-        logLevel: LogLevel.Debug,
+        logLevel: environment.production ? LogLevel.Error : LogLevel.Debug,
         storage: new CustomStorage(),
         renewTimeBeforeTokenExpiresInSeconds: 100,
         ignoreNonceAfterRefresh: true,
