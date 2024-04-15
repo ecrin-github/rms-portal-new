@@ -469,12 +469,13 @@ export class UpsertStudyComponent implements OnInit {
     }
     if (this.addType === 'manual') {
       this.isSubmitted = true;
-      this.studyForm.patchValue({
-        maxAgeUnit: this.studyForm.value.maxAge === '' || null ? null : this.studyForm.value.maxAgeUnit,
-        minAgeUnit: this.studyForm.value.minAge === '' || null ? null : this.studyForm.value.minAgeUnit,
-        organisation: this.studyForm.value.organisation ? this.studyForm.value.organisation.id : null,
-      })
       if (this.studyForm.valid) {
+        this.studyForm.patchValue({
+          maxAgeUnit: this.studyForm.value.maxAge === '' || null ? null : this.studyForm.value.maxAgeUnit,
+          minAgeUnit: this.studyForm.value.minAge === '' || null ? null : this.studyForm.value.minAgeUnit,
+          organisation: this.studyForm.value.organisation ? this.studyForm.value.organisation.id : null,
+        });
+
         const payload = JSON.parse(JSON.stringify(this.studyForm.value));
         payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
         if (this.isEdit) {
@@ -511,12 +512,13 @@ export class UpsertStudyComponent implements OnInit {
           })
         }
       } else {
-        console.log(`not valid ${this.studyForm.errors}`)
+        this.spinner.hide();
         this.gotoTop();
       }
       this.count = 0;
     }
     if (this.addType === 'usingTrialId') {
+      // TODO?
       this.spinner.show();
       this.studyService.getFullStudyFromMdr(this.registryId, this.trialId).subscribe((res: any) => {
         if (res.statusCode === 200) {
