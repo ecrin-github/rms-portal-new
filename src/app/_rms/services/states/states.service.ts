@@ -67,8 +67,7 @@ export class StatesService {
         if (value.userProfile.organisation) {
             this.states.currentAuthOrgId.next(value.userProfile.organisation.id);
         }
-        // TODO: fix this (see issue #28 on GitHub)
-        this.states.currentAuthRole.next(value.isSuperuser || value.isStaff ? 'Manager' : 'User');
+        this.states.currentAuthRole.next(value.isSuperuser ? 'Manager' : 'User');
     }
 
     setDefaultCurrentUser() {

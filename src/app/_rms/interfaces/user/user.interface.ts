@@ -14,7 +14,6 @@ export interface UserInterface {
   firstName: string;
   lastName: string;
   email: string;
-  isStaff: boolean;
   isActive: boolean;
   dateJoined: string;
   groups: Array<any>;

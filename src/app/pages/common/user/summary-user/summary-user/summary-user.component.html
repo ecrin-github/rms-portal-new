@@ -28,7 +28,7 @@
 
             <ng-container matColumnDef="roleName">
                 <mat-header-cell *matHeaderCellDef> Role </mat-header-cell>
-                <mat-cell *matCellDef="let row">{{row.userProfile?.role ? row.userProfile.role : row.isSuperuser || row.isStaff ? 'Manager' : 'User'}}</mat-cell>
+                <mat-cell *matCellDef="let row">{{row.userProfile?.role ? row.userProfile.role : row.isSuperuser ? 'Manager' : 'User'}}</mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="orgName">
