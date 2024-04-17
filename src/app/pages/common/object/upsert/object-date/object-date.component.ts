@@ -122,15 +122,12 @@ export class ObjectDateComponent implements OnInit {
     })
   }
   getObjectDate() {
-    this.spinner.show();
     this.objectService.getObjectDates(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectDateData = res.results.length ? res.results : [];
         this.patchForm(this.objectDateData);
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {

@@ -109,15 +109,12 @@ export class ObjectRelationshipComponent implements OnInit {
     });
   }
   getObjectRelation() {
-    this.spinner.show();
     this.objectService.getObjectRelationships(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectRelation = res.results.length ? res.results : [];
         this.patchForm(this.objectRelation);
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {
@@ -126,16 +123,11 @@ export class ObjectRelationshipComponent implements OnInit {
     })
   }
   getObjectList() {
-    setTimeout(() => {
-      this.spinner.show();
-    });
     this.listService.getObjectList(this.pageSize, '').subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectList = res.results.length ? res.results : [];
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {

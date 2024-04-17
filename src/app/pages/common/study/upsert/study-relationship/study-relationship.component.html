@@ -1,5 +1,5 @@
-<div class="row pb-2" *ngIf="!isView">
-    <div class="col-12 text-right justify-content-center mt-5">
+<div class="row pb-4" *ngIf="!isView">
+    <div class="col-12 text-right justify-content-center">
         <button class="btn btn-primary" (click)="addStudyRelation(); scrollToElement()">
             <i class="fa fa-plus"></i>Add relationship
         </button>
@@ -28,7 +28,7 @@
                             <div class="col-md-6">
                                 <label for="targetStudyId" class="font-style text-capitalize">Target study</label>
                                 <ng-select [items]="studyType" bindLabel="id" bindValue="id" formControlName="targetStudyId"
-                                [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No members found"
+                                [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
                                     placeholder="Select target study" *ngIf="!isView" [searchFn]="customSearchFn">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.id}}

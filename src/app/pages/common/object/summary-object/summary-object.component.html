@@ -10,11 +10,6 @@
                 </a>    
             </div>
         </div>
-        <!-- <div style="float: right; margin-top: -40px;" *ngIf="!isBrowsing">
-            <a [routerLink]="['/data-objects', 'add']" class="btn btn-success">
-                <i class="fa fa-plus"></i> New data object
-            </a>
-        </div> -->
     </div>
 
     <div class="card-body">
@@ -30,12 +25,6 @@
                     <input type="text" class="form-control" placeholder="Search data object..." [(ngModel)]="searchText" (keyup)="onInputChange($event)"/>
                 </div>
             </div>
-            <!-- <div class="col-md-3">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" (click)="filterSearch()">Search</button>
-                    <span class="pl-2"><button class="btn btn-warning" (click)="getObjectList()">Clear</button></span>
-                </div>
-            </div> -->
         </div>
 
         <mat-table [dataSource]="dataSource">
@@ -68,10 +57,10 @@
                     <a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.id, 'view'] : ['/data-objects', row.id, 'view']">
                         <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <a [routerLink]="['/data-objects', row.id, 'edit']" *ngIf="!isBrowsing && isOrgIdValid">
+                    <a [routerLink]="['/data-objects', row.id, 'edit']" *ngIf="!isBrowsing">
                         <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngIf="!isBrowsing && isOrgIdValid">
+                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngIf="!isBrowsing">
 
                     </i>
                 </mat-cell>

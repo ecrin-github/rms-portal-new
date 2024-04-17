@@ -30,6 +30,8 @@ import { NgxPermissionsModule } from 'ngx-permissions';
 import { CommonPagesModule } from '../common/common-pages.module';
 import { SummaryUserComponent } from '../common/user/summary-user/summary-user/summary-user.component';
 import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-user.component';
+import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
+import { RoleGuard } from 'src/app/_rms/guards/role/role.guard';
 
 
 @NgModule({
@@ -60,7 +62,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                     shouldReuse: true,
                     key: 'summarydtpcomponent',
                     reuseRoutesFrom: ['data-transfers/:id/view', 'data-transfers/:id/add', 'data-transfers/:id/edit']
-                }
+                },
+                canActivate: [RoleGuard]
             },
             {
                 path: 'data-transfers/add',
@@ -69,7 +72,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 data: { 
                     shouldReuse: false,
                     key: 'upsertdtpcomponentadd'
-                }
+                },
+                canActivate: [ManagerGuard]
             },
             // Data use
             {
@@ -80,7 +84,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                     shouldReuse: true,
                     key: 'summarydupcomponent',
                     reuseRoutesFrom: ['data-use/:id/view', 'data-use/:id/add', 'data-use/:id/edit']
-                }
+                },
+                canActivate: [RoleGuard]
             },
             {
                 path: 'data-use/add',
@@ -89,7 +94,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 data: { 
                     shouldReuse: false,
                     key: 'upsertdupcomponentadd'
-                }
+                },
+                canActivate: [ManagerGuard]
             },
             // Studies
             {
@@ -109,7 +115,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 data: { 
                     shouldReuse: false,
                     key: 'upsertstudycomponentadd'
-                }
+                },
+                canActivate: [RoleGuard]
             },
             // Data objects
             {
@@ -129,7 +136,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 data: { 
                     shouldReuse: false,
                     key: 'upsertobjectcomponentadd'
-                }
+                },
+                canActivate: [RoleGuard]
             },
             // Reports
             {
@@ -139,7 +147,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 data: { 
                     shouldReuse: false,
                     key: 'reportspageinternalcomponent'
-                }
+                },
+                canActivate: [ManagerGuard]
             },
             // People
             {
@@ -150,7 +159,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                     shouldReuse: true,
                     key: 'summaryusercomponent',
                     reuseRoutesFrom: ['people/:id/view', 'people/:id/add', 'people/:id/edit']
-                }
+                },
+                canActivate: [ManagerGuard]
             },
             {
                 path: 'people/add',
@@ -159,7 +169,8 @@ import { UpsertUserComponent } from '../common/user/upsert/upsert-user/upsert-us
                 data: { 
                     shouldReuse: false,
                     key: 'upsertusercomponent'
-                }
+                },
+                canActivate: [ManagerGuard]
             }
         ]),
         NgbDatepickerModule,

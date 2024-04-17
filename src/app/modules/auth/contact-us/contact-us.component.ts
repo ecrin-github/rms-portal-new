@@ -88,7 +88,7 @@ export class ContactUsComponent implements OnInit {
             this.toastr.success('Thank you for contacting us. An email has been sent to you mail address.')
           }
         }, error => {
-          this.toastr.error(error);
+          this.toastr.error(error.message);
         })
       } else {
         this.toastr.error('Email entered are not same. Please enter the correct email.')

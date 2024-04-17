@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { LayoutService } from '../../../../_rms';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -15,10 +15,9 @@ export class HeaderMobileComponent implements OnInit, AfterViewInit {
   headerMobileClasses = '';
   headerMobileAttributes = {};
 
-  version: string;
+  appVersion: string;
   status: string;
   appTitle: string;
-  versionString: string;
 
   constructor(private layout: LayoutService) { }
 
@@ -35,8 +34,7 @@ export class HeaderMobileComponent implements OnInit, AfterViewInit {
       'header.menu.self.display'
     );
 
-    this.version = environment.appVersion;
-    this.versionString = environment.versionString;
+    this.appVersion = environment.appVersion;
     this.appTitle = environment.appTitle;
   }
 

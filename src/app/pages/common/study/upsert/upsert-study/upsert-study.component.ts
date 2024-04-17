@@ -1,12 +1,13 @@
-import { Location } from '@angular/common';
-import { Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
-import { FormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest, Observable, of, Subscription } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize, switchMap } from 'rxjs/operators';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyInterface } from 'src/app/_rms/interfaces/study/study.interface';
+import { BackService } from 'src/app/_rms/services/back/back.service';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-generator/json-generator.service';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
@@ -14,11 +15,14 @@ import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generato
 import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/study-lookup.service';
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-upsert-study',
   templateUrl: './upsert-study.component.html',
-  styleUrls: ['./upsert-study.component.scss']
+  styleUrls: ['./upsert-study.component.scss'],
+  providers: [ScrollService]
 })
 export class UpsertStudyComponent implements OnInit {
   public isCollapsed: boolean = false;
@@ -34,6 +38,8 @@ export class UpsertStudyComponent implements OnInit {
   subscription: Subscription = new Subscription();
   isSubmitted: boolean = false;
   id: any;
+  organisationName: string;
+  organisations: Array<OrganisationInterface>;
   studyData: StudyInterface;
   studyFull: any;
   count = 0;
@@ -52,37 +58,39 @@ export class UpsertStudyComponent implements OnInit {
   controlledTerminology: [] = [];
   relationshipTypes: [] = [];
   isBrowsing: boolean = false;
-  role: any;
+  isManager: any;
+  orgId: string;
   associatedObjects: any;
   pageSize: Number = 10000;
-  orgId: string;
-  isOrgIdValid: boolean;
-  canEdit: boolean = false;
+  showEdit: boolean = false;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private studyLookupService: StudyLookupService, 
               private studyService: StudyService, 
               private reuseService: ReuseService,
+              private scrollService: ScrollService,
               private activatedRoute: ActivatedRoute,
               private spinner: NgxSpinnerService, 
               private toastr: ToastrService, 
               private pdfGenerator: PdfGeneratorService, 
               private jsonGenerator: JsonGeneratorService, 
               private commonLookupService: CommonLookupService, 
-              private listService: ListService) {
+              private listService: ListService,
+              private backService: BackService) {
     this.studyForm = this.fb.group({
-      sdSid: 'RMS-',
+      sdSid: ['RMS-', Validators.required],
       displayTitle: ['', Validators.required],
       briefDescription: '',
       dataSharingStatement: '',
-      studyType: null,
-      studyStatus: null,
+      organisation: null,
+      studyType: [null, Validators.required],
+      studyStatus: [null, Validators.required],
       studyGenderElig: null,
       studyEnrollment: '',
       studyStartMonth: null,
-      studyStartYear: null,
+      studyStartYear: [null, Validators.required],
       minAge: null,
       minAgeUnit: null,
       maxAge: null,
@@ -95,35 +103,20 @@ export class UpsertStudyComponent implements OnInit {
       studyContributors: []
     });
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    const navbar = document.getElementById('navbar');
-    const sticky = navbar.offsetTop;
-    if (window.pageYOffset >= sticky) {
-      navbar.classList.add('sticky');
-      this.sticky = true;
-    } else {
-      navbar.classList.remove('sticky');
-      this.sticky = false;
-    }
-  }
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.spinner.show(); 
+      this.spinner.show();
     });
 
-    this.orgId = localStorage.getItem('organisationId');
-    console.log(`this.orgId: ${this.orgId}`);
-    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    }
+    this.isManager = this.statesService.isManager();
+    this.orgId = this.statesService.currentAuthOrgId;
+
     this.isEdit = this.router.url.includes('edit');
     this.isView = this.router.url.includes('view');
     this.isAdd = this.router.url.includes('add');
     this.isBrowsing = this.router.url.includes('browsing');
-    if (this.role === 'User') {
+    if (!this.isManager) {
       this.studyForm.get('studyType').setValidators(Validators.required);
       this.studyForm.get('studyStatus').setValidators(Validators.required);
       this.studyForm.get('studyStartYear').setValidators(Validators.required);
@@ -132,24 +125,37 @@ export class UpsertStudyComponent implements OnInit {
       this.studyForm.get('sdSid').setValidators(Validators.pattern(/^(RMS-)(?=[^0-9]*[0-9])/));
     }
 
-    let queryFuncs: Array<Observable<object>> = [
-      this.getStudyTypes(),
-      this.getGenderEligibility(),
-      this.getStudyStatuses(),
-      this.getTimeUnits(),
-      this.getIdentifierTypes(),
-      this.getTitleTypes(),
-      this.getFeatureTypes(),
-      this.getFeatureValues(),
-      this.getTopicTypes(),
-      this.getTopicVocabularies(),
-      this.getRelationshipTypes(),
-    ];
+    let queryFuncs: Array<Observable<any>> = [];
+
+    // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
+    // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
+    if (this.isAdd) {
+      queryFuncs.push(this.getOrganisation(this.orgId));
+    }
+    if ((this.isEdit || this.isAdd) && this.isManager) {
+      queryFuncs.push(this.getOrganisations());
+    }
     if (this.isEdit || this.isView) {
       this.id = this.activatedRoute.snapshot.params.id;
       queryFuncs.push(this.getStudyById(this.id));
       queryFuncs.push(this.getAssociatedObjects(this.id));
     }
+    if (this.isView) {
+      this.scrollService.handleScroll([`/studies/${this.id}/view`]);
+      queryFuncs.push(this.getEditAuth(this.id));
+    }
+    // Queries required even for view because of pdf/json exports
+    queryFuncs.push(this.getStudyTypes());
+    queryFuncs.push(this.getGenderEligibility());
+    queryFuncs.push(this.getStudyStatuses());
+    queryFuncs.push(this.getTimeUnits());
+    queryFuncs.push(this.getIdentifierTypes());
+    queryFuncs.push(this.getTitleTypes());
+    queryFuncs.push(this.getFeatureTypes());
+    queryFuncs.push(this.getFeatureValues());
+    queryFuncs.push(this.getTopicTypes());
+    queryFuncs.push(this.getTopicVocabularies());
+    queryFuncs.push(this.getRelationshipTypes());
 
     let obsArr: Array<Observable<any>> = [];
     queryFuncs.forEach((funct) => {
@@ -157,38 +163,35 @@ export class UpsertStudyComponent implements OnInit {
     });
 
     combineLatest(obsArr).subscribe(res => {
-      this.setStudyTypes(res[0].results);
-      this.setGenderEligibility(res[1].results);
-      this.setStudyStatuses(res[2].results);
-      this.setTimeUnits(res[3].results);
-      this.setIdentifierTypes(res[4].results);
-      this.setTitleTypes(res[5].results);
-      this.setFeatureTypes(res[6].data);
-      this.setFeatureValues(res[7].data);
-      this.setTopicTypes(res[8].data);
-      this.setTopicVocabularies(res[9].results);
-      this.setRelationshipTypes(res[10].results);
+      this.setRelationshipTypes(res.pop());
+      this.setTopicVocabularies(res.pop());
+      this.setTopicTypes(res.pop());
+      this.setFeatureValues(res.pop());
+      this.setFeatureTypes(res.pop());
+      this.setTitleTypes(res.pop());
+      this.setIdentifierTypes(res.pop());
+      this.setTimeUnits(res.pop());
+      this.setStudyStatuses(res.pop());
+      this.setGenderEligibility(res.pop());
+      this.setStudyTypes(res.pop());
+
+      // Check if user allowed to edit the study, in which case edit button is shown (for view)
+      if (this.isView) {
+        this.setEditAuth(res.pop());
+      }
       if (this.isEdit || this.isView) {
-        this.setStudyById(res[11]);
-        this.setAssociatedObjects(res[12].data);
+        this.setAssociatedObjects(res.pop());
+        this.setStudyById(res.pop());
+      }
+      if ((this.isEdit || this.isAdd) && this.isManager) {
+        this.setOrganisations(res.pop());
+      }
+      if (this.isAdd) {
+        this.setOrganisation(res.pop());
       }
 
-      // Show/hide edit button
-      if (this.isOrgIdValid) {
-        console.log(Object(this.studyData.studyContributors[0]));
-        this.studyData.studyContributors.some((contributor) => {
-          console.log(`${this.orgId} ${contributor.organisation.id}`);
-          if (this.orgId === contributor.organisation.id) {
-            this.canEdit = true;
-            return this.canEdit;
-          }
-        });
-      }
-
-      // TODO: still too early
       setTimeout(() => {
-        console.log("spinner hide");
-        this.spinner.hide(); 
+        this.spinner.hide();
       });
     });
 
@@ -200,37 +203,55 @@ export class UpsertStudyComponent implements OnInit {
     }
   }
   get g() { return this.studyForm.controls; }
+  getEditAuth(sdSid: string) {
+    let edit$: Observable<boolean>;
+    if (this.isManager) {
+      edit$ = of(true);
+    } else if (this.isBrowsing) {
+      edit$ = of(false);
+    } else {
+      edit$ = this.studyService.getStudyById(sdSid).pipe(
+        switchMap((res: StudyInterface) => {
+          return of(res.organisation.id === this.orgId);
+        })
+      )
+    }
+    return edit$;
+  }
+  setEditAuth(isAuth: boolean) {
+    this.showEdit = isAuth;
+  }
   getStudyTypes() {
     return this.studyLookupService.getStudyTypes(this.pageSize);
-    // this.subscription.add(getStudyType$);
   }
   setStudyTypes(studyTypes) {
-    if (studyTypes) {
-      this.studyTypes = studyTypes;
+    if (studyTypes?.results) {
+      this.studyTypes = studyTypes.results;
+      this.studyTypeChange();
     }
   }
   getStudyStatuses() {
     return this.studyLookupService.getStudyStatuses(this.pageSize);
   }
   setStudyStatuses(studyStatuses) {
-    if (studyStatuses) {
-      this.studyStatuses = studyStatuses;
+    if (studyStatuses?.results) {
+      this.studyStatuses = studyStatuses.results;
     }
   }
   getGenderEligibility() {
     return this.studyLookupService.getGenderEligibilities(this.pageSize);
   }
   setGenderEligibility(genderEligibility) {
-    if (genderEligibility) {
-      this.genderEligibility = genderEligibility;
+    if (genderEligibility?.results) {
+      this.genderEligibility = genderEligibility.results;
     }
   }
   getTimeUnits() {
     return this.studyLookupService.getTimeUnits(this.pageSize);
   }
   setTimeUnits(timeUnits) {
-    if (timeUnits) {
-      this.timeUnits = timeUnits;
+    if (timeUnits?.results) {
+      this.timeUnits = timeUnits.results;
       if (this.isAdd) {
         const arr: any = this.timeUnits.filter((item: any) => item.name.toLowerCase() === "years");
         this.studyForm.patchValue({
@@ -247,6 +268,7 @@ export class UpsertStudyComponent implements OnInit {
   setStudyById(studyData) {
     if (studyData) {
       this.studyData = studyData;
+      this.organisationName = studyData.organisation?.defaultName;
       this.patchStudyForm();
     }
   }
@@ -272,8 +294,8 @@ export class UpsertStudyComponent implements OnInit {
     return this.studyLookupService.getStudyIdentifierTypes(this.pageSize);
   }
   setIdentifierTypes(identifierTypes) {
-    if (identifierTypes) {
-      this.identifierTypes = identifierTypes;
+    if (identifierTypes?.results) {
+      this.identifierTypes = identifierTypes.results;
     }
   }
   findIdentifierType(id) {
@@ -284,8 +306,8 @@ export class UpsertStudyComponent implements OnInit {
     return this.studyLookupService.getStudyTitleTypes(this.pageSize);
   }
   setTitleTypes(titleTypes) {
-    if (titleTypes) {
-      this.titleTypes = titleTypes;
+    if (titleTypes?.results) {
+      this.titleTypes = titleTypes.results;
     }
   }
   findTitleType(id) {
@@ -299,13 +321,13 @@ export class UpsertStudyComponent implements OnInit {
     return this.studyLookupService.getFeatureValues(this.pageSize);
   }
   setFeatureTypes(featureTypes) {
-    if (featureTypes) {
-      this.featureTypes = featureTypes;
+    if (featureTypes?.data) {
+      this.featureTypes = featureTypes.data;
     }
   }
   setFeatureValues(featureValues) {
-    if (featureValues) {
-      this.featureValuesAll = featureValues;
+    if (featureValues?.data) {
+      this.featureValuesAll = featureValues.data;
     }
   }
   findFeatureType(id) {
@@ -320,8 +342,8 @@ export class UpsertStudyComponent implements OnInit {
     return this.commonLookupService.getTopicTypes(this.pageSize);
   }
   setTopicTypes(topicTypes) {
-    if (topicTypes) {
-      this.topicTypes = topicTypes;
+    if (topicTypes?.data) {
+      this.topicTypes = topicTypes.data;
     }
   }
   findTopicType(id) {
@@ -332,8 +354,8 @@ export class UpsertStudyComponent implements OnInit {
     return this.commonLookupService.getTopicVocabularies(this.pageSize);
   }
   setTopicVocabularies(controlledTerminology) {
-    if (controlledTerminology) {
-      this.controlledTerminology = controlledTerminology;
+    if (controlledTerminology?.results) {
+      this.controlledTerminology = controlledTerminology.results;
     }
   }
   findTopicVocabulary(id) {
@@ -344,8 +366,8 @@ export class UpsertStudyComponent implements OnInit {
     return this.studyLookupService.getStudyRelationshipTypes(this.pageSize);
   }
   setRelationshipTypes(relationshipTypes) {
-    if (relationshipTypes) {
-      this.relationshipTypes = relationshipTypes;
+    if (relationshipTypes?.results) {
+      this.relationshipTypes = relationshipTypes.results;
     }
   }
   findRelationshipType(id) {
@@ -356,8 +378,27 @@ export class UpsertStudyComponent implements OnInit {
     return this.listService.getObjectByMultiStudies(id);
   }
   setAssociatedObjects(associatedObjects) {
-    if (associatedObjects) {
-      this.associatedObjects = associatedObjects;
+    if (associatedObjects?.data) {
+      this.associatedObjects = associatedObjects.data;
+    }
+  }
+  getOrganisation(orgId) {
+    return this.commonLookupService.getOrganizationById(orgId);
+  }
+  setOrganisation(organisation: OrganisationInterface) {
+    if (organisation) {
+      this.organisationName = organisation.defaultName;
+      this.studyForm.patchValue({
+        organisation: organisation,
+      });
+    }
+  }
+  getOrganisations() {
+    return this.commonLookupService.getOrganizationList(this.pageSize);
+  }
+  setOrganisations(organisations) {
+    if (organisations?.results) {
+      this.organisations = organisations.results;
     }
   }
   getTrialRegistries() {
@@ -402,6 +443,7 @@ export class UpsertStudyComponent implements OnInit {
       displayTitle: this.studyData.displayTitle,
       briefDescription: this.studyData.briefDescription,
       dataSharingStatement: this.studyData.dataSharingStatement,
+      organisation: this.studyData.organisation,
       studyType: this.studyData.studyType ? this.studyData.studyType.id : null,
       studyStatus: this.studyData.studyStatus ? this.studyData.studyStatus.id : null,
       studyGenderElig: this.studyData.studyGenderElig ? this.studyData.studyGenderElig.id : null,
@@ -419,32 +461,32 @@ export class UpsertStudyComponent implements OnInit {
       studyRelationships: this.studyData.studyRelationships ? this.studyData.studyRelationships : [],
       studyContributors: this.studyData.studyContributors ? this.studyData.studyContributors : [],
     });
-    this.studyTypeChange();
   }
   onSave() {
+    this.spinner.show();
     if (localStorage.getItem('updateStudyList')) {
       localStorage.removeItem('updateStudyList');
     }
     if (this.addType === 'manual') {
       this.isSubmitted = true;
-      console.log('payload', this.studyForm);
-      this.studyForm.patchValue({
-        maxAgeUnit: this.studyForm.value.maxAge === '' || null ? null : this.studyForm.value.maxAgeUnit,
-        minAgeUnit: this.studyForm.value.minAge === '' || null ? null : this.studyForm.value.minAgeUnit
-      })
       if (this.studyForm.valid) {
+        this.studyForm.patchValue({
+          maxAgeUnit: this.studyForm.value.maxAge === '' || null ? null : this.studyForm.value.maxAgeUnit,
+          minAgeUnit: this.studyForm.value.minAge === '' || null ? null : this.studyForm.value.minAgeUnit,
+          organisation: this.studyForm.value.organisation ? this.studyForm.value.organisation.id : null,
+        });
+
         const payload = JSON.parse(JSON.stringify(this.studyForm.value));
-        this.spinner.show();
+        payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
         if (this.isEdit) {
           delete payload.sdSid;
-          payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
           this.studyService.editStudy(this.id, payload).subscribe((res: any) => {
-            this.spinner.hide();
             if (res.statusCode === 200) {
-              this.toastr.success('Study Details updated successfully');
+              this.toastr.success('Study updated successfully');
               localStorage.setItem('updateStudyList', 'true');
               this.reuseService.notifyComponents();
-              this.getStudyById(this.id);
+              // this.getStudyById(this.id);
+              this.spinner.hide();
               this.back();
             } else {
               this.toastr.error(res.messages[0]);
@@ -453,29 +495,30 @@ export class UpsertStudyComponent implements OnInit {
             this.spinner.hide();
             this.toastr.error(error.error.title);
           })
-        } else {
-          payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
-          this.studyService.addStudy(payload).subscribe((res: any) => {
-            this.spinner.hide();
+        } else {  // this.isAdd
+          this.studyService.addStudy(payload).pipe(
+            finalize(() => this.spinner.hide())
+          ).subscribe((res: any) => {
             if (res.statusCode === 201) {
-              this.toastr.success('Study Detail added successfully');
+              this.toastr.success('Study added successfully');
               localStorage.setItem('updateStudyList', 'true');
               this.reuseService.notifyComponents();
               this.back();
             } else {
-              this.toastr.error(res.messages[0]);
+              this.toastr.error(res.messages[0], "Study adding error");
             }
           }, error => {
-            this.spinner.hide();
-            this.toastr.error(error.error.title);
+            this.toastr.error(error.messages[0], error.error.title);
           })
         }
       } else {
+        this.spinner.hide();
         this.gotoTop();
       }
       this.count = 0;
     }
     if (this.addType === 'usingTrialId') {
+      // TODO?
       this.spinner.show();
       this.studyService.getFullStudyFromMdr(this.registryId, this.trialId).subscribe((res: any) => {
         if (res.statusCode === 200) {
@@ -492,27 +535,8 @@ export class UpsertStudyComponent implements OnInit {
       })
     }
   }
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (this.role) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   onChange() {
     this.publicTitle = this.studyForm.value.displayTitle;
@@ -586,6 +610,13 @@ export class UpsertStudyComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+  customSearchFn(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
+  }
+  compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {
+    return o1?.id == o2?.id;
+  }
   gotoTop() {
     window.scroll({ 
       top: 0, 
@@ -599,5 +630,9 @@ export class UpsertStudyComponent implements OnInit {
     } else {
       this.router.navigate([`/data-objects/${sdOid}/view`]);
     }
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
+    this.subscription.unsubscribe();
   }
 }

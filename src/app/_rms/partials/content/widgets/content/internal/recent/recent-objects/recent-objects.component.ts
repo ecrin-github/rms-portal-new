@@ -4,6 +4,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 import { ToastrService } from 'ngx-toastr';
 import { ObjectListEntryInterface } from 'src/app/_rms/interfaces/data-object/data-object-listentry.interface';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-recent-objects',
@@ -17,15 +18,13 @@ export class RecentObjectsComponent {
   dataSource: MatTableDataSource<ObjectListEntryInterface>;
   role: any;
 
-  constructor(private toastr: ToastrService, 
-              private listService: ListService, private permissionService: NgxPermissionsService) { }
+  constructor(private statesService: StatesService,
+              private toastr: ToastrService, 
+              private listService: ListService, 
+              private permissionService: NgxPermissionsService) { }
 
   ngOnInit(): void {
     this.getObjectList();
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-      this.permissionService.loadPermissions([this.role]);
-    }
   }
   
   getObjectList() {

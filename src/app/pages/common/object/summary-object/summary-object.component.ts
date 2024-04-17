@@ -14,6 +14,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subject, combineLatest } from 'rxjs';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-summary-object',
@@ -44,34 +45,30 @@ export class SummaryObjectComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('objectDeleteModal') objectDeleteModal : TemplateRef<any>;
 
-  constructor( private reuseService: ReuseService,
-               private scrollService: ScrollService,
-               private listService: ListService, 
-               private spinner: NgxSpinnerService, 
-               private toastr: ToastrService, 
-               private modalService: NgbModal,
-               private dataObjectService: DataObjectService,
-               private permissionService: NgxPermissionsService,
-               private router: Router) {
+  constructor(private statesService: StatesService,
+              private reuseService: ReuseService,
+              private scrollService: ScrollService,
+              private listService: ListService, 
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService, 
+              private modalService: NgbModal,
+              private dataObjectService: DataObjectService,
+              private permissionService: NgxPermissionsService,
+              private router: Router) {
   }
 
   ngOnInit(): void {
-    this.orgId = localStorage.getItem('organisationId');
-    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
+    this.role = this.statesService.currentAuthRole;
+    this.orgId = this.statesService.currentAuthOrgId;
+    this.isOrgIdValid = this.statesService.isOrgIdValid();
     this.isBrowsing = this.router.url.includes('browsing');
     if (!this.isBrowsing) {
-      if (localStorage.getItem('role')) {
-        this.role = localStorage.getItem('role');
-        this.permissionService.loadPermissions([this.role]);
-      }
-      if (localStorage.getItem('organisationId')) {
-        this.orgId = localStorage.getItem('organisationId');
-      }
+      this.permissionService.loadPermissions([this.role]);
     }
     this.notDashboard = this.router.url.includes('data-objects') ? true : false;
     this.getObjectList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.role, ['/data-objects']);
+    this.scrollService.handleScroll(['/data-objects']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {

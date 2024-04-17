@@ -1,13 +1,14 @@
-import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest } from 'rxjs';
+import { BackService } from 'src/app/_rms/services/back/back.service';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { PeopleService } from 'src/app/_rms/services/entities/people/people.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-upsert-user',
@@ -25,7 +26,8 @@ export class UpsertUserComponent implements OnInit {
   submitte: boolean = false;
   pageSize:Number = 10000;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private backService: BackService, 
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private activatedRoute: ActivatedRoute, 
@@ -37,8 +39,10 @@ export class UpsertUserComponent implements OnInit {
     this.userForm = this.fb.group({
       firstName: '',
       lastName: '',
+      profTitle: '',
       designation: '',
       organisation: '',
+      isSuperuser: false,
       email: '',
       password: '',
       username: ''
@@ -46,9 +50,7 @@ export class UpsertUserComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    if(localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    } 
+    this.role = this.statesService.currentAuthRole;
     this.getOrganization();
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
@@ -74,7 +76,9 @@ export class UpsertUserComponent implements OnInit {
       firstName: userData.firstName,
       lastName: userData.lastName,
       designation: userData.userProfile?.designation,
+      profTitle: userData.userProfile?.profTitle,
       organisation: userData.userProfile?.organisation?.id,
+      isSuperuser: userData.isSuperuser,
       email: userData.email,
       password: userData.password,
       username: userData.username
@@ -134,23 +138,7 @@ export class UpsertUserComponent implements OnInit {
     }
   }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (this.role) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((item: any) => item.id === id);

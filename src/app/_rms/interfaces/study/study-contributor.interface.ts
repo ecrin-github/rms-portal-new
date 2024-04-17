@@ -3,12 +3,12 @@ import { UserInterface } from "../user/user.interface";
 import { StudyContributorTypeInterface } from "./study-contributor-type.interface";
 
 export interface StudyContributorInterface {
-    contributorType: StudyContributorTypeInterface;
-    createdOn: string;
     id: number;
-    isIndividual: boolean;
-    lastEditedBy: UserInterface;  // TODO: fix (partially) wrong interface
+    contributorType: StudyContributorTypeInterface;
+    person: UserInterface;
     organisation: OrganisationInterface;
-    person: UserInterface;  // TODO: fix (partially) wrong interface
+    lastEditedBy: UserInterface;
+    isIndividual: boolean;
+    createdOn: string;
     studyId: string;
 }

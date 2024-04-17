@@ -15,7 +15,7 @@ export class PrivilegesService {
         private statesService: StatesService
     ) {}
 
-    setPrivileges(currentUser: UserInterface) {
+    /*setPrivileges(currentUser: UserInterface) {
         if (currentUser) {
             if (INTERNAL_ROLES.find(role => role.id === currentUser.role)) {
                 this.statesService.isInternalUser = true;
@@ -32,5 +32,5 @@ export class PrivilegesService {
                 queryParams: {},
             });
         }
-    }
+    }*/
 }

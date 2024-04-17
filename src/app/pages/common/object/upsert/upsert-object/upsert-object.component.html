@@ -5,19 +5,18 @@
                 <h2 class="text-capitalize">{{ isView ? 'Data Object Details' : isEdit ? 'Editing Data Object Details' : 'Add new data object'}}</h2>
             </div>
             <div class="col-md-8 text-right">
-                <ng-container *ngIf="isView && !isBrowsing">
+                <ng-container *ngIf="showEdit">
                     <a [routerLink]="['/data-objects', id, 'edit']" class="btn btn-primary mr-1">
                         <i class="fa fa-edit"></i> Edit
                     </a>
+                </ng-container>
+                <ng-container *ngIf="isView">
                     <button class="btn btn-primary mr-1" (click)="printPdf()">
                         <i class="fa fa-print"></i> PDF
                     </button>
                     <button class="btn btn-primary mr-1" (click)="jsonExport()">
                         <i class="fa fa-code"></i> JSON
                     </button>
-                    <button class="btn btn-warning" (click)="back()">Back</button>
-                </ng-container>
-                <ng-container *ngIf="isView && isBrowsing">
                     <button class="btn btn-warning" (click)="back()">Back</button>
                 </ng-container>
                 <ng-container *ngIf="!isView">
@@ -34,12 +33,12 @@
     <div class="card-body">
         <form [formGroup]="objectForm">
             <div class="row form-group">
-                <div class="col-md-12">
-                    <label for="studyId" class="font-style text-capitalize">parent study</label>
+                <div class="col-md-8">
+                    <label for="studyId" class="font-style text-capitalize">parent study <sup>*</sup> </label>
                     <ng-select id="study" [items]="studyList" formControlName="linkedStudy"
-                    [compareWith]="compareStudies" [multiple]="false" [virtualScroll]="true" class="custom"
-                    notFoundText="No study found" placeholder="Please select parent study" [searchFn]="customSearchFn" 
-                    *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.linkedStudy.errors }">
+                    [compareWith]="compareStudies" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body"
+                    notFoundText="No study found" placeholder="Please select parent study" [searchFn]="customSearchStudies" 
+                    *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.linkedStudy.errors }" (change)="onChangeParentStudy()">
                         <ng-template ng-label-tmp let-item="item">
                             {{item.sdSid}}
                         </ng-template>
@@ -67,10 +66,14 @@
                         <p *ngIf="isSubmitted && g.linkedStudy.errors.required"> Please enter parent study ID</p>
                     </div>  
                 </div>
+                <div class="col-md-4">
+                    <label for="organisationName" class="font-style text-capitalize">Organisation <sup>*</sup> </label>
+                    <h6 class="pt-4" id="organisationName" style="font-weight: 100;">{{organisationName ? organisationName : isView ? '' : 'Select parent study to update organisation'}}</h6>
+                </div>
             </div>
             <div class="row form-group" *ngIf="!isView">
                 <div class="col-md-12">
-                    <label for="displayTitle" class="font-style text-capitalize">title</label>
+                    <label for="displayTitle" class="font-style text-capitalize">title <sup>*</sup> </label>
                     <textarea id="displayTitle" cols="30" rows="3" class="form-control" placeholder="Please enter a good mnemonic reference for your data object"
                     formControlName="displayTitle" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.displayTitle.errors }"></textarea>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.displayTitle}}</h6>
@@ -84,7 +87,7 @@
                     <label for="objectClass" class="font-style text-capitalize">Object class</label>
                     <select id="objectClass" class="form-control" formControlName="objectClass" *ngIf="!isView" (change)="onChange()">
                         <option selected disabled value="null">Please select object class</option>
-                        <option [value]=class.id *ngFor="let class of objectClass">{{class.name}}</option>
+                        <option [value]=class.id *ngFor="let class of objectClasses">{{class.name}}</option>
                     </select>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectClass ? objectData?.objectClass.name : 'None'}}</h6>
                 </div>
@@ -92,7 +95,7 @@
                     <label for="objectType" class="font-style text-capitalize">Object type</label>
                     <select id="objectType" class="form-control" formControlName="objectType" *ngIf="!isView" (change)="onTypeChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.objectType.errors }">
                         <option selected disabled value="null">Please select object type</option>
-                        <option [value]=type.id *ngFor="let type of objectType">{{type.name}}</option>
+                        <option [value]=type.id *ngFor="let type of objectTypes">{{type.name}}</option>
                     </select>
                     <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.objectType.errors">
                         <p *ngIf="isSubmitted && g.objectType.errors.required"> Please enter the data object type</p>
@@ -117,14 +120,14 @@
             <div class="row form-group">
                 <div class="col-md-6">
                     <label for="publicationYear" class="font-style text-capitalize">Publication year</label>
-                    <p-calendar appendTo="body" id="publicationYear" formControlName="publicationYear" view="year" dateFormat="yy" *ngIf="!isView" placeholder="Enter publication year"></p-calendar>
+                    <p-calendar appendTo="body" class="calendar" [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" id="publicationYear" formControlName="publicationYear" view="year" dateFormat="yy" *ngIf="!isView" placeholder="Enter publication year"></p-calendar>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.publicationYear}}</h6>
                 </div>
                 <div class="col-md-6">
                     <label for="langCode" class="font-style text-capitalize">Language</label>
                     <select id="langCode" class="form-control" formControlName="langCode" *ngIf="!isView">
                         <option selected disabled value="null">Please select language</option>
-                        <option [value]="language.id" *ngFor="let language of languageCode">{{language.langNameEn}}</option>
+                        <option [value]="language.id" *ngFor="let language of languageCodes">{{language.langNameEn}}</option>
                     </select>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.langCode ? objectData?.langCode.langNameEn : 'None'}}</h6>
                 </div>
@@ -132,10 +135,8 @@
             <div class="row form-group">
                 <div class="col-md-6">
                     <label for="managingOrg" class="font-style text-capitalize">Managing organisation</label>
-                    <!-- <input id="managingOrg" type="text" class="form-control" placeholder="Enter managing organisation"
-                        formControlName="managingOrg" *ngIf="!isView" /> -->
-                    <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
-                        formControlName="managingOrg" [multiple]="false" [virtualScroll]="true" class="custom"
+                    <ng-select [items]="organisations" bindLabel="defaultName" bindValue="id"
+                        formControlName="managingOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body"
                         notFoundText="No members found" placeholder="Select Organisation"
                         *ngIf="!isView">
                     </ng-select>
@@ -146,7 +147,7 @@
                     <label for="accessType" class="font-style text-capitalize">Access type</label>
                     <select id="accessType" class="form-control" formControlName="accessType" *ngIf="!isView" (change)="onChangeAccessType()">
                         <option selected disabled value="null">Please select type of access </option>
-                        <option [value]=access.id *ngFor="let access of accessType">{{access.name}}</option>
+                        <option [value]=access.id *ngFor="let access of accessTypes">{{access.name}}</option>
                     </select>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessType ? objectData?.accessType.name : 'None'}}</h6>
                 </div>
@@ -185,7 +186,7 @@
                         <label for="recordkeyType" class="font-style text-capitalize">Keys type</label>
                         <select id="recordkeyType" class="form-control" formControlName="recordkeyType" *ngIf="!isView">
                             <option selected disabled value="null">Please select deidentification level</option>
-                            <option [value]=key.id *ngFor="let key of keyType">{{key.name}}</option>
+                            <option [value]=key.id *ngFor="let key of keyTypes">{{key.name}}</option>
                         </select>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.recordkeyType ? objectData?.objectDatasets[0]?.recordkeyType.name : 'None' : 'None'}}</h6>
                     </div>
@@ -210,7 +211,7 @@
                         <!-- <i class="fa fa-info-circle pl-1"></i> -->
                         <select id="deidentType" class="form-control" formControlName="deidentType" *ngIf="!isView">
                             <option selected disabled value="null">Please select deidentification type</option>
-                            <option [value]=identification.id *ngFor="let identification of deidentificationType">
+                            <option [value]=identification.id *ngFor="let identification of deidentificationTypes">
                                 {{identification.name}}</option>
                         </select>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.deidentType ? objectData?.objectDatasets[0]?.deidentType.name : 'None' : 'None'}}</h6>
@@ -273,7 +274,7 @@
                         <!-- <i class="fa fa-info-circle pl-1"></i> -->
                         <select id="consentType" class="form-control" formControlName="consentType" *ngIf="!isView">
                             <option selected disabled value="null">Please select consent type</option>
-                            <option [value]=consent.id *ngFor="let consent of consentType">{{consent.name}}</option>
+                            <option [value]=consent.id *ngFor="let consent of consentTypes">{{consent.name}}</option>
                         </select>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.consentType ? objectData?.objectDatasets[0]?.consentType.name : 'None' : 'None'}}</h6>
                     </div>

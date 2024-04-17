@@ -1,3 +1,4 @@
+import { OrganisationInterface } from '../organisation/organisation.interface';
 import { StudyDataInterface } from '../study/study.interface';
 import { ObjectContributorInterface } from './object-contributor.interface';
 import {ObjectDatasetInterface} from './object-dataset.interface';
@@ -33,6 +34,7 @@ export interface DataObjectInterface {
     addStudyContribs: boolean;
     addStudyTopics: boolean;
     createdOn: string;
+    organisation: OrganisationInterface | null;
     objectContributors: ObjectContributorInterface[] | null;
     objectDatasets: ObjectDatasetInterface[] | null;
     objectDates: ObjectDateInterface[] | null;

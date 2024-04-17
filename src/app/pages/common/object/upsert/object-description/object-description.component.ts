@@ -19,7 +19,7 @@ import { Router } from '@angular/router';
 export class ObjectDescriptionComponent implements OnInit {
   form: UntypedFormGroup;
   descriptionType: [] = [];
-  languageCode: [] = [];
+  languageCodes: [] = [];
   subscription: Subscription = new Subscription();
   @Input() isView: boolean;
   @Input() isEdit: boolean;
@@ -44,7 +44,7 @@ export class ObjectDescriptionComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getDescriptionType();
-    this.getLanguageCode();
+    this.getLanguageCodes();
     if (this.isEdit || this.isView) {
       this.getObjectDescription();
     }
@@ -110,10 +110,11 @@ export class ObjectDescriptionComponent implements OnInit {
       })
     });
   }
-  getLanguageCode() {
+  getLanguageCodes() {
     this.commonLookupService.getLanguageCodes(this.pageSize).subscribe((res:any) => {
-      if(res.results) {
-        this.languageCode = res.results;
+      if (res.results) {
+        const { compare } = Intl.Collator('en-GB');
+        this.languageCodes = res.results.sort((a, b) => compare(a.langNameEn, b.langNameEn));
       }
     }, error => {
       console.log('error', error);
@@ -124,19 +125,16 @@ export class ObjectDescriptionComponent implements OnInit {
     });
   }
   findLangCode(languageCode) {
-    const langArr: any = this.languageCode.filter((type: any) => type.languageCode === languageCode);
+    const langArr: any = this.languageCodes.filter((type: any) => type.languageCode === languageCode);
     return langArr && langArr.length? langArr[0].id : '';
   }
   getObjectDescription() {
-    this.spinner.show();
     this.objectService.getObjectDescriptions(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectDescription = res.results.length ? res.results : [];
         this.patchForm(this.objectDescription);
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {
@@ -210,7 +208,7 @@ export class ObjectDescriptionComponent implements OnInit {
     return descriptionArray && descriptionArray.length ? descriptionArray[0].name : '';
   }
   findLangcodeById(id) {
-    const langArr: any = this.languageCode.filter((type: any) => type.id === id);
+    const langArr: any = this.languageCodes.filter((type: any) => type.id === id);
     return langArr && langArr.length ? langArr[0].langNameEn : '';
   }
   emitData() {

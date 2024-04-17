@@ -24,15 +24,15 @@ export class ListService {
     // return this.http.get(`${base}/studies/list/title-contains/${title}?pagenum=${page}&pagesize=${size}`);
     return this.http.get(`${base}/mdm/studies/by-title?title=${title_fragment}`);
   }
-  getFilteredStudyListByOrg(title_fragment: string, orgId, page: number, size: number) {
+  getFilteredStudyListByOrg(title_fragment: string, orgId: string, page: number, size: number) {
     return this.http.get(`${base}/mdm/studies/by-title-and-organisation?title=${title_fragment}&orgId=${orgId}`);
   }
 
-  getStudyListByOrg(orgId :number) {
+  getStudyListByOrg(orgId: string) {
     return this.http.get(`${base}/mdm/studies/by-org?orgId=${orgId}`);
   }
 
-  getRecentStudiesList(n :number) {
+  getRecentStudiesList(n: number) {
     return this.http.get(`${base}/studies/list/recent/${n}`);
   }
 

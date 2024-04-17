@@ -1,12 +1,14 @@
-import { Location } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
-import { combineLatest, Subscription } from 'rxjs';
+import { combineLatest, Observable, of, Subscription } from 'rxjs';
+import { catchError, finalize, map, switchMap, timeout } from 'rxjs/operators';
 import { DataObjectInterface } from 'src/app/_rms/interfaces/data-object/data-object.interface';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyDataInterface } from 'src/app/_rms/interfaces/study/study.interface';
+import { BackService } from 'src/app/_rms/services/back/back.service';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-generator/json-generator.service';
@@ -14,11 +16,14 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generator/pdf-generator.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-upsert-object',
   templateUrl: './upsert-object.component.html',
-  styleUrls: ['./upsert-object.component.scss']
+  styleUrls: ['./upsert-object.component.scss'],
+  providers: [ScrollService]
 })
 export class UpsertObjectComponent implements OnInit {
   public isCollapsed: boolean = true;
@@ -26,14 +31,15 @@ export class UpsertObjectComponent implements OnInit {
   isEdit: boolean = false;
   isView: boolean = false;
   isAdd: boolean = false;
-  objectClass: [] = [];
-  objectType: [] = [];
-  accessType: [] = [];
-  keyType: [] = [];
-  deidentificationType: [] = [];
-  consentType: [] = [];
-  languageCode: [] = [];
-  organizationList: [] = [];
+  objectClasses: [] = [];
+  objectTypes: [] = [];
+  accessTypes: [] = [];
+  keyTypes: [] = [];
+  deidentificationTypes: [] = [];
+  consentTypes: [] = [];
+  languageCodes: [] = [];
+  organisations: [] = [];
+  organisationName: string;
   id: any;
   objectData: DataObjectInterface;
   subscription: Subscription = new Subscription();
@@ -46,22 +52,24 @@ export class UpsertObjectComponent implements OnInit {
   sticky: boolean = false;
   EoscCategory = ['0', '1', '2', '3'];
   studyList: StudyDataInterface[] = [];
-  resourceType: [] = [];
-  sizeUnit: [] = [];
-  titleType: [] = [];
-  dateType: [] = [];
-  topicType: [] = [];
-  identifierType: [] = [];
-  descriptionType: [] = [];
+  resourceTypes: [] = [];
+  sizeUnits: [] = [];
+  titleTypes: [] = [];
+  dateTypes: [] = [];
+  topicTypes: [] = [];
+  identifierTypes: [] = [];
+  descriptionTypes: [] = [];
   showAccessDetails: boolean = true;
-  role: any;
-  orgId: any;
-  isOrgIdValid: boolean;
+  isManager: boolean;
+  orgId: string;
   isSubmitted: boolean = false;
   isBrowsing: boolean = false;
+  showEdit: boolean = false;
   pageSize: Number = 10000;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private backService: BackService,
+              private scrollService: ScrollService,
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private commonLookupService: CommonLookupService, 
@@ -84,6 +92,7 @@ export class UpsertObjectComponent implements OnInit {
       publicationYear: null,
       langCode: '',
       managingOrg: '',
+      organisation: null,
       accessType: null,
       accessDetails: '',
       accessDetailsUrl: '',
@@ -117,225 +126,224 @@ export class UpsertObjectComponent implements OnInit {
       objectRelationships: [],
     });
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    const navbar = document.getElementById('navbar');
-    const sticky = navbar.offsetTop;
-    if (window.pageYOffset >= sticky) {
-      navbar.classList.add('sticky');
-      this.sticky = true;
-    } else {
-      navbar.classList.remove('sticky');
-      this.sticky = false;
-    }
-  }
-
 
   ngOnInit(): void {
+    setTimeout(() => {
+      this.spinner.show(); 
+    });
+
     this.isAdd = this.router.url.includes('add') ? true : false;
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    }
-    if (localStorage.getItem('organisationId')) {
-      this.orgId = localStorage.getItem('organisationId');
-    }
-    this.isOrgIdValid = this.orgId !== 'null' && this.orgId !== 'undefined' && this.orgId !== null && this.orgId !== undefined;
-    if (this.role === 'User') {
+
+    this.isManager = this.statesService.isManager();
+    this.orgId = this.statesService.currentAuthOrgId;
+    if (!this.isManager) {
       this.objectForm.get('objectType').setValidators(Validators.required);
     }
-    this.getStudyList();
-    this.getObjectClass();
-    this.getObjectType();
-    this.getAccessType();
-    this.getKeyType();
-    this.getDeidentificationType();
-    this.getConsentType();
-    this.getLanguageCode();
-    this.getResourceType();
-    this.getSizeUnit();
-    this.getTitleType();
-    this.getDateType();
-    this.getTopicType();
-    this.getIdentifierType();
-    this.getDescriptionType();
-    this.getOrganization();
-    if (this.isView || this.isEdit) {
-      this.id = this.activatedRoute.snapshot.params.id;
-      this.getObjectById(this.id);
+
+    let queryFuncs: Array<Observable<any>> = [];
+
+    // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
+    // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
+    if ((this.isEdit || this.isAdd) && (this.isManager)) {
+      queryFuncs.push(this.getOrganisations());
     }
+    if (this.isEdit || this.isView) {
+      this.id = this.activatedRoute.snapshot.params.id;
+      queryFuncs.push(this.getObjectById(this.id));
+    }
+    if (this.isView) {
+      this.scrollService.handleScroll([`/data-objects/${this.id}/view`]);
+      queryFuncs.push(this.getEditAuth(this.id));
+    }
+    // Queries required even for view because of pdf/json exports
+    queryFuncs.push(this.getResourceTypes());
+    queryFuncs.push(this.getSizeUnits());
+    queryFuncs.push(this.getTitleTypes());
+    queryFuncs.push(this.getDateTypes());
+    queryFuncs.push(this.getTopicTypes());
+    queryFuncs.push(this.getIdentifierTypes());
+    queryFuncs.push(this.getDescriptionTypes());
+    queryFuncs.push(this.getConsentTypes());
+    queryFuncs.push(this.getStudyList());
+    queryFuncs.push(this.getObjectClasses());
+    queryFuncs.push(this.getObjectTypes());
+    queryFuncs.push(this.getAccessTypes());
+    queryFuncs.push(this.getKeyTypes());
+    queryFuncs.push(this.getDeidentificationTypes());
+    queryFuncs.push(this.getLanguageCodes());
+
+    let obsArr: Array<Observable<any>> = [];
+    queryFuncs.forEach((funct) => {
+      obsArr.push(funct.pipe(catchError(error => of(this.toastr.error(error.error.title)))));
+    });
+
+    combineLatest(obsArr).subscribe(res => {
+      this.setLanguageCodes(res.pop());
+      this.setDeidentificationTypes(res.pop());
+      this.setKeyTypes(res.pop());
+      this.setAccessTypes(res.pop());
+      this.setObjectTypes(res.pop());
+      this.setObjectClasses(res.pop());
+      this.setStudyList(res.pop());
+      this.setConsentTypes(res.pop());
+      this.setDescriptionTypes(res.pop());
+      this.setIdentifierTypes(res.pop());
+      this.setTopicTypes(res.pop());
+      this.setDateTypes(res.pop());
+      this.setTitleTypes(res.pop());
+      this.setSizeUnits(res.pop());
+      this.setResourceTypes(res.pop());
+
+      // Check if user allowed to edit the study, in which case edit button is shown (for view)
+      if (this.isView) {
+        this.setEditAuth(res.pop());
+      }
+      if (this.isEdit || this.isView) {
+        this.setObjectById(res.pop());
+      }
+      if ((this.isEdit || this.isAdd) && this.isManager) {
+        this.setOrganisations(res.pop());
+      }
+
+      // TODO: still too early
+      setTimeout(() => {
+        console.log("spinner hide");
+        this.spinner.hide(); 
+      });
+    });
   }
   get g() { return this.objectForm.controls; }
-  getStudyList() {
-    this.spinner.show();
-    if (this.role === 'User' && this.isOrgIdValid) {
-      this.listService.getStudyListByOrg(this.orgId).subscribe((res: any) => {
-        this.spinner.hide();
-        if (res) {
-          this.studyList = res;
-        }
-      }, error => {
-        this.toastr.error(error.error.title);
-        this.spinner.hide();
-      })
+  getEditAuth(sdOid: string) {
+    let edit$: Observable<boolean>;
+    if (this.isManager) {
+      edit$ = of(true);
+    } else if (this.isBrowsing) {
+      edit$ = of(false);
     } else {
-      this.listService.getStudyList(this.pageSize, '').subscribe((res: any) => {
-        this.spinner.hide();
-        if (res?.results) {
-          this.studyList = res.results;
-        }
-      }, error => {
-        this.toastr.error(error.error.title);
-        this.spinner.hide();
-      })
+      edit$ = this.objectService.getDataObjectById(sdOid).pipe(
+        switchMap((res: DataObjectInterface) => {
+          return of(res.organisation.id === this.orgId);
+        })
+      )
+    }
+    return edit$;
+  }
+  setEditAuth(isAuth: boolean) {
+    this.showEdit = isAuth;
+  }
+  getStudyList() {
+    let studyList$: Observable<Object>;
+    if (!(this.isManager || this.isBrowsing)) {
+      studyList$ = this.listService.getStudyListByOrg(this.orgId);
+    } else {
+      studyList$ = this.listService.getStudyList(this.pageSize, '');
+    }
+    return studyList$;
+  }
+  setStudyList(studyList) {
+    if (!this.isManager) {
+      if (studyList) {
+        this.studyList = studyList;
+      }
+    } else {
+      if (studyList?.results) {
+        this.studyList = studyList.results;
+      }
     }
   }
   findStudyById(sdSid) {
     const arr: any = this.studyList.filter((item: any) => item.sdSid === sdSid);
     return arr && arr.length ? arr[0].displayTitle+'('+arr[0].sdSid+')' : ''
   }
-  customSearchFn(term: string, item) {
-    term = term.toLocaleLowerCase();
-    return item.sdSid?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
+  getObjectClasses() {
+    return this.objectLookupService.getObjectClasses(this.pageSize);
   }
-  getObjectClass() {
-    setTimeout(() => {
-      this.spinner.show();
-    });
-    this.objectLookupService.getObjectClasses(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.results) {
-        this.objectClass = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+  setObjectClasses(objectClasses) {
+    if (objectClasses?.results) {
+      this.objectClasses = objectClasses.results;
+    }
   }
-  getObjectType() {
-    setTimeout(() => {
-      this.spinner.show();
-    });
-    this.objectLookupService.getObjectTypes(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.results) {
-        this.objectType = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+  getObjectTypes() {
+    return this.objectLookupService.getObjectTypes(this.pageSize);
   }
-  getAccessType() {
-    setTimeout(() => {
-     this.spinner.show(); 
-    });
-    this.objectLookupService.getAccessTypes(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if(res.results) {
-        this.accessType = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+  setObjectTypes(objectTypes) {
+    if (objectTypes?.results) {
+      this.objectTypes = objectTypes.results;
+    }
   }
-  getKeyType() {
-    setTimeout(() => {
-     this.spinner.show(); 
-    });
-    this.objectLookupService.getRecordKeyTypes(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.results) {
-        this.keyType = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+  getAccessTypes() {
+    return this.objectLookupService.getAccessTypes(this.pageSize);
   }
-  getDeidentificationType() {
-    setTimeout(() => {
-     this.spinner.show(); 
-    });
-    this.objectLookupService.getDeidentificationTypes(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.results) {
-        this.deidentificationType = res.results
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+  setAccessTypes(accessTypes) {
+    if (accessTypes?.results) {
+      this.accessTypes = accessTypes.results;
+    }
   }
-  getConsentType() {
-    setTimeout(() => {
-     this.spinner.show(); 
-    });
-    this.objectLookupService.getConsentTypes(this.pageSize).subscribe((res:any) => {
-      this.spinner.hide();
-      if(res.results) {
-        this.consentType = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    });
+  getKeyTypes() {
+    return this.objectLookupService.getRecordKeyTypes(this.pageSize);
   }
-  getLanguageCode() {
-    setTimeout(() => {
-      this.spinner.show();
-    });
-    this.commonLookupService.getLanguageCodes(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res && res.results) {
-        this.languageCode = res.results;
-        if (this.isAdd) {
-          this.objectForm.patchValue({
-            langCode: this.findLangCode('English')
-          })
-        }
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
+  setKeyTypes(keyTypes) {
+    if (keyTypes?.results) {
+      this.keyTypes = keyTypes.results;
+    }
   }
-  getOrganization() {
-    this.spinner.show();
-    this.commonLookupService.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res && res.results) {
-        this.organizationList = res.results;
+  getDeidentificationTypes() {
+    return this.objectLookupService.getDeidentificationTypes(this.pageSize);
+  }
+  setDeidentificationTypes(deidentificationTypes) {
+    if (deidentificationTypes?.results) {
+      this.deidentificationTypes = deidentificationTypes.results;
+    }
+  }
+  getConsentTypes() {
+    return this.objectLookupService.getConsentTypes(this.pageSize);
+  }
+  setConsentTypes(consentTypes) {
+    if (consentTypes?.results) {
+      this.consentTypes = consentTypes.results;
+    }
+  }
+  getLanguageCodes() {
+    return this.commonLookupService.getLanguageCodes(this.pageSize);
+  }
+  setLanguageCodes(languageCodes) {
+    if (languageCodes?.results) {
+      const { compare } = Intl.Collator('en-GB');
+      this.languageCodes = languageCodes.results.sort((a, b) => compare(a.langNameEn, b.langNameEn));
+      if (this.isAdd) {
+        this.objectForm.patchValue({
+          langCode: this.findLangCode('English')
+        });
       }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
+    }
+  }
+  getOrganisations() {
+    return this.commonLookupService.getOrganizationList(this.pageSize);
+  }
+  setOrganisations(organisations) {
+    if (organisations?.results) {
+      this.organisations = organisations.results;
+    }
   }
   getObjectById(id) {
-    setTimeout(() => {
-     this.spinner.show();
-    });
-    this.objectService.getDataObjectById(id).subscribe((res: any) => {
-      this.spinner.hide();
-      if(res) {
-        this.objectData = res;
-        this.patchObjectForm();
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
+    return this.objectService.getDataObjectById(id);
+  }
+  setObjectById(objectData) {
+    if (objectData) {
+      this.objectData = objectData;
+      this.organisationName = objectData.organisation?.defaultName;
+      this.patchObjectForm();
+    }
   }
   patchObjectForm() {
-    const arr: any = this.objectClass.filter((item:any) => item.name === 'Dataset');
+    const arr: any = this.objectClasses.filter((item:any) => item.name === 'Dataset');
     if (this.objectData.objectClass) {
       this.showDatasetKey = this.objectData.objectClass.id === arr[0].id ? true : false;
     }
-    const arrType: any = this.objectType.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
+    const arrType: any = this.objectTypes.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
     if(this.objectData.objectType) {
       arrType.map(item => {
         if (item.id === this.objectData.objectType.id) {
@@ -344,7 +352,7 @@ export class UpsertObjectComponent implements OnInit {
         }
       });
     }
-    const arrAccessType: any = this.accessType.filter((item: any) => item.name === 'Public on-screen access and download');
+    const arrAccessType: any = this.accessTypes.filter((item: any) => item.name === 'Public on-screen access and download');
     if (this.objectData.accessType) {
       this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0].id ? false : true;
     }
@@ -358,6 +366,7 @@ export class UpsertObjectComponent implements OnInit {
       publicationYear: this.objectData.publicationYear ? new Date(`01/01/${this.objectData.publicationYear}`) : '',
       langCode: this.objectData.langCode ? this.objectData.langCode.id : null,
       managingOrg: this.objectData.managingOrg ? this.objectData.managingOrg.id : null,
+      organisation: this.objectData.organisation ? this.objectData.organisation.id : null,
       accessType: this.objectData.accessType ? this.objectData.accessType.id : null,
       accessDetails: this.objectData.accessDetails,
       accessDetailsUrl: this.objectData.accessDetailsUrl,
@@ -392,6 +401,7 @@ export class UpsertObjectComponent implements OnInit {
     });
   }
   onSave() {
+    this.spinner.show();
     if (localStorage.getItem('updateObjectList')) {
       localStorage.removeItem('updateObjectList');
     }
@@ -412,6 +422,7 @@ export class UpsertObjectComponent implements OnInit {
         objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass : null,
         objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType : null,
         managingOrg: this.objectForm.value.managingOrg ? this.objectForm.value.managingOrg : null,
+        organisation: this.objectForm.value.organisation ? this.objectForm.value.organisation : null,
         langCode: this.objectForm.value.langCode,
         accessType: this.objectForm.value.accessType ? this.objectForm.value.accessType : null
       }
@@ -435,20 +446,19 @@ export class UpsertObjectComponent implements OnInit {
         objectId: this.id
       }
       if (this.isEdit) {
-        if (payload.linkedStudy === null || payload.linkedStudy === undefined){
+        if (payload.linkedStudy === null || payload.linkedStudy === undefined) {
           this.spinner.hide();
           this.toastr.error("You have to specify linked study");
-        }else{
+        } else {
           const editDataObject$ = this.objectService.editDataObject(this.id, payload);
-          const editDataset$ = this.objectData.objectDatasets.length > 0 ? this.objectService.editObjecDataset(this.objectData.objectDatasets[0].id, this.id, datasetPayload) : this.objectService.addObjectDatasete(this.id, datasetPayload);
-          this.spinner.show();
+          const editDataset$ = this.objectData.objectDatasets.length > 0 ? this.objectService.editObjectDataset(this.objectData.objectDatasets[0].id, this.id, datasetPayload) : this.objectService.addObjectDataset(this.id, datasetPayload);
           const combine$ = combineLatest([editDataObject$, editDataset$]).subscribe(([editRes, datasetRes] : [any, any]) => {
-            this.spinner.hide();
             if (editRes.statusCode === 200 && datasetRes.statusCode === 200) {
               this.toastr.success('Data Object updated successfully');
               localStorage.setItem('updateObjectList', 'true');
-              this.getObjectById(this.id);
+              // this.getObjectById(this.id);
               this.reuseService.notifyComponents();
+              this.spinner.hide();
               this.back();
             }
           }, error => {
@@ -457,33 +467,37 @@ export class UpsertObjectComponent implements OnInit {
           })
         }
       } else {
-        if (payload.linkedStudy === null || payload.linkedStudy === undefined){
+        if (payload.linkedStudy === null || payload.linkedStudy === undefined) {
           this.spinner.hide();
           this.toastr.error("You have to specify linked study");
-        }
-        else
-        {
-          this.objectService.addDataObject(payload).subscribe((res: any) => {
-            this.spinner.hide();
-            if (res.statusCode === 201) {
-              this.objectService.addObjectDatasete(res.id, datasetPayload).subscribe((res: any) => {
-                if (res.statusCode === 201) {
-                }
-              }, error => {
-                this.toastr.error(res.messages[0]);
-              })
-              this.toastr.success('Data Object added successfully.');
-              localStorage.setItem('updateObjectList', 'true');
-              this.reuseService.notifyComponents();
-              this.back();
-            } else {
-              this.toastr.error(res.messages[0]);
-            }
-          }, error => {
-            console.log(error.error.title)
-            this.spinner.hide();
-            this.toastr.error(error.error.title);
-          })
+        } else {
+          this.objectService.addDataObject(payload).pipe(
+            timeout(10000),
+            map((res: any) => {
+              if (res.statusCode === 201) {
+                datasetPayload.objectId = res.id;
+                this.objectService.addObjectDataset(res.id, datasetPayload).pipe(
+                  map((res2: any) => {
+                    if (res2.statusCode === 201) {
+                      this.toastr.success('Data Object added successfully');
+                      localStorage.setItem('updateObjectList', 'true');
+                      this.reuseService.notifyComponents();
+                      this.back();
+                    } else {
+                      throw new Error(res2.messages[0]);
+                    }
+                  })
+                ).subscribe();
+              } else {
+                throw new Error(res.messages[0]);
+              }
+            }),
+            finalize(() => this.spinner.hide()),
+            catchError(err => {
+              this.toastr.error(err.message, 'Error when adding DO');
+              return of(false);
+            })
+          ).subscribe();
         }
       }
     } else {
@@ -512,44 +526,25 @@ export class UpsertObjectComponent implements OnInit {
   //   return deidentificationArray && deidentificationArray.length ? deidentificationArray[0].name : 'None';
   // }
   findConsentType(id) {
-    const consentTypeArray: any = this.consentType.filter((type: any) => type.id === id);
+    const consentTypeArray: any = this.consentTypes.filter((type: any) => type.id === id);
     return consentTypeArray && consentTypeArray.length ?consentTypeArray[0].name : 'None';
   }
   findLangCode(languageCode) {
     setTimeout(() => {
-      const langArr: any = this.languageCode.filter((type: any) => type.languageCode === languageCode);
+      const langArr: any = this.languageCodes.filter((type: any) => type.languageCode === languageCode);
       return langArr && langArr.length? langArr[0].id : '';
     }, 2000);
   }
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (this.role) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   onChange() {
-    const arr: any = this.objectClass.filter((item:any) => item.name.toLowerCase() === 'dataset');
+    const arr: any = this.objectClasses.filter((item:any) => item.name.toLowerCase() === 'dataset');
     this.showDatasetKey = this.objectForm.value.objectClass === arr[0].id ? true : false;
   }
   onTypeChange() {
     this.showTopic = false;
-    const arrType: any = this.objectType.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
+    const arrType: any = this.objectTypes.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
     arrType.map(item => {
       if (item.id === this.objectForm.value.objectType) {
         this.showTopic = true;
@@ -592,7 +587,7 @@ export class UpsertObjectComponent implements OnInit {
       item.topicTypeId = this.findTopicType(item.topicTypeId);
     });
     payload.objectIdentifiers.map(item => {
-      item.identifierTypeId = this.findIdentifierTyepe(item.identifierTypeId);
+      item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
     });
     payload.objectDescriptions.map(item => {
       item.descriptionTypeId = this.findDescriptionType(item.descriptionTypeId);
@@ -634,7 +629,7 @@ export class UpsertObjectComponent implements OnInit {
       item.topicTypeId = this.findTopicType(item.topicTypeId);
     });
     payload.objectIdentifiers.map(item => {
-      item.identifierTypeId = this.findIdentifierTyepe(item.identifierTypeId);
+      item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
     });
     payload.objectDescriptions.map(item => {
       item.descriptionTypeId = this.findDescriptionType(item.descriptionTypeId);
@@ -643,100 +638,105 @@ export class UpsertObjectComponent implements OnInit {
   }
 
 // code to get values for id for generating pdf and json
-  getSizeUnit() {
-    this.objectLookupService.getSizeUnits(this.pageSize).subscribe((res: any) => {
-      if(res.data) {
-        this.sizeUnit = res.results;
-      }
-    }, error => {
-      console.log('error', error);
-    });
+  getSizeUnits() {
+    return this.objectLookupService.getSizeUnits(this.pageSize);
   }
-  getResourceType() {
-    this.objectLookupService.getResourceTypes(this.pageSize).subscribe((res: any) => {
-      if (res.results) {
-        this.resourceType = res.results;
-      }
-    }, error => {
-      console.log('error',error);
-    });
-  }
-  findResourceType(id) {
-    const resourceArray: any = this.resourceType.filter((type: any) => type.id === id);
-    return resourceArray && resourceArray.length ? resourceArray[0].name : '';
+  setSizeUnits(sizeUnits) {
+    if (sizeUnits?.results) {
+      this.sizeUnits = sizeUnits.results;
+    }
   }
   findSizeUnit(id) {
-    const sizeArray: any = this.sizeUnit.filter((type: any) => type.id === parseInt(id));
+    const sizeArray: any = this.sizeUnits.filter((type: any) => type.id === parseInt(id));
     return sizeArray && sizeArray.length ? sizeArray[0].name : '';
   }
-  getTitleType() {
-    this.objectLookupService.getObjectTitleTypes(this.pageSize).subscribe((res:any) => {
-      if(res.results) {
-        this.titleType = res.results;
-      }
-    }, error => {
-      console.log('error', error);
-    });
+  getResourceTypes() {
+    return this.objectLookupService.getResourceTypes(this.pageSize);
+  }
+  setResourceTypes(resourceTypes) {
+    if (resourceTypes?.results) {
+      this.resourceTypes = resourceTypes.results;
+    }
+  }
+  findResourceType(id) {
+    const resourceArray: any = this.resourceTypes.filter((type: any) => type.id === id);
+    return resourceArray && resourceArray.length ? resourceArray[0].name : '';
+  }
+  getTitleTypes() {
+    return this.objectLookupService.getObjectTitleTypes(this.pageSize);
+  }
+  setTitleTypes(titleTypes) {
+    if (titleTypes?.results) {
+      this.titleTypes = titleTypes.results;
+    }
   }
   findTitleType(id) {
-    const titleTypeArray: any = this.titleType.filter((type: any) => type.id === id);
+    const titleTypeArray: any = this.titleTypes.filter((type: any) => type.id === id);
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : ''
   }
-  getDateType() {
-    this.objectLookupService.getDateTypes(this.pageSize).subscribe((res: any) => {
-      if(res.results) {
-        this.dateType = res.results
-      }
-    }, error => {
-      console.log('error', error);
-    })
+  getDateTypes() {
+    return this.objectLookupService.getDateTypes(this.pageSize);
+  }
+  setDateTypes(dateTypes) {
+    if (dateTypes?.results) {
+      this.dateTypes = dateTypes.results;
+    }
   }
   findDateType(id) {
-    const dateTypeArray: any = this.dateType.filter((type: any) => type.id === id);
+    const dateTypeArray: any = this.dateTypes.filter((type: any) => type.id === id);
     return dateTypeArray && dateTypeArray.length ? dateTypeArray[0].name : '';
   }
-  getTopicType() {
-    this.commonLookupService.getTopicTypes(this.pageSize).subscribe((res: any) => {
-      if (res.results) {
-        this.topicType = res.results;
-      }
-    }, error => {
-      console.log('error', error);
-    });
+  getTopicTypes() {
+    return this.commonLookupService.getTopicTypes(this.pageSize);
+  }
+  setTopicTypes(topicTypes) {
+    if (topicTypes?.results) {
+      this.topicTypes = topicTypes.results;
+    }
   }
   findTopicType(id) {
-    const topicTypeArrray: any = this.topicType.filter((type: any) => type.id === id);
+    const topicTypeArrray: any = this.topicTypes.filter((type: any) => type.id === id);
     return topicTypeArrray && topicTypeArrray.length ? topicTypeArrray[0].name : '';
   }
-  getIdentifierType() {
-    this.objectLookupService.getObjectIdentifierTypes(this.pageSize).subscribe((res:any) => {
-      if(res.results) {
-        this.identifierType = res.results;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    });
+  getIdentifierTypes() {
+    return this.objectLookupService.getObjectIdentifierTypes(this.pageSize);
   }
-  findIdentifierTyepe(id) {
-    const identifierTypeArray: any = this.identifierType.filter((type: any) => type.id === id);
+  setIdentifierTypes(identifierTypes) {
+    if (identifierTypes?.results) {
+      this.identifierTypes = identifierTypes.results;
+    }
+  }
+  findIdentifierType(id) {
+    const identifierTypeArray: any = this.identifierTypes.filter((type: any) => type.id === id);
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : '';
   }
-  getDescriptionType() {
-    this.objectLookupService.getDescriptionTypes(this.pageSize).subscribe((res: any) => {
-      if(res.results) {
-        this.descriptionType = res.results;
-      }
-    }, error => {
-      console.log('error', error);
-    });
+  getDescriptionTypes() {
+    return this.objectLookupService.getDescriptionTypes(this.pageSize);
+  }
+  setDescriptionTypes(descriptionTypes) {
+    if (descriptionTypes?.results) {
+      this.descriptionTypes = descriptionTypes.results;
+    }
   }
   findDescriptionType(id) {
-    const descriptionArray: any = this.descriptionType.filter((type: any) => type.id === id);
+    const descriptionArray: any = this.descriptionTypes.filter((type: any) => type.id === id);
     return descriptionArray && descriptionArray.length ? descriptionArray[0].name : '';
   }
   onChangeAccessType() {
-    const arr: any = this.accessType.filter((item: any) => item.name === 'Public on-screen access and download');
+    const arr: any = this.accessTypes.filter((item: any) => item.name === 'Public on-screen access and download');
     this.showAccessDetails = parseInt(this.objectForm.value.accessType) === arr[0].id ? false : true;
+  }
+  onChangeParentStudy() {
+    if (!this.objectForm.value.linkedStudy) {
+      this.organisationName = "";
+    } else if (!this.objectForm.value.linkedStudy.organisation) {
+      this.organisationName = "Parent study doesn't have an organisation";
+    } else {
+      this.organisationName = this.objectForm.value.linkedStudy.organisation.defaultName;
+    }
+    this.objectForm.patchValue({
+      organisation: this.objectForm.value.linkedStudy?.organisation ? this.objectForm.value.linkedStudy.organisation.id : null
+    })
   }
   goToParentStudy(sdSid) {
     if (this.isBrowsing) {
@@ -745,9 +745,19 @@ export class UpsertObjectComponent implements OnInit {
       this.router.navigate([`/studies/${sdSid}/view`]);
     }
   }
+  customSearchStudies(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.sdSid?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
+  }
   compareStudies(s1: StudyDataInterface, s2: StudyDataInterface): boolean {
-    console.log(`compareStudies, s1: ${s1?.id}, s2: ${s2?.id}`);
     return s1?.id == s2?.id;
+  }
+  customSearchOrganisations(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
+  }
+  compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {
+    return o1?.id == o2?.id;
   }
   gotoTop() {
     window.scroll({ 
@@ -755,5 +765,9 @@ export class UpsertObjectComponent implements OnInit {
       left: 0, 
       behavior: 'smooth' 
     });
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
+    this.subscription.unsubscribe();
   }
 }

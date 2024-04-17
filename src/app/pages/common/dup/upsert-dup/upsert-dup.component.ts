@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,11 +17,15 @@ import { CommonModalComponent } from '../../common-modal/common-modal.component'
 import { ConfirmationWindowComponent } from '../../confirmation-window/confirmation-window.component';
 import { ConfirmationWindow1Component } from '../../confirmation-window1/confirmation-window1.component';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { BackService } from 'src/app/_rms/services/back/back.service';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-upsert-dup',
   templateUrl: './upsert-dup.component.html',
-  styleUrls: ['./upsert-dup.component.scss']
+  styleUrls: ['./upsert-dup.component.scss'],
+  providers: [ScrollService]
 })
 export class UpsertDupComponent implements OnInit {
   form: UntypedFormGroup;
@@ -58,7 +61,9 @@ export class UpsertDupComponent implements OnInit {
   dupNotes: any;
   prereqs: any;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private backService: BackService,
+              private scrollService: ScrollService,
               private router: Router, 
               private fb: UntypedFormBuilder, 
               private dupService: DupService, 
@@ -99,35 +104,25 @@ export class UpsertDupComponent implements OnInit {
       preRequisite: this.fb.array([])
     });
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    const navbar = document.getElementById('navbar');
-    const sticky = navbar.offsetTop;
-    if (window.pageYOffset >= sticky) {
-      navbar.classList.add('sticky');
-      this.sticky = true;
-    } else {
-      navbar.classList.remove('sticky');
-      this.sticky = false;
-    }
-  }
 
   ngOnInit(): void {
-    if(localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    } 
+    this.role = this.statesService.currentAuthRole;
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
+    
     this.getOrganization();
     this.getStatus();
     this.getStudyList();
     this.getObjectList();
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
-    if(this.isEdit || this.isView) {
+    if (this.isEdit || this.isView) {
       this.id = this.activatedRoute.snapshot.params.id;
       this.getDupById(this.id);
       this.getDupPeople(this.id);
+    }
+    if (this.isView) {
+      this.scrollService.handleScroll([`/data-use/${this.id}/view`]);
     }
     if (this.router.url.includes('add')) {
       this.form.patchValue({
@@ -593,23 +588,7 @@ export class UpsertDupComponent implements OnInit {
     return statusArray && statusArray.length ? statusArray[0].name : 'None';
   }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (this.role) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
@@ -880,6 +859,8 @@ export class UpsertDupComponent implements OnInit {
   goToTsd() {
     this.router.navigate([])
     .then(result => { window.open('https://crr.tsd.usit.no/', '_blank'); });
-}
-
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
+  }
 }

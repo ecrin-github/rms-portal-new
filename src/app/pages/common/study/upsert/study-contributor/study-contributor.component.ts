@@ -11,6 +11,9 @@ import { StudyService } from 'src/app/_rms/services/entities/study/study.service
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
+import { StudyContributorTypeInterface } from 'src/app/_rms/interfaces/study/study-contributor-type.interface';
+import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
 
 @Component({
   selector: 'app-study-contributor',
@@ -19,7 +22,7 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 })
 export class StudyContributorComponent implements OnInit {
   form: UntypedFormGroup;
-  contributorType: [] = [];
+  contributorTypes: [] = [];
   organizationList: [] = [];
   subscription: Subscription = new Subscription();
   @Input() studyId: string;
@@ -30,8 +33,6 @@ export class StudyContributorComponent implements OnInit {
   isIndividual = [];
   notindividualArr: [] = [];
   individualArr: [] = [];
-  notIndividualColumns = ['contributorType', 'organisationName'];
-  individualColumns = ['contributorType', 'person', 'orcidId', 'organisationName', 'person'];
   @Input() set initiateEmit(initiateEmit: any) {
     if (initiateEmit) {
       this.emitData();
@@ -51,7 +52,7 @@ export class StudyContributorComponent implements OnInit {
 
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
-    this.getContributorType();
+    this.getContributorTypes();
     this.getOrganization();
     this.getPersonList();
     if (this.isEdit || this.isView) {
@@ -113,24 +114,21 @@ export class StudyContributorComponent implements OnInit {
       }, error => {});
     }
   }
-  getContributorType() {
+  getContributorTypes() {
     this.commonLookupService.getContributorTypes(this.pageSize).subscribe((res: any) => {
       if (res.results) {
-        this.contributorType = res.results;
+        this.contributorTypes = res.results;
       }
     }, error => {
       console.log('error', error);
     });
   }
   getOrganization() {
-    this.spinner.show();
     this.commonLookupService.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.organizationList = res.results;
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
@@ -144,15 +142,12 @@ export class StudyContributorComponent implements OnInit {
     })
   }
   getStudyContributor() {
-    this.spinner.show();
     this.studyService.getStudyContributors(this.studyId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.studyContributor = res.results.length ? res.results : [];
         this.patchForm(this.studyContributor);
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
@@ -165,10 +160,10 @@ export class StudyContributorComponent implements OnInit {
       formArray.push(this.fb.group({
         id: contributor.id,
         studyId: contributor.studyId,
-        contributorType: contributor.contributorType ? contributor.contributorType.id : null,
+        contributorType: contributor.contributorType,
         isIndividual: contributor.isIndividual,
-        organisation: contributor.organisation ? contributor.organisation.id : null,
-        person: contributor.person ? contributor.person.id : null,
+        organisation: contributor.organisation,
+        person: contributor.person,
         alreadyExist: true
       }))
     });
@@ -178,12 +173,21 @@ export class StudyContributorComponent implements OnInit {
     }
     return formArray;
   }
+  updatePayload(payload) {
+    if (!payload.studyId && this.studyId) {  // TODO test
+      payload.studyId = this.studyId;
+    }
+    payload.contributorType = payload.contributorType ? payload.contributorType.id : null;
+    payload.organisation = payload.organisation ? payload.organisation.id : null;
+    payload.person = payload.person ? payload.person.id : null;
+  }
   addContributor(index) {
     this.spinner.show();
     const payload = this.form.value.studyContributors[index];
-    payload.studyId = this.studyId;
-    payload.isIndividual = payload.isIndividual === 'true' ? true : false;
-    delete payload.id;
+    if (payload.id) {
+      delete payload.id;
+    }
+    this.updatePayload(payload);
 
     this.studyService.addStudyContributor(this.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -199,9 +203,11 @@ export class StudyContributorComponent implements OnInit {
     })
   }
   editContributor(contributorStudy) {
-    const payload = contributorStudy.value;
-    payload.isIndividual = payload.isIndividual === 'true' ? true : false;
     this.spinner.show();
+
+    const payload = contributorStudy.value;
+    this.updatePayload(payload);
+    
     this.studyService.editStudyContributor(payload.id, payload.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
@@ -214,18 +220,6 @@ export class StudyContributorComponent implements OnInit {
       this.spinner.hide();
       this.toastr.error(error.error.title);
     })
-  }
-  findContributorType(id) {
-    const contributorArray: any = this.contributorType.filter((type: any) => type.id === id);
-    return contributorArray && contributorArray.length ? contributorArray[0].name : '';
-  }
-  findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
-    return organizationArray && organizationArray.length ? organizationArray[0].defaultName : '';
-  }
-  findPerson(id) {
-    const personArray: any = this.personList.filter((item: any) => item.id === id);
-    return personArray && personArray.length ? personArray[0].firstName + ' ' + personArray[0].lastName : ''
   }
   emitData() {
     const payload = this.form.value.studyContributors.map(item => {
@@ -243,20 +237,42 @@ export class StudyContributorComponent implements OnInit {
   onChange(index) {
     this.isIndividual[index] = this.form.value.studyContributors[index].isIndividual === 'true' ? true : false;
     this.studyContributors().at(index).patchValue({
-      contributorType: '',
-      organisation: '',
-      person: '',
+      contributorType: null,
+      organisation: null,
+      person: null,
     })
   }
   sameAsAbove() {
-    const arr = this.studyContributors().value.filter(item => item.isIndividual === true);
-    const preValue = arr[arr.length - 1];
+    const arr = this.studyContributors().value;
+    const preValue = arr[arr.length - 2];
     this.studyContributors().at(this.arrLength).patchValue({
       isIndividual: preValue.isIndividual,
       organisation: preValue.organisation,
       contributorType: preValue.contributorType,
       person: preValue.person,
     })
+  }
+  compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {
+    return o1?.id == o2?.id;
+  }
+  customSearchOrganisations(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.defaultName.toLocaleLowerCase().indexOf(term) > -1 || item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
+  }
+  compareTypes(s1: StudyContributorTypeInterface, s2: StudyContributorTypeInterface): boolean {
+    return s1?.id == s2?.id;
+  }
+  customSearchTypes(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.name.toLocaleLowerCase().indexOf(term) > -1 || item.name.toLocaleLowerCase().indexOf(term) > -1;
+  }
+  comparePersons(u1: UserInterface, u2: UserInterface): boolean {
+    return u1?.id == u2?.id;
+  }
+  customSearchPersons(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.firstName.toLocaleLowerCase().indexOf(term) > -1 || item.firstName.toLocaleLowerCase().indexOf(term) > -1
+      && item.lastName.toLocaleLowerCase().indexOf(term) > -1 || item.lastName.toLocaleLowerCase().indexOf(term) > -1;
   }
   scrollToElement(): void {
     setTimeout(() => {

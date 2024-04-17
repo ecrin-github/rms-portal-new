@@ -13,6 +13,7 @@ import { debounceTime, distinctUntilChanged, observeOn } from 'rxjs/operators';
 import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-summary-user',
@@ -36,7 +37,8 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
   dataChanged: boolean = false;
   
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  constructor(private reuseService: ReuseService,
+  constructor(private statesService: StatesService,
+              private reuseService: ReuseService,
               private scrollService: ScrollService, 
               private listService: ListService, 
               private spinner: NgxSpinnerService, 
@@ -46,17 +48,13 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
               private router: Router) { }
 
   ngOnInit(): void {
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-      this.permissionService.loadPermissions([this.role]);
-    }
-    if (localStorage.getItem('organisationId')) {
-      this.orgId = localStorage.getItem('organisationId');
-    }
+    this.role = this.statesService.currentAuthRole;
+    this.orgId = this.statesService.currentAuthOrgId;
+    this.permissionService.loadPermissions([this.role]);
     this.notDashboard = this.router.url.includes('people') ? true : false;
     this.getPeople();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.role, ['/people']);
+    this.scrollService.handleScroll(['/people']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {
@@ -158,22 +156,6 @@ export class SummaryUserComponent implements OnInit, OnDestroy {
     this.getPeople();
     localStorage.removeItem('updateUserList');
   }
-  
-  /*@HostListener('window:scroll', ['$event'])
-  onScroll() {
-    console.log("on scroll (user component)");
-    if (this.role !== 'User' || this.notDashboard) {
-      const navbar = document.getElementById('navbar');
-      const sticky = navbar.offsetTop;
-      if (window.pageYOffset >= sticky) {
-        navbar.classList.add('sticky');
-        this.sticky = true;
-      } else {
-        navbar.classList.remove('sticky');
-        this.sticky = false;
-      }
-    }
-  }*/
   onInputChange(e) {
     const searchText = e.target.value;
     if (!!searchText) {

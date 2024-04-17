@@ -1,9 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { NgxPermissionsService } from 'ngx-permissions';
-import { ToastrService } from 'ngx-toastr';
 import { LayoutService } from 'src/app/_rms';
 import { DashboardService } from 'src/app/_rms/services/entities/dashboard/dashboard.service';
-import { UserService } from 'src/app/_rms/services/user/user.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-main-page-internal',
@@ -28,13 +26,13 @@ export class InternalMainPageComponent implements OnInit {
   peopleTotal: any;
   valuePer: any = {};
   valueNum: any = {};
-  userData: any;
   organisation: string = '';
   organisationName: string = '';
   role: string = '';
   
-  constructor( private layout: LayoutService, private dashboardService: DashboardService, private toastr: ToastrService, private permissionService: NgxPermissionsService, 
-    private userService: UserService) { 
+  constructor(private statesService: StatesService,
+              private layout: LayoutService,
+              private dashboardService: DashboardService) { 
     this.colorsGrayGray100 = this.layout.getProp('js.colors.gray.gray100');
     this.colorsGrayGray700 = this.layout.getProp('js.colors.gray.gray700');
     this.colorsThemeBaseSuccess = this.layout.getProp(
@@ -44,55 +42,17 @@ export class InternalMainPageComponent implements OnInit {
       'js.colors.theme.light.success'
     );
     this.fontFamily = this.layout.getProp('js.fontFamily');
-
   }
 
   ngOnInit(): void {
-    this.getUserData();
+    this.organisation = this.statesService.currentAuthOrgId;
+    this.organisationName = this.statesService.currentUser.userProfile?.organisation?.defaultName;
     this.getStatistics();
   }
 
-  getUserData() {
-    if (localStorage.getItem('userData')) {
-      this.userData = JSON.parse(localStorage.getItem('userData'));
-      this.userService.getUserRoleInfo(this.userData).subscribe((res: any) => {
-        this.role = res.isSuperuser && res.isStaff ? 'Manager' : 'User'
-        // this.permissionService.loadPermissions([res.role]);
-        this.permissionService.loadPermissions([this.role]);
-        this.organisation = res.userProfile?.organisation?.id;
-        this.organisationName = res.userProfile?.organisation?.defaultName;
-        // localStorage.setItem('role', res.userProfile?.role);
-        localStorage.setItem('role', this.role);
-        localStorage.setItem('organisationId', res.userProfile?.organisation?.id);
-      }, error => {
-        console.log(error);
-      })
-    } else {
-      this.userService.getUser().subscribe(res => {
-        if (res) {
-          localStorage.setItem('userData', JSON.stringify(res));
-          this.userData = res;
-          this.userService.getUserRoleInfo(this.userData).subscribe((res: any) => {
-            this.role = res.isSuperuser && res.isStaff ? 'Manager' : 'User'
-            // this.permissionService.loadPermissions([res.role]);
-            this.permissionService.loadPermissions([this.role]);
-            this.organisation = res.userProfile?.organisation?.id;
-            this.organisationName = res.userProfile?.organisation?.defaultName;
-            // localStorage.setItem('role', res.userProfile?.role);
-            localStorage.setItem('role', this.role);
-            localStorage.setItem('organisationId', res.userProfile?.organisation?.id);
-          }, error => {
-            console.log(error);
-          })
-        }
-      }, error => {
-        console.log('error', error);
-      })
-    }
-  }
   getStatistics() {
     this.dashboardService.getStatistics().subscribe((res: any) => {
-      if(res) {
+      if (res) {
         this.studyTotal = res.totalStudies;
         this.studyChartOptions = this.getChartOptions(this.studyTotal, 'Total Studies', false);
         this.objectTotal = res.totalObjects;
@@ -108,6 +68,7 @@ export class InternalMainPageComponent implements OnInit {
 
     })
   }
+
   getChartOptions(data, label, format) {
     this.valuePer = {
       color: this.colorsGrayGray700,
@@ -169,10 +130,9 @@ export class InternalMainPageComponent implements OnInit {
       markers: {},
     };
   }
+
   scrollToElement($element): void {
     var topOfElement = $element.offsetTop - 135;
     window.scroll({ top: topOfElement, behavior: "smooth" });
   }
-
-  protected readonly localStorage = localStorage;
 }

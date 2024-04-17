@@ -19,7 +19,7 @@ import { Router } from '@angular/router';
 })
 export class ObjectTitleComponent implements OnInit {
   form: UntypedFormGroup;
-  languageCode: [] = [];
+  languageCodes: [] = [];
   titleType: [] = [];
   subscription: Subscription = new Subscription();
   @Input() objectId: string;
@@ -44,7 +44,7 @@ export class ObjectTitleComponent implements OnInit {
 
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
-    this.getLanguageCode();
+    this.getLanguageCodes();
     this.getTitleType();
     if (this.isEdit || this.isView) {
       this.getObjectTitle();
@@ -60,7 +60,7 @@ export class ObjectTitleComponent implements OnInit {
       objectId: '',
       titleType: '',
       titleText: '',
-      langCode: this.findLangCode('English'),
+      langCode: null,
       comments: '',
       alreadyExist: false
     });
@@ -98,10 +98,11 @@ export class ObjectTitleComponent implements OnInit {
       }, error => {})
     }
   }
-  getLanguageCode() {
+  getLanguageCodes() {
     this.commonLookupService.getLanguageCodes(this.pageSize).subscribe((res: any) => {
       if (res.results) {
-        this.languageCode = res.results;
+        const { compare } = Intl.Collator('en-GB');
+        this.languageCodes = res.results.sort((a, b) => compare(a.langNameEn, b.langNameEn));
       }
     }, error => {
       console.log('error', error);
@@ -125,15 +126,12 @@ export class ObjectTitleComponent implements OnInit {
     });
   }
   getObjectTitle() {
-    this.spinner.show();
     this.objectService.getObjectTitles(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectTitle = res.results.length ? res.results : [];
         this.patchForm(this.objectTitle);
       }
     }, error => {
-      this.spinner.hide();
       const arr = Object.keys(error.error);
       arr.map((item,index) => {
         this.toastr.error(`${item} : ${error.error[item]}`);
@@ -151,7 +149,7 @@ export class ObjectTitleComponent implements OnInit {
         objectId: title.objectId,
         titleType: title.titleType ? title.titleType.id : null,
         titleText: title.titleText,
-        langCode: title.langCode ? title.langCode.id : null,
+        langCode: title.langCode ? title.langCode : null,
         comments: title.comments,
         alreadyExist: true
       }))
@@ -161,6 +159,7 @@ export class ObjectTitleComponent implements OnInit {
   addTitle(index) {
     this.spinner.show();
     const payload = this.form.value.objectTitles[index];
+    payload.langCode = payload.langCode?.id ? payload.langCode.id : null;
     payload.objectId = this.objectId;
     delete payload.id;
 
@@ -182,6 +181,7 @@ export class ObjectTitleComponent implements OnInit {
   }
   editTitle(titleObject) {
     const payload = titleObject.value;
+    payload.langCode = payload.langCode?.id ? payload.langCode.id : null;
     this.spinner.show();
     this.objectService.editObjectTitle(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -204,12 +204,17 @@ export class ObjectTitleComponent implements OnInit {
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : ''
   }
   findLangCode(languageCode) {
-    const langArr: any = this.languageCode.filter((type: any) => type.languageCode === languageCode);
+    const langArr: any = this.languageCodes.filter((type: any) => type.languageCode === languageCode);
     return langArr && langArr.length? langArr[0].id : '';
   }
   findLangcodeById(id) {
-    const langArr: any = this.languageCode.filter((type: any) => type.id === id);
+    const langArr: any = this.languageCodes.filter((type: any) => type.id === id);
     return langArr && langArr.length ? langArr[0].langNameEn : '';
+  }
+  customSearchLang(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.languageCode.toLocaleLowerCase().indexOf(term) > -1 || item.langNameEn.toLocaleLowerCase().indexOf(term) > -1 ||
+           item.langNameFr.toLocaleLowerCase().indexOf(term) > -1 || item.langNameDe.toLocaleLowerCase().indexOf(term) > -1;
   }
   emitData() {
     const payload = this.form.value.objectTitles.map(item => {

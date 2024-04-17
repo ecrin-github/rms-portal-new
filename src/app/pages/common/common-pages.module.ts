@@ -55,7 +55,8 @@ import { NgxPermissionsModule } from 'ngx-permissions';
 import { SummaryUserComponent } from './user/summary-user/summary-user/summary-user.component';
 import { AddModalComponent } from './add-modal/add-modal.component';
 import { UpsertUserComponent } from './user/upsert/upsert-user/upsert-user.component';
-import { UsersComponent } from 'src/app/modules/user-management/users/users.component';
+import { RoleGuard } from 'src/app/_rms/guards/role/role.guard';
+import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
 
 
 @NgModule({
@@ -110,16 +111,6 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
     imports: [
         CommonModule,
         RouterModule.forChild([
-            // Data context route
-            {
-                path: 'data-context',
-                pathMatch: 'full',
-                component: ContextPageComponent,
-                data: { 
-                    shouldReuse: false,
-                    key: 'contextpagecomponent'
-                }
-            },
             // DUP details pages
             {
                 path: 'data-use/:id/view',
@@ -128,7 +119,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertdupcomponentview'
-                }
+                },
+                canActivate: [RoleGuard]
             },
             {
                 path: 'data-use/:id/edit',
@@ -137,7 +129,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertdupcomponentedit'
-                }
+                },
+                canActivate: [ManagerGuard]
             },
             // DTP details pages
             {
@@ -147,7 +140,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertdtpcomponentview'
-                }
+                },
+                canActivate: [RoleGuard]
             },
             {
                 path: 'data-transfers/:id/edit',
@@ -156,7 +150,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertdtpcomponentedit'
-                }
+                },
+                canActivate: [ManagerGuard]
             },
             // Studies details pages
             {
@@ -166,7 +161,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertstudycomponentedit'
-                }
+                },
+                canActivate: [RoleGuard]
             },
             {
                 path: 'studies/:id/view',
@@ -185,7 +181,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertobjectcomponentedit'
-                }
+                },
+                canActivate: [RoleGuard]
             },
             {
                 path: 'data-objects/:id/view',
@@ -203,7 +200,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertusercomponentedit'
-                }
+                },
+                canActivate: [ManagerGuard]
             },
             {
                 path: 'people/:id/view',
@@ -212,7 +210,8 @@ import { UsersComponent } from 'src/app/modules/user-management/users/users.comp
                 data: { 
                     shouldReuse: false,
                     key: 'upsertusercomponentview'
-                }
+                },
+                canActivate: [ManagerGuard]
             }
         ]),
         MatTableModule,

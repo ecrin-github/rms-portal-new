@@ -102,13 +102,13 @@ export class DataObjectService {
   getObjectDatasets(sdOid) {
     return this.http.get(`${base}/mdm/data-objects/${sdOid}/object-datasets`);
   }
-  addObjectDatasete(sdOid, payload) {
+  addObjectDataset(sdOid, payload) {
     return this.http.post(`${base}/mdm/data-objects/${sdOid}/object-datasets`, payload);
   }
-  getObjectDatasete(id, sdOid) {
+  getObjectDataset(id, sdOid) {
     return this.http.get(`${base}/mdm/data-objects/${sdOid}/object-datasets/${id}`);
   }
-  editObjecDataset(id, sdOid, payload) {
+  editObjectDataset(id, sdOid, payload) {
     return this.http.put(`${base}/mdm/data-objects/${sdOid}/object-datasets/${id}`, payload);
   }
   deleteObjectDataset(id, sdOid) {

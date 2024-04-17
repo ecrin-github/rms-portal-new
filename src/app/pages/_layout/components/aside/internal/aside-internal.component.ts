@@ -1,6 +1,7 @@
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { LayoutService } from '../../../../../_rms';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-aside-internal',
@@ -20,15 +21,15 @@ export class AsideInternalComponent implements OnInit {
   asideMenuScroll = 1;
   asideSelfMinimizeToggle = false;
   menuSelected: string = 'dashboard';
-  isElementShownForManager: boolean = false;
+  isManager: boolean = false;
 
-  constructor(private layout: LayoutService, private loc: Location) { }
+  constructor(private statesService: StatesService,
+              private layout: LayoutService, 
+              private loc: Location) { }
 
   ngOnInit(): void {
-    const orgId = localStorage.getItem('organisationId');
-    if (orgId !== null && orgId !== undefined && orgId !== 'null' && orgId !== 'undefined'){
-      this.isElementShownForManager = true;
-    }
+    const orgId = this.statesService.currentAuthOrgId;
+    this.isManager = this.statesService.isManager();
 
     // load view settings
     this.disableAsideSelfDisplay =

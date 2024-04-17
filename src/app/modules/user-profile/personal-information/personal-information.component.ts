@@ -48,11 +48,11 @@ export class PersonalInformationComponent implements OnInit, OnDestroy {
   loadForm() {
     console.log(this.user)
     this.formGroup = this.fb.group({
-      pic: [this.user.pic],
+      // pic: [this.user.pic],
       firstName: [this.user.firstName, Validators.required],
       lastName: [this.user.lastName, Validators.required],
-      companyName: [this.user.companyName, Validators.required],
-      phone: [this.user.phone, Validators.required],
+      // companyName: [this.user.companyName, Validators.required],
+      // phone: [this.user.phone, Validators.required],
       email: [this.user.email, Validators.compose([Validators.required, Validators.email])],
       website: [this.user.website, Validators.required]
     });
@@ -68,11 +68,6 @@ export class PersonalInformationComponent implements OnInit, OnDestroy {
     this.user = Object.assign(this.user, formValues);
 
     // Do request to your server for user update, we just imitate user update there
-    this.statesService.isLoadingSubject = true;
-    setTimeout(() => {
-      this.statesService.currentUser = Object.assign({}, this.user);
-      this.statesService.isLoadingSubject = false;
-    }, 2000);
   }
 
   cancel() {
@@ -81,15 +76,15 @@ export class PersonalInformationComponent implements OnInit, OnDestroy {
   }
 
   getPic() {
-    if (!this.user.pic) {
+    /*if (!this.user.pic) {
       return 'none';
     }
 
-    return `url('${this.user.pic}')`;
+    return `url('${this.user.pic}')`;*/
   }
 
   deletePic() {
-    this.user.pic = '';
+    // this.user.pic = '';
   }
 
   // helpers for View

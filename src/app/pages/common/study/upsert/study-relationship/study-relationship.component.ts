@@ -105,29 +105,21 @@ export class StudyRelationshipComponent implements OnInit {
     });
   }
   getStudyList() {
-    setTimeout(() => {
-      this.spinner.show();
-    });
     this.listService.getStudyList(this.pageSize, '').subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.studyType = res.results.length ? res.results : [];
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
   getStudyRelationship() {
-    this.spinner.show();
     this.studyService.getStudyRelationships(this.studyId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.studyRelationship = res.results.length ? res.results : [];
         this.patchForm(this.studyRelationship);
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }

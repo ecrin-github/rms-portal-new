@@ -12,5 +12,6 @@ export class DefaultStates {
     public defaultIsExternalUser = false;
 
     public defaultCurrentUser = undefined;
-
+    public defaultAuthOrgId = undefined;
+    public defaultAuthRole = undefined;
 }

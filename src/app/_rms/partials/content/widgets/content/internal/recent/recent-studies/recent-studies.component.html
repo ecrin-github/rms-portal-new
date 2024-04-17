@@ -52,7 +52,7 @@
         <mat-cell *matCellDef="let row">
           <a [routerLink]="['/studies', row.id, 'view']"
             class="btn btn-light-primary font-weight-bolder font-size-sm mr-3">View</a>
-          <a [routerLink]="['/studies', row.id, 'edit']" [queryParams]="{type: 'manual'}"
+          <a [routerLink]="['/studies', row.id, 'edit']"
             class="btn btn-light-success font-weight-bolder font-size-sm">Edit</a>
         </mat-cell>
       </ng-container>

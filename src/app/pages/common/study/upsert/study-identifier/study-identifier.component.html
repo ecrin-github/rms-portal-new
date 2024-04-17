@@ -1,5 +1,5 @@
-<div class="row pb-2" *ngIf="!isView">
-    <div class="col-12 text-right justify-content-center mt-5">
+<div class="row pb-4" *ngIf="!isView">
+    <div class="col-12 text-right justify-content-center">
         <button class="btn btn-primary" (click)="addStudyIdentifier(); scrollToElement()">
             <i class="fa fa-plus"></i> Add Identifier
         </button>
@@ -43,7 +43,7 @@
                             <div class="col-md-6">
                                 <label for="identifierOrg" class="font-style text-capitalize">Identifier organisation</label>
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="identifierOrg"
-                                    [multiple]="false" [virtualScroll]="true" class="custom" notFoundText="No organization found"
+                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No organization found"
                                     placeholder="Select Organization" *ngIf="!isView">
                                 </ng-select>
                                 <!-- <input type="text" id="identifierOrgId" class="form-control" placeholder="Enter a parameter..."

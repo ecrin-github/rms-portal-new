@@ -88,15 +88,12 @@ export class ObjectRightComponent implements OnInit {
     }
   }
   getObjectRight() {
-    this.spinner.show();
     this.objectService.getObjectRights(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if(res && res.results) {
         this.objectRight = res.results.length ? res.results : [];
         this.patchForm(this.objectRight);
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {

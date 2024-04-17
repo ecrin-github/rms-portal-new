@@ -3,6 +3,7 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms
 import { UserService } from 'src/app/_rms/services/user/user.service';
 import {environment} from "../../../environments/environment";
 import {HttpClient} from "@angular/common/http";
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -16,7 +17,11 @@ export class UserProfileComponent implements OnInit {
   orgId: string;
   orgName: string;
 
-  constructor( private fb: UntypedFormBuilder, private userService: UserService, private http: HttpClient) {
+  constructor(
+    private statesService: StatesService,
+    private fb: UntypedFormBuilder,
+    private http: HttpClient
+  ) {
     this.form = this.fb.group({
       pic: ['', Validators.required],
       userName: ['', Validators.required],
@@ -30,7 +35,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.orgId = localStorage.getItem('organisationId');
+    this.orgId = this.statesService.currentAuthOrgId;
     if (this.orgId !== null && this.orgId !== undefined && this.orgId !== 'null' && this.orgId !== 'undefined') {
       const orgUrl = environment.baseUrl + '/general/organisations/' + this.orgId;
       this.http.get(orgUrl).subscribe((response) => {
@@ -58,28 +63,13 @@ export class UserProfileComponent implements OnInit {
     });
   }
   getUserData() {
-    if (localStorage.getItem('userData')) {
-      this.user = JSON.parse(localStorage.getItem('userData'));
-      this.user.pic = 'none';
-      this.user.country = '';
-      this.user.phone = '';
-      this.user.organisation = this.orgName
-      this.patchForm();
-    } else {
-      this.userService.getUser().subscribe((res: any) => {
-        console.log('res', res);
-        if (res) {
-          this.user = res;
-          this.user.pic = 'none';
-          this.user.country = '';
-          this.user.phone = '';
-          this.user.organisation = this.orgName
-          this.patchForm();
-        }
-      }, error => {
-        console.log('error', error);
-      });
-    }
+    // TODO
+    this.user = this.statesService.currentUser;
+    this.user.pic = 'none';
+    this.user.country = '';
+    this.user.phone = '';
+    this.user.organisation = this.orgName
+    this.patchForm();
   }
   getPic() {
     if (!this.user?.pic) {

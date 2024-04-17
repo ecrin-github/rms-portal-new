@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +6,6 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest } from 'rxjs';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
-import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { DtpService } from 'src/app/_rms/services/entities/dtp/dtp.service';
 import { ProcessLookupService } from 'src/app/_rms/services/entities/process-lookup/process-lookup.service';
 import KTWizard from '../../../../../assets/js/components/wizard'
@@ -23,11 +21,15 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {RedirectService} from './redirect-service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { BackService } from 'src/app/_rms/services/back/back.service';
+import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 
 @Component({
   selector: 'app-upsert-dtp',
   templateUrl: './upsert-dtp.component.html',
-  styleUrls: ['./upsert-dtp.component.scss']
+  styleUrls: ['./upsert-dtp.component.scss'],
+  providers: [ScrollService]
 })
 export class UpsertDtpComponent implements OnInit {
   form: UntypedFormGroup;
@@ -71,7 +73,9 @@ export class UpsertDtpComponent implements OnInit {
   prereqs: any;
   dtpNotes: any;
 
-  constructor(private location: Location, 
+  constructor(private statesService: StatesService,
+              private backService: BackService,
+              private scrollService: ScrollService,
               private router: Router, 
               private fb: UntypedFormBuilder, 
               private dtpService: DtpService, 
@@ -121,24 +125,12 @@ export class UpsertDtpComponent implements OnInit {
       embargo: this.fb.array([])
     });
   }
-  @HostListener('window:scroll', ['$event'])
-  onScroll() {
-    const navbar = document.getElementById('navbar');
-    const sticky = navbar.offsetTop;
-    if (window.pageYOffset >= sticky) {
-      navbar.classList.add('sticky');
-      this.sticky = true;
-    } else {
-      navbar.classList.remove('sticky');
-      this.sticky = false;
-    }
-  }
+
   ngOnInit(): void {
-    if(localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-    } 
+    this.role = this.statesService.currentAuthRole;
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
+    
     this.getOrganization();
     this.getStatus();
     this.getStudyList();
@@ -149,6 +141,9 @@ export class UpsertDtpComponent implements OnInit {
       this.id = this.activatedRoute.snapshot.params.id;
       this.getDtpPeople(this.id);
       this.getDtpById(this.id);
+    }
+    if (this.isView) {
+      this.scrollService.handleScroll([`/data-transfers/${this.id}/view`]);
     }
     if (this.router.url.includes('add')) {
       this.form.patchValue({
@@ -779,23 +774,7 @@ export class UpsertDtpComponent implements OnInit {
     return statusArray && statusArray.length ? statusArray[0].name : '';
   }
   back(): void {
-    const state: { [k: string]: any; } = this.location.getState();
-    // navigationId counts the number of pages visited for the current site
-    if (typeof state == 'object' && state != null && 'navigationId' in state && (parseInt(state['navigationId'], 10) > 1)) {
-      this.location.back();
-    } else {
-      if (this.role) {
-        const regex = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
-        const match = regex.exec(this.router.url);
-        if (match) {
-          this.router.navigate(match);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } else {
-        this.router.navigate(['/browsing']);
-      }
-    }
+    this.backService.back();
   }
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
@@ -1122,6 +1101,9 @@ export class UpsertDtpComponent implements OnInit {
   goToDo(object) {
     console.log(object);
     this.router.navigate([`/data-objects/${object.objectId}/edit`]);
+  }
+  ngOnDestroy() {
+    this.scrollService.unsubscribeScroll();
   }
 
   protected readonly window = window;

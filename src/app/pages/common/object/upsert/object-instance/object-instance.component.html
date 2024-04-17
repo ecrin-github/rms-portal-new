@@ -1,5 +1,5 @@
-<div class="row pb-2" *ngIf="!isView">
-    <div class="col-12 text-right justify-content-center mt-5">
+<div class="row pb-4" *ngIf="!isView">
+    <div class="col-12 text-right justify-content-center">
         <button class="btn btn-primary" (click)="addObjectInstance(); scrollToElement()">
             <i class="fa fa-plus"></i> Add Instance
         </button>
@@ -26,10 +26,8 @@
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="repositoryOrg" class="font-style text-capitalize">Repository organisation</label>
-                                <!-- <input id="repositoryOrg" type="text" class="form-control" placeholder="Enter an Organisation..."
-                                    formControlName="repositoryOrg" *ngIf="!isView" /> -->
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
-                                    formControlName="repositoryOrg" [multiple]="false" [virtualScroll]="true" class="custom"
+                                    formControlName="repositoryOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body"
                                     notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>
@@ -50,7 +48,9 @@
                                 <label for="url" class="font-style text-capitalize">Access details: URL</label>
                                 <input id="url" type="text" class="form-control" placeholder="https://www.example.org/mydata"
                                     formControlName="url" *ngIf="!isView" />
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
+                                <a href="{{objectInstance.value.url}}">
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
+                                </a>
                             </div>
                             <div class="col-md-6">
                                 <label for="resourceType" class="font-style text-capitalize">Resource details: Resource type</label>

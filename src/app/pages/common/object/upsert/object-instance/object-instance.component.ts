@@ -133,15 +133,12 @@ export class ObjectInstanceComponent implements OnInit {
     });
   }
   getObjectInstance() {
-    this.spinner.show();
     this.objectService.getObjectInstances(this.objectId, this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectInstance = res.results.length ? res.results : [];
         this.patchForm(this.objectInstance);
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {
@@ -217,14 +214,11 @@ export class ObjectInstanceComponent implements OnInit {
     })
   }
   getOrganization() {
-    this.spinner.show();
     this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.organizationList = res.results;
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {

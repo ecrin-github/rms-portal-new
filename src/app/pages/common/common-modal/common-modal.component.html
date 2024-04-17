@@ -7,7 +7,7 @@
             <div class="col-md-12" *ngIf="type === 'study'" [formGroup]="studyForm">
                 <label for="study" class="font-style text-capitalize">Study</label>
                 <ng-select id="study" [items]="studyList" bindLabel="id" bindValue="id" formControlName="studyId"
-                [multiple]="true" [virtualScroll]="true" class="custom" notFoundText="No members found"
+                [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
                     placeholder="Select study" [searchFn]="customSearchFn" (close)="studyDropdownClose()">
                     <ng-template ng-label-tmp let-item="item">
                         {{item.sdSid}}
@@ -27,7 +27,7 @@
             <div class="col-md-12" *ngIf="type === 'study' || type === 'dataObject'" [formGroup]="objectForm">
                 <label for="study" class="font-style text-capitalize">Object</label>
                 <ng-select [items]="objectList" bindLabel="id" bindValue="id" formControlName="objectId"
-                [multiple]="true" [virtualScroll]="true" class="custom" notFoundText="No members found"
+                [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
                     placeholder="Select object" [searchFn]="customSearchFn">
                     <ng-template ng-label-tmp let-item="item">
                         {{item.id}}
@@ -47,7 +47,7 @@
             <div class="col-md-12" *ngIf="type === 'user'" [formGroup]="userForm">
                 <label for="study" class="font-style text-capitalize">People</label>
                 <ng-select [items]="userList" bindLabel="id" bindValue="id" formControlName="person"
-                [multiple]="true" [virtualScroll]="true" class="custom" notFoundText="No members found"
+                [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
                     placeholder="Select object" [searchFn]="customSearchUser">
                     <ng-template ng-label-tmp let-item="item">
                         {{item.firstName}} {{item.lastName}}

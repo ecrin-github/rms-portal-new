@@ -14,6 +14,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { NavigationEnd, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-summary-dup',
@@ -23,7 +24,7 @@ import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 })
 export class SummaryDupComponent implements OnInit {
   usedURLs = ['/', '/data-use'];
-  displayedColumns = ['id', 'organisation', 'title', 'status', 'actions'];
+  displayedColumns = ['dupId', 'organisation', 'title', 'status', 'actions'];
   dataSource: MatTableDataSource<DupListEntryInterface>;
   filterOption: string = 'title';
   searchText:string = '';
@@ -40,27 +41,24 @@ export class SummaryDupComponent implements OnInit {
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('deleteModal') deleteModal : TemplateRef<any>;
 
-  constructor( private reuseService: ReuseService,
-               private scrollService: ScrollService,
-               private listService: ListService, 
-               private spinner: NgxSpinnerService, 
-               private toastr: ToastrService, 
-               private modalService: NgbModal,
-               private dupService: DupService,
-               private permissionService: NgxPermissionsService, private router: Router) { }
+  constructor(private statesService: StatesService,
+              private reuseService: ReuseService,
+              private scrollService: ScrollService,
+              private listService: ListService, 
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService, 
+              private modalService: NgbModal,
+              private dupService: DupService,
+              private permissionService: NgxPermissionsService, private router: Router) { }
 
   ngOnInit() {
-    if (localStorage.getItem('role')) {
-      this.role = localStorage.getItem('role');
-      this.permissionService.loadPermissions([this.role]);
-    }
-    if (localStorage.getItem('organisationId')) {
-      this.orgId = localStorage.getItem('organisationId');
-    }
+    this.role = this.statesService.currentAuthRole;
+    this.permissionService.loadPermissions([this.role]);
+    this.orgId = this.statesService.currentAuthOrgId;
     this.notDashboard = this.router.url.includes('data-use') ? true : false;
     this.getDupList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(this.role, ['/data-use']);
+    this.scrollService.handleScroll(['/data-use']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {

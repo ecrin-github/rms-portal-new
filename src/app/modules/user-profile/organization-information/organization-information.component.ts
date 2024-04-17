@@ -46,9 +46,9 @@ export class OrganizationInformationComponent implements OnInit, OnDestroy {
 
   loadForm() {
     this.formGroup = this.fb.group({
-      companyName: [this.user.companyName, Validators.required],
+      // companyName: [this.user.companyName, Validators.required],
       email: [this.user.email, Validators.compose([Validators.required, Validators.email])],
-      location: [this.user.address.city, Validators.required],
+      // location: [this.user.address.city, Validators.required],
       website: [this.user.website, Validators.required],
     });
   }
@@ -75,11 +75,6 @@ export class OrganizationInformationComponent implements OnInit, OnDestroy {
     });
 
     // Do request to your server for user update, we just imitate user update there
-    this.statesService.isLoadingSubject = true;
-    setTimeout(() => {
-      this.statesService.currentUser = Object.assign({}, this.user);
-      this.statesService.isLoadingSubject = false;
-    }, 2000);
   }
 
   cancel() {

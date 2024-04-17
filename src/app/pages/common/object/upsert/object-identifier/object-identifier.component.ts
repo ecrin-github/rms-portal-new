@@ -114,15 +114,12 @@ export class ObjectIdentifierComponent implements OnInit {
     });
   }
   getObjectIdentifier() {
-    this.spinner.show();
     this.objectService.getObjectIdentifiers(this.objectId).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.objectIdentifier = res.results.length ? res.results : [];
         this.patchForm(this.objectIdentifier);
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {
@@ -131,14 +128,11 @@ export class ObjectIdentifierComponent implements OnInit {
     })
   }
   getOrganization() {
-    this.spinner.show();
     this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
         this.organizationList = res.results;
       }
     }, error => {
-      this.spinner.hide();
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {

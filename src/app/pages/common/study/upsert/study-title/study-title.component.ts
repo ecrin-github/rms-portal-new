@@ -52,7 +52,7 @@ export class StudyTitleComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getTitleType();
-    this.getLanguageCode();
+    this.getLanguageCodes();
     if (this.isEdit || this.isView) {
       this.getStudyTitle();
     }
@@ -67,7 +67,7 @@ export class StudyTitleComponent implements OnInit {
       studyId: '',
       titleType: null,
       titleText: '',
-      langCode: this.findLangCode('English'),
+      langCode: null,
       comments: '',
       alreadyExist: false,
       isTitleLinked: false
@@ -115,7 +115,7 @@ export class StudyTitleComponent implements OnInit {
           studyId: '',
           titleType: publicType && publicType.length ? publicType[0].id : '',
           titleText: title,
-          langCode: '',
+          langCode: null,
           comments: '',
           alreadyExist: false,
           isTitleLinked: true
@@ -130,43 +130,31 @@ export class StudyTitleComponent implements OnInit {
     }
   }
   getTitleType() {
-    setTimeout(() => {
-      this.spinner.show(); 
-    });
     this.studyLookupService.getStudyTitleTypes(this.pageSize).subscribe((res:any) => {
-      this.spinner.hide();
       if(res.results) {
         this.titleType = res.results;
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     });
   }
-  getLanguageCode() {
-    setTimeout(() => {
-      this.spinner.show();
-    });
+  getLanguageCodes() {
     this.commonLookupService.getLanguageCodes(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
       if (res.results) {
-        this.languageCodes = res.results;
+        const { compare } = Intl.Collator('en-GB');
+        this.languageCodes = res.results.sort((a, b) => compare(a.langNameEn, b.langNameEn));
       }
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
   getStudyTitle() {
-    this.spinner.show();
     this.studyService.getStudyTitles(this.studyId).subscribe((res: any) => {
       if (res && res.results) {
         this.studyTitle = res.results.length ? res.results : [];
         this.patchForm(this.studyTitle);
       }
-      this.spinner.hide();
     }, error => {
-      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
@@ -181,7 +169,7 @@ export class StudyTitleComponent implements OnInit {
         studyId: title.studyId,
         titleType: title.titleType ? title.titleType.id : null,
         titleText: title.titleText,
-        langCode: title.langCode ? title.langCode.id : null,
+        langCode: title.langCode ? title.langCode : null,
         comments: title.comments,
         alreadyExist: true
       }))
@@ -191,6 +179,7 @@ export class StudyTitleComponent implements OnInit {
   addTitle(index) {
     this.spinner.show();
     const payload = this.form.value.studyTitles[index];
+    payload.langCode = payload.langCode?.id ? payload.langCode.id : null;
     payload.studyId = this.studyId;
     delete payload.id;
 
@@ -209,6 +198,7 @@ export class StudyTitleComponent implements OnInit {
   }
   editTitle(titleObject) {
     const payload = titleObject.value;
+    payload.langCode = payload.langCode?.id ? payload.langCode.id : null;
     this.spinner.show();
     this.studyService.editStudyTitle(payload.id, payload.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -227,9 +217,10 @@ export class StudyTitleComponent implements OnInit {
     const titleTypeArray: any = this.titleType.filter((type: any) => type.id === id);
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : '';
   }
-  findLangCode(langCode) {
-    const langArr: any = this.languageCodes.filter((type: any) => type.langNameEn === langCode);
-    return langArr && langArr.length ? langArr[0].id : '';
+  customSearchLang(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.languageCode.toLocaleLowerCase().indexOf(term) > -1 || item.langNameEn.toLocaleLowerCase().indexOf(term) > -1 ||
+           item.langNameFr.toLocaleLowerCase().indexOf(term) > -1 || item.langNameDe.toLocaleLowerCase().indexOf(term) > -1;
   }
   emitData() {
     const payload = this.form.value.studyTitles.map(item => {
