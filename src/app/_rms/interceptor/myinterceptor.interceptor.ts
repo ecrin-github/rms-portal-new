@@ -19,7 +19,9 @@ export class MyinterceptorInterceptor implements HttpInterceptor {
   constructor(private oidcSecurityService: OidcSecurityService) { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    /*return this.oidcSecurityService.getAccessToken().pipe(
+    /*
+    // Use this code with angular-auth-oidc-client 14.0.0 (probably)
+    return this.oidcSecurityService.getAccessToken().pipe(
       switchMap(token => {
         let newRequest = request;
         if (!request.url.includes('https://login.elixir-czech.org/oidc')) {

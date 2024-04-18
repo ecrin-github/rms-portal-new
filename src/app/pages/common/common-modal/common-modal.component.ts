@@ -198,7 +198,7 @@ export class CommonModalComponent implements OnInit {
   }
   customSearchUser(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.name.toLocaleLowerCase().indexOf(term) > -1 || item.name.toLocaleLowerCase().indexOf(term) > -1;
+    return item.name.toLocaleLowerCase().indexOf(term) > -1;
   }
   getObjectListByStudy(id) {
     this.spinner.show();

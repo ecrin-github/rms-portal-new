@@ -10,19 +10,6 @@ export class StudyService {
 
   constructor( private http: HttpClient) { }
 
-  // full study - witrh attributes
-  
-  getFullStudyById(sdSid) {
-    return this.http.get(`${base}/studies/full/${sdSid}`);
-  }
-  getBrowsingFullStudyById(sdSid) {
-    return this.http.get(`${base}/browsing/studies/full/${sdSid}`);
-  }
-
-  deleteFullStudyById(sdSid) {
-    return this.http.delete(`${base}/studies/full/${sdSid}`);
-  }
-
   // MDR related calls
  
   getFullStudyFromMdr(regId: number, sdSid: string) {
