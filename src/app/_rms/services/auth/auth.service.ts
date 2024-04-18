@@ -4,7 +4,6 @@ import { map, catchError, mergeMap, timeout } from 'rxjs/operators';
 import { ToastrService  } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { UserInterface } from '../../interfaces/user/user.interface';
-import { AuthHTTPService } from '../auth-http';
 import { StatesService } from '../states/states.service';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { UserService } from '../user/user.service';
@@ -20,7 +19,6 @@ export class AuthService {
   isauthentic: boolean;
 
   constructor(
-    private authHttpService: AuthHTTPService,
     private statesService: StatesService,
     private permissionService: NgxPermissionsService, 
     private router: Router,
@@ -38,7 +36,7 @@ export class AuthService {
           // Note 2: querying LS AAI even if statesService.currentUser is set for added security (preventing client-side memory tampering)
           await this.getUser();
         } else {
-          this.logout();
+          this.redirectToLogin();
         }
         this.isauthentic = isAuthenticated;
         return isAuthenticated;
@@ -76,6 +74,11 @@ export class AuthService {
     if (err) {
       this.toastr.error(err.message, 'Authentication error');
     }
+    this.router.navigate(['login']);
+  }
+
+  redirectToLogin() {
+    localStorage.clear();
     this.router.navigate(['login']);
   }
 }

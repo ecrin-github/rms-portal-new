@@ -43,8 +43,7 @@ import { FileSaverModule } from 'ngx-filesaver';
     ToastrModule.forRoot(),
     AuthModule.forRoot({
       config: {
-        authority: 'https://proxy.aai.lifescience-ri.eu/',
-        // authority: 'https://login.aai.lifescience-ri.eu/oidc/',  // CORS Error
+        authority: environment.authority,
         redirectUrl: window.location.origin,
         postLogoutRedirectUri: window.location.origin,
         clientId: environment.clientId,
