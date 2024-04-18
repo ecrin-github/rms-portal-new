@@ -36,14 +36,6 @@ import { FileSaverModule } from 'ngx-filesaver';
     HighlightModule,
     ClipboardModule,
     FileSaverModule,
-    // #fake-start#
-    // environment.isMockEnabled
-    //     ? HttpClientInMemoryWebApiModule.forRoot(FakeAPIService, {
-    //       passThruUnknownUrl: true,
-    //       dataEncapsulation: false,
-    //     })
-    //     : [],
-    // #fake-end#
     AppRoutingModule,
     InlineSVGModule.forRoot(),
     NgbModule,
@@ -52,10 +44,10 @@ import { FileSaverModule } from 'ngx-filesaver';
     AuthModule.forRoot({
       config: {
         authority: 'https://proxy.aai.lifescience-ri.eu/',
-        // authority: 'https://login.aai.lifescience-ri.eu/oidc/',
+        // authority: 'https://login.aai.lifescience-ri.eu/oidc/',  // CORS Error
         redirectUrl: window.location.origin,
         postLogoutRedirectUri: window.location.origin,
-        clientId: 'APP-45A6EC5D-8206-4356-A105-2AFE5FA7A831',
+        clientId: environment.clientId,
         scope: 'openid profile email offline_access',
         responseType: 'code',
         silentRenew: true,

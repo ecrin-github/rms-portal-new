@@ -257,22 +257,21 @@ export class StudyContributorComponent implements OnInit {
   }
   customSearchOrganisations(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.defaultName.toLocaleLowerCase().indexOf(term) > -1 || item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
+    return item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
   }
   compareTypes(s1: StudyContributorTypeInterface, s2: StudyContributorTypeInterface): boolean {
     return s1?.id == s2?.id;
   }
   customSearchTypes(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.name.toLocaleLowerCase().indexOf(term) > -1 || item.name.toLocaleLowerCase().indexOf(term) > -1;
+    return item.name.toLocaleLowerCase().indexOf(term) > -1;
   }
   comparePersons(u1: UserInterface, u2: UserInterface): boolean {
     return u1?.id == u2?.id;
   }
   customSearchPersons(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.firstName.toLocaleLowerCase().indexOf(term) > -1 || item.firstName.toLocaleLowerCase().indexOf(term) > -1
-      && item.lastName.toLocaleLowerCase().indexOf(term) > -1 || item.lastName.toLocaleLowerCase().indexOf(term) > -1;
+    return item.firstName.toLocaleLowerCase().indexOf(term) > -1 || item.lastName.toLocaleLowerCase().indexOf(term) > -1;
   }
   scrollToElement(): void {
     setTimeout(() => {

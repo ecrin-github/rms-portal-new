@@ -9,6 +9,7 @@ import { CommonLookupService } from 'src/app/_rms/services/entities/common-looku
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
+import { TopicVocabularies } from 'src/app/_rms/interfaces/context/topic-vocabularies/topic-vocabularies';
 
 @Component({
   selector: 'app-study-topic',
@@ -148,13 +149,22 @@ export class StudyTopicComponent implements OnInit {
     });
     return formArray;
   }
-  addTopic(index) {
-    this.spinner.show();
-    const payload = this.form.value.studyTopics[index];
-    payload.studyId = this.studyId;
+  updatePayload(payload) {
+    if (!payload.studyId && this.studyId) {  // TODO test
+      payload.studyId = this.studyId;
+    }
     payload.meshCoded = payload.meshCoded === 'true' ? true : false;
-    delete payload.id;
-
+    payload.originalValue = payload.originalValue.id;
+  }
+  addTopic(index) {
+    const payload = this.form.value.studyTopics[index];
+    this.spinner.show();
+    if (payload.id) {
+      delete payload.id;
+    }
+    this.updatePayload(payload);
+    
+    
     this.studyService.addStudyTopic(this.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 201) {
@@ -170,8 +180,8 @@ export class StudyTopicComponent implements OnInit {
   }
   editTopic(topicObject) {
     const payload = topicObject.value;
-    payload.meshCoded = payload.meshCoded === 'true' ? true : false;
     this.spinner.show();
+    this.updatePayload(payload);
     this.studyService.editStudyTopic(payload.id, payload.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
@@ -188,6 +198,13 @@ export class StudyTopicComponent implements OnInit {
   findTopicType(id) {
     const topicArray: any = this.topicTypes.filter((type: any) => type.id === id);
     return topicArray && topicArray.length ? topicArray[0].name : '';
+  }
+  compareCTs(ct1: TopicVocabularies, ct2: TopicVocabularies): boolean {
+    return ct1?.id == ct2?.id;
+  }
+  customSearchCTs(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.firstName.toLocaleLowerCase().indexOf(term) > -1;
   }
   emitData() {
     const payload = this.form.value.studyTopics.map(item => {

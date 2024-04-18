@@ -17,7 +17,7 @@ export class ProfileCardComponent {
     this.getUserData();
   }
   getUserData() {
-    // TODO
+    // TODO: probably remove
     this.user = this.statesService.currentUser;
     this.user.pic = './assets/media/svg/avatars/001-boy.svg';
     this.user.companyName = '';

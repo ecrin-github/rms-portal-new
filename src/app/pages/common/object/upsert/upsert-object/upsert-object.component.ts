@@ -210,7 +210,6 @@ export class UpsertObjectComponent implements OnInit {
 
       // TODO: still too early
       setTimeout(() => {
-        console.log("spinner hide");
         this.spinner.hide(); 
       });
     });

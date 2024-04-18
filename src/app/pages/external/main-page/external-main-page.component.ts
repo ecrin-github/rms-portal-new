@@ -15,6 +15,5 @@ export class ExternalMainPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = this.stateService.currentUser;
-    console.log("User data: ", this.user);
   }
 }
