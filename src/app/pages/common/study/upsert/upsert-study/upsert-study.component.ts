@@ -477,6 +477,7 @@ export class UpsertStudyComponent implements OnInit {
         });
 
         const payload = JSON.parse(JSON.stringify(this.studyForm.value));
+
         payload.studyStartYear = this.studyForm.value.studyStartYear ? this.studyForm.value.studyStartYear.getFullYear() : null;
         if (this.isEdit) {
           delete payload.sdSid;
@@ -547,31 +548,10 @@ export class UpsertStudyComponent implements OnInit {
     this.studyType = this.studyForm.value.studyType === arrInterventional[0].id ? 'interventional' : this.studyForm.value.studyType === arrObservational[0].id ? 'observational': ''
   }
   print() {
-    this.studyService.getFullStudyById(this.id).subscribe((res: any) => {
-      if (res && res.data) {
-        const payload = JSON.parse(JSON.stringify(res.data[0]));
-        payload.coreStudy.studyStatus = this.findStudyStatusById(payload.coreStudy.studyStatus);
-        payload.coreStudy.studyType = this.findStudyTypeById(payload.coreStudy.studyType);
-        payload.coreStudy.studyGenderElig = this.findGenderEligibilityId(payload.coreStudy.studyGenderElig);
-        payload.coreStudy.minAgeUnit = this.findTimeUnitsById(payload.coreStudy.minAgeUnit);
-        payload.coreStudy.maxAgeUnit = this.findTimeUnitsById(payload.coreStudy.maxAgeUnit);
-        payload.studyIdentifiers.map(item => {
-          item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
-        });
-        payload.studyTitles.map (item => {
-          item.titleTypeId = this.findTitleType(item.titleTypeId);
-        });
-        payload.studyFeatures.map(item => {
-          item.featureTypeId = this.findFeatureType(item.featureTypeId);
-          item.featureValueId = this.findFeatureValue(item.featureValueId);
-        });
-        payload.studyTopics.map(item => {
-          item.topicTypeId = this.findTopicType(item.topicTypeId);
-          item.originalCtId = this.findTopicVocabulary(item.originalCtId);
-        });
-        payload.studyRelationships.map(item => {
-          item.relationshipTypeId = this.findRelationshipType(item.relationshipTypeId);
-        });
+    this.studyService.getStudyById(this.id).subscribe((res: any) => {
+      if (res) {
+        const payload = JSON.parse(JSON.stringify(res));
+
         this.pdfGenerator.studyPdfGenerator(payload);
       }
     }, error => {
@@ -579,9 +559,9 @@ export class UpsertStudyComponent implements OnInit {
     })
   }
   jsonExport() {
-    this.studyService.getFullStudyById(this.id).subscribe((res: any) => {
-      if (res && res.data) {
-        const payload = JSON.parse(JSON.stringify(res.data[0]));
+    this.studyService.getStudyById(this.id).subscribe((res: any) => {
+      if (res) {
+        const payload = JSON.parse(JSON.stringify(res));
         payload.coreStudy.studyStatus = this.findStudyStatusById(payload.coreStudy.studyStatus);
         payload.coreStudy.studyType = this.findStudyTypeById(payload.coreStudy.studyType);
         payload.coreStudy.studyGenderElig = this.findGenderEligibilityId(payload.coreStudy.studyGenderElig);
