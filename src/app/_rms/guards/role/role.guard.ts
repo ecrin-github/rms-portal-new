@@ -13,7 +13,7 @@ import { environment } from 'src/environments/environment';
 import { DataObjectInterface } from '../../interfaces/data-object/data-object.interface';
 import { ToastrService } from 'ngx-toastr';
 
-const base = environment.baseUrl;
+const base = environment.baseUrlApi;
 
 
 @Injectable({ providedIn: 'root' })

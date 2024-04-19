@@ -16,7 +16,7 @@ import { NgxPermissionsService } from 'ngx-permissions';
 })
 export class AuthService {
   // public fields
-  isauthentic: boolean;
+  isAuthenticated: boolean;
 
   constructor(
     private statesService: StatesService,
@@ -31,14 +31,14 @@ export class AuthService {
     return this.oidcSecurityService.checkAuth().pipe(
       timeout(10000),
       mergeMap(async ({isAuthenticated, userData, accessToken, idToken}) => {
+        this.isAuthenticated = isAuthenticated;
         if (isAuthenticated) {
           // Note: userData in checkAuth result is obtained from localStorage (and therefore can be tampered with), so we have to query LS AAI again
           // Note 2: querying LS AAI even if statesService.currentUser is set for added security (preventing client-side memory tampering)
           await this.getUser();
         } else {
-          this.redirectToLogin();
+          this.logout();
         }
-        this.isauthentic = isAuthenticated;
         return isAuthenticated;
       }),
       catchError(err => {
@@ -69,16 +69,14 @@ export class AuthService {
   }
 
   logout(err?) {
-    this.oidcSecurityService.logoff();
+    // TODO: adapt this method to LS AAI V2
+    if (this.isAuthenticated) {
+      this.oidcSecurityService.logoff();
+    }
     localStorage.clear();
     if (err) {
       this.toastr.error(err.message, 'Authentication error');
     }
-    this.router.navigate(['login']);
-  }
-
-  redirectToLogin() {
-    localStorage.clear();
     this.router.navigate(['login']);
   }
 }
