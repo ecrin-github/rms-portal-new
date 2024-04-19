@@ -37,7 +37,7 @@ export class UserProfileComponent implements OnInit {
   ngOnInit(): void {
     this.orgId = this.statesService.currentAuthOrgId;
     if (this.orgId !== null && this.orgId !== undefined && this.orgId !== 'null' && this.orgId !== 'undefined') {
-      const orgUrl = environment.baseUrl + '/general/organisations/' + this.orgId;
+      const orgUrl = environment.baseUrlApi + '/general/organisations/' + this.orgId;
       this.http.get(orgUrl).subscribe((response) => {
         if (response != null) {
           this.orgName = response['defaultName'];

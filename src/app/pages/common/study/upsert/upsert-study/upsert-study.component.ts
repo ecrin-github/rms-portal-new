@@ -47,7 +47,7 @@ export class UpsertStudyComponent implements OnInit {
   monthValues = [{id:'1', name:'January'}, {id:'2', name:'February'}, {id:'3', name: 'March'}, {id:'4', name: 'April'}, {id:'5', name: 'May'}, {id:'6', name: 'June'}, {id:'7', name: 'July'}, {id:'8', name: 'August'}, {id:'9', name: 'September'}, {id:'10', name: 'October'}, {id:'11', name:'November'}, {id:'12', name: 'December'}];
   sticky: boolean = false;
   studyType: string = '';
-  addType: string;
+  addType: string = 'manual';
   registryId: number;
   trialId: string;
   identifierTypes: [] = [];
@@ -195,8 +195,11 @@ export class UpsertStudyComponent implements OnInit {
       });
     });
 
+    // TODO: works using trial id?
     this.activatedRoute.queryParams.subscribe(params => {
-      this.addType = params.type;
+      if (params.type) {
+        this.addType = params.type;
+      }
     })
     if (this.addType === 'usingTrialId') {
       this.getTrialRegistries();
@@ -491,6 +494,7 @@ export class UpsertStudyComponent implements OnInit {
               this.back();
             } else {
               this.toastr.error(res.messages[0]);
+              this.spinner.hide();
             }
           }, error => {
             this.spinner.hide();
@@ -535,6 +539,7 @@ export class UpsertStudyComponent implements OnInit {
         this.toastr.error(error.error.title);
       })
     }
+    this.spinner.hide()
   }
   back(): void {
     this.backService.back();

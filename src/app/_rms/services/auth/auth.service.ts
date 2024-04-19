@@ -4,7 +4,6 @@ import { map, catchError, mergeMap, timeout } from 'rxjs/operators';
 import { ToastrService  } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { UserInterface } from '../../interfaces/user/user.interface';
-import { AuthHTTPService } from '../auth-http';
 import { StatesService } from '../states/states.service';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { UserService } from '../user/user.service';
@@ -17,10 +16,9 @@ import { NgxPermissionsService } from 'ngx-permissions';
 })
 export class AuthService {
   // public fields
-  isauthentic: boolean;
+  isAuthenticated: boolean;
 
   constructor(
-    private authHttpService: AuthHTTPService,
     private statesService: StatesService,
     private permissionService: NgxPermissionsService, 
     private router: Router,
@@ -33,6 +31,7 @@ export class AuthService {
     return this.oidcSecurityService.checkAuth().pipe(
       timeout(10000),
       mergeMap(async ({isAuthenticated, userData, accessToken, idToken}) => {
+        this.isAuthenticated = isAuthenticated;
         if (isAuthenticated) {
           // Note: userData in checkAuth result is obtained from localStorage (and therefore can be tampered with), so we have to query LS AAI again
           // Note 2: querying LS AAI even if statesService.currentUser is set for added security (preventing client-side memory tampering)
@@ -40,7 +39,6 @@ export class AuthService {
         } else {
           this.logout();
         }
-        this.isauthentic = isAuthenticated;
         return isAuthenticated;
       }),
       catchError(err => {
@@ -71,7 +69,10 @@ export class AuthService {
   }
 
   logout(err?) {
-    this.oidcSecurityService.logoff();
+    // TODO: adapt this method to LS AAI V2
+    if (this.isAuthenticated) {
+      this.oidcSecurityService.logoff();
+    }
     localStorage.clear();
     if (err) {
       this.toastr.error(err.message, 'Authentication error');

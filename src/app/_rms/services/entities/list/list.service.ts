@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { BYPASS_LOG } from 'src/app/_rms/interceptor/myinterceptor.interceptor';
 import { environment } from 'src/environments/environment';
 
-const base = environment.baseUrl;
+const base = environment.baseUrlApi;
 
 @Injectable({
   providedIn: 'root'

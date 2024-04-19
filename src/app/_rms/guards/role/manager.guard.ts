@@ -5,9 +5,6 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { StatesService } from '../../services/states/states.service';
-import { environment } from 'src/environments/environment';
-
-const base = environment.baseUrl;
 
 
 @Injectable({ providedIn: 'root' })
