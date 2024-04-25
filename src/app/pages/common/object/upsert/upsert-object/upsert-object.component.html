@@ -108,7 +108,7 @@
                     <label for="doi" class="font-style text-capitalize">DOI</label>
                     <input id="doi" type="text" class="form-control" placeholder="Enter the relevant Digital Object Identifier" formControlName="doi"
                         *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView"><a [href]='"https://scholar.google.fr/scholar?q="+objectData?.doi' target="_blank">{{objectData?.doi}}</a> </h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView"><a [href]='"https://scholar.google.fr/scholar?q="+objectData?.doi' target="_blank">{{objectData?.doi}}</a></h6>
                 </div>
                 <div class="col-md-6">
                     <label for="version" class="font-style text-capitalize">Version</label>
@@ -163,35 +163,36 @@
                 <div class="col-md-6">
                     <label for="accessDetails" class="font-style text-capitalize">Description</label>
                     <textarea id="accessDetails" class="form-control" cols="30" rows="5" placeholder="Enter description"
-                        formControlName="accessDetails" *ngIf="!isView"></textarea>
+                        formControlName="accessDetails" *ngIf="!isView" maxlength="255"></textarea>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetails ? objectData?.accessDetails : 'None'}}</h6>
                 </div>
                 <div class="col-md-6">
                     <label for="accessDetailsUrl" class="font-style text-capitalize">URL</label>
                     <input id="accessDetailsUrl" type="text" class="form-control" placeholder="https://www.example.org/mydata"
                         formControlName="accessDetailsUrl" *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetailsUrl ? objectData?.accessDetailsUrl : 'None'}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView && objectData?.accessDetailsUrl"><a [href]='objectData.accessDetailsUrl' target="_blank">{{objectData.accessDetailsUrl}}</a></h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView && !objectData?.accessDetailsUrl">None</h6>
                 </div>
             </div>
             <hr />
             <div formGroupName="objectDatasets" *ngIf="showDatasetKey">
                 <div class="row">
                     <div class="col-md-12 text-center">
-                        <span class="pt-3 font-style">Dataset record keys</span>
+                        <span class="pt-3 font-style">Dataset anonymisation status</span>
                     </div>
                 </div>
                 <br />
                 <div class="row form-group">
                     <div class="col-md-6">
-                        <label for="recordkeyType" class="font-style text-capitalize">Keys type</label>
+                        <label for="recordkeyType" class="font-style text-capitalize">Anonymisation type</label>
                         <select id="recordkeyType" class="form-control" formControlName="recordkeyType" *ngIf="!isView">
-                            <option selected disabled value="null">Please select deidentification level</option>
+                            <option selected disabled value="null">Please select anonymisation level</option>
                             <option [value]=key.id *ngFor="let key of keyTypes">{{key.name}}</option>
                         </select>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.recordkeyType ? objectData?.objectDatasets[0]?.recordkeyType.name : 'None' : 'None'}}</h6>
                     </div>
                     <div class="col-md-6">
-                        <label for="recordkeyDetails" class="font-style text-capitalize">Keys details</label>
+                        <label for="recordkeyDetails" class="font-style text-capitalize">Anonymization details</label>
                         <textarea id="recordkeyDetails" class="form-control" cols="30" rows="5" placeholder="Please enter a short summary of the justification for the classification given"
                             formControlName="recordkeyDetails" *ngIf="!isView"></textarea>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0]?.recordkeyDetails ? objectData?.objectDatasets[0]?.recordkeyDetails : 'None'}}</h6>
@@ -208,7 +209,6 @@
                 <div class="row form-group">
                     <div class="col-md-4">
                         <label for="deidentType" class="font-style text-capitalize"> Type</label>
-                        <!-- <i class="fa fa-info-circle pl-1"></i> -->
                         <select id="deidentType" class="form-control" formControlName="deidentType" *ngIf="!isView">
                             <option selected disabled value="null">Please select deidentification type</option>
                             <option [value]=identification.id *ngFor="let identification of deidentificationTypes">

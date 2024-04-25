@@ -19,7 +19,7 @@
                 <div class="col-12 mb-5" [id]="'objectdate'+i">
                     <mat-expansion-panel [expanded]="objectDate.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findDateType(objectDate.value.dateType)}} : {{objectDateData[i] ? objectDateData[i].startYear : ''}}-{{objectDate.value.startMonth}}-{{objectDate.value.startDay}}
+                            {{findDateType(objectDate.value.dateType)}} : {{objectDate.value.startYear ? objectDate.value.startYear.getFullYear() : ''}}-{{objectDate.value.startMonth}}-{{objectDate.value.startDay}}
                         </mat-expansion-panel-header>
 
                         <div class="row form-group">

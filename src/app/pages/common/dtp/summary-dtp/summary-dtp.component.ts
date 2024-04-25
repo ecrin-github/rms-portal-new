@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, HostListener, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -8,7 +8,6 @@ import { ConfirmationWindowComponent } from '../../confirmation-window/confirmat
 import { DtpListEntryInterface } from 'src/app/_rms/interfaces/dtp/dtp-listentry.interface';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { DtpService } from 'src/app/_rms/services/entities/dtp/dtp.service';
-import { NgxPermission } from 'ngx-permissions/lib/model/permission.model';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -16,7 +15,6 @@ import { NavigationEnd, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
-
 
 @Component({
   selector: 'app-summary-dtp',
