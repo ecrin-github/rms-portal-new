@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ClipboardModule } from 'ngx-clipboard';
-import { TranslateModule } from '@ngx-translate/core';
+// import { TranslateModule } from '@ngx-translate/core';
 import { InlineSVGModule } from 'ng-inline-svg';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from './app-routing.module';
@@ -20,6 +20,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { FileSaverModule } from 'ngx-filesaver';
+import { MatTableModule } from '@angular/material/table';
 
 
 @NgModule({
@@ -31,11 +32,12 @@ import { FileSaverModule } from 'ngx-filesaver';
     BrowserModule,
     BrowserAnimationsModule,
     SplashScreenModule,
-    TranslateModule.forRoot(),
     HttpClientModule,
+    // TranslateModule.forRoot(),
     HighlightModule,
     ClipboardModule,
     FileSaverModule,
+    MatTableModule,
     AppRoutingModule,
     InlineSVGModule.forRoot(),
     NgbModule,
