@@ -23,7 +23,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 })
 export class SummaryUserComponent implements OnInit, OnDestroy {
   usedURLs = ['/', '/people'];
-  displayedColumns = ['name', 'roleName', 'orgName', 'actions'];
+  displayedColumns = ['name', 'email', 'orgName', 'roleName', 'actions'];
   dataSource: MatTableDataSource<any>;
   peopleLength: number = 0;
   searchText: string = '';
