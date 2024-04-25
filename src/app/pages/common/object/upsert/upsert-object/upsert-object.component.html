@@ -163,7 +163,7 @@
                 <div class="col-md-6">
                     <label for="accessDetails" class="font-style text-capitalize">Description</label>
                     <textarea id="accessDetails" class="form-control" cols="30" rows="5" placeholder="Enter description"
-                        formControlName="accessDetails" *ngIf="!isView" maxlength="255"></textarea>
+                        formControlName="accessDetails" *ngIf="!isView"></textarea>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetails ? objectData?.accessDetails : 'None'}}</h6>
                 </div>
                 <div class="col-md-6">
