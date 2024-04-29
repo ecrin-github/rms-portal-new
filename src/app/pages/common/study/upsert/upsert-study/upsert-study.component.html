@@ -219,7 +219,7 @@
                         <app-study-title [studyId]="id" [isView]="isView" [isEdit]="isEdit" [publicTitle]="publicTitle"></app-study-title>
                     </mat-expansion-panel>
                     <hr />
-                    <ng-container *ngIf="studyType">
+                    <ng-container *ngIf="studyType === 'interventional' || studyType === 'observational'">
                         <mat-expansion-panel [expanded]="studyData?.studyFeatures?.length > 0 ? true : false">
                             <mat-expansion-panel-header>
                                 <h6 class="pt-3 font-style">Study feature(s)</h6>

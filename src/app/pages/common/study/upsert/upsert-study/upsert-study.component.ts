@@ -272,6 +272,7 @@ export class UpsertStudyComponent implements OnInit {
     if (studyData) {
       this.studyData = studyData;
       this.organisationName = studyData.organisation?.defaultName;
+      this.studyType = studyData.studyType?.name.toLowerCase();
       this.patchStudyForm();
     }
   }
