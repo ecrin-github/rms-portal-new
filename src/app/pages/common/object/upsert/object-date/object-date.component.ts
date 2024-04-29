@@ -156,7 +156,7 @@ export class ObjectDateComponent implements OnInit {
         details: date.details,
         alreadyExist: true
       }))
-      this.showEndday[index] = date.dateIsRange ? true : false;
+      this.showEndday[index] = date.dateIsRange === true || date.dateIsRange === 'true' ? true : false;
     });
     return formArray;
   }
@@ -166,7 +166,7 @@ export class ObjectDateComponent implements OnInit {
     payload.objectId = this.objectId;
     payload.startYear = payload.startYear ? payload.startYear.getFullYear() : null;
     payload.endYear = payload.endYear ? payload.endYear.getFullYear() : null;
-    payload.dateIsRange = payload.dateIsRange === 'true' ? true : false 
+    payload.dateIsRange = payload.dateIsRange === true || payload.dateIsRange === 'true' ? true : false 
     delete payload.id;
 
     this.objectService.addObjectDate(this.objectId, payload).subscribe((res: any) => {
@@ -190,7 +190,7 @@ export class ObjectDateComponent implements OnInit {
     const payload = dateObject.value;
     payload.startYear = payload.startYear ? payload.startYear.getFullYear() : null;
     payload.endYear = payload.endYear ? payload.endYear.getFullYear() : null;
-    payload.dateIsRange = payload.dateIsRange === 'true' ? true : false 
+    payload.dateIsRange = payload.dateIsRange === true || payload.dateIsRange === 'true' ? true : false;
     this.spinner.show();
     this.objectService.editObjectDate(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -224,7 +224,7 @@ export class ObjectDateComponent implements OnInit {
     const payload = this.form.value.objectDates.map(item => {
       item.startYear = item.startYear ? item.startYear.getFullYear() : null;
       item.endYear = item.endYear ? item.endYear.getFullYear() : null;  
-      item.dateIsRange = item.dateIsRange === 'true' ? true : false 
+      item.dateIsRange = item.dateIsRange === true || item.dateIsRange === 'true' ? true : false 
       if (!item.id) {
         delete item.id;
       }

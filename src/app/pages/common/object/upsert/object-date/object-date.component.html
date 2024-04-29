@@ -38,11 +38,11 @@
                                     <option value=false>No</option>
                                     <option value=true>Yes</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.dateIsRange}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.dateIsRange ? 'Yes': 'No'}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <label for="startDay" class="font-style text-capitalize">Start date</label>
                                 <select id="startDay" class="form-control" formControlName="startDay" *ngIf="!isView">
                                     <option selected disabled value="">Select an option...</option>
@@ -51,7 +51,7 @@
                                 <!-- <p-calendar appendTo="body" id="startDay" formControlName="startDay" view="date" dateFormat="dd"></p-calendar> -->
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.startDay}}</h6>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <label for="startMonth" class="font-style text-capitalize">Start Month</label>
                                 <select id="startMonth" class="form-control" formControlName="startMonth" *ngIf="!isView">
                                     <option selected disabled value="">Select an option...</option>
@@ -59,34 +59,33 @@
                                 </select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.startMonth}}</h6>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <label for="startYear" class="font-style text-capitalize">Start Year</label>
                                 <p-calendar appendTo="body" id="startYear" formControlName="startYear" view="year" dateFormat="yy" *ngIf="!isView"></p-calendar>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{getYear(objectDate.value.startYear)}}</h6>
                             </div>
-                        </div>
-                        <div class="row form-group" *ngIf="showEndday[i]">
-                            <div class="col-md-4">
-                                <label for="endDay" class="font-style text-capitalize">End Date</label>
-                                <select id="endDay" class="form-control" formControlName="endDay" *ngIf="!isView">
-                                    <option selected disabled value="">Select an option...</option>
-                                    <option [value]="day" *ngFor="let day of dayValues">{{day}}</option>
-                                </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.endDay}}</h6>
-                                <!-- <p-calendar appendTo="body" id="endDay" formControlName="endDay" view="date" dateFormat="dd"></p-calendar> -->
-                            </div>
-                            <div class="col-md-4">
-                                <label for="endMonth" class="font-style text-capitalize">End Month</label>
-                                <select id="endMonth" class="form-control" formControlName="endMonth" *ngIf="!isView">
-                                    <option selected disabled value="">Select an option...</option>
-                                    <option [value]="month.id" *ngFor="let month of monthValues">{{month.name}}</option>
-                                </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.endMonth}}</h6>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="endYear" class="font-style text-capitalize">End Year</label>
-                                <p-calendar appendTo="body" id="endYear" formControlName="endYear" view="year" dateFormat="yy" *ngIf="!isView"></p-calendar>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{getYear(objectDate.value.endYear)}}</h6>
+                            <div *ngIf="showEndday[i]" class="col-md-6 row form-group">
+                                <div class="col-md-4">
+                                    <label for="endDay" class="font-style text-capitalize">End Date</label>
+                                    <select id="endDay" class="form-control" formControlName="endDay" *ngIf="!isView">
+                                        <option selected disabled value="">Select an option...</option>
+                                        <option [value]="day" *ngFor="let day of dayValues">{{day}}</option>
+                                    </select>
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.endDay}}</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="endMonth" class="font-style text-capitalize">End Month</label>
+                                    <select id="endMonth" class="form-control" formControlName="endMonth" *ngIf="!isView">
+                                        <option selected disabled value="">Select an option...</option>
+                                        <option [value]="month.id" *ngFor="let month of monthValues">{{month.name}}</option>
+                                    </select>
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.endMonth}}</h6>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="endYear" class="font-style text-capitalize">End Year</label>
+                                    <p-calendar appendTo="body" id="endYear" formControlName="endYear" view="year" dateFormat="yy" *ngIf="!isView"></p-calendar>
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{getYear(objectDate.value.endYear)}}</h6>
+                                </div>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">
