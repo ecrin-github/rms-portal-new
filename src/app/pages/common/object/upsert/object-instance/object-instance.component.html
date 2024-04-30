@@ -65,7 +65,7 @@
                         <br />
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="row" *ngIf="!isView">
+                                <div class="row">
                                     <div class="col-md-8">
                                         <label for="resourceSize" class="font-style text-capitalize">Resource details: Size</label>
                                         <input id="resourceSize" type="text" class="form-control" placeholder="Enter a parameter..."
@@ -80,12 +80,6 @@
                                             <option [value]=size.id *ngFor="let size of sizeUnit">{{size.name}}</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div *ngIf="isView">
-                                    <label for="resourceSize" class="font-style text-capitalize">Resource details: Size</label>
-                                    <input id="resourceSize" type="text" class="form-control" placeholder="Enter a parameter..."
-                                        formControlName="resourceSize" *ngIf="!isView" />
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.resourceSize}} {{findSizeUnit(objectInstance.value.resourceSizeUnit)}}</h6>
                                 </div>
                             </div>
                             <div class="col-md-6">
