@@ -27,6 +27,7 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 })
 export class UpsertObjectComponent implements OnInit {
   public isCollapsed: boolean = true;
+  static showTopicTypes = ['publication list', 'journal article', 'working paper / pre-print'];
   objectForm: UntypedFormGroup;
   isEdit: boolean = false;
   isView: boolean = false;
@@ -215,6 +216,10 @@ export class UpsertObjectComponent implements OnInit {
     });
   }
   get g() { return this.objectForm.controls; }
+  public static isShowTopicType(objectType) {
+    /* Object contributors and topics components appear only for specific object types */
+    return UpsertObjectComponent.showTopicTypes.includes(objectType.toLowerCase());
+  }
   getEditAuth(sdOid: string) {
     let edit$: Observable<boolean>;
     if (this.isManager) {
@@ -342,7 +347,7 @@ export class UpsertObjectComponent implements OnInit {
     if (this.objectData.objectClass) {
       this.showDatasetKey = this.objectData.objectClass.id === arr[0].id ? true : false;
     }
-    const arrType: any = this.objectTypes.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
+    const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
     if(this.objectData.objectType) {
       arrType.map(item => {
         if (item.id === this.objectData.objectType.id) {
@@ -353,7 +358,7 @@ export class UpsertObjectComponent implements OnInit {
     }
     const arrAccessType: any = this.accessTypes.filter((item: any) => item.name === 'Public on-screen access and download');
     if (this.objectData.accessType) {
-      this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0].id ? false : true;
+      this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0]?.id ? false : true;
     }
     this.objectForm.patchValue({
       linkedStudy: this.objectData.linkedStudy ? this.objectData.linkedStudy : null,
@@ -543,7 +548,7 @@ export class UpsertObjectComponent implements OnInit {
   }
   onTypeChange() {
     this.showTopic = false;
-    const arrType: any = this.objectTypes.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
+    const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
     arrType.map(item => {
       if (item.id === this.objectForm.value.objectType) {
         this.showTopic = true;
