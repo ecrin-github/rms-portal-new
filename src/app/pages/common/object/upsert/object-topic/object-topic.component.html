@@ -44,9 +44,21 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <label for="originalValue" class="font-style text-capitalize">Controlled Terminology</label>
-                                <input id="originalValue" type="text" class="form-control" placeholder="Enter a parameter..."
-                                formControlName="originalValue" *ngIf="!isView">
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectTopic.value.originalValue}}</h6>
+                                <ng-select [items]="controlledTerminology" formControlName="originalValue" [multiple]="false" [virtualScroll]="true" 
+                                    class="form-control ng-form-control" appendTo="body" notFoundText="No CTs found"
+                                    [compareWith]="compareCTs" [searchFn]="customSearchCTs" placeholder="Please select a CT" *ngIf="!isView">
+                                    <ng-template ng-label-tmp let-item="item">
+                                        {{item.name}}
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                        <div class="row m-0">
+                                            <div class="col-md-8 col-8 p-0 m-0">
+                                                <div class="col-md-12">{{item.name}}</div>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </ng-select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectTopic.value.originalValue?.name}}</h6>
                             </div>
                             <div class="col-md-4">
                                 <label for="meshCode" class="font-style text-capitalize">CT Code</label>
