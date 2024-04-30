@@ -177,9 +177,15 @@ export class StudyContributorComponent implements OnInit {
     if (!payload.studyId && this.studyId) {  // TODO test
       payload.studyId = this.studyId;
     }
-    payload.contributorType = payload.contributorType ? payload.contributorType.id : null;
-    payload.organisation = payload.organisation ? payload.organisation.id : null;
-    payload.person = payload.person ? payload.person.id : null;
+    if (payload.contributorType?.id) {
+      payload.contributorType = payload.contributorType.id;
+    }
+    if (payload.organisation?.id) {
+      payload.organisation = payload.organisation.id;
+    }
+    if (payload.person?.id) {
+      payload.person = payload.person.id;
+    }
   }
   addContributor(index) {
     this.spinner.show();
