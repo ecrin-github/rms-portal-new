@@ -1,32 +1,36 @@
 <div class="card">
     <div class="card-header">
-        <div class="row" id="navbar" [ngClass]="isBrowsing ? 'browsing-header' : ''">
-            <div class="col-md-4">
-                <h2 class="text-capitalize">{{ isView ? 'Study Details' : isEdit ? 'Editing Study Details' : 'Add a new study'}}</h2>
+        <div id="navbar" [ngClass]="isBrowsing ? 'browsing-header' : ''">
+            <div class="row upsert-navbar">
+                <div class="col-md-4">
+                    <h2 class="text-capitalize">{{ isView ? 'Study Details' : isEdit ? 'Editing Study Details' : 'Add a new study'}}</h2>
+                </div>
+                <div class="col-md-8 text-right">
+                    <ng-container *ngIf="showEdit">
+                        <a [routerLink]="['/studies', id, 'edit']" class="btn btn-primary mr-1">
+                            <i class="fa fa-edit"></i> Edit
+                        </a>
+                    </ng-container>
+                    <ng-container *ngIf="isView">
+                        <button class="btn btn-primary mr-1" (click)="print()">
+                            <i class="fa fa-print"></i> PDF
+                        </button>
+                        <button class="btn btn-primary mr-1" (click)="jsonExport()">
+                            <i class="fa fa-code"></i> JSON
+                        </button>
+                        <button class="btn btn-warning" (click)="back()">Back</button>
+                    </ng-container>
+                    <ng-container *ngIf="!isView">
+                        <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
+                        <button class="btn btn-warning" (click)="back()">Cancel</button>
+                    </ng-container>
+                </div>
             </div>
-            <div class="col-md-8 text-right">
-                <ng-container *ngIf="showEdit">
-                    <a [routerLink]="['/studies', id, 'edit']" class="btn btn-primary mr-1">
-                        <i class="fa fa-edit"></i> Edit
-                    </a>
-                </ng-container>
-                <ng-container *ngIf="isView">
-                    <button class="btn btn-primary mr-1" (click)="print()">
-                        <i class="fa fa-print"></i> PDF
-                    </button>
-                    <button class="btn btn-primary mr-1" (click)="jsonExport()">
-                        <i class="fa fa-code"></i> JSON
-                    </button>
-                    <button class="btn btn-warning" (click)="back()">Back</button>
-                </ng-container>
-                <ng-container *ngIf="!isView">
-                    <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
-                    <button class="btn btn-warning" (click)="back()">Cancel</button>
-                </ng-container>
+            <div class="row mt-5">
+                <div class="pl-5">
+                    <h6>{{studyData?.displayTitle}}</h6>
+                </div>   
             </div>
-            <div class="pl-5">
-                <h6>{{studyData?.displayTitle}}</h6>
-            </div>    
         </div>
     </div>
 

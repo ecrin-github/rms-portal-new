@@ -179,7 +179,7 @@ export class ObjectTopicComponent implements OnInit {
     this.objectService.addObjectTopic(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 201) {
-        this.toastr.success('Obect Topic added successfully');
+        this.toastr.success('Object Topic added successfully');
         this.getObjectTopic();
       } else {
         this.toastr.error(res.messages[0]);
