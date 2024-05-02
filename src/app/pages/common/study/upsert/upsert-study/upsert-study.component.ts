@@ -557,7 +557,7 @@ export class UpsertStudyComponent implements OnInit {
     this.studyService.getStudyById(this.id).subscribe((res: any) => {
       if (res) {
         const payload = JSON.parse(JSON.stringify(res));
-
+        payload.studyFeatures = payload.studyFeatures.filter((item: any) => item.featureType?.context?.toLowerCase() === payload.studyType?.name?.toLowerCase());
         this.pdfGenerator.studyPdfGenerator(payload);
       }
     }, error => {
