@@ -549,52 +549,44 @@ export class UpsertObjectComponent implements OnInit {
       }
     });
   }
+
   printPdf() {
     const payload = JSON.parse(JSON.stringify(this.objectData));
     this.pdfGenerator.objectPdfGenerator(payload);
   }
 
+  cleanJSON(obj) {
+    const keysToDel = ['lastEditedBy', 'deidentType', 'deidentDirect', 'deidentHipaa', 'deidentDates', 'deidentKanon', 'deidentNonarr', 'deidentDetails'];
+    for (let key in obj) {
+      if (keysToDel.includes(key)) {
+        delete obj[key];
+      } else if (key === 'person' && obj[key] !== null) { // Removing most user info
+        obj[key] = {'userProfile': obj['person']['userProfile'], 
+                    'firstName': obj['person']['firstName'],
+                    'lastName': obj['person']['lastName'],
+                    'email': obj['person']['email']};
+      } else if (key === 'id') {  // Deleting all internal IDs
+        delete obj[key];
+      } else {
+        if (typeof obj[key] === 'object') {
+          if (Array.isArray(obj[key])) {
+            // loop through array
+            for (let i = 0; i < obj[key].length; i++) {
+              this.cleanJSON(obj[key][i]);
+            }
+          } else {
+            // call function recursively for object
+            this.cleanJSON(obj[key]);
+          }
+        }
+      }
+    }
+  }
+
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.objectData));
-    // remember to include commented fields
-    // payload.coreObject.objectClass = this.findObjectClass(payload.coreObject.objectClass);
-    // payload.coreObject.objectType = this.findobjectType(payload.coreObject.objectType);
-    // payload.coreObject.accessType = this.findAccessType(payload.coreObject.accessType);
-    if (payload.objectDatasets.length > 0) {
-      // payload.objectDatasets[0].recordkeyType = this.findKeyType(payload.objectDatasets[0].recordkeyType);
-      // payload.objectDatasets[0].deidentType = this.findDeidentificationType(payload.objectDatasets[0].deidentType);
-      payload.objectDatasets[0].deidentDirect = payload.objectDatasets[0].deidentDirect ? payload.objectDatasets[0].deidentDirect : false;
-      payload.objectDatasets[0].deidentHipaa = payload.objectDatasets[0].deidentHipaa ? payload.objectDatasets[0].deidentHipaa : false;
-      payload.objectDatasets[0].deidentDates = payload.objectDatasets[0].deidentDates ? payload.objectDatasets[0].deidentDates : false;
-      payload.objectDatasets[0].deidentNonarr = payload.objectDatasets[0].deidentNonarr ? payload.objectDatasets[0].deidentNonarr : false;
-      payload.objectDatasets[0].deidentKanon = payload.objectDatasets[0].deidentKanon ? payload.objectDatasets[0].deidentKanon : false;
-      payload.objectDatasets[0].consentNoncommercial = payload.objectDatasets[0].consentNoncommercial ? payload.objectDatasets[0].consentNoncommercial : false;
-      payload.objectDatasets[0].consentGeogRestrict = payload.objectDatasets[0].consentGeogRestrict ? payload.objectDatasets[0].consentGeogRestrict : false;
-      payload.objectDatasets[0].consentResearchType = payload.objectDatasets[0].consentResearchType ? payload.objectDatasets[0].consentResearchType : false;
-      payload.objectDatasets[0].consentGeneticOnly = payload.objectDatasets[0].consentGeneticOnly ? payload.objectDatasets[0].consentGeneticOnly : false;
-      payload.objectDatasets[0].consentNoMethods = payload.objectDatasets[0].consentNoMethods ? payload.objectDatasets[0].consentNoMethods : false;
-      payload.objectDatasets[0].consentType = this.findConsentType(payload.objectDatasets[0].consentType);
-    }
-    payload.objectInstances.map(item => {
-      item.resourceTypeId = this.findResourceType(item.resourceTypeId);
-      item.resourceSizeUnits = this.findSizeUnit(item.resourceSizeUnits);
-    });
-    payload.objectTitles.map(item => {
-      item.titleTypeId = this.findTitleType(item.titleTypeId);
-    });
-    payload.objectDates.map(item => {
-      item.dateTypeId = this.findDateType(item.dateTypeId);
-    });
-    payload.objectTopics.map(item => {
-      item.topicTypeId = this.findTopicType(item.topicTypeId);
-    });
-    payload.objectIdentifiers.map(item => {
-      item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
-    });
-    payload.objectDescriptions.map(item => {
-      item.descriptionTypeId = this.findDescriptionType(item.descriptionTypeId);
-    });
-    this.jsonGenerator.jsonGenerator(this.objectData, 'object');
+    this.cleanJSON(payload);
+    this.jsonGenerator.jsonGenerator(payload, 'object');
   }
 
 // code to get values for id for generating pdf and json
