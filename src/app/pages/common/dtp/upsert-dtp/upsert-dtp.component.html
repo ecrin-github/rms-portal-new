@@ -6,12 +6,12 @@
                     <h2>{{ isView ? 'Data Transfer Details' : isEdit ? 'Editing Data Transfer Details' : 'Add new data transfer'}}</h2>
                 </div>
                 <div class="col-md-7 text-right">
-                    <ng-container *ngIf="role !== 'User'">
-                        <a [routerLink]="['/data-transfers', id, 'edit']" class="btn btn-primary mr-1">
-                            <i class="fa fa-edit"></i> Edit
-                        </a>
-                    </ng-container>
                     <ng-container *ngIf="isView">
+                        <ng-container *ngIf="role !== 'User'">
+                            <a [routerLink]="['/data-transfers', id, 'edit']" class="btn btn-primary mr-1">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                        </ng-container>
                         <!-- <button class="btn btn-primary mr-1" (click)="printDocument()">
                             <i class="fa fa-print"></i> PDF
                         </button> -->

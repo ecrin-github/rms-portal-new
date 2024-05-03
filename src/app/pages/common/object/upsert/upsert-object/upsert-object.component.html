@@ -6,12 +6,12 @@
                     <h2 class="text-capitalize">{{ isView ? 'Data Object Details' : isEdit ? 'Editing Data Object Details' : 'Add new data object'}}</h2>
                 </div>
                 <div class="col-md-8 text-right">
-                    <ng-container *ngIf="showEdit">
-                        <a [routerLink]="['/data-objects', id, 'edit']" class="btn btn-primary mr-1">
-                            <i class="fa fa-edit"></i> Edit
-                        </a>
-                    </ng-container>
                     <ng-container *ngIf="isView">
+                        <ng-container *ngIf="showEdit">
+                            <a [routerLink]="['/data-objects', id, 'edit']" class="btn btn-primary mr-1">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                        </ng-container>
                         <button class="btn btn-primary mr-1" (click)="printPdf()">
                             <i class="fa fa-print"></i> PDF
                         </button>

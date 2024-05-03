@@ -561,7 +561,7 @@ export class UpsertDupComponent implements OnInit {
     }
     if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompletedDate !== null && this.form.value.setUpCompletedDate !== '' && this.form.value.prereqsMetDate !== null && this.form.value.prereqsMetDate !== '' &&
     this.form.value.duaAgreedDate !== null && this.form.value.duaAgreedDate !== '' && this.form.value.availabilityRequestedDate !== null && this.form.value.availabilityRequestedDate !== '' && this.form.value.availabilityConfirmedDate !== null && this.form.value.availabilityConfirmedDate !== '') {
-      this.showUploadButton = this.role === 'User' ? true : false;
+      this.showUploadButton = this.role ? true : false;
     }
   }
   patchDua(data) {
