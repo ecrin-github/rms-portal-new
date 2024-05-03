@@ -12,22 +12,18 @@
                         </a>
                     </ng-container>
                     <ng-container *ngIf="isView">
-                        <button class="btn btn-primary mr-1" (click)="printDocument()">
+                        <!-- <button class="btn btn-primary mr-1" (click)="printDocument()">
                             <i class="fa fa-print"></i> PDF
-                        </button>
+                        </button> -->
                         <button class="btn btn-primary mr-1" (click)="jsonExport()">
                             <i class="fa fa-code"></i> JSON
                         </button>
                         <button class="btn btn-warning" (click)="back()">Back</button>
                     </ng-container>
-                    <ng-container *ngIf="!isView">
+                    <ng-container *ngIf="!isView && showButton">
                         <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
                         <button class="btn btn-warning" (click)="back()">Cancel</button>
                     </ng-container>
-                </div>
-                <div class="text-right col-md-5" *ngIf="!isView && showButton">
-                    <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ?'Apply Changes' : 'Save'}}</button>
-                    <button class="btn btn-warning" (click)="back()"> Cancel </button>
                 </div>
             </div>
             <div class="row mt-5">
