@@ -196,7 +196,7 @@
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.recordkeyType ? objectData?.objectDatasets[0]?.recordkeyType.name : 'None' : 'None'}}</h6>
                     </div>
                     <div class="col-md-6">
-                        <label for="recordkeyDetails" class="font-style text-capitalize">Anonymization details</label>
+                        <label for="recordkeyDetails" class="font-style text-capitalize">Anonymisation details</label>
                         <textarea id="recordkeyDetails" class="form-control" cols="30" rows="5" placeholder="Please enter a short summary of the justification for the classification given"
                             formControlName="recordkeyDetails" *ngIf="!isView"></textarea>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0]?.recordkeyDetails ? objectData?.objectDatasets[0]?.recordkeyDetails : 'None'}}</h6>

@@ -558,46 +558,9 @@ export class UpsertObjectComponent implements OnInit {
   }
   printPdf() {
     const payload = JSON.parse(JSON.stringify(this.objectData));
-    //remembber to include commented fields
-    // payload.coreObject.objectClass = this.findObjectClass(payload.coreObject.objectClass);
-    // payload.coreObject.objectType = this.findobjectType(payload.coreObject.objectType);
-    // payload.coreObject.accessType = this.findAccessType(payload.coreObject.accessType);
-    if (payload.objectDatasets.length > 0) {
-      // payload.objectDatasets[0].recordkeyType = this.findKeyType(payload.objectDatasets[0].recordkeyType);
-      // payload.objectDatasets[0].deidentType = this.findDeidentificationType(payload.objectDatasets[0].deidentType);
-      payload.objectDatasets[0].deidentDirect = payload.objectDatasets[0].deidentDirect ? payload.objectDatasets[0].deidentDirect : false;
-      payload.objectDatasets[0].deidentHipaa = payload.objectDatasets[0].deidentHipaa ? payload.objectDatasets[0].deidentHipaa : false;
-      payload.objectDatasets[0].deidentDates = payload.objectDatasets[0].deidentDates ? payload.objectDatasets[0].deidentDates : false;
-      payload.objectDatasets[0].deidentNonarr = payload.objectDatasets[0].deidentNonarr ? payload.objectDatasets[0].deidentNonarr : false;
-      payload.objectDatasets[0].deidentKanon = payload.objectDatasets[0].deidentKanon ? payload.objectDatasets[0].deidentKanon : false;
-      payload.objectDatasets[0].consentNoncommercial = payload.objectDatasets[0].consentNoncommercial ? payload.objectDatasets[0].consentNoncommercial : false;
-      payload.objectDatasets[0].consentGeogRestrict = payload.objectDatasets[0].consentGeogRestrict ? payload.objectDatasets[0].consentGeogRestrict : false;
-      payload.objectDatasets[0].consentResearchType = payload.objectDatasets[0].consentResearchType ? payload.objectDatasets[0].consentResearchType : false;
-      payload.objectDatasets[0].consentGeneticOnly = payload.objectDatasets[0].consentGeneticOnly ? payload.objectDatasets[0].consentGeneticOnly : false;
-      payload.objectDatasets[0].consentNoMethods = payload.objectDatasets[0].consentNoMethods ? payload.objectDatasets[0].consentNoMethods : false;
-      payload.objectDatasets[0].consentType = this.findConsentType(payload.objectDatasets[0].consentType);
-    }
-    payload.objectInstances.map(item => {
-      item.resourceTypeId = this.findResourceType(item.resourceTypeId);
-      item.resourceSizeUnits = this.findSizeUnit(item.resourceSizeUnits);
-    });
-    payload.objectTitles.map(item => {
-      item.titleTypeId = this.findTitleType(item.titleTypeId);
-    });
-    payload.objectDates.map(item => {
-      item.dateTypeId = this.findDateType(item.dateTypeId);
-    });
-    payload.objectTopics.map(item => {
-      item.topicTypeId = this.findTopicType(item.topicTypeId);
-    });
-    payload.objectIdentifiers.map(item => {
-      item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
-    });
-    payload.objectDescriptions.map(item => {
-      item.descriptionTypeId = this.findDescriptionType(item.descriptionTypeId);
-    });
     this.pdfGenerator.objectPdfGenerator(payload);
   }
+
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.objectData));
     // remember to include commented fields
@@ -638,7 +601,7 @@ export class UpsertObjectComponent implements OnInit {
     payload.objectDescriptions.map(item => {
       item.descriptionTypeId = this.findDescriptionType(item.descriptionTypeId);
     });
-    this.jsonGenerator.jsonGenerator(this.objectData, 'Object');
+    this.jsonGenerator.jsonGenerator(this.objectData, 'object');
   }
 
 // code to get values for id for generating pdf and json
