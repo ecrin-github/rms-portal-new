@@ -378,13 +378,6 @@ export class UpsertObjectComponent implements OnInit {
       objectDatasets: {
         recordkeyType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordkeyType ? this.objectData.objectDatasets[0].recordkeyType.id : null :null,
         recordkeyDetails: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordkeyDetails :'',
-        deidentType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentType ? this.objectData.objectDatasets[0].deidentType.id : null :null,
-        deidentDirect: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDirect : false,
-        deidentHipaa: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentHipaa : false,
-        deidentDates: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDates : false,
-        deidentNonarr: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentNonarr : false,
-        deidentKanon: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentKanon : false,
-        deidentDetails: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDetails :'',
         consentType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentType ? this.objectData.objectDatasets[0].consentType.id :null :null,
         consentNoncommercial: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentNoncommercial : false,
         consentGeogRestrict: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentGeogRestrict : false,
