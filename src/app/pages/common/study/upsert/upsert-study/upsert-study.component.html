@@ -209,14 +209,14 @@
             <hr [ngClass]="{'hr-big': isEdit}"/>
             <ng-container *ngIf="isEdit || isView">
                 <div class="mt-8">
-                    <mat-expansion-panel [expanded]="studyData?.studyIdentifiers?.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="studyData?.studyIdentifiers?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyIdentifiers?.length > 0) ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study identifier(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-study-identifier [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-identifier>
+                        <app-study-identifier [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-identifier>
                     </mat-expansion-panel>
                     <hr />
-                    <mat-expansion-panel [expanded]="studyData?.studyTitles?.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="studyData?.studyTitles?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyTitles?.length > 0) ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study title(s)</h6>
                         </mat-expansion-panel-header>
@@ -224,7 +224,7 @@
                     </mat-expansion-panel>
                     <hr />
                     <ng-container *ngIf="studyType === 'interventional' || studyType === 'observational'">
-                        <mat-expansion-panel [expanded]="studyData?.studyFeatures?.length > 0 ? true : false">
+                        <mat-expansion-panel [expanded]="studyData?.studyFeatures?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyFeatures?.length > 0) ? false : true">
                             <mat-expansion-panel-header>
                                 <h6 class="pt-3 font-style">Study feature(s)</h6>
                             </mat-expansion-panel-header>
@@ -232,21 +232,21 @@
                         </mat-expansion-panel>
                         <hr />
                     </ng-container>
-                    <mat-expansion-panel [expanded]="studyData?.studyTopics?.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="studyData?.studyTopics?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyTopics?.length > 0) ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study topic(s)</h6>
                         </mat-expansion-panel-header>
                         <app-study-topic [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-topic>
                     </mat-expansion-panel>
                     <hr />
-                    <mat-expansion-panel [expanded]="studyData?.studyRelationships?.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="studyData?.studyRelationships?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyRelationships?.length > 0) ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study relationship(s)</h6>
                         </mat-expansion-panel-header>
                         <app-study-relationship [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-relationship>
                     </mat-expansion-panel>
                     <hr />
-                    <mat-expansion-panel [expanded]="studyData?.studyContributors?.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="studyData?.studyContributors?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyContributors?.length > 0) ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study contributor(s)</h6>
                         </mat-expansion-panel-header>
@@ -256,7 +256,7 @@
                 <hr />
             </ng-container>
             <ng-container>
-                <mat-expansion-panel [expanded]="associatedObjects?.length > 0 ? true : false">
+                <mat-expansion-panel [expanded]="associatedObjects?.length > 0 ? true : false" [disabled]="(isView && associatedObjects?.length > 0) ? false : true">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Study object(s)</h6>
                     </mat-expansion-panel-header>

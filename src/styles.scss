@@ -92,8 +92,6 @@
 
 .angular-bootstrap-table {
   overflow-x: auto;
-}
-.angular-bootstrap-table {
   th {
     outline: none;
 
@@ -136,6 +134,15 @@ mat-cell, .mat-cell {
   padding: 1rem 2rem 1rem 0;
 }
 
+.mat-expansion-panel-header[aria-disabled=true] {
+  background-color: rgba(202, 202, 202, 0.5);
+  opacity: 0.5;
+  
+  .font-style {
+    color: black !important;
+  }
+}
+
 .mat-column-roleName {
   max-width: 10%;
 }
@@ -152,12 +159,14 @@ mat-cell, .mat-cell {
   height: 3px;
   width: 100%;
 }
+
 /*.mat-column-id {
   padding-left: 0px !important;
 }
 .mat-column-title {
   padding: 25px !important;
 }*/
+
 @media screen and (max-width: 500px) {
   .mat-column-status {
     padding-right: 80px !important;
@@ -187,11 +196,13 @@ mat-cell, .mat-cell {
     text-overflow: ellipsis;
   }
 }
+
 .font-style {
   font-size: 1.175rem !important;
   font-weight: 600 !important;
   color: #315492 !important;
 }
+
 .hr-big {
   border-top-width: 0.4rem;
 }
