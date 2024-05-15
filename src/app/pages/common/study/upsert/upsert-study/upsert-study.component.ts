@@ -272,6 +272,7 @@ export class UpsertStudyComponent implements OnInit {
     if (studyData) {
       this.studyData = studyData;
       this.organisationName = studyData.organisation?.defaultName;
+      this.studyType = studyData.studyType?.name.toLowerCase();
       this.patchStudyForm();
     }
   }
@@ -556,40 +557,57 @@ export class UpsertStudyComponent implements OnInit {
     this.studyService.getStudyById(this.id).subscribe((res: any) => {
       if (res) {
         const payload = JSON.parse(JSON.stringify(res));
-
+        payload.studyFeatures = payload.studyFeatures.filter((item: any) => item.featureType?.context?.toLowerCase() === payload.studyType?.name?.toLowerCase());
         this.pdfGenerator.studyPdfGenerator(payload);
       }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
+
+  cleanJSON(obj) {
+    const keysToDel = ['lastEditedBy', 'deidentType', 'deidentDirect', 'deidentHipaa', 'deidentDates', 'deidentKanon', 'deidentNonarr', 'deidentDetails'];
+    for (let key in obj) {
+      if (keysToDel.includes(key)) {
+        delete obj[key];
+      } else if (key === 'person' && obj[key] !== null) { // Removing most user info
+        obj[key] = {'userProfile': obj['person']['userProfile'], 
+                    'firstName': obj['person']['firstName'],
+                    'lastName': obj['person']['lastName'],
+                    'email': obj['person']['email']};
+      } else if (key === 'id') {  // Deleting all internal IDs
+        delete obj[key];
+      } else {
+        if (key === 'studyFeatures') { // Filtering studyFeatures to match studyType
+          obj[key] = obj[key].filter(feature => {
+            const cond = feature.featureType?.context?.toLowerCase() === obj.studyType?.name?.toLowerCase();
+            if (cond) {
+              delete feature['lastEditedBy'];
+            }
+            return cond;
+          });
+        }
+        if (typeof obj[key] === 'object') {
+          if (Array.isArray(obj[key])) {
+            // loop through array
+            for (let i = 0; i < obj[key].length; i++) {
+              this.cleanJSON(obj[key][i]);
+            }
+          } else {
+            // call function recursively for object
+            this.cleanJSON(obj[key]);
+          }
+        }
+      }
+    }
+  }
+
   jsonExport() {
     this.studyService.getStudyById(this.id).subscribe((res: any) => {
       if (res) {
         const payload = JSON.parse(JSON.stringify(res));
-        payload.coreStudy.studyStatus = this.findStudyStatusById(payload.coreStudy.studyStatus);
-        payload.coreStudy.studyType = this.findStudyTypeById(payload.coreStudy.studyType);
-        payload.coreStudy.studyGenderElig = this.findGenderEligibilityId(payload.coreStudy.studyGenderElig);
-        payload.coreStudy.minAgeUnit = this.findTimeUnitsById(payload.coreStudy.minAgeUnit);
-        payload.coreStudy.maxAgeUnit = this.findTimeUnitsById(payload.coreStudy.maxAgeUnit);
-        payload.studyIdentifiers.map(item => {
-          item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
-        });
-        payload.studyTitles.map (item => {
-          item.titleTypeId = this.findTitleType(item.titleTypeId);
-        });
-        payload.studyFeatures.map(item => {
-          item.featureTypeId = this.findFeatureType(item.featureTypeId);
-          item.featureValueId = this.findFeatureValue(item.featureValueId);
-        });
-        payload.studyTopics.map(item => {
-          item.topicTypeId = this.findTopicType(item.topicTypeId);
-          item.originalCtId = this.findTopicVocabulary(item.originalCtId);
-        });
-        payload.studyRelationships.map(item => {
-          item.relationshipTypeId = this.findRelationshipType(item.relationshipTypeId);
-        });
-        this.jsonGenerator.jsonGenerator(res.data[0], 'study');
+        this.cleanJSON(payload);
+        this.jsonGenerator.jsonGenerator(payload, 'study');
       }
     }, error => {
       this.toastr.error(error.error.title);

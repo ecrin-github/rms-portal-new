@@ -40,6 +40,16 @@ import { RoleGuard } from 'src/app/_rms/guards/role/role.guard';
         ReportsPageInternalComponent,
     ],
     imports: [
+        NgbDatepickerModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatTabsModule,
+        ReactiveFormsModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        NgApexchartsModule,
+        NgxPermissionsModule.forChild(),
         CommonModule,
         CommonPagesModule,
         WidgetsModule,
@@ -173,16 +183,6 @@ import { RoleGuard } from 'src/app/_rms/guards/role/role.guard';
                 canActivate: [ManagerGuard]
             }
         ]),
-        NgbDatepickerModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatTabsModule,
-        ReactiveFormsModule,
-        MatExpansionModule,
-        MatFormFieldModule,
-        MatButtonModule,
-        NgApexchartsModule,
-        NgxPermissionsModule.forChild()
     ],
 })
 export class InternalPagesModule {}

@@ -9,6 +9,7 @@ import { CommonLookupService } from 'src/app/_rms/services/entities/common-looku
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
+import { TopicVocabularies } from 'src/app/_rms/interfaces/context/topic-vocabularies/topic-vocabularies';
 
 @Component({
   selector: 'app-object-topic',
@@ -30,6 +31,7 @@ export class ObjectTopicComponent implements OnInit {
   }
   @Output() emitTopic: EventEmitter<any> = new EventEmitter();
   len: any;
+  controlledTerminology = [];
   isBrowsing: boolean = false;
   pageSize: Number = 10000;
 
@@ -42,6 +44,7 @@ export class ObjectTopicComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getTopicType();
+    this.getTopicVocabularies();
     if (this.isView || this.isEdit) {
       this.getObjectTopic();
     }
@@ -110,6 +113,19 @@ export class ObjectTopicComponent implements OnInit {
       })
     });
   }
+  getTopicVocabularies() {
+    this.commonLookupService.getTopicVocabularies(this.pageSize).subscribe((res: any) => {
+      if (res.results) {
+        this.controlledTerminology = res.results;
+      }
+    }, error => {
+      this.toastr.error(error.error.title);
+    })
+  }
+  findTopicVocabulary(id) {
+    const arr: any = this.controlledTerminology.filter((item: any) => item.id === id);
+    return arr && arr.length ? arr[0].name : 'None';
+  }
   getObjectTopic() {
     this.objectService.getObjectTopics(this.objectId).subscribe((res: any) => {
       if (res && res.results) {
@@ -145,17 +161,25 @@ export class ObjectTopicComponent implements OnInit {
     });
     return formArray;
   }
+  updatePayload(payload) {
+    if (!payload.objectId && this.objectId) {  // TODO test
+      payload.objectId = this.objectId;
+    }
+    payload.meshCoded = payload.meshCoded === 'true' || payload.meshCoded === true ? true : false;
+    if (payload.originalValue?.id) {
+      payload.originalValue = payload.originalValue.id;
+    }
+  }
   addTopic(index) {
     this.spinner.show();
     const payload = this.form.value.objectTopics[index];
-    payload.objectId = this.objectId;
-    payload.meshCoded = payload.meshCoded === 'true' ? true : false;
     delete payload.id;
+    this.updatePayload(payload);
 
     this.objectService.addObjectTopic(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 201) {
-        this.toastr.success('Obect Topic added successfully');
+        this.toastr.success('Object Topic added successfully');
         this.getObjectTopic();
       } else {
         this.toastr.error(res.messages[0]);
@@ -171,7 +195,7 @@ export class ObjectTopicComponent implements OnInit {
   }
   editTopic(topicObject) {
     const payload = topicObject.value;
-    payload.meshCoded = payload.meshCoded === 'true' ? true : false;
+    this.updatePayload(payload);
     this.spinner.show();
     this.objectService.editObjectTopic(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -196,7 +220,7 @@ export class ObjectTopicComponent implements OnInit {
   }
   emitData() {
     const payload = this.form.value.objectTopics.map(item => {
-      item.meshCoded = item.meshCoded === 'true' ? true : false;
+      item.meshCoded = item.meshCoded === 'true' || item.meshCoded === true ? true : false;
       if (!item.id) {
         delete item.id;
       }
@@ -206,6 +230,13 @@ export class ObjectTopicComponent implements OnInit {
       return item;
     })
     this.emitTopic.emit({data: payload, isEmit: false});
+  }
+  compareCTs(ct1: TopicVocabularies, ct2: TopicVocabularies): boolean {
+    return ct1?.id == ct2?.id;
+  }
+  customSearchCTs(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.firstName?.toLocaleLowerCase().indexOf(term) > -1;
   }
   scrollToElement(): void {
     setTimeout(() => {

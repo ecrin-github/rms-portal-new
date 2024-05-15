@@ -1,32 +1,36 @@
 <div class="card">
     <div class="card-header">
-        <div class="row" id="navbar" [ngClass]="isBrowsing? 'browsing-header' : ''">
-            <div class="col-md-4">
-                <h2 class="text-capitalize">{{ isView ? 'Data Object Details' : isEdit ? 'Editing Data Object Details' : 'Add new data object'}}</h2>
+        <div id="navbar" [ngClass]="isBrowsing? 'browsing-header' : ''">
+            <div class="row upsert-navbar">
+                <div class="col-md-4">
+                    <h2 class="text-capitalize">{{ isView ? 'Data Object Details' : isEdit ? 'Editing Data Object Details' : 'Add new data object'}}</h2>
+                </div>
+                <div class="col-md-8 text-right">
+                    <ng-container *ngIf="isView">
+                        <ng-container *ngIf="showEdit">
+                            <a [routerLink]="['/data-objects', id, 'edit']" class="btn btn-primary mr-1">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                        </ng-container>
+                        <button class="btn btn-primary mr-1" (click)="printPdf()">
+                            <i class="fa fa-print"></i> PDF
+                        </button>
+                        <button class="btn btn-primary mr-1" (click)="jsonExport()">
+                            <i class="fa fa-code"></i> JSON
+                        </button>
+                        <button class="btn btn-warning" (click)="back()">Back</button>
+                    </ng-container>
+                    <ng-container *ngIf="!isView">
+                        <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
+                        <button class="btn btn-warning" (click)="back()">Cancel</button>
+                    </ng-container>
+                </div>
             </div>
-            <div class="col-md-8 text-right">
-                <ng-container *ngIf="showEdit">
-                    <a [routerLink]="['/data-objects', id, 'edit']" class="btn btn-primary mr-1">
-                        <i class="fa fa-edit"></i> Edit
-                    </a>
-                </ng-container>
-                <ng-container *ngIf="isView">
-                    <button class="btn btn-primary mr-1" (click)="printPdf()">
-                        <i class="fa fa-print"></i> PDF
-                    </button>
-                    <button class="btn btn-primary mr-1" (click)="jsonExport()">
-                        <i class="fa fa-code"></i> JSON
-                    </button>
-                    <button class="btn btn-warning" (click)="back()">Back</button>
-                </ng-container>
-                <ng-container *ngIf="!isView">
-                    <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
-                    <button class="btn btn-warning" (click)="back()">Cancel</button>
-                </ng-container>
+            <div class="row mt-5">
+                <div class="pl-5">
+                    <h6>{{objectData?.displayTitle}}</h6>
+                </div>
             </div>
-            <div class="pl-5">
-                <h6>{{objectData?.displayTitle}}</h6>
-            </div>    
         </div>
     </div>
 
@@ -108,7 +112,7 @@
                     <label for="doi" class="font-style text-capitalize">DOI</label>
                     <input id="doi" type="text" class="form-control" placeholder="Enter the relevant Digital Object Identifier" formControlName="doi"
                         *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView"><a [href]='"https://scholar.google.fr/scholar?q="+objectData?.doi' target="_blank">{{objectData?.doi}}</a> </h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView"><a [href]='"https://scholar.google.fr/scholar?q="+objectData?.doi' target="_blank">{{objectData?.doi}}</a></h6>
                 </div>
                 <div class="col-md-6">
                     <label for="version" class="font-style text-capitalize">Version</label>
@@ -170,28 +174,29 @@
                     <label for="accessDetailsUrl" class="font-style text-capitalize">URL</label>
                     <input id="accessDetailsUrl" type="text" class="form-control" placeholder="https://www.example.org/mydata"
                         formControlName="accessDetailsUrl" *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetailsUrl ? objectData?.accessDetailsUrl : 'None'}}</h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView && objectData?.accessDetailsUrl"><a [href]='objectData.accessDetailsUrl' target="_blank">{{objectData.accessDetailsUrl}}</a></h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView && !objectData?.accessDetailsUrl">None</h6>
                 </div>
             </div>
             <hr />
             <div formGroupName="objectDatasets" *ngIf="showDatasetKey">
                 <div class="row">
                     <div class="col-md-12 text-center">
-                        <span class="pt-3 font-style">Dataset record keys</span>
+                        <span class="pt-3 font-style">Dataset anonymisation status</span>
                     </div>
                 </div>
                 <br />
                 <div class="row form-group">
                     <div class="col-md-6">
-                        <label for="recordkeyType" class="font-style text-capitalize">Keys type</label>
+                        <label for="recordkeyType" class="font-style text-capitalize">Anonymisation type</label>
                         <select id="recordkeyType" class="form-control" formControlName="recordkeyType" *ngIf="!isView">
-                            <option selected disabled value="null">Please select deidentification level</option>
+                            <option selected disabled value="null">Please select anonymisation level</option>
                             <option [value]=key.id *ngFor="let key of keyTypes">{{key.name}}</option>
                         </select>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.recordkeyType ? objectData?.objectDatasets[0]?.recordkeyType.name : 'None' : 'None'}}</h6>
                     </div>
                     <div class="col-md-6">
-                        <label for="recordkeyDetails" class="font-style text-capitalize">Keys details</label>
+                        <label for="recordkeyDetails" class="font-style text-capitalize">Anonymisation details</label>
                         <textarea id="recordkeyDetails" class="form-control" cols="30" rows="5" placeholder="Please enter a short summary of the justification for the classification given"
                             formControlName="recordkeyDetails" *ngIf="!isView"></textarea>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0]?.recordkeyDetails ? objectData?.objectDatasets[0]?.recordkeyDetails : 'None'}}</h6>
@@ -199,7 +204,7 @@
                 </div>
                 <hr />
 
-                <div class="row">
+                <!-- <div class="row">
                     <div class="col-md-12 text-center">
                         <span class="pt-3 font-style">Dataset deidentification level</span>
                     </div>
@@ -208,7 +213,6 @@
                 <div class="row form-group">
                     <div class="col-md-4">
                         <label for="deidentType" class="font-style text-capitalize"> Type</label>
-                        <!-- <i class="fa fa-info-circle pl-1"></i> -->
                         <select id="deidentType" class="form-control" formControlName="deidentType" *ngIf="!isView">
                             <option selected disabled value="null">Please select deidentification type</option>
                             <option [value]=identification.id *ngFor="let identification of deidentificationTypes">
@@ -260,7 +264,7 @@
                 </div>
 
 
-                <hr />
+                <hr /> -->
 
                 <div class="row">
                     <div class="col-md-12 text-center">
@@ -324,21 +328,21 @@
             <hr [ngClass]="{'hr-big': isEdit}"/>
             <ng-container *ngIf="isEdit || isView">
                 <div class="mt-12">
-                    <mat-expansion-panel [expanded]="objectData?.objectInstances.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="objectData?.objectInstances?.length > 0 ? true : false" [disabled]="objectData?.objectInstances?.length > 0 ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object instance(s)</h6>
                         </mat-expansion-panel-header>
                         <app-object-instance [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
                     </mat-expansion-panel>            
                     <hr />
-                    <mat-expansion-panel [expanded]="objectData?.objectTitles.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="objectData?.objectTitles?.length > 0 ? true : false" [disabled]="objectData?.objectTitles?.length > 0 ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object title(s)</h6>
                         </mat-expansion-panel-header>
                         <app-object-title [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-title>
                     </mat-expansion-panel>
                     <hr />
-                    <mat-expansion-panel [expanded]="objectData?.objectDates.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="objectData?.objectDates?.length > 0 ? true : false" [disabled]="objectData?.objectDates?.length > 0 ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object date(s)</h6>
                         </mat-expansion-panel-header>
@@ -346,7 +350,7 @@
                     </mat-expansion-panel>
                     <hr />
                     <ng-container *ngIf="showTopic">
-                        <mat-expansion-panel [expanded]="objectData?.objectContributors.length > 0 ? true : false">
+                        <mat-expansion-panel [expanded]="objectData?.objectContributors?.length > 0 ? true : false" [disabled]="objectData?.objectContributors?.length > 0 ? false : true">
                             <mat-expansion-panel-header>
                                 <h6 class="pt-3 font-style">Object contributor(s)</h6>
                             </mat-expansion-panel-header>
@@ -355,7 +359,7 @@
                         <hr />
                     </ng-container>
                     <ng-container *ngIf="showTopic">
-                        <mat-expansion-panel [expanded]="objectData?.objectTopics.length > 0 ? true : false">
+                        <mat-expansion-panel [expanded]="objectData?.objectTopics?.length > 0 ? true : false" [disabled]="objectData?.objectTopics?.length > 0 ? false : true">
                             <mat-expansion-panel-header>
                                 <h6 class="pt-3 font-style">Object topic(s)</h6>
                             </mat-expansion-panel-header>
@@ -363,28 +367,28 @@
                         </mat-expansion-panel>
                         <hr />
                     </ng-container>
-                    <mat-expansion-panel [expanded]="objectData?.objectIdentifiers.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="objectData?.objectIdentifiers?.length > 0 ? true : false" [disabled]="objectData?.objectIdentifiers?.length > 0 ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object identifier(s)</h6>
                         </mat-expansion-panel-header>
                         <app-object-identifier [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-identifier>
                     </mat-expansion-panel>        
                     <hr />
-                    <mat-expansion-panel [expanded]="objectData?.objectDescriptions.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="objectData?.objectDescriptions?.length > 0 ? true : false" [disabled]="objectData?.objectDescriptions?.length > 0 ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object descriptions(s)</h6>
                         </mat-expansion-panel-header>
                         <app-object-description [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-description>
                     </mat-expansion-panel>
                     <hr />
-                    <mat-expansion-panel [expanded]="objectData?.objectRights.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="objectData?.objectRights?.length > 0 ? true : false" [disabled]="objectData?.objectRights?.length > 0 ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object right(s)</h6>
                         </mat-expansion-panel-header>
                         <app-object-right [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-right>
                     </mat-expansion-panel>
                     <hr />
-                    <mat-expansion-panel [expanded]="objectData?.objectRelationships.length > 0 ? true : false">
+                    <mat-expansion-panel [expanded]="objectData?.objectRelationships?.length > 0 ? true : false" [disabled]="objectData?.objectRelationships?.length > 0 ? false : true">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object relationship(s)</h6>
                         </mat-expansion-panel-header>

@@ -28,8 +28,10 @@ export class AuthService {
   ) { }
 
   isAuthenticUser() {
+    /* TODO: checkAuth only checks that the locally stored tokens are valid when logged in, doesn't query LS AAI again
+       there should be a separate use case for handling logging out (and choosing to stay logged in on logout page)*/
     return this.oidcSecurityService.checkAuth().pipe(
-      timeout(10000),
+      timeout(20000),
       mergeMap(async ({isAuthenticated, userData, accessToken, idToken}) => {
         this.isAuthenticated = isAuthenticated;
         if (isAuthenticated) {
@@ -68,15 +70,23 @@ export class AuthService {
       ).toPromise();
   }
 
+  urlHandler(url) {
+    window.location.href = url;
+  }
+
   logout(err?) {
-    // TODO: adapt this method to LS AAI V2
     if (this.isAuthenticated) {
-      this.oidcSecurityService.logoff();
+      // To use when logging out is handled better (see comment in isAuthenticUser())
+      // this.oidcSecurityService.logoff('', {urlHandler: this.urlHandler}).subscribe((res2) => {
+        // localStorage.clear();
+      // });
+      this.oidcSecurityService.logoff().subscribe();
+    } else {
+      localStorage.clear();
+      if (err) {
+        this.toastr.error(err.message, 'Logout error');
+      }
+      this.router.navigate(['login']);
     }
-    localStorage.clear();
-    if (err) {
-      this.toastr.error(err.message, 'Authentication error');
-    }
-    this.router.navigate(['login']);
   }
 }

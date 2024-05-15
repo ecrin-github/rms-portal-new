@@ -21,28 +21,9 @@
                 <div class="col-12 mb-5" [id]="'relpanel'+i">
                     <mat-expansion-panel [expanded]="studyRelation.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findRelationshipType(studyRelation.value.relationshipType)}}&nbsp;{{studyRelation.value.targetStudyId}}
+                            {{findRelationshipType(studyRelation.value.relationshipType)}}: {{studyRelation.value.targetStudy?.sdSid ? studyRelation.value.targetStudy.sdSid : studyRelation.value.targetStudy ? studyRelation.value.targetStudy : ''}}
                         </mat-expansion-panel-header>
                         <div class="row form-group">
-                            <div class="col-md-6">
-                                <label for="targetStudyId" class="font-style text-capitalize">Target study</label>
-                                <ng-select [items]="studyType" bindLabel="id" bindValue="id" formControlName="targetStudyId"
-                                [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
-                                    placeholder="Select target study" *ngIf="!isView" [searchFn]="customSearchFn">
-                                    <ng-template ng-label-tmp let-item="item">
-                                        {{item.displayTitle}}
-                                    </ng-template>
-                                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                                        <div class="row m-0">
-                                            <div class="col-md-8 col-8 p-0 m-0">
-                                                <div class="col-md-12">{{item.displayTitle}}</div>
-                                                <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.id}}</div>
-                                            </div>
-                                        </div>
-                                    </ng-template>
-                                </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyRelation.value.targetStudyId}}</h6>
-                            </div>
                             <div class="col-md-6">
                                 <label for="relationshipType" class="font-style text-capitalize">Relationship type</label>
                                 <select class="form-control" id="relationshipType" formControlName="relationshipType" *ngIf="!isView">
@@ -50,6 +31,28 @@
                                     <option [value]="relationship.id" *ngFor="let relationship of relationshipType">{{relationship.name}}</option>
                                 </select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{findRelationshipType(studyRelation.value.relationshipType)}}</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="targetStudy" class="font-style text-capitalize">Target study</label>
+                                <ng-select [items]="studyType" bindLabel="id" bindValue="id" formControlName="targetStudy"
+                                [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No studies found"
+                                    placeholder="Select target study" *ngIf="!isView" [searchFn]="customSearchStudies" [compareWith]="compareStudies">
+                                    <ng-template ng-label-tmp let-item="item">
+                                        {{item.displayTitle}}
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                        <div class="row m-0">
+                                            <div class="col-md-8 col-8 p-0 m-0">
+                                                <div class="col-md-12">{{item.displayTitle}}</div>
+                                                <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.sdSid}}</div>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </ng-select>
+                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                    <a *ngIf="isView" [routerLink]="isBrowsing ? ['/browsing/studies', studyRelation.value.targetStudy?.id, 'view'] 
+                                    : ['/studies', studyRelation.value.targetStudy?.id, 'view']">{{studyRelation.value.targetStudy?.id}}</a>
+                                </h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">

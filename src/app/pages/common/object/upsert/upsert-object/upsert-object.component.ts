@@ -27,6 +27,7 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 })
 export class UpsertObjectComponent implements OnInit {
   public isCollapsed: boolean = true;
+  static showTopicTypes = ['publication list', 'journal article', 'working paper / pre-print'];
   objectForm: UntypedFormGroup;
   isEdit: boolean = false;
   isView: boolean = false;
@@ -215,6 +216,10 @@ export class UpsertObjectComponent implements OnInit {
     });
   }
   get g() { return this.objectForm.controls; }
+  public static isShowTopicType(objectType) {
+    /* Object contributors and topics components appear only for specific object types */
+    return UpsertObjectComponent.showTopicTypes.includes(objectType.toLowerCase());
+  }
   getEditAuth(sdOid: string) {
     let edit$: Observable<boolean>;
     if (this.isManager) {
@@ -342,7 +347,7 @@ export class UpsertObjectComponent implements OnInit {
     if (this.objectData.objectClass) {
       this.showDatasetKey = this.objectData.objectClass.id === arr[0].id ? true : false;
     }
-    const arrType: any = this.objectTypes.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
+    const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
     if(this.objectData.objectType) {
       arrType.map(item => {
         if (item.id === this.objectData.objectType.id) {
@@ -353,7 +358,7 @@ export class UpsertObjectComponent implements OnInit {
     }
     const arrAccessType: any = this.accessTypes.filter((item: any) => item.name === 'Public on-screen access and download');
     if (this.objectData.accessType) {
-      this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0].id ? false : true;
+      this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0]?.id ? false : true;
     }
     this.objectForm.patchValue({
       linkedStudy: this.objectData.linkedStudy ? this.objectData.linkedStudy : null,
@@ -373,13 +378,6 @@ export class UpsertObjectComponent implements OnInit {
       objectDatasets: {
         recordkeyType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordkeyType ? this.objectData.objectDatasets[0].recordkeyType.id : null :null,
         recordkeyDetails: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordkeyDetails :'',
-        deidentType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentType ? this.objectData.objectDatasets[0].deidentType.id : null :null,
-        deidentDirect: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDirect : false,
-        deidentHipaa: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentHipaa : false,
-        deidentDates: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDates : false,
-        deidentNonarr: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentNonarr : false,
-        deidentKanon: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentKanon : false,
-        deidentDetails: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].deidentDetails :'',
         consentType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentType ? this.objectData.objectDatasets[0].consentType.id :null :null,
         consentNoncommercial: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentNoncommercial : false,
         consentGeogRestrict: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].consentGeogRestrict : false,
@@ -543,7 +541,7 @@ export class UpsertObjectComponent implements OnInit {
   }
   onTypeChange() {
     this.showTopic = false;
-    const arrType: any = this.objectTypes.filter((item: any) => item.name.toLowerCase() === 'publication list' || item.name.toLowerCase() === 'journal article' || item.name.toLowerCase() === 'working paper / pre-print');
+    const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
     arrType.map(item => {
       if (item.id === this.objectForm.value.objectType) {
         this.showTopic = true;
@@ -551,89 +549,44 @@ export class UpsertObjectComponent implements OnInit {
       }
     });
   }
+
   printPdf() {
     const payload = JSON.parse(JSON.stringify(this.objectData));
-    //remembber to include commented fields
-    // payload.coreObject.objectClass = this.findObjectClass(payload.coreObject.objectClass);
-    // payload.coreObject.objectType = this.findobjectType(payload.coreObject.objectType);
-    // payload.coreObject.accessType = this.findAccessType(payload.coreObject.accessType);
-    if (payload.objectDatasets.length > 0) {
-      // payload.objectDatasets[0].recordkeyType = this.findKeyType(payload.objectDatasets[0].recordkeyType);
-      // payload.objectDatasets[0].deidentType = this.findDeidentificationType(payload.objectDatasets[0].deidentType);
-      payload.objectDatasets[0].deidentDirect = payload.objectDatasets[0].deidentDirect ? payload.objectDatasets[0].deidentDirect : false;
-      payload.objectDatasets[0].deidentHipaa = payload.objectDatasets[0].deidentHipaa ? payload.objectDatasets[0].deidentHipaa : false;
-      payload.objectDatasets[0].deidentDates = payload.objectDatasets[0].deidentDates ? payload.objectDatasets[0].deidentDates : false;
-      payload.objectDatasets[0].deidentNonarr = payload.objectDatasets[0].deidentNonarr ? payload.objectDatasets[0].deidentNonarr : false;
-      payload.objectDatasets[0].deidentKanon = payload.objectDatasets[0].deidentKanon ? payload.objectDatasets[0].deidentKanon : false;
-      payload.objectDatasets[0].consentNoncommercial = payload.objectDatasets[0].consentNoncommercial ? payload.objectDatasets[0].consentNoncommercial : false;
-      payload.objectDatasets[0].consentGeogRestrict = payload.objectDatasets[0].consentGeogRestrict ? payload.objectDatasets[0].consentGeogRestrict : false;
-      payload.objectDatasets[0].consentResearchType = payload.objectDatasets[0].consentResearchType ? payload.objectDatasets[0].consentResearchType : false;
-      payload.objectDatasets[0].consentGeneticOnly = payload.objectDatasets[0].consentGeneticOnly ? payload.objectDatasets[0].consentGeneticOnly : false;
-      payload.objectDatasets[0].consentNoMethods = payload.objectDatasets[0].consentNoMethods ? payload.objectDatasets[0].consentNoMethods : false;
-      payload.objectDatasets[0].consentType = this.findConsentType(payload.objectDatasets[0].consentType);
-    }
-    payload.objectInstances.map(item => {
-      item.resourceTypeId = this.findResourceType(item.resourceTypeId);
-      item.resourceSizeUnits = this.findSizeUnit(item.resourceSizeUnits);
-    });
-    payload.objectTitles.map(item => {
-      item.titleTypeId = this.findTitleType(item.titleTypeId);
-    });
-    payload.objectDates.map(item => {
-      item.dateTypeId = this.findDateType(item.dateTypeId);
-    });
-    payload.objectTopics.map(item => {
-      item.topicTypeId = this.findTopicType(item.topicTypeId);
-    });
-    payload.objectIdentifiers.map(item => {
-      item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
-    });
-    payload.objectDescriptions.map(item => {
-      item.descriptionTypeId = this.findDescriptionType(item.descriptionTypeId);
-    });
     this.pdfGenerator.objectPdfGenerator(payload);
   }
+
+  cleanJSON(obj) {
+    const keysToDel = ['lastEditedBy', 'deidentType', 'deidentDirect', 'deidentHipaa', 'deidentDates', 'deidentKanon', 'deidentNonarr', 'deidentDetails'];
+    for (let key in obj) {
+      if (keysToDel.includes(key)) {
+        delete obj[key];
+      } else if (key === 'person' && obj[key] !== null) { // Removing most user info
+        obj[key] = {'userProfile': obj['person']['userProfile'], 
+                    'firstName': obj['person']['firstName'],
+                    'lastName': obj['person']['lastName'],
+                    'email': obj['person']['email']};
+      } else if (key === 'id') {  // Deleting all internal IDs
+        delete obj[key];
+      } else {
+        if (typeof obj[key] === 'object') {
+          if (Array.isArray(obj[key])) {
+            // loop through array
+            for (let i = 0; i < obj[key].length; i++) {
+              this.cleanJSON(obj[key][i]);
+            }
+          } else {
+            // call function recursively for object
+            this.cleanJSON(obj[key]);
+          }
+        }
+      }
+    }
+  }
+
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.objectData));
-    // remember to include commented fields
-    // payload.coreObject.objectClass = this.findObjectClass(payload.coreObject.objectClass);
-    // payload.coreObject.objectType = this.findobjectType(payload.coreObject.objectType);
-    // payload.coreObject.accessType = this.findAccessType(payload.coreObject.accessType);
-    if (payload.objectDatasets.length > 0) {
-      // payload.objectDatasets[0].recordkeyType = this.findKeyType(payload.objectDatasets[0].recordkeyType);
-      // payload.objectDatasets[0].deidentType = this.findDeidentificationType(payload.objectDatasets[0].deidentType);
-      payload.objectDatasets[0].deidentDirect = payload.objectDatasets[0].deidentDirect ? payload.objectDatasets[0].deidentDirect : false;
-      payload.objectDatasets[0].deidentHipaa = payload.objectDatasets[0].deidentHipaa ? payload.objectDatasets[0].deidentHipaa : false;
-      payload.objectDatasets[0].deidentDates = payload.objectDatasets[0].deidentDates ? payload.objectDatasets[0].deidentDates : false;
-      payload.objectDatasets[0].deidentNonarr = payload.objectDatasets[0].deidentNonarr ? payload.objectDatasets[0].deidentNonarr : false;
-      payload.objectDatasets[0].deidentKanon = payload.objectDatasets[0].deidentKanon ? payload.objectDatasets[0].deidentKanon : false;
-      payload.objectDatasets[0].consentNoncommercial = payload.objectDatasets[0].consentNoncommercial ? payload.objectDatasets[0].consentNoncommercial : false;
-      payload.objectDatasets[0].consentGeogRestrict = payload.objectDatasets[0].consentGeogRestrict ? payload.objectDatasets[0].consentGeogRestrict : false;
-      payload.objectDatasets[0].consentResearchType = payload.objectDatasets[0].consentResearchType ? payload.objectDatasets[0].consentResearchType : false;
-      payload.objectDatasets[0].consentGeneticOnly = payload.objectDatasets[0].consentGeneticOnly ? payload.objectDatasets[0].consentGeneticOnly : false;
-      payload.objectDatasets[0].consentNoMethods = payload.objectDatasets[0].consentNoMethods ? payload.objectDatasets[0].consentNoMethods : false;
-      payload.objectDatasets[0].consentType = this.findConsentType(payload.objectDatasets[0].consentType);
-    }
-    payload.objectInstances.map(item => {
-      item.resourceTypeId = this.findResourceType(item.resourceTypeId);
-      item.resourceSizeUnits = this.findSizeUnit(item.resourceSizeUnits);
-    });
-    payload.objectTitles.map(item => {
-      item.titleTypeId = this.findTitleType(item.titleTypeId);
-    });
-    payload.objectDates.map(item => {
-      item.dateTypeId = this.findDateType(item.dateTypeId);
-    });
-    payload.objectTopics.map(item => {
-      item.topicTypeId = this.findTopicType(item.topicTypeId);
-    });
-    payload.objectIdentifiers.map(item => {
-      item.identifierTypeId = this.findIdentifierType(item.identifierTypeId);
-    });
-    payload.objectDescriptions.map(item => {
-      item.descriptionTypeId = this.findDescriptionType(item.descriptionTypeId);
-    });
-    this.jsonGenerator.jsonGenerator(this.objectData, 'Object');
+    this.cleanJSON(payload);
+    this.jsonGenerator.jsonGenerator(payload, 'object');
   }
 
 // code to get values for id for generating pdf and json

@@ -10,6 +10,7 @@ import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
+import { StudyInterface } from 'src/app/_rms/interfaces/study/study.interface';
 
 @Component({
   selector: 'app-study-relationship',
@@ -58,7 +59,7 @@ export class StudyRelationshipComponent implements OnInit {
       id: '',
       studyId: '',
       relationshipType: null,
-      targetStudyId: null,
+      targetStudy: '',
       alreadyExist: false
     });
   }
@@ -66,7 +67,7 @@ export class StudyRelationshipComponent implements OnInit {
   addStudyRelation() {
     this.len = this.studyRelationships().value.length;
     if (this.len) {
-      if (this.studyRelationships().value[this.len-1].relationshipType && this.studyRelationships().value[this.len-1].targetStudyId) {
+      if (this.studyRelationships().value[this.len-1].relationshipType && this.studyRelationships().value[this.len-1].targetStudy) {
         this.studyRelationships().push(this.newStudyRelation());
       } else {
         if (this.studyRelationships().value[this.len-1].alreadyExist) {
@@ -133,19 +134,27 @@ export class StudyRelationshipComponent implements OnInit {
         id: relationship.id,
         studyId: relationship.studyId,
         relationshipType: relationship.relationshipType ? relationship.relationshipType.id : null,
-        targetStudyId: relationship.targetStudyId,
+        targetStudy: relationship.targetStudy ? relationship.targetStudy : null,
         alreadyExist: true
       }))
     });
     return formArray;
   }
+  updatePayload(payload) {
+    if (!payload.studyId && this.studyId) {  // TODO test
+      payload.studyId = this.studyId;
+    }
+    if (payload.targetStudy?.id) {
+      payload.targetStudy = payload.targetStudy.id;
+    }
+  }
   addRelationship(index) {
-    if (this.form.value.studyRelationships[index].targetStudyId === this.studyId) {
+    if (this.form.value.studyRelationships[index].targetStudy?.id === this.studyId) {
       this.toastr.error('Study can not be put in relationship to itself');
     } else {
       this.spinner.show();
       const payload = this.form.value.studyRelationships[index];
-      payload.studyId = this.studyId;
+      this.updatePayload(payload);
       delete payload.id;
 
       this.studyService.addStudyRelationship(this.studyId, payload).subscribe((res: any) => {
@@ -163,10 +172,11 @@ export class StudyRelationshipComponent implements OnInit {
     }
   }
   editRelationship(relationObject) {
-    if (relationObject.value.targetStudyId === this.studyId) {
+    if (relationObject.value.targetStudy?.id === this.studyId) {
       this.toastr.error('Study can not be put in relationship to itself');
     } else {
       const payload = relationObject.value;
+      this.updatePayload(payload);
       this.spinner.show();  
       this.studyService.editStudyRelationship(payload.id, payload.studyId, payload).subscribe((res: any) => {
         this.spinner.hide();
@@ -205,9 +215,12 @@ export class StudyRelationshipComponent implements OnInit {
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-  customSearchFn(term: string, item) {
+  compareStudies(s1: StudyInterface, s2: StudyInterface): boolean {
+    return s1?.id == s2?.id;
+  }
+  customSearchStudies(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.studyId.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
+    return item.id?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle?.toLocaleLowerCase().indexOf(term) > -1;
   }
   scrollToElement(): void {
     setTimeout(() => {

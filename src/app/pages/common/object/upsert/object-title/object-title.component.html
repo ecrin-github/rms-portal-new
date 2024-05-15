@@ -50,8 +50,8 @@
                         <div class="row form-group">
                             <div class="col-md-12">
                                 <label for="titleText" class="font-style text-capitalize">Title text</label>
-                                <input type="text" id="titleText" class="form-control"
-                                    placeholder="Enter a parameter..." formControlName="titleText" *ngIf="!isView" />
+                                <textarea id="titleText" class="form-control" rows="4" placeholder="Enter a title for the object"
+                                    formControlName="titleText" *ngIf="!isView"></textarea>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{objectTitle.value.titleText}}</h6>
                             </div>
                         </div>

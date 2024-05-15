@@ -2137,10 +2137,10 @@ alphanum-sort@^1.0.0:
   resolved "https://registry.yarnpkg.com/alphanum-sort/-/alphanum-sort-1.0.2.tgz#97a1119649b211ad33691d9f9f486a8ec9fbe0a3"
   integrity sha512-0FcBfdcmaumGPQ0qPn7Q5qTgz/ooXgIyp1rf8ik5bGX8mpE2YHjC0P/eyQvxu1GURYQgq9ozf2mteQ5ZD9YiyQ==
 
-angular-auth-oidc-client@13.1.0:
-  version "13.1.0"
-  resolved "https://registry.yarnpkg.com/angular-auth-oidc-client/-/angular-auth-oidc-client-13.1.0.tgz#11601a9ba0f0bf6cb498c4916d359530e2dc778f"
-  integrity sha512-52RgjL0ScoRdM+QM9bYW7Qd0NMjK8GfxHPsqyVJw4KLcpyIdOT6SW3ThQ63oFvxPAGmvFBmXhdB0AqCab9xVuA==
+angular-auth-oidc-client@^15.0.0:
+  version "15.0.5"
+  resolved "https://registry.yarnpkg.com/angular-auth-oidc-client/-/angular-auth-oidc-client-15.0.5.tgz#9178b1490bc72146b741fcf61de423ca63f152d0"
+  integrity sha512-7PXsKnV4USoysHN6Y4r/oNot6hXF0tlMo2wHAZXazAaj1W44KESA9pZ79+ZfdStGBx24768ipX2VWFzOo5AnTw==
   dependencies:
     rfc4648 "^1.5.0"
     tslib "^2.3.0"
@@ -6486,7 +6486,7 @@ ngx-permissions@^13.0.1:
   dependencies:
     tslib "^2.1.0"
 
-ngx-spinner@^13.0.0:
+ngx-spinner@^13.1.0:
   version "13.1.1"
   resolved "https://registry.yarnpkg.com/ngx-spinner/-/ngx-spinner-13.1.1.tgz#3dfd97644d051398a4707d6b69655e35036a5419"
   integrity sha512-6aJz4KxIsBrlQckJxcM3CEvMcYbZoSDnQZPu0F/ZYAYunbBOTb9iydw0Gjczg9moum1VURWjX5dTVKmFo85c2Q==

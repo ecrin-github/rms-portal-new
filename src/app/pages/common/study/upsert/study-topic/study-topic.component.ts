@@ -153,8 +153,10 @@ export class StudyTopicComponent implements OnInit {
     if (!payload.studyId && this.studyId) {  // TODO test
       payload.studyId = this.studyId;
     }
-    payload.meshCoded = payload.meshCoded === 'true' ? true : false;
-    payload.originalValue = payload.originalValue.id;
+    payload.meshCoded = payload.meshCoded === 'true' || payload.meshCoded === true ? true : false;
+    if (payload.originalValue?.id) {
+      payload.originalValue = payload.originalValue.id;
+    }
   }
   addTopic(index) {
     const payload = this.form.value.studyTopics[index];
@@ -204,7 +206,7 @@ export class StudyTopicComponent implements OnInit {
   }
   customSearchCTs(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.firstName.toLocaleLowerCase().indexOf(term) > -1;
+    return item.firstName?.toLocaleLowerCase().indexOf(term) > -1;
   }
   emitData() {
     const payload = this.form.value.studyTopics.map(item => {
@@ -214,7 +216,7 @@ export class StudyTopicComponent implements OnInit {
       if(this.studyId) {
         item.studyId = this.studyId;
       }
-      item.meshCoded = item.meshCoded === 'true' ? true : false;
+      item.meshCoded = item.meshCoded === 'true' || item.meshCoded === true ? true : false;
       return item;
     })
     this.emitTopic.emit({data: payload, isEmit: false});

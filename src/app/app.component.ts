@@ -4,7 +4,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { TranslationService } from './modules/i18n/translation.service';
+// import { TranslationService } from './modules/i18n/translation.service';
 // language list
 import { locale as enLang } from './modules/i18n/vocabs/en';
 import { SplashScreenService } from './_rms/partials/layout/splash-screen/splash-screen.service';
@@ -28,16 +28,16 @@ export class AppComponent implements OnInit, OnDestroy {
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
 
   constructor(
-    private translationService: TranslationService,
+    // private translationService: TranslationService,
     private splashScreenService: SplashScreenService,
     private router: Router,
     private tableService: TableExtendedService,
     private signalrService: SignalrService
   ) {
     // register translations
-    this.translationService.loadTranslations(
-      enLang,
-    );
+    // this.translationService.loadTranslations(
+    //   enLang,
+    // );
     this.signalrService.startConnection();
   }
 

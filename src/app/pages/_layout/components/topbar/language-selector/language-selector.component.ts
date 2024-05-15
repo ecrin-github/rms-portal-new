@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { TranslationService } from '../../../../../modules/i18n/translation.service';
+// import { TranslationService } from '../../../../../modules/i18n/translation.service';
 
 interface LanguageFlag {
   lang: string;
@@ -25,7 +25,7 @@ export class LanguageSelectorComponent implements OnInit {
     }
   ];
   constructor(
-    private translationService: TranslationService,
+    // private translationService: TranslationService,
     private router: Router
   ) { }
 
@@ -52,10 +52,10 @@ export class LanguageSelectorComponent implements OnInit {
         language.active = false;
       }
     });
-    this.translationService.setLanguage(lang);
+    // this.translationService.setLanguage(lang);
   }
 
   setSelectedLanguage(): any {
-    this.setLanguage(this.translationService.getSelectedLanguage());
+    // this.setLanguage(this.translationService.getSelectedLanguage());
   }
 }

@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ClipboardModule } from 'ngx-clipboard';
-import { TranslateModule } from '@ngx-translate/core';
+// import { TranslateModule } from '@ngx-translate/core';
 import { InlineSVGModule } from 'ng-inline-svg';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from './app-routing.module';
@@ -12,14 +12,15 @@ import { AppComponent } from './app.component';
 // Highlight JS
 import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { SplashScreenModule } from './_rms/partials/layout/splash-screen/splash-screen.module';
-import { AuthModule, LogLevel } from 'angular-auth-oidc-client';
+import { AbstractSecurityStorage, AuthModule, LogLevel } from 'angular-auth-oidc-client';
 import { AuthGuard } from './_rms/guards/auth/auth.guard';
-import { CustomStorage } from './custom-storage';
+import { StorageService } from './_rms/services/storage/storage.service';
 import { MyinterceptorInterceptor } from './_rms/interceptor/myinterceptor.interceptor';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { FileSaverModule } from 'ngx-filesaver';
+import { MatTableModule } from '@angular/material/table';
 
 
 @NgModule({
@@ -31,11 +32,12 @@ import { FileSaverModule } from 'ngx-filesaver';
     BrowserModule,
     BrowserAnimationsModule,
     SplashScreenModule,
-    TranslateModule.forRoot(),
     HttpClientModule,
+    // TranslateModule.forRoot(),
     HighlightModule,
     ClipboardModule,
     FileSaverModule,
+    MatTableModule,
     AppRoutingModule,
     InlineSVGModule.forRoot(),
     NgbModule,
@@ -52,12 +54,8 @@ import { FileSaverModule } from 'ngx-filesaver';
         silentRenew: true,
         useRefreshToken: true,
         logLevel: environment.production ? LogLevel.Error : LogLevel.Debug,
-        storage: new CustomStorage(),
         renewTimeBeforeTokenExpiresInSeconds: 100,
         ignoreNonceAfterRefresh: true,
-        customParamsAuthRequest: {
-          prompt: 'consent'
-        }
       },
     }),
     NgxPermissionsModule.forRoot()
@@ -66,6 +64,10 @@ import { FileSaverModule } from 'ngx-filesaver';
     NgxSpinnerModule
   ],
   providers: [
+    {
+      provide: AbstractSecurityStorage, 
+      useClass: StorageService
+    },
     AuthGuard,
     {
       provide: HTTP_INTERCEPTORS,

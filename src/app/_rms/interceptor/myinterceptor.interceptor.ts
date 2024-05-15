@@ -10,7 +10,7 @@ import {
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { tap } from 'rxjs/operators';
+import { switchMap, tap } from 'rxjs/operators';
 export const BYPASS_LOG = new HttpContextToken(() => false);
 
 @Injectable()
@@ -19,8 +19,6 @@ export class MyinterceptorInterceptor implements HttpInterceptor {
   constructor(private oidcSecurityService: OidcSecurityService) { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    /*
-    // Use this code with angular-auth-oidc-client 14.0.0 (probably)
     return this.oidcSecurityService.getAccessToken().pipe(
       switchMap(token => {
         let newRequest = request;
@@ -37,7 +35,9 @@ export class MyinterceptorInterceptor implements HttpInterceptor {
 
         return next.handle(newRequest);
       })
-    );*/
+    );
+    /*
+    // Legacy code from angular-auth-oidc-client <= v13
     let token = this.oidcSecurityService.getAccessToken();
     let path = '';
     if (!request.url.includes('https://login.elixir-czech.org/oidc')) {
@@ -67,6 +67,6 @@ export class MyinterceptorInterceptor implements HttpInterceptor {
         }
       }
     }
-    ));
+    ));*/
   }
 }

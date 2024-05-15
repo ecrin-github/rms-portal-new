@@ -205,7 +205,7 @@ export class ObjectContributorComponent implements OnInit {
     this.emitContributor.emit({data: payload, isEmit: false});
   }
   onChange(index) {
-    this.isIndividual[index] = this.form.value.studyContributors[index].isIndividual === 'true' ? true : false;
+    this.isIndividual[index] = this.form.value.objectContributors[index].isIndividual === 'true' ? true : false;
   }
   scrollToElement(): void {
     setTimeout(() => {

@@ -44,7 +44,7 @@ build() {
         echo "Error: build directory ($build_path) does not exist."
         exit 1
     fi
-    systemctl restart nginx
+    sudo systemctl restart nginx
 }
 
 # Parsing command-line arguments

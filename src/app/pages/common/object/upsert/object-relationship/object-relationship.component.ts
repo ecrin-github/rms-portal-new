@@ -10,6 +10,7 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
+import { DataObjectInterface } from 'src/app/_rms/interfaces/data-object/data-object.interface';
 
 @Component({
   selector: 'app-object-relationship',
@@ -58,7 +59,7 @@ export class ObjectRelationshipComponent implements OnInit {
       id: '',
       objectId: '',
       relationshipType: '',
-      targetObjectId: '',
+      targetObject: '',
       alreadyExist: false
     });
   }
@@ -66,7 +67,7 @@ export class ObjectRelationshipComponent implements OnInit {
   addObjectRelation() {
     this.len = this.objectRelationships().value.length;
     if (this.len) {
-      if (this.objectRelationships().value[this.len-1].relationshipType && this.objectRelationships().value[this.len-1].targetObjectId) {
+      if (this.objectRelationships().value[this.len-1].relationshipType && this.objectRelationships().value[this.len-1].targetObject) {
         this.objectRelationships().push(this.newObjectRelation());
       } else {
         if (this.objectRelationships().value[this.len-1].alreadyExist) {
@@ -145,19 +146,27 @@ export class ObjectRelationshipComponent implements OnInit {
         id: relation.id,
         objectId: relation.objectId,
         relationshipType: relation.relationshipType ? relation.relationshipType.id : null,
-        targetObjectId: relation.targetObjectId,
+        targetObject: relation.targetObject ? relation.targetObject : null,
         alreadyExist: true
       }))
     });
     return formArray;
   }
+  updatePayload(payload) {
+    if (!payload.objectId && this.objectId) {  // TODO test
+      payload.objectId = this.objectId;
+    }
+    if (payload.targetObject?.sdOid) {
+      payload.targetObject = payload.targetObject.sdOid;
+    }
+  }
   addRelation(index) {
-    if (this.form.value.objectRelationships[index].targetObjectId === this.objectId) {
+    if (this.form.value.objectRelationships[index].targetObject?.sdOid === this.objectId) {
       this.toastr.error('Data Object can not be put in relationship to itself');
     } else {
       this.spinner.show();
       const payload = this.form.value.objectRelationships[index];
-      payload.objectId = this.objectId;
+      this.updatePayload(payload);
       delete payload.id;
 
       this.objectService.addObjectRelationship(this.objectId, payload).subscribe((res: any) => {
@@ -178,10 +187,11 @@ export class ObjectRelationshipComponent implements OnInit {
     }
   }
   editRelation(relationObject) {
-    if (relationObject.value.targetObjectId === this.objectId) {
+    if (relationObject.value.targetObject?.sdOid === this.objectId) {
       this.toastr.error('Data Object can not be put in relationship to itself');
     } else {
       const payload = relationObject.value;
+      this.updatePayload(payload);
       this.spinner.show();
       this.objectService.editObjectRelationship(payload.id, payload.objectId, payload).subscribe((res: any) => {
         this.spinner.hide();
@@ -219,9 +229,12 @@ export class ObjectRelationshipComponent implements OnInit {
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-  customSearchFn(term: string, item) {
+  compareDOs(do1: DataObjectInterface, do2: DataObjectInterface): boolean {
+    return do1?.id == do2?.id;
+  }
+  customSearchDOs(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.objectId.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
+    return item.id?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle?.toLocaleLowerCase().indexOf(term) > -1;
   }
   scrollToElement(): void {
     setTimeout(() => {
