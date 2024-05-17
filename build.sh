@@ -35,6 +35,7 @@ build() {
     if [[ -d $target_path ]]; then
         sudo mkdir -p $backup_path
         sudo mv $target_path $backup_path
+        sudo mkdir -p $target_path
     else
         sudo mkdir -p $target_path
     fi
