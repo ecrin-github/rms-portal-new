@@ -125,10 +125,12 @@ export class UpsertUserComponent implements OnInit {
         this.peopleService.addPeople(payload).subscribe((res: any) => {
           this.spinner.hide();
           if (res.statusCode === 200) {
-            this.toastr.success('People added successfully');
+            this.toastr.success('User added successfully');
             localStorage.setItem('updateUserList', 'true');
             this.reuseService.notifyComponents();
             this.back();
+          } else if (res.statusCode === 400) {
+            this.toastr.error(res.message, 'Error');
           }
         }, error => {
           this.spinner.hide();
