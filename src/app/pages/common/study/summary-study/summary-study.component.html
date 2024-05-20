@@ -6,7 +6,11 @@
             </div>
             <ng-container *ngIf="!isBrowsing && isOrgIdValid">
                 <div class="col-md-6 text-right">
-                    <div class="btn-group">
+                    <a [routerLink]="['/studies', 'add']" [queryParams]="{type: 'manual'}" class="btn btn-success">
+                        <i class="fa fa-plus"></i> New study
+                    </a>
+                    <!-- Adding using trial ID removed for now -->
+                    <!-- <div class="btn-group">
                         <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false">
                             <i class="fa fa-plus"></i> New study
@@ -15,7 +19,7 @@
                             <a class="dropdown-item" href="/studies/add?type=usingTrialId">Using Trial Registry</a>
                             <a class="dropdown-item" href="/studies/add?type=manual">Manually</a>
                         </div>
-                    </div>
+                    </div> -->
                 </div>    
             </ng-container>
         </div>
