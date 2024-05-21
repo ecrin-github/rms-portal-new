@@ -44,12 +44,16 @@
 
             <ng-container matColumnDef="sdSid">
                 <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-                <mat-cell *matCellDef="let row"> <a [routerLink]="isBrowsing ? ['/browsing/studies', row.id, 'view'] : ['/studies', row.id, 'view']">{{row.sdSid}}</a> </mat-cell>
+                <mat-cell *matCellDef="let row"> 
+                    <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']">{{row.sdSid}}</a> 
+                </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="title">
                 <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
-                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing ? ['/browsing/studies', row.id, 'view'] : ['/studies', row.id, 'view']">{{row.displayTitle}}</a></mat-cell>
+                <mat-cell *matCellDef="let row">
+                    <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']">{{row.displayTitle}}</a>
+                </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="type">

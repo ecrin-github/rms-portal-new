@@ -31,12 +31,12 @@
 
             <ng-container matColumnDef="sdOid">
                 <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.id, 'view'] : ['/data-objects', row.id, 'view']">{{row.id}}</a> </mat-cell>
+                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.sdOid, 'view'] : ['/data-objects', row.sdOid, 'view']">{{row.sdOid}}</a> </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="title">
                 <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
-                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.id, 'view'] : ['/data-objects', row.id, 'view']">{{row.displayTitle}}</a></mat-cell>
+                <mat-cell *matCellDef="let row"><a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.sdOid, 'view'] : ['/data-objects', row.sdOid, 'view']">{{row.displayTitle}}</a></mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="type">

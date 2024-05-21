@@ -241,7 +241,7 @@ export class PdfGeneratorService {
 
     const offsetX = 16;
     const offsetY = 25;
-    const offsetT1 = 15;
+    const offsetT1 = 10;
     const offsetT2 = 6;
     const offsetSection = 14;
     const offsetGeneral = 9;
@@ -259,9 +259,24 @@ export class PdfGeneratorService {
         { content: studyData.displayTitle, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
       ]
     ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+
+    /* Study ID */
+    currY += offsetT1;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Study ID', currX, currY);
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(textSize);
+    
+    currY += offsetT2;
+    currY = this.makeTable([
+      [
+        { content: (studyData.sdSid ? studyData.sdSid : 'Missing study ID'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
+      ]
+    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     
     /* Study description */
-    currY += offsetT1;
+    currY += offsetSection;
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Study Description', currX, currY);
@@ -425,7 +440,6 @@ export class PdfGeneratorService {
       currY = this.makeTable([
         [
           { content: 'Relationship Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', cellWidth: 'auto', fontSize: t3Size } },
-          // TODO: "sdSid" instead of "ID"?
           { content: 'Target Study ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', cellWidth: 'auto', fontSize: t3Size } },
           { content: 'Target Study Title', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', cellWidth: 'auto', fontSize: t3Size } }
         ]
@@ -510,13 +524,11 @@ export class PdfGeneratorService {
     const isShowTopicType = UpsertObjectComponent.isShowTopicType(objectData.objectType?.name ? objectData.objectType.name: '');
     const offsetX = 16;
     const offsetY = 25;
-    const offsetT1 = 15;
-    const offsetT2 = 8;
-    const offsetT3 = 7;
+    const offsetT1 = 10;
+    const offsetT2 = 6;
+    const offsetT3 = 8; // Bigger offset between object instances
+    const offsetLinkedTables = 4; // Used for object instances tables
     const offsetSection = 14;
-    const offsetGeneral = 9;
-    const offsetTables = 4;
-    const offsetUpTables = -3; // Tables start lower than other regular jsPdf objects for some reason so we apply a negative offset 
 
     const t1Size = 18;
     const t2Size = 15;
@@ -531,9 +543,24 @@ export class PdfGeneratorService {
     doc.setFont(undefined, 'bold');
     doc.setFontSize(t1Size);
     doc.text(objectData.displayTitle, currX, currY);
+
+    /* Data object ID */
+    currY += offsetT1;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Object ID', currX, currY);
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(textSize);
+    
+    currY += offsetT2;
+    currY = this.makeTable([
+      [
+        { content: (objectData.sdOid ? objectData.sdOid : 'Missing object ID'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
+      ]
+    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     
     /* General data */
-    currY += offsetT1;
+    currY += offsetSection;
     currY = this.makeTable([
       [
         { content: 'Parent Study ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
@@ -545,7 +572,7 @@ export class PdfGeneratorService {
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
     
-    currY += offsetTables;
+    currY += offsetT2;
     currY = this.makeTable([
       [
         { content: 'Organisation', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
@@ -559,7 +586,7 @@ export class PdfGeneratorService {
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
 
-    currY += offsetTables;
+    currY += offsetT2;
     currY = this.makeTable([
       [
         { content: 'Object Class', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
@@ -571,7 +598,7 @@ export class PdfGeneratorService {
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
 
-    currY += offsetTables;
+    currY += offsetT2;
     currY = this.makeTable([
       [
         { content: 'Publication Year', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
@@ -583,7 +610,7 @@ export class PdfGeneratorService {
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
     
-    currY += offsetTables;
+    currY += offsetT2;
     currY = this.makeTable([
       [
         { content: 'Managing Organisation', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
@@ -608,7 +635,7 @@ export class PdfGeneratorService {
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
 
-    currY += offsetTables;
+    currY += offsetT2;
     doc.setFont(undefined, 'normal');
     doc.setFontSize(textSize);
     if (objectData.accessDetailsUrl) {
@@ -638,7 +665,7 @@ export class PdfGeneratorService {
         ],
       ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
       
-      currY += offsetTables;
+      currY += offsetT2;
       currY = this.makeTable([
         [
           { content: 'Anonymisation Details', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
@@ -671,7 +698,7 @@ export class PdfGeneratorService {
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
 
-    currY += offsetTables;
+    currY += offsetT2;
     currY = this.makeTable([
       [
         { content: 'Research Type Related', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
@@ -685,7 +712,7 @@ export class PdfGeneratorService {
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
 
-    currY += offsetTables;
+    currY += offsetT2;
     currY = this.makeTable([
       [
         { content: 'Details', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
@@ -702,7 +729,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.text('Object Instances', currX, currY);
 
-    currY += offsetT2;
+    currY += offsetT3;
     if (objectData.objectInstances.length > 0) {
       objectData.objectInstances.forEach(instance => {
         currY = this.makeTable([
@@ -714,7 +741,7 @@ export class PdfGeneratorService {
         ]
         , doc, currX, currY, 'plain', {cellPadding: 0}, {});
 
-        currY += offsetTables;
+        currY += offsetLinkedTables;
         currY = this.makeTable([
           [
             { content: 'Repository Organisation', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: textSize } },
@@ -726,8 +753,8 @@ export class PdfGeneratorService {
         ]
         , doc, currX, currY, 'grid', {}, {});
 
+        currY += offsetLinkedTables;
         // TODO: make URL clickable: https://github.com/simonbengtsson/jsPDF-AutoTable/issues/167
-        currY += offsetTables;
         currY = this.makeTable([
           [
             { content: 'Access Details: Direct Access', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t4Size } },
@@ -740,7 +767,7 @@ export class PdfGeneratorService {
         ]
         , doc, currX, currY, 'grid', {}, {});
 
-        currY += offsetTables;
+        currY += offsetLinkedTables;
         currY = this.makeTable([
           [
             { content: 'Resource Details: Resource Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t4Size } },
@@ -754,7 +781,7 @@ export class PdfGeneratorService {
         ]
         , doc, currX, currY, 'grid', {}, {});
 
-        currY += offsetTables;
+        currY += offsetLinkedTables;
         currY = this.makeTable([
           [
             { content: 'Comments', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t4Size } },

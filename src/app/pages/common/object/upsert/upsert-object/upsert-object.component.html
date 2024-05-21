@@ -7,8 +7,8 @@
                 </div>
                 <div class="col-md-8 text-right">
                     <ng-container *ngIf="isView">
-                        <ng-container *ngIf="showEdit">
-                            <a [routerLink]="['/data-objects', id, 'edit']" class="btn btn-primary mr-1">
+                        <ng-container *ngIf="showEdit || isManager">
+                            <a [routerLink]="['/data-objects', sdOid, 'edit']" class="btn btn-primary mr-1">
                                 <i class="fa fa-edit"></i> Edit
                             </a>
                         </ng-container>
@@ -36,6 +36,12 @@
 
     <div class="card-body">
         <form [formGroup]="objectForm">
+            <div class="row form-group">
+                <div class="col-md-6">
+                    <label for="objectId" class="font-style text-capitalize">data object id</label>
+                    <h6 id="objectId" style="font-weight: 100;">{{sdOid}}</h6>
+                </div>
+            </div>
             <div class="row form-group">
                 <div class="col-md-8">
                     <label for="studyId" class="font-style text-capitalize">parent study <sup>*</sup> </label>
@@ -332,21 +338,21 @@
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object instance(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-instance [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
+                        <app-object-instance [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="objectData?.objectTitles?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectTitles?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object title(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-title [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-title>
+                        <app-object-title [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-title>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="objectData?.objectDates?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectDates?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object date(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-date [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-date>
+                        <app-object-date [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-date>
                     </mat-expansion-panel>
                     <hr />
                     <ng-container *ngIf="showTopic">
@@ -354,7 +360,7 @@
                             <mat-expansion-panel-header>
                                 <h6 class="pt-3 font-style">Object contributor(s)</h6>
                             </mat-expansion-panel-header>
-                            <app-object-contributor [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-contributor>
+                            <app-object-contributor [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-contributor>
                         </mat-expansion-panel>
                         <hr />
                     </ng-container>
@@ -363,7 +369,7 @@
                             <mat-expansion-panel-header>
                                 <h6 class="pt-3 font-style">Object topic(s)</h6>
                             </mat-expansion-panel-header>
-                            <app-object-topic [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-topic>
+                            <app-object-topic [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-topic>
                         </mat-expansion-panel>
                         <hr />
                     </ng-container>
@@ -371,28 +377,28 @@
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object identifier(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-identifier [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-identifier>
+                        <app-object-identifier [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-identifier>
                     </mat-expansion-panel>        
                     <hr />
                     <mat-expansion-panel [expanded]="objectData?.objectDescriptions?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectDescriptions?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object descriptions(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-description [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-description>
+                        <app-object-description [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-description>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="objectData?.objectRights?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectRights?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object right(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-right [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-right>
+                        <app-object-right [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-right>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="objectData?.objectRelationships?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectRelationships?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object relationship(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-relationship [objectId]="id" [isView]="isView" [isEdit]="isEdit"></app-object-relationship>
+                        <app-object-relationship [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-relationship>
                     </mat-expansion-panel>
                     <hr />
                 </div>

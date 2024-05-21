@@ -7,8 +7,8 @@
                 </div>
                 <div class="col-md-8 text-right">
                     <ng-container *ngIf="isView">
-                        <ng-container *ngIf="showEdit">
-                            <a [routerLink]="['/studies', id, 'edit']" class="btn btn-primary mr-1">
+                        <ng-container *ngIf="showEdit || isManager">
+                            <a [routerLink]="['/studies', sdSid, 'edit']" class="btn btn-primary mr-1">
                                 <i class="fa fa-edit"></i> Edit
                             </a>
                         </ng-container>
@@ -52,17 +52,8 @@
             <ng-container *ngIf="!(addType==='usingTrialId')">
                 <div class="row form-group">
                     <div class="col-md-6">
-                        <label for="studyId" class="font-style text-capitalize">study id <sup>*</sup> </label>
-                        <ng-container *ngIf="!(isView || isEdit); else displayId">
-                            <input type="text" class="form-control" id="studyId" formControlName="sdSid" [ngClass]="{ 'is-invalid': isSubmitted && g.sdSid.errors }">
-                            <small>Study ID should start with 'RMS-' followed by alphanumeric value, e.g. RMS-mystudy1</small>
-                            <div *ngIf="isSubmitted && g.sdSid.errors" class="invalid-feedback">
-                                <p *ngIf="g.sdSid.errors.pattern">Please enter the ID in the correct pattern</p>
-                            </div>
-                        </ng-container>
-                        <ng-template #displayId>
-                            <h6 id="studyId" style="font-weight: 100;">{{studyData?.sdSid}}</h6>
-                        </ng-template>
+                        <label for="studyId" class="font-style text-capitalize">study id</label>
+                        <h6 id="studyId" style="font-weight: 100;">{{sdSid}}</h6>
                     </div>
                 </div>
                 <div class="row form-group">
@@ -218,14 +209,14 @@
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study identifier(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-study-identifier [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-identifier>
+                        <app-study-identifier [studyId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-study-identifier>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="studyData?.studyTitles?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyTitles?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study title(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-study-title [studyId]="id" [isView]="isView" [isEdit]="isEdit" [publicTitle]="publicTitle"></app-study-title>
+                        <app-study-title [studyId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit" [publicTitle]="publicTitle"></app-study-title>
                     </mat-expansion-panel>
                     <hr />
                     <ng-container *ngIf="studyType === 'interventional' || studyType === 'observational'">
@@ -233,7 +224,7 @@
                             <mat-expansion-panel-header>
                                 <h6 class="pt-3 font-style">Study feature(s)</h6>
                             </mat-expansion-panel-header>
-                            <app-study-feature [studyId]="id" [isView]="isView" [isEdit]="isEdit" [studyType]="studyType" *ngIf="studyType"></app-study-feature>
+                            <app-study-feature [studyId]="id" *ngIf="id && studyType" [isView]="isView" [isEdit]="isEdit" [studyType]="studyType"></app-study-feature>
                         </mat-expansion-panel>
                         <hr />
                     </ng-container>
@@ -241,21 +232,21 @@
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study topic(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-study-topic [studyId]="id" [isView]="isView" [isEdit]="isEdit" ></app-study-topic>
+                        <app-study-topic [studyId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit" ></app-study-topic>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="studyData?.studyRelationships?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyRelationships?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study relationship(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-study-relationship [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-relationship>
+                        <app-study-relationship [studyId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-study-relationship>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="studyData?.studyContributors?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyContributors?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Study contributor(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-study-contributor [studyId]="id" [isView]="isView" [isEdit]="isEdit"></app-study-contributor>
+                        <app-study-contributor [studyId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-study-contributor>
                     </mat-expansion-panel>
                 </div>
                 <hr />

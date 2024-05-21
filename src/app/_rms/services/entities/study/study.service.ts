@@ -23,21 +23,23 @@ export class StudyService {
   }
 
   
-  // study data - study table data only 
-
+  // study data
+  
   addStudy(payload) {
     // note inclusion of explicit sdSid in call
     return this.http.post(`${base}/mdm/studies`, payload);
   }
-  getStudyById(sdSid) {
-    return this.http.get(`${base}/mdm/studies/${sdSid}`);
+  getStudyById(id) {
+    return this.http.get(`${base}/mdm/studies/${id}`);
   }
-  editStudy(sdSid, payload) {
-    return this.http.put(`${base}/mdm/studies/${sdSid}`, payload);
+  getNextStudySdSid() {
+    return this.http.get(`${base}/mdm/studies/next-id`);
   }
-  deleteStudyById(sdSid) {
-    // full delete would normally be more useful
-    return this.http.delete(`${base}/mdm/studies/${sdSid}`);
+  editStudy(id, payload) {
+    return this.http.put(`${base}/mdm/studies/${id}`, payload);
+  }
+  deleteStudyById(id) {
+    return this.http.delete(`${base}/mdm/studies/${id}`);
   }
 
 

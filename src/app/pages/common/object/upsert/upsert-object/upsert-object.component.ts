@@ -41,7 +41,8 @@ export class UpsertObjectComponent implements OnInit {
   languageCodes: [] = [];
   organisations: [] = [];
   organisationName: string;
-  id: any;
+  id: string;
+  sdOid: string;
   objectData: DataObjectInterface;
   subscription: Subscription = new Subscription();
   initiateEmit: boolean = false;
@@ -140,6 +141,7 @@ export class UpsertObjectComponent implements OnInit {
 
     this.isManager = this.statesService.isManager();
     this.orgId = this.statesService.currentAuthOrgId;
+    this.sdOid = this.activatedRoute.snapshot.params.id;
     if (!this.isManager) {
       this.objectForm.get('objectType').setValidators(Validators.required);
     }
@@ -148,16 +150,18 @@ export class UpsertObjectComponent implements OnInit {
 
     // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
     // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
+    if (this.isAdd) {
+      queryFuncs.push(this.getNextDOSdOid());
+    }
+
     if ((this.isEdit || this.isAdd) && (this.isManager)) {
       queryFuncs.push(this.getOrganisations());
     }
     if (this.isEdit || this.isView) {
-      this.id = this.activatedRoute.snapshot.params.id;
-      queryFuncs.push(this.getObjectById(this.id));
+      queryFuncs.push(this.getObjectById(this.sdOid));
     }
     if (this.isView) {
-      this.scrollService.handleScroll([`/data-objects/${this.id}/view`]);
-      queryFuncs.push(this.getEditAuth(this.id));
+      this.scrollService.handleScroll([`/data-objects/${this.sdOid}/view`]);
     }
     // Queries required even for view because of pdf/json exports
     queryFuncs.push(this.getResourceTypes());
@@ -198,15 +202,14 @@ export class UpsertObjectComponent implements OnInit {
       this.setSizeUnits(res.pop());
       this.setResourceTypes(res.pop());
 
-      // Check if user allowed to edit the study, in which case edit button is shown (for view)
-      if (this.isView) {
-        this.setEditAuth(res.pop());
-      }
       if (this.isEdit || this.isView) {
         this.setObjectById(res.pop());
       }
       if ((this.isEdit || this.isAdd) && this.isManager) {
         this.setOrganisations(res.pop());
+      }
+      if (this.isAdd) {
+        this.setDOSdOid(res.pop());
       }
 
       // TODO: still too early
@@ -215,28 +218,24 @@ export class UpsertObjectComponent implements OnInit {
       });
     });
   }
+
   get g() { return this.objectForm.controls; }
+
   public static isShowTopicType(objectType) {
     /* Object contributors and topics components appear only for specific object types */
     return UpsertObjectComponent.showTopicTypes.includes(objectType.toLowerCase());
   }
-  getEditAuth(sdOid: string) {
-    let edit$: Observable<boolean>;
-    if (this.isManager) {
-      edit$ = of(true);
-    } else if (this.isBrowsing) {
-      edit$ = of(false);
-    } else {
-      edit$ = this.objectService.getDataObjectById(sdOid).pipe(
-        switchMap((res: DataObjectInterface) => {
-          return of(res.organisation.id === this.orgId);
-        })
-      )
-    }
-    return edit$;
+
+  getNextDOSdOid() {
+    return this.objectService.getNextDOSdOid();
   }
-  setEditAuth(isAuth: boolean) {
-    this.showEdit = isAuth;
+  setDOSdOid(sdOidRes) {
+    if ('sdOid' in sdOidRes) {
+      this.sdOid = sdOidRes['sdOid'];
+      this.objectForm.patchValue({
+        'sdOid': sdOidRes['sdOid']
+      });
+    }
   }
   getStudyList() {
     let studyList$: Observable<Object>;
@@ -338,7 +337,12 @@ export class UpsertObjectComponent implements OnInit {
   setObjectById(objectData) {
     if (objectData) {
       this.objectData = objectData;
+      this.id = objectData.id;
       this.organisationName = objectData.organisation?.defaultName;
+      // Check if user allowed to edit the object, in which case edit button is shown (for view)
+      if (this.objectData.organisation?.id === this.orgId) {
+        this.showEdit = true;
+      }
       this.patchObjectForm();
     }
   }
@@ -405,7 +409,7 @@ export class UpsertObjectComponent implements OnInit {
     this.isSubmitted = true;
     if (this.objectForm.valid) {
       const payload = {
-        sdOid: this.id,
+        sdOid: this.sdOid,
         displayTitle: this.objectForm.value.displayTitle,
         version: this.objectForm.value.version,
         doi: this.objectForm.value.doi,

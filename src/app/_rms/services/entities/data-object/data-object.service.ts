@@ -25,19 +25,17 @@ export class DataObjectService {
   getDataObjectById(sdOid) {
     return this.http.get(`${base}/mdm/data-objects/${sdOid}`);
   }
-  getBrowsingDataObjectById(sdOid) {
-    return this.http.get(`${base}/browsing/data-objects/full/${sdOid}`);
+  getNextDOSdOid() {
+    return this.http.get(`${base}/mdm/data-objects/next-id`);
   }
   addDataObject(payload) {
-    // note inclusion of parent sdSid in call
     return this.http.post(`${base}/mdm/data-objects`, payload);
   }
-  editDataObject(sdOid, payload) {
-    return this.http.put(`${base}/mdm/data-objects/${sdOid}`, payload);
+  editDataObject(id, payload) {
+    return this.http.put(`${base}/mdm/data-objects/${id}`, payload);
   }
-  deleteDataObjectById(sdOid) {
-    // full delete would normally be more useful
-    return this.http.delete(`${base}/mdm/data-objects/${sdOid}`);
+  deleteDataObjectById(id) {
+    return this.http.delete(`${base}/mdm/data-objects/${id}`);
   }
   
 
