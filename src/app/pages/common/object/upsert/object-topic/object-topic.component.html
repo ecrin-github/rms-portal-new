@@ -73,7 +73,7 @@
                                     <option value=false>No</option>
                                     <option value=true>Yes</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectTopic.value.meshCoded}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{(objectTopic.value.meshCoded==='true' || objectTopic.value.meshCoded===true) ? 'Yes' : 'No'}}</h6>
                             </div>
                         </div>
 

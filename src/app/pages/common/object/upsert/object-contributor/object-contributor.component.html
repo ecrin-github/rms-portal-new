@@ -33,9 +33,9 @@
                                     <option value=false>No</option>
                                     <option value=true>Yes</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.isIndividual}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{(objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true) ? 'Yes' : 'No'}}</h6>
                             </div>
-                            <div class="col-md-6" *ngIf="isIndividual[i] ? isIndividual[i] : ( objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true)">
+                            <div class="col-md-6" *ngIf="isIndividual[i] ? isIndividual[i] : (objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true)">
                                 <label for="contributorType" class="font-style text-capitalize">Contributor type</label>
                                 <select class="form-control" id="contributorType" formControlName="contributorType" *ngIf="!isView">
                                     <option selected disabled value="null">Please select the contributor type</option>
@@ -62,7 +62,7 @@
                                     notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.organisation}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(objectContributor.value.organisation)}}</h6>
                             </div>
                         </div>
                         <div class="row form-group" *ngIf="isIndividual[i] ? isIndividual[i] : ( objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true)">
@@ -90,7 +90,7 @@
                                     notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.organisation}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(objectContributor.value.organisation)}}</h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">
