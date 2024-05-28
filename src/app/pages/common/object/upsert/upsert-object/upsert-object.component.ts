@@ -467,7 +467,7 @@ export class UpsertObjectComponent implements OnInit {
             this.toastr.error(error.error.title);
           })
         }
-      } else {
+      } else {  // this.isAdd
         if (payload.linkedStudy === null || payload.linkedStudy === undefined) {
           this.spinner.hide();
           this.toastr.error("You have to specify linked study");

@@ -31,12 +31,12 @@
 
       <ng-container matColumnDef="sdSid">
         <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-        <mat-cell *matCellDef="let row"> <a [routerLink]="['/studies', row.id, 'view']">{{row.sdSid}} </a></mat-cell>
+        <mat-cell *matCellDef="let row"> <a [routerLink]="['/studies', row.sdSid, 'view']">{{row.sdSid}} </a></mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="title">
         <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
-        <mat-cell *matCellDef="let row"><a [routerLink]="['/studies', row.id, 'view']">{{row.displayTitle}}</a> </mat-cell>
+        <mat-cell *matCellDef="let row"><a [routerLink]="['/studies', row.sdSid, 'view']">{{row.displayTitle}}</a> </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="type">

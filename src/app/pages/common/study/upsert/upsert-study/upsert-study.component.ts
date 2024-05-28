@@ -518,10 +518,10 @@ export class UpsertStudyComponent implements OnInit {
               this.reuseService.notifyComponents();
               this.back();
             } else {
-              this.toastr.error(res.messages[0], "Study adding error");
+              this.toastr.error(res.message, "Study adding error");
             }
           }, error => {
-            this.toastr.error(error.messages[0], error.error.title);
+            this.toastr.error(error.message, 'Error adding study');
           })
         }
       } else {
