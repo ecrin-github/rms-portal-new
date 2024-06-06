@@ -1,7 +1,7 @@
 import { appVersion } from './version';
 
 // Note: constants relating to LS AAI must be the same as the constants in the BE
-const baseUrl = 'https://api-test.ecrin-rms.org';  // No trailing slash
+const baseUrl = 'https://api-dsr.ecrin.org';  // No trailing slash
 export const environment = {
   production: true,
   // LS AAI V2
@@ -16,7 +16,7 @@ export const environment = {
   appTitle: 'crDSR: Data Sharing Repository',
   baseUrl: baseUrl,
   baseUrlApi: baseUrl + '/api',  // No trailing slash
-  wsBaseUrl: 'wss://api-test.ecrin-rms.org/',
+  wsBaseUrl: 'wss://api-dsr.ecrin.org/',
   apiUrl: 'api',
   apiVersion: 'v1'
 };
