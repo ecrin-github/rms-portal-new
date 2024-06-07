@@ -10,7 +10,7 @@ import {StudyTopicInterface} from './study-topic.interface';
 
 
 export interface StudyInterface {
-    id: number | null;
+    id: string | null;
     sdSid: string | null;
     mdrSdSid: string | null;
     mdrSourceId: number | null;

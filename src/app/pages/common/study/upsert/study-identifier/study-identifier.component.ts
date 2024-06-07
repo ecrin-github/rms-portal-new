@@ -48,8 +48,8 @@ export class StudyIdentifierComponent implements OnInit {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getIdentifierType();
     this.getOrganization();
-    if(this.isEdit || this.isView) {
-      this.getStudyIdentifier();
+    if (this.isEdit || this.isView) {
+      this.getStudyIdentifiers();
     }
   }
   studyIdentifiers(): UntypedFormArray {
@@ -124,7 +124,7 @@ export class StudyIdentifierComponent implements OnInit {
       this.toastr.error(error.error.title);
     });
   }
-  getStudyIdentifier() {
+  getStudyIdentifiers() {
     this.studyService.getStudyIdentifiers(this.studyId).subscribe((res:any) => {
       if(res && res.results) {
         this.studyIdentifier = res.results.length ? res.results : [];
@@ -166,7 +166,7 @@ export class StudyIdentifierComponent implements OnInit {
       this.spinner.hide();
       if (res.statusCode === 201) {
         this.toastr.success('Study Identifier added successfully');
-        this.getStudyIdentifier();
+        this.getStudyIdentifiers();
       } else {
         this.toastr.error(res.messages[0]);
       }
@@ -183,7 +183,7 @@ export class StudyIdentifierComponent implements OnInit {
       this.spinner.hide();
       if(res.statusCode === 200) {
         this.toastr.success('Study Identifier updated successfully');
-        this.getStudyIdentifier();
+        this.getStudyIdentifiers();
       } else {
         this.toastr.error(res.messages[0]);
       }

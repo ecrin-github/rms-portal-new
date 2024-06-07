@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest, Observable, of, Subscription } from 'rxjs';
-import { catchError, finalize, switchMap } from 'rxjs/operators';
+import { catchError, finalize, mergeMap } from 'rxjs/operators';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyInterface } from 'src/app/_rms/interfaces/study/study.interface';
 import { BackService } from 'src/app/_rms/services/back/back.service';
@@ -37,7 +37,8 @@ export class UpsertStudyComponent implements OnInit {
   trialRegistries: any;
   subscription: Subscription = new Subscription();
   isSubmitted: boolean = false;
-  id: any;
+  id: string;
+  sdSid: string;
   organisationName: string;
   organisations: Array<OrganisationInterface>;
   studyData: StudyInterface;
@@ -47,7 +48,7 @@ export class UpsertStudyComponent implements OnInit {
   monthValues = [{id:'1', name:'January'}, {id:'2', name:'February'}, {id:'3', name: 'March'}, {id:'4', name: 'April'}, {id:'5', name: 'May'}, {id:'6', name: 'June'}, {id:'7', name: 'July'}, {id:'8', name: 'August'}, {id:'9', name: 'September'}, {id:'10', name: 'October'}, {id:'11', name:'November'}, {id:'12', name: 'December'}];
   sticky: boolean = false;
   studyType: string = '';
-  addType: string = 'manual';
+  addType: string = '';
   registryId: number;
   trialId: string;
   identifierTypes: [] = [];
@@ -80,7 +81,7 @@ export class UpsertStudyComponent implements OnInit {
               private listService: ListService,
               private backService: BackService) {
     this.studyForm = this.fb.group({
-      sdSid: ['RMS-', Validators.required],
+      sdSid: '',
       displayTitle: ['', Validators.required],
       briefDescription: '',
       dataSharingStatement: '',
@@ -111,6 +112,7 @@ export class UpsertStudyComponent implements OnInit {
 
     this.isManager = this.statesService.isManager();
     this.orgId = this.statesService.currentAuthOrgId;
+    this.sdSid = this.activatedRoute.snapshot.params.id;
 
     this.isEdit = this.router.url.includes('edit');
     this.isView = this.router.url.includes('view');
@@ -121,9 +123,6 @@ export class UpsertStudyComponent implements OnInit {
       this.studyForm.get('studyStatus').setValidators(Validators.required);
       this.studyForm.get('studyStartYear').setValidators(Validators.required);
     }
-    if (this.isAdd) {
-      this.studyForm.get('sdSid').setValidators(Validators.pattern(/^(RMS-)(?=[^0-9]*[0-9])/));
-    }
 
     let queryFuncs: Array<Observable<any>> = [];
 
@@ -131,18 +130,27 @@ export class UpsertStudyComponent implements OnInit {
     // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
     if (this.isAdd) {
       queryFuncs.push(this.getOrganisation(this.orgId));
+      // Getting new study ID if manual add
+      queryFuncs.push(this.getQueryParams());
     }
     if ((this.isEdit || this.isAdd) && this.isManager) {
       queryFuncs.push(this.getOrganisations());
     }
+
+    // Need to pipe both getStudy and getAssociatedObjects because they need to be completed in order
     if (this.isEdit || this.isView) {
-      this.id = this.activatedRoute.snapshot.params.id;
-      queryFuncs.push(this.getStudyById(this.id));
-      queryFuncs.push(this.getAssociatedObjects(this.id));
+      queryFuncs.push(this.getStudyById(this.sdSid).pipe(
+        mergeMap((res: StudyInterface) => {
+          if (res) {
+            this.setStudyById(res);
+          }
+          return this.getAssociatedObjects(this.id);
+        })
+      ));
     }
+
     if (this.isView) {
-      this.scrollService.handleScroll([`/studies/${this.id}/view`]);
-      queryFuncs.push(this.getEditAuth(this.id));
+      this.scrollService.handleScroll([`/studies/${this.sdSid}/view`]);
     }
     // Queries required even for view because of pdf/json exports
     queryFuncs.push(this.getStudyTypes());
@@ -175,18 +183,15 @@ export class UpsertStudyComponent implements OnInit {
       this.setGenderEligibility(res.pop());
       this.setStudyTypes(res.pop());
 
-      // Check if user allowed to edit the study, in which case edit button is shown (for view)
-      if (this.isView) {
-        this.setEditAuth(res.pop());
-      }
       if (this.isEdit || this.isView) {
+        // setStudyById not used here, see above
         this.setAssociatedObjects(res.pop());
-        this.setStudyById(res.pop());
       }
       if ((this.isEdit || this.isAdd) && this.isManager) {
         this.setOrganisations(res.pop());
       }
       if (this.isAdd) {
+        this.setStudySdSid(res.pop());
         this.setOrganisation(res.pop());
       }
 
@@ -194,35 +199,33 @@ export class UpsertStudyComponent implements OnInit {
         this.spinner.hide();
       });
     });
+  }
 
-    // TODO: works using trial id?
-    this.activatedRoute.queryParams.subscribe(params => {
-      if (params.type) {
-        this.addType = params.type;
-      }
-    })
-    if (this.addType === 'usingTrialId') {
-      this.getTrialRegistries();
-    }
-  }
   get g() { return this.studyForm.controls; }
-  getEditAuth(sdSid: string) {
-    let edit$: Observable<boolean>;
-    if (this.isManager) {
-      edit$ = of(true);
-    } else if (this.isBrowsing) {
-      edit$ = of(false);
-    } else {
-      edit$ = this.studyService.getStudyById(sdSid).pipe(
-        switchMap((res: StudyInterface) => {
-          return of(res.organisation.id === this.orgId);
-        })
-      )
-    }
-    return edit$;
+
+  getQueryParams() {
+    return this.activatedRoute.queryParams.pipe(
+      mergeMap(params => {
+        if (params.type) {
+          this.addType = params.type;
+          if (this.addType.toLowerCase() === 'manual') {
+            return this.getNextStudySdSid();
+          }
+        }
+        return of({});
+      })
+    );
   }
-  setEditAuth(isAuth: boolean) {
-    this.showEdit = isAuth;
+  getNextStudySdSid() {
+    return this.studyService.getNextStudySdSid();
+  }
+  setStudySdSid(sdSidRes) {
+    if ('sdSid' in sdSidRes) {
+      this.sdSid = sdSidRes['sdSid'];
+      this.studyForm.patchValue({
+        'sdSid': sdSidRes['sdSid']
+      });
+    }
   }
   getStudyTypes() {
     return this.studyLookupService.getStudyTypes(this.pageSize);
@@ -263,7 +266,6 @@ export class UpsertStudyComponent implements OnInit {
         });
       }
     }
-    
   }
   getStudyById(id) {
     return this.studyService.getStudyById(id);
@@ -273,6 +275,11 @@ export class UpsertStudyComponent implements OnInit {
       this.studyData = studyData;
       this.organisationName = studyData.organisation?.defaultName;
       this.studyType = studyData.studyType?.name.toLowerCase();
+      this.id = studyData.id;
+      // Check if user allowed to edit the study, in which case edit button is shown (for view)
+      if (this.isView && studyData.organisation?.id === this.orgId) {
+        this.showEdit = true;
+      }
       this.patchStudyForm();
     }
   }
@@ -471,7 +478,7 @@ export class UpsertStudyComponent implements OnInit {
     if (localStorage.getItem('updateStudyList')) {
       localStorage.removeItem('updateStudyList');
     }
-    if (this.addType === 'manual') {
+    if (this.addType === 'manual' || this.isEdit) {
       this.isSubmitted = true;
       if (this.studyForm.valid) {
         this.studyForm.patchValue({
@@ -511,10 +518,10 @@ export class UpsertStudyComponent implements OnInit {
               this.reuseService.notifyComponents();
               this.back();
             } else {
-              this.toastr.error(res.messages[0], "Study adding error");
+              this.toastr.error(res.message, "Study adding error");
             }
           }, error => {
-            this.toastr.error(error.messages[0], error.error.title);
+            this.toastr.error(error.message, 'Error adding study');
           })
         }
       } else {
@@ -524,7 +531,7 @@ export class UpsertStudyComponent implements OnInit {
       this.count = 0;
     }
     if (this.addType === 'usingTrialId') {
-      // TODO?
+      // TODO
       this.spinner.show();
       this.studyService.getFullStudyFromMdr(this.registryId, this.trialId).subscribe((res: any) => {
         if (res.statusCode === 200) {

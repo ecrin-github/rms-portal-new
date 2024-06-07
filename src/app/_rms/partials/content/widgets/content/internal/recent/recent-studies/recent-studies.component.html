@@ -7,9 +7,11 @@
       <span class="text-muted mt-3 font-weight-bold font-size-sm">Showing the 10 most recently added studies, from a total of {{studyTotal}}.</span>
     </h3>
     <div class="card-toolbar">
-      <!-- <a [routerLink]="['/studies', 'add']"
-        class="btn btn-success font-weight-bolder font-size-sm mr-3">Add</a> -->
-        <div class="btn-group pr-2">
+        <a [routerLink]="['/studies', 'add']" [queryParams]="{type: 'manual'}" class="btn btn-success font-weight-bolder font-size-sm mr-3">
+          Add
+        </a>
+        <!-- Adding using trial ID removed for now -->
+        <!-- <div class="btn-group pr-2">
           <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Add
           </button>
@@ -17,7 +19,7 @@
             <a class="dropdown-item" href="/studies/add?type=usingTrialId">Using Trial Registry</a>
             <a class="dropdown-item" href="/studies/add?type=manual">Manually</a>
           </div>
-        </div>
+        </div> -->
         <a [routerLink]="['/studies']" class="btn btn-info font-weight-bolder font-size-sm">See All</a>
     </div>
   </div>
@@ -29,12 +31,12 @@
 
       <ng-container matColumnDef="sdSid">
         <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
-        <mat-cell *matCellDef="let row"> <a [routerLink]="['/studies', row.id, 'view']">{{row.sdSid}} </a></mat-cell>
+        <mat-cell *matCellDef="let row"> <a [routerLink]="['/studies', row.sdSid, 'view']">{{row.sdSid}} </a></mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="title">
         <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
-        <mat-cell *matCellDef="let row"><a [routerLink]="['/studies', row.id, 'view']">{{row.displayTitle}}</a> </mat-cell>
+        <mat-cell *matCellDef="let row"><a [routerLink]="['/studies', row.sdSid, 'view']">{{row.displayTitle}}</a> </mat-cell>
       </ng-container>
 
       <ng-container matColumnDef="type">
