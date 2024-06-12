@@ -42,7 +42,7 @@
                             <div class="col-md-6">
                                 <label for="contributorType" class="font-style text-capitalize">Contributor type</label>
                                 <ng-select [items]="contributorTypes" formControlName="contributorType" placeholder="Please select the contributor type"
-                                        [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" 
+                                        [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" 
                                         notFoundText="No members found" [compareWith]="compareTypes" [searchFn]="customSearchTypes" *ngIf="!isView">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{ item.name }}
@@ -64,7 +64,7 @@
                                 <div *ngIf="isIndividual[i] ? isIndividual[i] : ( studyContributor.value.isIndividual==='true' || studyContributor.value.isIndividual===true)">
                                     <label for="person" class="font-style text-capitalize">Person</label>
                                     <ng-select [items]="personList" formControlName="person" [multiple]="false" [virtualScroll]="true" 
-                                        class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
+                                        class="form-control ng-form-control" notFoundText="No members found"
                                         [compareWith]="comparePersons" [searchFn]="customSearchPersons" placeholder="Please select a person" *ngIf="!isView">
                                         <ng-template ng-label-tmp let-item="item">
                                             {{item.firstName}} {{item.lastName}}
@@ -83,7 +83,7 @@
                             <div class="col-md-6">
                                 <label for="organisationName" class="font-style text-capitalize">Organisation</label>
                                 <ng-select [items]="organizationList" formControlName="organisation" [multiple]="false" [virtualScroll]="true" 
-                                    class="form-control ng-form-control" appendTo="body" notFoundText="No members found" placeholder="Please select organisation"
+                                    class="form-control ng-form-control" notFoundText="No members found" placeholder="Please select organisation"
                                     [compareWith]="compareOrganisations" *ngIf="!isView" [searchFn]="customSearchOrganisations">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.defaultName}}

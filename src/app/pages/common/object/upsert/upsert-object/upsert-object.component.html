@@ -46,7 +46,7 @@
                 <div class="col-md-8">
                     <label for="studyId" class="font-style text-capitalize">parent study <sup>*</sup> </label>
                     <ng-select id="study" [items]="studyList" formControlName="linkedStudy"
-                    [compareWith]="compareStudies" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body"
+                    [compareWith]="compareStudies" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                     notFoundText="No study found" placeholder="Please select parent study" [searchFn]="customSearchStudies" 
                     *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.linkedStudy.errors }" (change)="onChangeParentStudy()">
                         <ng-template ng-label-tmp let-item="item">
@@ -130,7 +130,7 @@
             <div class="row form-group">
                 <div class="col-md-6">
                     <label for="publicationYear" class="font-style text-capitalize">Publication year</label>
-                    <p-calendar appendTo="body" class="calendar" [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" id="publicationYear" formControlName="publicationYear" view="year" dateFormat="yy" *ngIf="!isView" placeholder="Enter publication year"></p-calendar>
+                    <p-calendar class="calendar" [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}" id="publicationYear" formControlName="publicationYear" view="year" dateFormat="yy" *ngIf="!isView" placeholder="Enter publication year"></p-calendar>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.publicationYear}}</h6>
                 </div>
                 <div class="col-md-6">
@@ -146,7 +146,7 @@
                 <div class="col-md-6">
                     <label for="managingOrg" class="font-style text-capitalize">Managing organisation</label>
                     <ng-select [items]="organisations" bindLabel="defaultName" bindValue="id"
-                        formControlName="managingOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body"
+                        formControlName="managingOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                         notFoundText="No members found" placeholder="Select Organisation"
                         *ngIf="!isView">
                     </ng-select>
