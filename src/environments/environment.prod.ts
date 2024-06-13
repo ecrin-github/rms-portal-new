@@ -18,5 +18,6 @@ export const environment = {
   baseUrlApi: baseUrl + '/api',  // No trailing slash
   wsBaseUrl: 'wss://api-dsr.ecrin.org/',
   apiUrl: 'api',
+  tsdUploadPath: 'prod',
   apiVersion: 'v1'
 };

@@ -1088,14 +1088,13 @@ export class UpsertDtpComponent implements OnInit {
   }
   goToTsd(instance) {
     this.oidcSecurityService.getAccessToken().subscribe((userToken) => {
-      const headers = new HttpHeaders();
-      headers.set('Authorization', userToken);
-
-      this.http.get(`https://api-v2.ecrin-rms.org/api/data-objects/${instance.objectId}`, {headers}).subscribe(res => {
-        // @ts-ignore
-        const objectId = res['data'][0].id;
-        this.redirectService.postRedirect(instance.id, objectId, userToken);
-      });
+      if (instance.id && instance.objectId) {
+        // const headers = new HttpHeaders();
+        // headers.set('Authorization', userToken);
+        this.redirectService.postRedirect(instance.id, instance.objectId, userToken);
+      } else {
+        this.toastr.error('Object ID or Object instance ID is undefined, please try to refresh the page.', 'Data object upload error');
+      }
     });
   }
   goToDo(object) {

@@ -17,7 +17,8 @@ export const environment = {
   appTitle: 'crDSR: Data Sharing Repository',
   baseUrl: baseUrl,
   baseUrlApi: baseUrl + '/api',  // No trailing slash
-  wsBaseUrl: 'wss://api-test.ecrin-rms.org/',
+  wsBaseUrl: 'wss://api-dsr.ecrin.org/',
   apiUrl: 'api',
+  tsdUploadPath: 'test',
   apiVersion: 'v1'
 };
