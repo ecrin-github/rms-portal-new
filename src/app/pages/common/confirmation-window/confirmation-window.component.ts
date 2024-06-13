@@ -88,9 +88,6 @@ export class ConfirmationWindowComponent implements OnInit {
       case 'objectPreReqDtp':
         this.deletePreReqDtp();
         break;
-      case 'objectPreReqDup':
-        this.deletePreReqDup();
-        break;
       case 'objectEmbargo':
         this.deleteEmbargo();
         break;
@@ -234,7 +231,7 @@ export class ConfirmationWindowComponent implements OnInit {
       //   this.toastr.error(res.messages[0]);
       // }
     }, error => {
-      this.toastr.error(error.erro.title);
+      this.toastr.error(error.error.title);
     })
   }
   deleteObjectInstance() {
@@ -365,18 +362,6 @@ export class ConfirmationWindowComponent implements OnInit {
       // }
     }, error => {
       this.toastr.error(error.error.title);
-    })
-  }
-  deletePreReqDup() {
-    this.dupService.deleteDupObjectPrereq(this.id, this.objectId, this.dupId).subscribe((res: any) => {
-      // if (res.statusCode === 204) {
-        this.toastr.success('Pre-Requisite deleted successfully');
-        this.activeModal.close('data');
-      // } else {
-      //   this.toastr.error(res.messages[0]);
-      // }
-    }, error => {
-      this.toastr.error(error.erro.title);
     })
   }
   deletePeople() {

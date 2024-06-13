@@ -117,55 +117,6 @@
                 </div>
             </form>
         </ng-container>
-        <ng-container *ngIf="type === 'dupPrereq'">
-            <form [formGroup]="dupPreReqForm">
-                <div class="row form-group">
-                    <div class="col-md-12">
-                        <label for="object" class="font-style text-capitalize">Object</label>
-                        <ng-select [items]="objectList" bindLabel="sdOid" bindValue="sdOid" formControlName="sdOid"
-                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
-                            placeholder="Select object" [searchFn]="customSearchFn">
-                            <ng-template ng-label-tmp let-item="item">
-                                {{item.sdOid}}
-                            </ng-template>
-                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                                <div class="row m-0">
-                                    <div class="col-md-8 col-8 p-0 m-0">
-                                        <div class="col-md-12">{{item.sdOid}}</div>
-                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.displayTitle}}</div>
-                                    </div>
-                                </div>
-                            </ng-template>
-                        </ng-select>
-                    </div>
-                </div>
-                <div class="row form-group">
-                    <div class="col-md-6">
-                        <label for="notes" class="font-style text-capitalize">Pre-Requisite Type</label>
-                        <select id="preReqId" formControlName="preRequisiteId" class="form-control">
-                            <option [value]=preReqType.id *ngFor="let preReqType of preRequTypes">
-                                {{preReqType.name}}</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="notes" class="font-style text-capitalize">Note</label>
-                        <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="preRequisiteNotes"></textarea>
-                    </div>
-                </div>
-                <div class="row form-group">
-                    <div class="col-md-6">
-                        <label for="notes" class="font-style text-capitalize">Pre-Requisite met</label>
-                        <input class="form-control" placeholder="yyyy-mm-dd" name="preRequisiteMet" ngbDatepicker
-                            #preRequisiteMet="ngbDatepicker" (click)="preRequisiteMet.toggle()"
-                            formControlName="preRequisiteMet" [maxDate]="todayDate">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="notes" class="font-style text-capitalize">Pre-Requisite met Note</label>
-                        <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="metNotes"></textarea>
-                    </div>
-                </div>
-            </form>
-        </ng-container>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-primary" (click)="onSave()">Add</button>

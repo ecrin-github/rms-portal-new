@@ -29,7 +29,6 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 })
 export class UpsertDupComponent implements OnInit {
   form: UntypedFormGroup;
-  preReqForm: UntypedFormGroup;
   isEdit: boolean = false;
   isView: boolean = false;
   organizationList:[] = [];
@@ -48,7 +47,6 @@ export class UpsertDupComponent implements OnInit {
   buttonClick: any;
   showStatus: boolean = false;
   showVariations: boolean = false;
-  preRequTypes: [] = [];
   sticky: boolean = false;
   showButton: boolean = true;
   dupArr: any;
