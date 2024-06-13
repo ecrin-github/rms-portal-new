@@ -38,7 +38,11 @@
 
             <ng-container matColumnDef="dtpId">
                 <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{row.id}} </mat-cell>
+                <mat-cell *matCellDef="let row">
+                    <a [routerLink]="['/data-transfers', row.id, 'view']">
+                        {{row.id}}
+                    </a>
+                </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="organisation">

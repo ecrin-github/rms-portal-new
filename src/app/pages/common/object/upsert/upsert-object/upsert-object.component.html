@@ -44,7 +44,7 @@
             </div>
             <div class="row form-group">
                 <div class="col-md-8">
-                    <label for="studyId" class="font-style text-capitalize">parent study <sup>*</sup> </label>
+                    <label for="studyId" class="font-style text-capitalize">parent study<sup>*</sup></label>
                     <ng-select id="study" [items]="studyList" formControlName="linkedStudy"
                     [compareWith]="compareStudies" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                     notFoundText="No study found" placeholder="Please select parent study" [searchFn]="customSearchStudies" 
@@ -61,35 +61,35 @@
                             </div>
                         </ng-template>
                     </ng-select>
+                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.linkedStudy.errors">
+                        <p *ngIf="isSubmitted && g.linkedStudy.errors.required">Please select a parent study</p>
+                    </div>
                     <ng-container *ngIf="isView">
                         <ng-container *ngIf="objectData?.linkedStudy; else noLinkedStudy">
                             <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.linkedStudy?.id)" style="cursor: pointer;">
-                                <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy.displayTitle : 'None'}}</h6>
+                                <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy.sdSid : 'None'}}</h6>
                             </a>
                         </ng-container>
                         <ng-template #noLinkedStudy>
-                            <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy.displayTitle : 'None'}}</h6>
+                            <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy.sdSid : 'None'}}</h6>
                         </ng-template>
                     </ng-container>
                     <br *ngIf="isView || isEdit">
-                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.linkedStudy.errors">
-                        <p *ngIf="isSubmitted && g.linkedStudy.errors.required"> Please enter parent study ID</p>
-                    </div>  
                 </div>
                 <div class="col-md-4">
-                    <label for="organisationName" class="font-style text-capitalize">Organisation <sup>*</sup> </label>
+                    <label for="organisationName" class="font-style text-capitalize">Organisation<sup>*</sup></label>
                     <h6 id="organisationName" style="font-weight: 100;">{{organisationName ? organisationName : isView ? '' : 'Select parent study to update organisation'}}</h6>
                 </div>
             </div>
             <div class="row form-group" *ngIf="!isView">
                 <div class="col-md-12">
-                    <label for="displayTitle" class="font-style text-capitalize">title <sup>*</sup> </label>
+                    <label for="displayTitle" class="font-style text-capitalize">title<sup>*</sup></label>
                     <textarea id="displayTitle" cols="30" rows="3" class="form-control" placeholder="Please enter a good mnemonic reference for your data object"
                     formControlName="displayTitle" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.displayTitle.errors }"></textarea>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.displayTitle}}</h6>
                     <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.displayTitle.errors">
-                        <p *ngIf="isSubmitted && g.displayTitle.errors.required"> Please enter Object title</p>
-                    </div>  
+                        <p *ngIf="isSubmitted && g.displayTitle.errors.required">Please enter a title for the Data Object</p>
+                    </div>
                 </div>
             </div>
             <div class="row form-group">

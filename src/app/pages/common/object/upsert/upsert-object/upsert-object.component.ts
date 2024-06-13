@@ -460,7 +460,7 @@ export class UpsertObjectComponent implements OnInit {
               // this.getObjectById(this.id);
               this.reuseService.notifyComponents();
               this.spinner.hide();
-              this.back();
+              this.router.navigate([`/data-objects/${this.sdOid}/view`]);
             }
           }, error => {
             this.spinner.hide();
@@ -483,14 +483,18 @@ export class UpsertObjectComponent implements OnInit {
                       this.toastr.success('Data Object added successfully');
                       localStorage.setItem('updateObjectList', 'true');
                       this.reuseService.notifyComponents();
-                      this.back();
+                      if (res.sdOid) {
+                        this.router.navigate([`/data-objects/${res.sdOid}/view`]);
+                      } else {
+                        this.back();
+                      }
                     } else {
-                      throw new Error(res2.messages[0]);
+                      throw new Error(res2.message);
                     }
                   })
                 ).subscribe();
               } else {
-                throw new Error(res.messages[0]);
+                throw new Error(res.message);
               }
             }),
             finalize(() => this.spinner.hide()),
@@ -503,6 +507,8 @@ export class UpsertObjectComponent implements OnInit {
       }
     } else {
       this.gotoTop();
+      this.spinner.hide();
+      this.toastr.error("Please correct the errors in the form's fields.");
     }
     this.count = 0;
   }
