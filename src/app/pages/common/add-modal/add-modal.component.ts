@@ -31,7 +31,7 @@ export class AddModalComponent implements OnInit {
   constructor( private spinner: NgxSpinnerService, private fb: UntypedFormBuilder, private dtpService: DtpService, private toastr: ToastrService, private processLookup: ProcessLookupService,
     private activeModal: NgbActiveModal, private objectLookupService: ObjectLookupService, private dupService: DupService) { 
     this.preReqForm = this.fb.group({
-      objectId: '',
+      dtpDataObject: '',
       prereqType: '',
       prereqNotes: ''
     });
@@ -115,7 +115,7 @@ export class AddModalComponent implements OnInit {
       payload.dtpId = this.dtpId;
       this.dtpService.addDtpObjectPrereq(this.dtpId,payload).subscribe((res: any) => {
         this.spinner.hide();
-        if(res.statusCode === 200) {
+        if(res.statusCode === 201) {
           this.toastr.success('Pre-Requisite added successfully');
           this.closeModal('data');
         } else {
@@ -131,7 +131,7 @@ export class AddModalComponent implements OnInit {
       const payload = this.embargoForm.value;
       this.dtpService.addDtpObject(this.dtpId, payload).subscribe((res: any) => {
         this.spinner.hide();
-        if (res.statusCode === 200) {
+        if (res.statusCode === 201) {
           this.toastr.success('Object Embargo added successfully');
           this.closeModal('data');
         } else {

@@ -8,17 +8,17 @@
                 <div class="row form-group">
                     <div class="col-md-12">
                         <label for="object" class="font-style text-capitalize">Object</label>
-                        <ng-select [items]="objectList" bindLabel="objectId" bindValue="objectId" formControlName="objectId"
-                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
-                            placeholder="Select object" [searchFn]="customSearchFn">
+                        <ng-select [items]="objectList" bindLabel="dataObject.id" bindValue="id" formControlName="dtpDataObject"
+                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" 
+                            notFoundText="No members found" placeholder="Select object" [searchFn]="customSearchFn">
                             <ng-template ng-label-tmp let-item="item">
-                                {{item.objectId}}
+                                {{item.dataObject?.sdOid}}
                             </ng-template>
                             <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                 <div class="row m-0">
                                     <div class="col-md-8 col-8 p-0 m-0">
-                                        <div class="col-md-12">{{item.objectId}}</div>
-                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.displayTitle}}</div>
+                                        <div class="col-md-12">{{item.dataObject?.sdOid}}</div>
+                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.dataObject?.displayTitle}}</div>
                                     </div>
                                 </div>
                             </ng-template>
@@ -47,7 +47,7 @@
                     <div class="col-md-12">
                         <label for="object" class="font-style text-capitalize">Object</label>
                         <ng-select [items]="objectList" bindLabel="sdOid" bindValue="sdOid" formControlName="sdOid"
-                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
+                            [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
                             placeholder="Select object" [searchFn]="customSearchFn">
                             <ng-template ng-label-tmp let-item="item">
                                 {{item.sdOid}}
