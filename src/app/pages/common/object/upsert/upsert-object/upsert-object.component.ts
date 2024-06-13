@@ -220,6 +220,7 @@ export class UpsertObjectComponent implements OnInit {
   }
 
   get g() { return this.objectForm.controls; }
+  get objectDatasetsControls() { return this.objectForm.controls['objectDatasets']['controls']; }
 
   public static isShowTopicType(objectType) {
     /* Object contributors and topics components appear only for specific object types */
@@ -350,6 +351,12 @@ export class UpsertObjectComponent implements OnInit {
     const arr: any = this.objectClasses.filter((item:any) => item.name === 'Dataset');
     if (this.objectData.objectClass) {
       this.showDatasetKey = this.objectData.objectClass.id === arr[0].id ? true : false;
+      let validators: any = [];
+      if (this.showDatasetKey) {
+        validators = [Validators.required];
+      }
+      this.objectForm.controls['objectDatasets']['controls']['recordkeyType'].setValidators(validators);
+      this.objectForm.controls['objectDatasets']['controls']['recordkeyDetails'].setValidators(validators);
     }
     const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
     if(this.objectData.objectType) {
@@ -548,16 +555,26 @@ export class UpsertObjectComponent implements OnInit {
   onChange() {
     const arr: any = this.objectClasses.filter((item:any) => item.name.toLowerCase() === 'dataset');
     this.showDatasetKey = this.objectForm.value.objectClass === arr[0].id ? true : false;
+    if (this.showDatasetKey) {
+      const validators = [Validators.required];
+      this.objectForm.controls['objectDatasets']['controls']['recordkeyType'].setValidators(validators);
+      this.objectForm.controls['objectDatasets']['controls']['recordkeyDetails'].setValidators(validators);
+    } else {
+      this.objectForm.controls['objectDatasets']['controls']['recordkeyType'].clearValidators();
+      this.objectForm.controls['objectDatasets']['controls']['recordkeyType'].setErrors(null);
+      this.objectForm.controls['objectDatasets']['controls']['recordkeyDetails'].clearValidators();
+      this.objectForm.controls['objectDatasets']['controls']['recordkeyDetails'].setErrors(null);
+    }
   }
   onTypeChange() {
     this.showTopic = false;
     const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
-    arrType.map(item => {
+    for (let item of arrType) {
       if (item.id === this.objectForm.value.objectType) {
         this.showTopic = true;
-        return
+        break;
       }
-    });
+    }
   }
 
   printPdf() {

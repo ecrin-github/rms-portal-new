@@ -194,17 +194,24 @@
                 <br />
                 <div class="row form-group">
                     <div class="col-md-6">
-                        <label for="recordkeyType" class="font-style text-capitalize">Anonymisation type</label>
-                        <select id="recordkeyType" class="form-control" formControlName="recordkeyType" *ngIf="!isView">
+                        <label for="recordkeyType" class="font-style text-capitalize">Anonymisation type<sup>*</sup></label>
+                        <select id="recordkeyType" class="form-control" formControlName="recordkeyType" *ngIf="!isView"
+                            [ngClass]="{ 'is-invalid': isSubmitted && objectDatasetsControls.recordkeyType.errors }">
                             <option selected disabled value="null">Please select anonymisation level</option>
                             <option [value]=key.id *ngFor="let key of keyTypes">{{key.name}}</option>
                         </select>
+                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors">
+                            <p *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors.required">Please select anonymisation type</p>
+                        </div>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.recordkeyType ? objectData?.objectDatasets[0]?.recordkeyType.name : 'None' : 'None'}}</h6>
                     </div>
                     <div class="col-md-6">
-                        <label for="recordkeyDetails" class="font-style text-capitalize">Anonymisation details</label>
+                        <label for="recordkeyDetails" class="font-style text-capitalize">Anonymisation details<sup>*</sup></label>
                         <textarea id="recordkeyDetails" class="form-control" cols="30" rows="5" placeholder="Please enter a short summary of the justification for the classification given"
-                            formControlName="recordkeyDetails" *ngIf="!isView"></textarea>
+                            formControlName="recordkeyDetails" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && objectDatasetsControls.recordkeyDetails.errors }"></textarea>
+                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && objectDatasetsControls.recordkeyDetails.errors">
+                            <p *ngIf="isSubmitted && objectDatasetsControls.recordkeyDetails.errors.required">Please enter the details of the anonymisation</p>
+                        </div>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0]?.recordkeyDetails ? objectData?.objectDatasets[0]?.recordkeyDetails : 'None'}}</h6>
                     </div>
                 </div>
