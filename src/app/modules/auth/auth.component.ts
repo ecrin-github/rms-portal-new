@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-auth',
@@ -11,10 +12,12 @@ export class AuthComponent implements OnInit {
 
   today: Date = new Date();
   showFooter: boolean = true;
+  appVersion: string;
 
   constructor( private router: Router, public oidcSecurityService: OidcSecurityService) { }
 
   ngOnInit(): void {
+    this.appVersion = environment.appVersion;
     this.showFooter = this.router.url.includes('contactUs') ? false : true;
   }
   login() {
