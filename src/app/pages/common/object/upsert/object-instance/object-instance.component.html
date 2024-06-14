@@ -27,7 +27,7 @@
                             <div class="col-md-6">
                                 <label for="repositoryOrg" class="font-style text-capitalize">Repository organisation</label>
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
-                                    formControlName="repositoryOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body"
+                                    formControlName="repositoryOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                                     notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>

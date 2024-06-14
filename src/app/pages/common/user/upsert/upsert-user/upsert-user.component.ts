@@ -113,14 +113,14 @@ export class UpsertUserComponent implements OnInit {
             this.toastr.success('Information updated successfully');
             localStorage.setItem('updateUserList', 'true');
             this.reuseService.notifyComponents();
-            this.back();
+            this.router.navigate([`/people/${this.id}/view`]);
           } else {
             this.toastr.error(userRes?.messages[0]);
           }
         }, error => {
           console.log('error', error);
         }) 
-      } else {
+      } else {  // this.isAdd
         this.spinner.show();
         this.peopleService.addPeople(payload).subscribe((res: any) => {
           this.spinner.hide();
@@ -128,7 +128,11 @@ export class UpsertUserComponent implements OnInit {
             this.toastr.success('User added successfully');
             localStorage.setItem('updateUserList', 'true');
             this.reuseService.notifyComponents();
-            this.back();
+            if (res.id) {
+              this.router.navigate([`/people/${res.id}/view`]);
+            } else {
+              this.back();
+            }
           } else if (res.statusCode === 400) {
             this.toastr.error(res.message, 'Error');
           }

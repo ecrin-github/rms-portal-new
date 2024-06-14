@@ -188,16 +188,16 @@ export class SummaryStudyComponent implements OnInit {
         const dtpLinked = studyInvolvementDtpRes.count;
         const dupLinked = studyInvolvementDupRes.count;
         if (dtpLinked > 0 && dupLinked > 0) {
-          this.title = `There are ${dtpLinked} DTP's and ${dupLinked} DUP's linked to this study. So you can't delete the study`;
+          this.title = `There are ${dtpLinked} DTPs and ${dupLinked} DUPs linked to this study. Dissociate this study from them to delete it.`;
           this.warningModal = this.modalService.open(this.studyDeleteModal, { size: 'lg', backdrop: 'static' });
         } else if (dtpLinked > 0) {
-          this.title = `There are ${dtpLinked} DTP's linked to this study. So you can't delete the study`;
+          this.title = `There are ${dtpLinked} DTPs linked to this study. Dissociate this study from them to delete it.`;
           this.warningModal = this.modalService.open(this.studyDeleteModal, { size: 'lg', backdrop: 'static' });
         } else if (dupLinked > 0) {
-          this.title = ` There are ${dupLinked} DUP's linked to this study. So you can't delete the study`;
+          this.title = ` There are ${dupLinked} DUPs linked to this study. Dissociate this study from them to delete it.`;
           this.warningModal = this.modalService.open(this.studyDeleteModal, { size: 'lg', backdrop: 'static' });
         } else if (linkedObjectRes.data.length) {
-          this.title = `Objects are linked to this study. So you can't delete the study`;
+          this.title = `Objects are linked to this study. Dissociate them from this study to delete it.`;
           this.warningModal = this.modalService.open(this.studyDeleteModal, { size: 'lg', backdrop: 'static' });
         } else {
           const deleteModal = this.modalService.open(ConfirmationWindowComponent, { size: 'lg', backdrop: 'static' });

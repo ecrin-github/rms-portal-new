@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {  NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
-import { combineLatest } from 'rxjs';
+import { Observable, combineLatest, of } from 'rxjs';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { DtpService } from 'src/app/_rms/services/entities/dtp/dtp.service';
 import { ProcessLookupService } from 'src/app/_rms/services/entities/process-lookup/process-lookup.service';
@@ -18,12 +18,13 @@ import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-genera
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {RedirectService} from './redirect-service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
+import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -44,9 +45,10 @@ export class UpsertDtpComponent implements OnInit {
   @ViewChild('wizard', { static: true }) el: ElementRef;
   wizard: any;
   currentStatus: number = 2;
+  sliceLength = 100;
   associatedStudies = [];
-  associatedObject = [];
-  associatedUser = [];
+  associatedObjects = [];
+  associatedUsers = [];
   todayDate: any;
   submitted:boolean = false;
   nextStep: number;
@@ -59,7 +61,6 @@ export class UpsertDtpComponent implements OnInit {
   isEmbargoRequested = [];
   sticky: boolean = false;
   showButton: boolean = true;
-  selectedSdSid: [] = [];
   accessStatusTypes: [] = [];
   dtpArr: any;
   studyList: [] = [];
@@ -127,37 +128,88 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.role = this.statesService.currentAuthRole;
+    setTimeout(() => {
+      this.spinner.show(); 
+    });
+
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
-    
-    this.getOrganization();
-    this.getStatus();
-    this.getStudyList();
-    this.getObjectList();
+    this.role = this.statesService.currentAuthRole;
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
-    if (this.isEdit || this.isView) {
-      this.id = this.activatedRoute.snapshot.params.id;
-      this.getDtpPeople(this.id);
-      this.getDtpById(this.id);
-    }
+    this.id = this.activatedRoute.snapshot.params.id;
+
     if (this.isView) {
       this.scrollService.handleScroll([`/data-transfers/${this.id}/view`]);
     }
+
     if (this.router.url.includes('add')) {
       this.form.patchValue({
         initialContactDate: this.todayDate
       })
     }
+    
+    let queryFuncs: Array<Observable<any>> = [];
+
+    // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
+    // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
+    if (this.isEdit || this.isView) {
+      // TODO: could be improved (less calls) if the API for getDtpById returned more linked items (e.g. notes)
+      queryFuncs.push(this.getDtpObjectsAndInstances(this.id));
+      queryFuncs.push(this.getDtpObjectPrereqs(this.id));
+      queryFuncs.push(this.getDtpStudies(this.id));
+      queryFuncs.push(this.getDtpPeople(this.id));
+      queryFuncs.push(this.getDtpNotes(this.id));
+      queryFuncs.push(this.getDta(this.id));
+      queryFuncs.push(this.getDtpById(this.id));
+    }
+
+    // TODO: improve speed by removing calls not needed is isView
+    queryFuncs.push(this.getOrganisation());
+    queryFuncs.push(this.getStatus());
+    queryFuncs.push(this.getStudyList());
+    queryFuncs.push(this.getObjectList());
+    queryFuncs.push(this.getAccessTypes());
+    queryFuncs.push(this.getAccessStatusTypes());
+    queryFuncs.push(this.getPrereqTypes());
+
+    let obsArr: Array<Observable<any>> = [];
+    queryFuncs.forEach((funct) => {
+      obsArr.push(funct.pipe(catchError(error => of(this.toastr.error(error.error.title)))));
+    });
+
+    combineLatest(obsArr).subscribe(res => {
+      this.setPrereqTypes(res.pop());
+      this.setAccessStatusTypes(res.pop());
+      this.setAccessTypes(res.pop());
+      this.setObjectList(res.pop());
+      this.setStudyList(res.pop());
+      this.setStatus(res.pop());
+      this.setOrganisation(res.pop());
+
+      if (this.isEdit || this.isView) {
+        this.setDtpById(res.pop());
+        this.setDta(res.pop());
+        this.setDtpNotes(res.pop());
+        this.setDtpPeople(res.pop());
+        this.setDtpStudies(res.pop());
+        this.setDtpObjectPrereqs(res.pop());
+        // getDtpObjectsAndInstances doesn't return a value
+      }
+
+      setTimeout(() => {
+        this.spinner.hide(); 
+      });
+    });
   }
+
   ngAfterViewInit() {
     this.wizard = new KTWizard(this.el.nativeElement, {
       startStep: 2,
       clickableSteps: false,
       navigation:true
     });
-    //checing if all the dates are entered in the current phase before going to the next phase
+    // Checking if all the dates are entered in the current phase before going to the next phase
     this.wizard.on('change', (wizardObj) => {
       this.nextStep = this.buttonClick === 'next' ? wizardObj.getStep() + 1 : wizardObj.getStep() - 1;
       if (!this.isView && this.buttonClick === 'next') {
@@ -196,6 +248,7 @@ export class UpsertDtpComponent implements OnInit {
       }
     });
   }
+
   notes(): UntypedFormArray {
    return this.form.get('notes') as UntypedFormArray;
   }
@@ -203,13 +256,14 @@ export class UpsertDtpComponent implements OnInit {
     return this.fb.group({
       dtpId: '',
       text: '',
-      alreadyExist: false
+      alreadyExist: false,
+      author: this.statesService.currentUser,
     })
   }
   addDtpNote() {
     this.notes().push(this.newDtpNote());
   }
-  patchNote(notes) {
+  patchNotes(notes) {
     this.form.setControl('notes', this.patchNoteArray(notes));
   }
   patchNoteArray(notes): UntypedFormArray {
@@ -219,35 +273,22 @@ export class UpsertDtpComponent implements OnInit {
         id: note.id,
         dtpId: note.dtpId,
         text: note.text,
-        alreadyExist: true
+        alreadyExist: true,
+        author: note.author
       }))
     });
     return formArray;
   }
-  getDtpNotes(id) {
-    this.spinner.show();
-    this.dtpService.getDtpNotes(id).subscribe((res:any) => {
-      this.spinner.hide();
-      if (res && res.results) {
-        this.patchNote(res.results);
-        this.dtpNotes = res.results
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
-  }
+  
   deleteDtpNote(i) {
     if (this.notes().value[i].alreadyExist) {
       this.spinner.show();
       this.dtpService.deleteDtpNote(this.notes().value[i].id, this.id).subscribe((res: any) => {
-        this.spinner.hide();
-        // if (res.statusCode === 204) {
-          this.toastr.success('Note deleted successfully');
-          this.getDtpNotes(this.id);
-        // } else {
-        //   this.toastr.error(res.messages[0])
-        // }
+        this.toastr.success('Note deleted successfully');
+        this.getDtpNotes(this.id).subscribe((res) => {
+          this.setDtpNotes(res);
+          this.spinner.hide();
+        });
       }, error => {
         this.spinner.hide();
         this.toastr.error(error.error.title);
@@ -256,10 +297,18 @@ export class UpsertDtpComponent implements OnInit {
       this.notes().removeAt(i);
     }
   }
+
   saveDtpNote(note) {
+    const payload = {
+      'id': note.value.id,
+      'author': note.value.author?.id ? note.value.author.id : note.value.author,
+      'text': note.value.text,
+      'createdOn': note.value.createdOn,
+      'dtpId': note.value.dtpId,
+    };
     if (note.value.alreadyExist) {
       this.spinner.show();
-      this.dtpService.editDtpNote(note.value.id, this.id, note.value).subscribe((res: any) => {
+      this.dtpService.editDtpNote(payload.id, this.id, payload).subscribe((res: any) => {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Note updated successfully');
@@ -272,11 +321,13 @@ export class UpsertDtpComponent implements OnInit {
       })
     } else {
       this.spinner.show();
-      const payload = note.value;
       payload.dtpId = this.id;
       this.dtpService.addDtpNote(this.id, payload).subscribe((res: any) => {
+        note.value.alreadyExist = true;
         this.spinner.hide();
         if (res.statusCode === 201) {
+          note.value.id = res?.id;
+          note.value.dtpId = res?.dtpId;
           this.toastr.success('Note added successfully');
         } else {
           this.toastr.error(res.messages[0]);
@@ -295,7 +346,7 @@ export class UpsertDtpComponent implements OnInit {
       id: '',
       prereqNotes: '',
       prereqType: '',
-      objectId: ''
+      dataObject: ''
     })
   }
  
@@ -306,7 +357,7 @@ export class UpsertDtpComponent implements OnInit {
     addModal.componentInstance.type = 'dtpPrereq';
     addModal.result.then((data) => {
       if (data) {
-        this.getDtpById(this.id, 'isPreReq');
+        this.getDtpObjectPrereqs(this.id).subscribe((res) => this.setDtpObjectPrereqs(res));
       }
     }, error => {})
   }
@@ -320,13 +371,16 @@ export class UpsertDtpComponent implements OnInit {
         id: preReq.id,
         prereqNotes: preReq.prereqNotes,
         prereqType: preReq.prereqType ? preReq.prereqType.id : null,
-        objectId: preReq.objectId
+        dtpDataObject: preReq.dtpDataObject
       }))
     });
     return formArray;
   }
   editPreReq(preReqsObject) {
-    const payload = preReqsObject.value;
+    const payload = JSON.parse(JSON.stringify(preReqsObject.value));  // Deep copy to keep whole data object to display sdOid
+    if (payload.dtpDataObject?.id) {
+      payload.dtpDataObject = payload.dtpDataObject?.id;
+    }
     this.spinner.show();
     this.dtpService.editDtpObjectPrereq(payload.id, this.id, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -347,8 +401,12 @@ export class UpsertDtpComponent implements OnInit {
     removeModal.componentInstance.objectId = this.preReqs().value[i].objectId;
     removeModal.componentInstance.dtpId = this.id;
     removeModal.result.then((data) => {
+      this.spinner.show();
       if (data) {
-        this.getDtpById(this.id, 'isPreReq');
+        this.getDtpObjectPrereqs(this.id).subscribe((res) => {
+          this.setDtpObjectPrereqs(res);
+          this.spinner.hide();
+        });
       }
     }, error => {})
   }
@@ -368,7 +426,7 @@ export class UpsertDtpComponent implements OnInit {
       embargoRequested: '',
       embargoStillApplies: '',
       id: '',
-      objectId: ''
+      dataObject: '',
     })
   }
   addEmbargo() {
@@ -378,9 +436,9 @@ export class UpsertDtpComponent implements OnInit {
     embargoModal.componentInstance.type = 'dtpEmbargo';
     embargoModal.result.then((data) => {
       if (data) {
-        this.getDtpById(this.id, 'isEmbargo');
+        this.getDtpObjectsAndInstances(this.id).subscribe();
       }
-    }, error => {})
+    }, error => {});
   }
   patchEmbargo(embargos) {
     this.objectEmbargoForm.setControl('embargo', this.patchEmbargoArray(embargos))
@@ -390,9 +448,9 @@ export class UpsertDtpComponent implements OnInit {
     embargos.forEach((embargo, index) => {
       formArray.push(this.fb.group({
         accessCheckStatus: embargo.accessCheckStatus ? embargo.accessCheckStatus.id : null,
-        accessCheckBy: embargo.accessCheckBy ? embargo.accessCheckBy.id : null,
+        accessCheckBy: embargo.accessCheckBy,
         accessDetails: embargo.accessDetails,
-        accessCheckDate: this.stringTodate(embargo.accessCheckDate),
+        accessCheckDate: this.stringToDate(embargo.accessCheckDate),
         accessType: embargo.accessType ? embargo.accessType.id : null,
         downloadAllowed: embargo.downloadAllowed,
         dtpId: embargo.dtpId,
@@ -400,7 +458,7 @@ export class UpsertDtpComponent implements OnInit {
         embargoRequested: embargo.embargoRequested,
         embargoStillApplies: embargo.embargoStillApplies,
         id: embargo.id,
-        objectId: embargo.objectId
+        dataObject: embargo.dataObject
       }))
       this.isEmbargoRequested[index] = embargo.embargoRequested ? true : false;
     });
@@ -410,7 +468,13 @@ export class UpsertDtpComponent implements OnInit {
     this.isEmbargoRequested[index] = !this.isEmbargoRequested[index];
   }
   editEmbargo(embargoObject) {
-    const payload = embargoObject.value;
+    const payload = JSON.parse(JSON.stringify(embargoObject.value));
+    if (payload.dataObject?.id) {
+      payload.dataObject = payload.dataObject?.id;
+    }
+    if (payload.accessCheckBy?.id) {
+      payload.accessCheckBy = payload.accessCheckBy.id;
+    }
     payload.accessCheckDate = this.dateToString(payload.accessCheckDate);
     this.spinner.show();
     this.dtpService.editDtpObject(payload.id, this.id, payload).subscribe((res: any) => {
@@ -425,81 +489,170 @@ export class UpsertDtpComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-  removeEmbargo(i) {
-    const removeModal = this.modalService.open(ConfirmationWindowComponent, {size:'lg', backdrop: 'static'});
-    removeModal.componentInstance.type = 'objectEmbargo';
-    removeModal.componentInstance.id = this.embargos().value[i].id;
-    removeModal.componentInstance.dtpId = this.id;
-    removeModal.result.then((data) => {
-      if (data) {{
-        this.getDtpById(this.id, 'isEmbargo');
-      }}
-    }, error => {});
-  }
-  getAccessType() {
-    const getAccessType$ = this.processLookup.getRepoAccessTypes(this.pageSize).subscribe((res: any) => {
-      if(res && res.results) {
-        this.accessTypes = res.results;
-        this.getDtpById(this.id, 'isEmbargo');
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    });
-  }
 
   get g() { return this.form.controls; }
-  getOrganization() {
-    this.spinner.show();
-    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res && res.results) {
-        this.organizationList = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
+
+  getOrganisation() {
+    return this.commonLookup.getOrganizationList(this.pageSize);
   }
+
+  setOrganisation(res) {
+    if (res && res.results) {
+      this.organizationList = res.results;
+    }
+  }
+
   getStatus() {
-    setTimeout(() => {
-     this.spinner.show(); 
-    });
-    this.processLookup.getDtpStatusTypes().subscribe((res: any) => {
-      this.spinner.hide();
-      if (res && res.results) {
-        this.statusList = res.results;
-        const arr: any = this.statusList.filter((item: any) => item.name === 'Set up');
-        if (arr && arr.length) {
-          this.form.patchValue({
-            status: arr[0].id
+    return this.processLookup.getDtpStatusTypes();
+  }
+
+  setStatus(res) {
+    if (res && res.results) {
+      this.statusList = res.results;
+      const arr: any = this.statusList.filter((item: any) => item.name === 'Set up');
+      if (arr && arr.length) {
+        this.form.patchValue({
+          status: arr[0].id
+        })
+      }
+    }
+  }
+
+  getStudyList() {
+    return this.listService.getStudyList();
+  }
+
+  setStudyList(res) {
+    if (res && res.data) {
+      this.studyList = res.data;
+    }
+  }
+
+  getObjectList() {
+    return this.listService.getObjectList();
+  }
+
+  setObjectList(res) {
+    if (res && res.data) {
+      this.objectList = res.data;
+    }
+  }
+
+  getDtpStudies(id) {
+    return this.dtpService.getDtpStudies(id);
+  }
+
+  setDtpStudies(res) {
+    if (res) {
+      this.associatedStudies = res.results ? res.results : [];
+    }
+  }
+
+  getDtpObjectsAndInstances(id) {
+    return this.dtpService.getDtpObjects(id).pipe(
+      map((res: any) => {
+        if (res) {
+          this.associatedObjects = res.results ? res.results : [];
+          this.embargoData = this.associatedObjects;
+          this.patchEmbargo(this.embargoData);
+          // TODO improve with API for a single call
+          this.associatedObjects.map((item, index) => {
+            this.dataObjectService.getObjectInstances(item.dataObject?.id, this.pageSize).subscribe((res:any) => {
+              this.instanceArray[index] = res.results;
+            }, error => {
+              this.toastr.error(error.error.title);
+            });
           })
         }
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
+      })
+    );
   }
+
+  getDtpObjectPrereqs(id) {
+    return this.dtpService.getDtpObjectPrereqs(id);
+  }
+
+  setDtpObjectPrereqs(res) {
+    if (res && res.results) {
+      this.prereqs = res.results;
+      this.prereqs.sort((a, b) => (a.dataObject?.id > b.dataObject?.id ? 1 : -1));
+      this.patchPreReq(this.prereqs);
+    }
+  }
+
+  getAccessTypes() {
+    return this.processLookup.getRepoAccessTypes(this.pageSize);
+  }
+
+  setAccessTypes(res) {
+    if (res && res.results) {
+      this.accessTypes = res.results;
+    }
+  }
+
+  getAccessStatusTypes() {
+    return this.processLookup.getObjectAccessTypes(this.pageSize);
+  }
+
+  setAccessStatusTypes(res) {
+    if (res) {
+      this.accessStatusTypes = res.results;
+    }
+  }
+
+  getDtpPeople(id) {
+    return this.dtpService.getDtpPeople(id);
+  }
+
+  setDtpPeople(res) {
+    if (res) {
+      this.associatedUsers = res.results ? res.results : [];
+    }
+  }
+
   getPrereqTypes() {
-    this.processLookup.getPrereqTypes(this.pageSize).subscribe((res: any) => {
-      if (res) {
-        this.preRequTypes = res.results;
-        console.log('prereq', this.preRequTypes)
-        this.getDtpById(this.id, 'isPreReq');
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
+    return this.processLookup.getPrereqTypes(this.pageSize);
   }
-  getAccessCheckStauts() {
-    this.processLookup.getObjectAccessTypes(this.pageSize).subscribe((res: any) => {
-      if (res) {
-        this.accessStatusTypes = res.results;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
+
+  setPrereqTypes(res) {
+    if (res) {
+      this.preRequTypes = res.results;
+    }
   }
+
+  getDtpNotes(id) {
+    return this.dtpService.getDtpNotes(id);
+  }
+
+  setDtpNotes(res) {
+    if (res && res.results) {
+      this.patchNotes(res.results);
+      this.dtpNotes = res.results;
+    }
+  }
+
+  getDta(id) {
+    return this.dtpService.getDta(id);
+  }
+
+  setDta(res) {
+    if (res && res.results) {
+      this.dtaData = res.results;
+      this.patchDta(this.dtaData);
+    }
+  }
+
+  getDtpById(id) {
+    return this.dtpService.getDtpById(id);
+  }
+
+  setDtpById(res) {
+    if (res) {
+      this.dtpData = res;
+      this.patchForm(this.dtpData);
+    }
+  }
+  
   findPrereqType(id) {
     const arr: any = this.preRequTypes.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
@@ -512,13 +665,7 @@ export class UpsertDtpComponent implements OnInit {
     const arr: any = this.accessStatusTypes.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
   }
-  onClickControllTab() {
-    this.getPrereqTypes();
-  }
-  onClickObjectAccessTab() {
-    this.getAccessType();
-    this.getAccessCheckStauts();
-  }
+
   dateToString(date) {
     if (date) {
       if (date.month<10) {
@@ -533,13 +680,15 @@ export class UpsertDtpComponent implements OnInit {
       return null
     }
   }
-  stringTodate(date) {
+  stringToDate(date) {
     const dateArray = new Date(date);
     return date ? { year: dateArray.getFullYear(), month: dateArray. getMonth()+1, day: dateArray. getDate()} : null;
   }
   viewDate(date) {
     const dateArray = new Date(date);
-    return date ? dateArray.getFullYear() + '/' + (dateArray.getMonth()+1) + '/' + (dateArray.getDate()+1) : 'No Date Provided';
+    return date ? dateArray.getFullYear() + '/' 
+        + (dateArray.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + '/' 
+        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : 'No Date Provided';
   }
   onSave() {
     //setting local storage to reload the dashboard page when adding or editing the dtp
@@ -559,6 +708,18 @@ export class UpsertDtpComponent implements OnInit {
     payload.mdIntegratedWithMdrDate = this.dateToString(payload.mdIntegratedWithMdrDate);
     payload.availabilityRequestedDate = this.dateToString(payload.availabilityRequestedDate);
     payload.availabilityConfirmedDate = this.dateToString(payload.availabilityConfirmedDate);
+    if (payload.repoSignature1?.id) {
+      payload.repoSignature1 = payload.repoSignature1.id;
+    }
+    if (payload.repoSignature2?.id) {
+      payload.repoSignature2 = payload.repoSignature2.id;
+    }
+    if (payload.providerSignature1?.id) {
+      payload.providerSignature1 = payload.providerSignature1.id;
+    }
+    if (payload.providerSignature2?.id) {
+      payload.providerSignature2 = payload.providerSignature2.id;
+    }
     //dynamically updating the status based on the filled in dates
     let status = ''
     if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '') {
@@ -581,47 +742,47 @@ export class UpsertDtpComponent implements OnInit {
     payload.status = this.getStatusByName(status);
     //checking if the entered dates are greater than the previous ones
     if (payload.initialContactDate > payload.setUpCompleteDate) {
-      this.toastr.error('Initial contact date cannot be greater than Set Up completed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('Initial contact date cannot be greater than Set Up completed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.setUpCompleteDate > payload.mdAccessGrantedDate) {
-      this.toastr.error('set Up completed date cannot be greater than MD Access Granted date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('set Up completed date cannot be greater than MD Access Granted date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.mdAccessGrantedDate > payload.mdCompleteDate) {
-      this.toastr.error('MD Access Granted date cannot be greater than MD Completed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('MD Access Granted date cannot be greater than MD Completed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.mdCompleteDate > payload.dtaAgreedDate) {
-      this.toastr.error('MD Completed date cannot be greater than DTA agreed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('MD Completed date cannot be greater than DTA agreed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.dtaAgreedDate > payload.uploadAccessRequestedDate) {
-      this.toastr.error('DTA Agreed date cannot be greater than Upload Access Requested date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('DTA Agreed date cannot be greater than Upload Access Requested date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.uploadAccessRequestedDate > payload.uploadAccessConfirmedDate) {
-      this.toastr.error('Upload Access Requested date cannot be greater than Upload Access Confirmed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('Upload Access Requested date cannot be greater than Upload Access Confirmed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.uploadAccessConfirmedDate > payload.uploadCompleteDate) {
-      this.toastr.error('Upload Confirmed date cannot be greater than Upload Completed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('Upload Confirmed date cannot be greater than Upload Completed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.uploadCompleteDate > payload.qcChecksCompleteDate) {
-      this.toastr.error('Upload completed date cannot be greater than QC Checks Completed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('Upload completed date cannot be greater than QC Checks Completed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.qcChecksCompleteDate > payload.mdIntegratedWithMdrDate) {
-      this.toastr.error('QC Checks completed date cannot be greater than MD integrated with MDR date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('QC Checks completed date cannot be greater than MD integrated with MDR date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.mdIntegratedWithMdrDate > payload.availabilityRequestedDate) {
-      this.toastr.error('MD integrated with MDR date cannot be greater than availability requested date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('MD integrated with MDR date cannot be greater than availability requested date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     if (payload.availabilityRequestedDate > payload.availabilityConfirmedDate) {
-      this.toastr.error('Availability Reuested date cannot be greater than Availability Confirmed date. Dates entered in one phase should not normally be before dtes in an earlier phase');
+      this.toastr.error('Availability Reuested date cannot be greater than Availability Confirmed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
       return
     }
     this.submitted = true;
@@ -634,36 +795,41 @@ export class UpsertDtpComponent implements OnInit {
         delete payload.notes;
         const combine$ = combineLatest([editCoreDtp$, editDta$]).subscribe(([coreDtpRes, dtaRes] : [any, any]) => {
           this.spinner.hide();
-          if (coreDtpRes.statusCode === 200 && dtaRes.statusCode === 200) {
+          let success: boolean = true;
+          if (!(coreDtpRes.statusCode === 200 || coreDtpRes.statusCode === 201)) {
+            success = false;
+            this.toastr.error(coreDtpRes.messages[0]);
+          }
+          if (!(dtaRes.statusCode === 200 || dtaRes.statusCode === 201)) {
+            success = false;
+            this.toastr.error(dtaRes.messages[0]);
+          }
+          if (success) {
             this.toastr.success('DTP updated successfully');
             localStorage.setItem('updateDtpList', 'true');
-            this.getDtpById(this.id);
             this.showStatus = false;
             this.reuseService.notifyComponents();
-            this.back();
-          } else {
-            if (coreDtpRes.statusCode !== 200) {
-              this.toastr.error(coreDtpRes.messages[0]);
-            }
-            if (dtaRes.statusCode !== 200) {
-              this.toastr.error(dtaRes.messages[0])
-            }
+            this.router.navigate([`/data-transfers/${this.id}/view`]);
           }
         }, error => {
           this.spinner.hide();
-          this.toastr.error(error.error.title);;
+          this.toastr.error(error.error.title);
         })
       } else {
         this.spinner.show();
         this.dtpService.addDtp(payload).subscribe((res: any) => {
-          this.spinner.hide();
           if (res.statusCode === 201) {
             this.toastr.success('DTP added successfully.');
             localStorage.setItem('updateDtpList', 'true');
             this.showStatus = false;
             this.reuseService.notifyComponents();
-            this.back();
+            if (res.id) {
+              this.router.navigate([`/data-transfers/${res.id}/view`]);
+            } else {
+              this.back();
+            }
           } else {
+            this.spinner.hide();
             this.toastr.error(res.messages[0]);
           }
         }, error => {
@@ -671,75 +837,33 @@ export class UpsertDtpComponent implements OnInit {
           this.toastr.error(error.error.title);
         })
       }
+    } else {
+      this.toastr.error("Please correct the errors in the form's fields.");
     }
   }
+
   getStatusByName(name) {
     const arr: any = this.statusList.filter((item: any) => item.name.toLowerCase() === name);
     return arr[0].id;
   }
-  getDtpById(id, type?) {
-    setTimeout(() => {
-     this.spinner.show();; 
-    });
-    this.dtpService.getDtpById(id).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res) {
-        this.dtpData = res;
-        this.patchForm(this.dtpData);
-        this.getDtpNotes(res.id);
-        this.dtpService.getDta(res.id).subscribe((res: any) => {
-          if(res && res.results) {
-            console.log('dta', res.results);
-            this.dtaData = res.results;
-          }
-          this.patchDta(this.dtaData);
-        }, error => {
-          console.log(error);
-        })
-        if (type === 'isPreReq') {
-          this.dtpService.getDtpObjectPrereqs(res.id).subscribe((res: any) => {
-            if (res && res.results) {
-              this.prereqs = res.results;
-              const preReqArray = (this.prereqs.sort((a, b) => (a.objectId > b.objectId ? 1 : -1)))
-              this.patchPreReq(preReqArray);
-            }
-          }, error => {
-            console.log('error', error);
-          })
-        }
-        if (type === 'isEmbargo') {
-          this.dtpService.getDtpObjects(id).subscribe((res: any) => {
-            if (res && res.results) {
-              this.embargoData = res.results;
-              this.patchEmbargo(res.results);
-            }
-          }, error => {
-            console.log('error', error);
-          })
-        }
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
-  }
+
   patchForm(data) {
     this.form.patchValue({
       organisation: data.organisation ? data.organisation.id : null,
       displayName: data.displayName,
       status: data.status ? data.status.id : null,
-      initialContactDate: this.stringTodate(data.initialContactDate),
-      setUpCompleteDate: this.stringTodate(data.setUpCompleteDate),
-      mdAccessGrantedDate: this.stringTodate(data.mdAccessGrantedDate),
-      mdCompleteDate: this.stringTodate(data.mdCompleteDate),
-      dtaAgreedDate: this.stringTodate(data.dtaAgreedDate),
-      uploadAccessRequestedDate: this.stringTodate(data.uploadAccessRequestedDate),
-      uploadAccessConfirmedDate: this.stringTodate(data.uploadAccessConfirmedDate),
-      uploadCompleteDate: this.stringTodate(data.uploadCompleteDate),
-      qcChecksCompleteDate: this.stringTodate(data.qcChecksCompleteDate),
-      mdIntegratedWithMdrDate: this.stringTodate(data.mdIntegratedWithMdrDate),
-      availabilityRequestedDate: this.stringTodate(data.availabilityRequestedDate),
-      availabilityConfirmedDate: this.stringTodate(data.availabilityConfirmedDate),
+      initialContactDate: this.stringToDate(data.initialContactDate),
+      setUpCompleteDate: this.stringToDate(data.setUpCompleteDate),
+      mdAccessGrantedDate: this.stringToDate(data.mdAccessGrantedDate),
+      mdCompleteDate: this.stringToDate(data.mdCompleteDate),
+      dtaAgreedDate: this.stringToDate(data.dtaAgreedDate),
+      uploadAccessRequestedDate: this.stringToDate(data.uploadAccessRequestedDate),
+      uploadAccessConfirmedDate: this.stringToDate(data.uploadAccessConfirmedDate),
+      uploadCompleteDate: this.stringToDate(data.uploadCompleteDate),
+      qcChecksCompleteDate: this.stringToDate(data.qcChecksCompleteDate),
+      mdIntegratedWithMdrDate: this.stringToDate(data.mdIntegratedWithMdrDate),
+      availabilityRequestedDate: this.stringToDate(data.availabilityRequestedDate),
+      availabilityConfirmedDate: this.stringToDate(data.availabilityConfirmedDate),
     });
     const arr: any = this.statusList.filter((item: any) => item.id === this.dtpData.status.id);
     if (arr && arr.length) {
@@ -750,19 +874,19 @@ export class UpsertDtpComponent implements OnInit {
       this.form.value.uploadAccessConfirmedDate !== null && this.form.value.uploadAccessConfirmedDate !== '' && this.form.value.uploadCompleteDate !== null && this.form.value.uploadCompleteDate !== '' && this.form.value.qcChecksCompleteDate !== null && this.form.value.qcChecksCompleteDate !== '' && this.form.value.mdIntegratedWithMdrDate !== null && this.form.value.mdIntegratedWithMdrDate !== '' && this.form.value.availabilityRequestedDate !== '' && this.form.value.availabilityRequestedDate !== null && this.form.value.availabilityConfirmedDate !== '' && this.form.value.availabilityRequestedDate !== null) {
         this.showUploadButton = this.role === 'User' ? true : false;
     }
-
   }
+
   patchDta(dtaData) {
     this.form.patchValue({
       conformsToDefault: dtaData[0]?.conformsToDefault,
       variations: dtaData[0]?.variations,
       dtaFilePath: dtaData[0]?.dtaFilePath,
-      repoSignature1: dtaData[0]?.repoSignature1?.id,
-      repoSignature2: dtaData[0]?.repoSignature2?.id,
-      providerSignature1: dtaData[0]?.providerSignature1?.id,
-      providerSignature2: dtaData[0]?.providerSignature2?.id
+      repoSignature1: dtaData[0]?.repoSignature1,
+      repoSignature2: dtaData[0]?.repoSignature2,
+      providerSignature1: dtaData[0]?.providerSignature1,
+      providerSignature2: dtaData[0]?.providerSignature2
     });
-    // this.patchNote(dtaData.dtpNotes);
+    // this.patchNotes(dtaData.dtpNotes);
     this.showVariations = dtaData[0]?.conformsToDefault ? true : false;
   }
   findOrganization(id) {
@@ -776,140 +900,135 @@ export class UpsertDtpComponent implements OnInit {
   back(): void {
     this.backService.back();
   }
+
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
     studyModal.componentInstance.title = 'Add Study';
     studyModal.componentInstance.type = 'study';
     studyModal.componentInstance.dtpId = this.id;
-    if (this.associatedStudies.length) {
-      const sdSidArray = [];
-      this.associatedStudies.map((item: any) => {
-        sdSidArray.push(item.studyId);
-      })
-      studyModal.componentInstance.sdSidArray = sdSidArray.toString();
-    }
+    studyModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
+    studyModal.componentInstance.currentObjectsIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
     studyModal.result.then((data) => {
       if (data) {
-        this.selectedSdSid = data;
         this.spinner.show();
         setTimeout(() => {
-          this.spinner.hide();
-          this.getDtpStudies(this.id);
-          this.getDtpObjects(this.id);
-        }, 3000);
+          combineLatest([
+            this.getDtpObjectsAndInstances(this.id),
+            this.getDtpStudies(this.id),
+          ]).subscribe((res) => {
+            this.setDtpStudies(res.pop());
+            // getDtpObjectsAndInstances doesn't return a value
+            this.spinner.hide();
+          });
+        });
       }
     }, error => {})
   }
-  getDtpStudies(id) {
-    this.dtpService.getDtpStudies(id).subscribe((res: any) => {
-      if (res) {
-        this.associatedStudies = res.results ? res.results : [];
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
-  removeDtpStudy(id, sdSid) {
-    this.commonLookup.objectInvolvementDtp(this.id, sdSid).subscribe((res: any) => {
-      console.log('res', res);
+
+  removeDtpStudy(dtpStudy) {
+    this.spinner.show();
+    this.commonLookup.objectInvolvementDtp(this.id, dtpStudy.study?.id).subscribe((res: any) => {
       if (res.studyAssociated && res.objectsAssociated) {
-        this.toastr.error(`Objects linked to this study is linked to this DTP. So, delete the objects before deleting this study`);
+        this.toastr.error(`Objects linked to this study are also linked to this DTP. Disassociate these objects from this DTP before deleting the study.`);
+        this.spinner.hide();
       } else {
-        this.dtpService.deleteDtpStudy(id, this.id).subscribe((res: any) => {
-          this.toastr.success('Study has been disassociated successfully');
-          this.getDtpStudies(this.id);
+        this.dtpService.deleteDtpStudy(dtpStudy.id, this.id).subscribe((res: any) => {
+          this.toastr.success('Study has been disassociated successfully.');
+          this.getDtpStudies(this.id).subscribe((res) => {
+            this.setDtpStudies(res)
+            this.spinner.hide();
+          });
         }, error => {
           this.toastr.error(error.error.title);
+          this.spinner.hide();
         })
       }
     }, error => {
       this.toastr.error(error.error.title);
     })
   }
+
   addDataObject() {
     const dataModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
     dataModal.componentInstance.title = 'Add Data Object';
     dataModal.componentInstance.type = 'dataObject';
     dataModal.componentInstance.dtpId = this.id;
-    if (this.associatedStudies.length) {
-      const sdSidArray = [];
-      this.associatedStudies.map((item: any) => {
-        sdSidArray.push(item.studyId);
-      })
-      dataModal.componentInstance.sdSidArray = sdSidArray.toString();
-    }
+    dataModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
+    dataModal.componentInstance.currentObjectsIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
     dataModal.result.then((data) => {
       if (data) {
         this.spinner.show();
         setTimeout(() => {
-          this.spinner.hide();
-          this.getDtpObjects(this.id);
-        }, 3000);
+          this.getDtpObjectsAndInstances(this.id).subscribe(() => {
+            this.spinner.hide();
+          });
+        });
       }
     }, error => {});
   }
-  getDtpObjects(id) {
-    this.dtpService.getDtpObjects(id).subscribe((res: any) => {
-      if (res) {
-        this.associatedObject = res.results ? res.results : [];
-        this.associatedObject.map( (item, index) => {
-          this.dataObjectService.getObjectInstances(item.objectId, this.pageSize).subscribe((res:any) => {
-            console.log('object instances', res);
-            this.instanceArray[index] = res.results;
-            console.log('instarr', this.instanceArray);
-          }, error => {
-            this.toastr.error(error.error.title);
-          })
-        })
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
+  
   removeDtpObject(id) {
+    this.spinner.show();
     this.dtpService.deleteDtpObject(id, this.id).subscribe((res: any) => {
-      this.toastr.success('Data object has been disassociated successfully');
-      this.getDtpObjects(this.id);
+      this.getDtpObjectsAndInstances(this.id).subscribe(() => {
+        this.toastr.success('Data object has been disassociated successfully');
+        this.spinner.hide();
+      });
     }, error => {
+      this.spinner.hide();
       this.toastr.error(error.error.title);
     })
   }
+
   addUser() {
     const userModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
     userModal.componentInstance.title = 'Add User';
     userModal.componentInstance.type = 'user';
     userModal.componentInstance.dtpId = this.id;
+    userModal.componentInstance.currentUsersIds = new Set(this.associatedUsers.map((item) => item.person?.id));
+
     userModal.result.then((data) => {
       if (data) {
         this.spinner.show();
-        setTimeout(() => {
-          this.getDtpPeople(this.id);
+        setTimeout(() => this.getDtpPeople(this.id).subscribe((res) => {
+          this.setDtpPeople(res);
           this.spinner.hide();
-        }, 3000);
+        }));
       }
     }, error => {});
   }
-  getDtpPeople(id) {
-    this.dtpService.getDtpPeople(id).subscribe((res: any) => {
-      if (res) {
-        this.associatedUser = res.results ? res.results : [];
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
+
   findPeopleById(id) {
-    const arr: any = this.associatedUser.filter((item: any) => item.person?.id === id);
+    const arr: any = this.associatedUsers.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].person?.firstName + ' ' + arr[0].person?.lastName : 'None';
   }
+
   removeDtpUser(id) {
-    this.dtpService.deleteDtpPerson(id, this.id).subscribe((res: any) => {
-      this.toastr.success('User has been disassociated successfully');
-      this.getDtpPeople(this.id);
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
+    this.spinner.show();
+    this.dtpService.deleteDtpPerson(id, this.id).pipe(
+      mergeMap(() => {
+        return this.getDtpPeople(this.id);
+      }),
+      mergeMap((res) => {
+        this.setDtpPeople(res);
+        return this.getDta(this.id);
+      }),
+      mergeMap((res) => {
+        this.setDta(res);
+        return this.getDtpObjectsAndInstances(this.id);
+      }),
+      map(() => {
+        // getDtpObjectsAndInstances does not return a value
+        this.toastr.success('User has been dissociated successfully');
+      }),
+      finalize(() => this.spinner.hide()),
+      catchError(err => {
+        this.toastr.error(err.message, 'Error during user dissociation');
+        return of(false);
+      })
+    ).subscribe();
   }
+
   printDocument() {
     const payload = JSON.parse(JSON.stringify(this.dtpData));
     payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
@@ -943,11 +1062,40 @@ export class UpsertDtpComponent implements OnInit {
       item.accessCheckStatus = this.findCheckSatus(item.accessCheckStatus);
       item.accessCheckBy = this.findPeopleById(item.accessCheckBy);
     });
-    this.pdfGeneratorService.dtpPdfGenerator(payload, this.associatedUser);
+    this.pdfGeneratorService.dtpPdfGenerator(payload, this.associatedUsers);
   }
+
+  cleanJSON(obj) {
+    const keysToDel = ['lastEditedBy', 'deidentType', 'deidentDirect', 'deidentHipaa', 'deidentDates', 'deidentKanon', 'deidentNonarr', 'deidentDetails'];
+    for (let key in obj) {
+      if (keysToDel.includes(key)) {
+        delete obj[key];
+      } else if (key === 'person' && obj[key] !== null) { // Removing most user info
+        obj[key] = {'userProfile': obj['person']['userProfile'], 
+                    'firstName': obj['person']['firstName'],
+                    'lastName': obj['person']['lastName'],
+                    'email': obj['person']['email']};
+      } else if (key === 'id') {  // Deleting all internal IDs
+        delete obj[key];
+      } else {
+        if (typeof obj[key] === 'object') {
+          if (Array.isArray(obj[key])) {
+            // loop through array
+            for (let i = 0; i < obj[key].length; i++) {
+              this.cleanJSON(obj[key][i]);
+            }
+          } else {
+            // call function recursively for object
+            this.cleanJSON(obj[key]);
+          }
+        }
+      }
+    }
+  }
+
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.dtpData));
-    payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
+    /*payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
     payload.coreDtp.status = this.findStatus(payload.coreDtp.status);
     payload.coreDtp.initialContactDate = this.viewDate(payload.coreDtp.initialContactDate);
     payload.coreDtp.setUpCompleteDate = this.viewDate(payload.coreDtp.setUpCompleteDate);
@@ -977,7 +1125,7 @@ export class UpsertDtpComponent implements OnInit {
       item.accessType = this.findAccessType(payload.accessType);
       item.accessCheckStatus = this.findCheckSatus(item.accessCheckStatus);
       item.accessCheckBy = this.findPeopleById(item.accessCheckBy);
-    });
+    });*/
     this.jsonGenerator.jsonGenerator(payload, 'dtp');
   }
   resetAll() {
@@ -1060,24 +1208,6 @@ export class UpsertDtpComponent implements OnInit {
   conformsToDefaultChange() {
     this.showVariations = this.form.value.conformsToDefault ? true : false
   }
-  getStudyList() {
-    this.listService.getStudyList().subscribe((res: any) => {
-      if (res && res.data) {
-        this.studyList = res.data;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
-  getObjectList() {
-    this.listService.getObjectList().subscribe((res: any) => {
-      if (res && res.data) {
-        this.objectList = res.data;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
   findStudyById(sdSid) {
     const arr: any = this.studyList.filter((item: any) => item.sdSid === sdSid);
     return arr && arr.length ? arr[0].displayTitle : 'None';
@@ -1086,21 +1216,36 @@ export class UpsertDtpComponent implements OnInit {
     const arr: any = this.objectList.filter((item: any) => item.objectId === objectId);
     return arr && arr.length ? arr[0].displayTitle : 'None';
   }
+
+  customSearchUsers(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.person?.firstName.toLocaleLowerCase().indexOf(term) > -1 
+        || item.person?.lastName.toLocaleLowerCase().indexOf(term) > -1
+        || item.person?.email.toLocaleLowerCase().indexOf(term) > -1
+        || (item.person?.firstName.toLocaleLowerCase() + " " + item.person?.lastName.toLocaleLowerCase()).indexOf(term) > -1;
+  }
+
+  compareUsers(u1: any, u2: any) {
+    return u1.id === u2.id;
+  }
+
   goToTsd(instance) {
     this.oidcSecurityService.getAccessToken().subscribe((userToken) => {
-      const headers = new HttpHeaders();
-      headers.set('Authorization', userToken);
-
-      this.http.get(`https://api-v2.ecrin-rms.org/api/data-objects/${instance.objectId}`, {headers}).subscribe(res => {
-        // @ts-ignore
-        const objectId = res['data'][0].id;
-        this.redirectService.postRedirect(instance.id, objectId, userToken);
-      });
+      if (instance.id && instance.objectId) {
+        // const headers = new HttpHeaders();
+        // headers.set('Authorization', userToken);
+        this.redirectService.postRedirect(instance.id, instance.objectId, userToken);
+      } else {
+        this.toastr.error('Object ID or Object instance ID is undefined, please try to refresh the page.', 'Data object upload error');
+      }
     });
   }
   goToDo(object) {
-    console.log(object);
-    this.router.navigate([`/data-objects/${object.objectId}/edit`]);
+    if (object.dataObject?.sdOid) {
+      this.router.navigate([`/data-objects/${object.dataObject.sdOid}/edit`]);
+    } else {
+      this.toastr.error('Data object ID is undefined, please try to navigate there manually.', 'Error navigating to data object page')
+    }
   }
   ngOnDestroy() {
     this.scrollService.unsubscribeScroll();

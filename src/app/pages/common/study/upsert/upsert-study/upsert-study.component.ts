@@ -497,9 +497,8 @@ export class UpsertStudyComponent implements OnInit {
               this.toastr.success('Study updated successfully');
               localStorage.setItem('updateStudyList', 'true');
               this.reuseService.notifyComponents();
-              // this.getStudyById(this.id);
               this.spinner.hide();
-              this.back();
+              this.router.navigate([`/studies/${this.sdSid}/view`]);
             } else {
               this.toastr.error(res.messages[0]);
               this.spinner.hide();
@@ -516,7 +515,11 @@ export class UpsertStudyComponent implements OnInit {
               this.toastr.success('Study added successfully');
               localStorage.setItem('updateStudyList', 'true');
               this.reuseService.notifyComponents();
-              this.back();
+              if (res.sdSid) {
+                this.router.navigate([`/studies/${res.sdSid}/view`]);
+              } else {
+                this.back();
+              }
             } else {
               this.toastr.error(res.message, "Study adding error");
             }
@@ -527,6 +530,7 @@ export class UpsertStudyComponent implements OnInit {
       } else {
         this.spinner.hide();
         this.gotoTop();
+        this.toastr.error("Please correct the errors in the form's fields.");
       }
       this.count = 0;
     }

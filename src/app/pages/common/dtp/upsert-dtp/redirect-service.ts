@@ -1,5 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
+import { environment } from '../../../../../environments/environment';
 
 
 @Injectable({
@@ -12,15 +13,16 @@ export class RedirectService {
     ) {}
 
     public postRedirect(instanceId: number, objectId: number, token: string) {
+        // TODO: fix authorization header not appearing on TSD's side?
         const xhttp = new XMLHttpRequest();
-        xhttp.open('POST', `https://crr.tsd.usit.no/direct/${objectId}/${instanceId}`, false);
+        xhttp.open('POST', `https://crr.tsd.usit.no/${environment.tsdUploadPath}/import/${objectId}/${instanceId}`, false);
         xhttp.setRequestHeader('Authorization', 'Bearer ' + token);
         xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
 
         const form = this.document.createElement('form');
         form.method = 'POST';
         form.target = '_top';
-        form.action = `https://crr.tsd.usit.no/direct/${objectId}/${instanceId}`;
+        form.action = `https://crr.tsd.usit.no/${environment.tsdUploadPath}/import/${objectId}/${instanceId}`;
         const input = this.document.createElement('input');
         input.type = 'hidden';
         input.name = 'id_token';
