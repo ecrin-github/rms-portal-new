@@ -50,8 +50,8 @@
                                     </ng-template>
                                 </ng-select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                    <a *ngIf="isView" [routerLink]="isBrowsing ? ['/browsing/studies', studyRelation.value.targetStudy?.id, 'view'] 
-                                    : ['/studies', studyRelation.value.targetStudy?.id, 'view']">{{studyRelation.value.targetStudy?.id}}</a>
+                                    <a *ngIf="isView" [routerLink]="isBrowsing ? ['/browsing/studies', studyRelation.value.targetStudy?.sdSid, 'view'] 
+                                    : ['/studies', studyRelation.value.targetStudy?.sdSid, 'view']">{{studyRelation.value.targetStudy?.sdSid}}</a>
                                 </h6>
                             </div>
                         </div>
