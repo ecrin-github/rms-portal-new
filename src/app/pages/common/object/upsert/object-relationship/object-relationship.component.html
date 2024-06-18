@@ -37,7 +37,7 @@
                             <div class="col-md-6">
                                 <label for="targetObject" class="font-style text-capitalize">Target data object</label>
                                 <ng-select [items]="objectList" formControlName="targetObject" [compareWith]="compareDOs" [multiple]="false" 
-                                    [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No DOs found"
+                                    [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No DOs found"
                                     placeholder="Please select the related data object" [searchFn]="customSearchDOs" *ngIf="!isView">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.displayTitle}}

@@ -5,7 +5,7 @@
                 <div class="col-md-5">
                     <h2>{{ isView ? ' Data Use Process' : isEdit ? 'Editing Data Use Process' : 'Adding new data use process'}}</h2>
                 </div>
-                <div class="col-md-7 text-right" *ngIf="isView">
+                <div class="col-md-7 text-right">
                     <ng-container *ngIf="showUploadButton">
                         <button class="btn btn-success mr-1" (click)="goToTsd()">Access Data</button>
                     </ng-container>
@@ -47,12 +47,8 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#setup" data-toggle="tab" id="setups"
-                                (click)="getDupStudies(id); getDupObjects(id); getDupPeople(id); showButton = false">{{ isView ? 'Linked
+                                (click)="showButton = false">{{ isView ? 'Linked
                                 Objects and People' : 'Set up'}}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#objectprerequisite" data-toggle="tab" id="objectprerequisites"
-                                (click)="onClickControllTab(); showButton = false">Controlled Access Data</a>
                         </li>
                     </ul>
                 </ng-container>
@@ -63,10 +59,10 @@
                         <form [formGroup]="form">
                             <div class="row form-group">
                                 <div class="col-md-6">
-                                    <label for="" class="font-style text-capitalize">organization</label>
+                                    <label for="" class="font-style text-capitalize">organization<sup>*</sup></label>
                                     <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="organisation"
-                                        [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" notFoundText="No members found"
-                                        placeholder="Select Organisation" *ngIf="!isView"
+                                        [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
+                                        notFoundText="No members found" placeholder="Select Organisation" *ngIf="!isView"
                                         [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }" [readonly]="isEdit">
                                     </ng-select>
                                     <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.organisation.errors">
@@ -76,7 +72,7 @@
                                         {{findOrganization(dupData?.organisation?.id)}}</h6>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="" class="font-style text-capitalize">Display Name</label>
+                                    <label for="" class="font-style text-capitalize">Display Name<sup>*</sup></label>
                                     <input type="text" class="form-control" formControlName="displayName" *ngIf="!isView"
                                         [ngClass]="{ 'is-invalid': submitted && g.displayName.errors }">
                                     <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.displayName.errors">
@@ -177,7 +173,7 @@
                                     <div class="col-md-12" data-wizard-type="step-content">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <label for="" class="font-style text-capitalize">SetUp Completed</label>
+                                                <label for="" class="font-style text-capitalize">Setup Completed</label>
                                                 <div class="form-group" *ngIf="!isView">
                                                     <div class="input-group">
                                                         <input class="form-control" placeholder="yyyy-mm-dd" name="setUpCompletedDate" ngbDatepicker
@@ -335,28 +331,30 @@
                                 <h3>Agreement Details</h3>
                                 <br />
                                 <div class="row form-group">
-                                    <div [ngClass]="{'col-md-4': !showVariations, 'col-md-6': showVariations}">
-                                        <label class="form-check-label font-style text-capitalize" for="conformsToDefault">conforms to
-                                            default</label>
+                                    <div class="col-md-6">
+                                        <label class="form-check-label font-style text-capitalize" for="conformsToDefault">
+                                            conforms to default</label>
                                         <input class="form-check-input ml-4" type="checkbox" id="conformsToDefault"
                                             formControlName="conformsToDefault" (change)="conformsToDefaultChange()" *ngIf="!isView">
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? duaData[0]?.conformsToDefault : 'false'}}</h6>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData && duaData[0]?.conformsToDefault ? 'Yes' : 'No'}}</h6>
                                     </div>
-                                    <div class="col-md-4" *ngIf="!showVariations">
+                                    <div class="col-md-6" *ngIf="!showVariations">
                                         <label for="variations" class="font-style text-capitalize">variations</label>
                                         <textarea cols="30" rows="3" class="form-control" id="variations" formControlName="variations"
                                             *ngIf="!isView"></textarea>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? duaData[0]?.variations : ''}}</h6>
                                     </div>
-                                    <div [ngClass]="{'col-md-4': !showVariations, 'col-md-6': showVariations}">
-                                        <label class="form-check-label font-style text-capitalize" for="repolsProxyProvider">repo is proxy
-                                            provider</label>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-md-6">
+                                        <label class="form-check-label font-style text-capitalize" for="repolsProxyProvider">
+                                            repo is proxy provider</label>
                                         <input class="form-check-input ml-4" type="checkbox" id="repolsProxyProvider"
                                             formControlName="repoIsProxyProvider" *ngIf="!isView">
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? duaData?.repoIsProxyProvider : 'false'}}</h6>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData && duaData[0]?.repoIsProxyProvider ? 'Yes' : 'No'}}</h6>
                                     </div>
                                 </div>
-                                <div class="row form-group ">
+                                <div class="row form-group">
                                     <div class="col-md-6">
                                         <label for="filePath" class="font-style text-capitalize">DTA file path</label>
                                         <input type="text" class="form-control" id="filePath" formControlName="duaFilePath" *ngIf="!isView">
@@ -367,69 +365,137 @@
                                     <div class="col-md-6">
                                         <label for="rsignatory1" class="font-style text-capitalize">Repository Signatory
                                             1</label>
-                                        <select id="rsignatory1" class="form-control" formControlName="repoSignatory1" *ngIf="!isView">
-                                            <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.person?.id *ngFor="let user of associatedUser">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
-                                        </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? findPeopleById(duaData[0]?.repoSignatory1?.id) : ''}}</h6>
+                                        <ng-select id="rsignatory1" [items]="associatedUsers" formControlName="repoSignatory1" [multiple]="false" 
+                                            [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchUsers"
+                                            bindValue="id" [compareWith]="compareUsers" notFoundText="No person found" placeholder="" *ngIf="!isView">
+                                            <ng-template ng-label-tmp let-item="item">
+                                                {{item.person?.firstName}} {{item.person?.lastName}}
+                                            </ng-template>
+                                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                <div class="row m-0">
+                                                    <div class="col-md-8 col-8 p-0 m-0">
+                                                        <div class="col-md-12">{{item.person?.firstName}} {{item.person?.lastName}}</div>
+                                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.person?.email}}</div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </ng-select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{duaData && duaData[0]?.repoSignatory1?.id ? findPeopleById(duaData[0].repoSignatory1.id) : ''}}
+                                        </h6>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="rsignatory2" class="font-style text-capitalize">Repository Signatory
                                             2</label>
-                                        <select id="rsignatory2" class="form-control" formControlName="repoSignatory2" *ngIf="!isView">
-                                            <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.person?.id *ngFor="let user of associatedUser">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
-                                        </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? findPeopleById(duaData[0]?.repoSignatory2?.id) : ''}}</h6>
+                                        <ng-select id="rsignatory2" [items]="associatedUsers" formControlName="repoSignatory2" [multiple]="false" 
+                                            [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchUsers"
+                                            bindValue="id" [compareWith]="compareUsers" notFoundText="No person found" placeholder="" *ngIf="!isView">
+                                            <ng-template ng-label-tmp let-item="item">
+                                                {{item.person?.firstName}} {{item.person?.lastName}}
+                                            </ng-template>
+                                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                <div class="row m-0">
+                                                    <div class="col-md-8 col-8 p-0 m-0">
+                                                        <div class="col-md-12">{{item.person?.firstName}} {{item.person?.lastName}}</div>
+                                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.person?.email}}</div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </ng-select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{duaData && duaData[0]?.repoSignatory2?.id ? findPeopleById(duaData[0].repoSignatory2.id) : ''}}
+                                        </h6>
                                     </div>
                                 </div>
                                 <div class="row form-group">
                                     <div class="col-md-6">
                                         <label for="psignatory1" class="font-style text-capitalize">Provider Signatory
                                             1</label>
-                                        <select id="psignatory1" class="form-control" formControlName="providerSignatory1" *ngIf="!isView">
-                                            <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.person?.id *ngFor="let user of associatedUser">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
-                                        </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? findPeopleById(duaData[0]?.providerSignatory1?.id) : ''}}
+                                        <ng-select id="psignatory1" [items]="associatedUsers" formControlName="providerSignatory1" [multiple]="false" 
+                                            [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchUsers"
+                                            bindValue="id" [compareWith]="compareUsers" notFoundText="No person found" placeholder="" *ngIf="!isView">
+                                            <ng-template ng-label-tmp let-item="item">
+                                                {{item.person?.firstName}} {{item.person?.lastName}}
+                                            </ng-template>
+                                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                <div class="row m-0">
+                                                    <div class="col-md-8 col-8 p-0 m-0">
+                                                        <div class="col-md-12">{{item.person?.firstName}} {{item.person?.lastName}}</div>
+                                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.person?.email}}</div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </ng-select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{duaData && duaData[0]?.providerSignatory1?.id ? findPeopleById(duaData[0].providerSignatory1.id) : ''}}
                                         </h6>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="psignatory2" class="font-style text-capitalize">Provider Signatory
                                             2</label>
-                                        <select id="psignatory2" class="form-control" formControlName="providerSignatory2" *ngIf="!isView">
-                                            <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.person?.id *ngFor="let user of associatedUser">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
-                                        </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? findPeopleById(duaData[0]?.providerSignatory2?.id) : ''}}
+                                        <ng-select id="psignatory2" [items]="associatedUsers" formControlName="providerSignatory2" [multiple]="false" 
+                                            [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchUsers"
+                                            bindValue="id" [compareWith]="compareUsers" notFoundText="No person found" placeholder="" *ngIf="!isView">
+                                            <ng-template ng-label-tmp let-item="item">
+                                                {{item.person?.firstName}} {{item.person?.lastName}}
+                                            </ng-template>
+                                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                <div class="row m-0">
+                                                    <div class="col-md-8 col-8 p-0 m-0">
+                                                        <div class="col-md-12">{{item.person?.firstName}} {{item.person?.lastName}}</div>
+                                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.person?.email}}</div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </ng-select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{duaData && duaData[0]?.providerSignatory2?.id ? findPeopleById(duaData[0].providerSignatory2.id) : ''}}
                                         </h6>
                                     </div>
                                 </div>
                                 <div class="row form-group">
                                     <div class="col-md-6">
-                                        <label for="reqsignatory1" class="font-style text-capitalize">RequesterSignatory
+                                        <label for="reqsignatory1" class="font-style text-capitalize">Requester Signatory
                                             1</label>
-                                        <select id="reqsignatory1" class="form-control" formControlName="requesterSignatory1" *ngIf="!isView">
-                                            <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.person?.id *ngFor="let user of associatedUser">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
-                                        </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? findPeopleById(duaData[0]?.requesterSignatory1?.id) : ''}}
+                                        <ng-select id="reqsignatory1" [items]="associatedUsers" formControlName="requesterSignatory1" [multiple]="false" 
+                                            [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchUsers"
+                                            bindValue="id" [compareWith]="compareUsers" notFoundText="No person found" placeholder="" *ngIf="!isView">
+                                            <ng-template ng-label-tmp let-item="item">
+                                                {{item.person?.firstName}} {{item.person?.lastName}}
+                                            </ng-template>
+                                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                <div class="row m-0">
+                                                    <div class="col-md-8 col-8 p-0 m-0">
+                                                        <div class="col-md-12">{{item.person?.firstName}} {{item.person?.lastName}}</div>
+                                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.person?.email}}</div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </ng-select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{duaData && duaData[0]?.requesterSignatory1?.id ? findPeopleById(duaData[0].requesterSignatory1.id) : ''}}
                                         </h6>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="reqsignatory2" class="font-style text-capitalize">RequesterSignatory
+                                        <label for="reqsignatory2" class="font-style text-capitalize">Requester Signatory
                                             2</label>
-                                        <select id="reqsignatory2" class="form-control" formControlName="requesterSignatory2" *ngIf="!isView">
-                                            <option selected disabled value="">Select an option...</option>
-                                            <option [value]=user.person?.id *ngFor="let user of associatedUser">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}</option>
-                                        </select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? findPeopleById(duaData[0]?.requesterSignatory2?.id) : ''}}
+                                        <ng-select id="reqsignatory2" [items]="associatedUsers" formControlName="requesterSignatory2" [multiple]="false" 
+                                            [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchUsers"
+                                            bindValue="id" [compareWith]="compareUsers" notFoundText="No person found" placeholder="" *ngIf="!isView">
+                                            <ng-template ng-label-tmp let-item="item">
+                                                {{item.person?.firstName}} {{item.person?.lastName}}
+                                            </ng-template>
+                                            <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                                <div class="row m-0">
+                                                    <div class="col-md-8 col-8 p-0 m-0">
+                                                        <div class="col-md-12">{{item.person?.firstName}} {{item.person?.lastName}}</div>
+                                                        <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.person?.email}}</div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </ng-select>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                            {{duaData && duaData[0]?.requesterSignatory2?.id ? findPeopleById(duaData[0].requesterSignatory2.id) : ''}}
                                         </h6>
                                     </div>
                                 </div>
@@ -438,6 +504,29 @@
                                 <hr style="border-top: 2px solid;" />
                                 <h3>Notes</h3>
                                 <div formArrayName="notes">
+                                    <div class="row form-group">
+                                        <div class="col-md-12 text-right pb-2">
+                                            <button class="btn btn-primary p-2" (click)="addDupNote()" *ngIf="!isView"><i class="fa fa-plus p-0"></i></button>
+                                        </div>
+                                        <div class="col-md-12" *ngFor="let note of notes().controls;let i = index" [formGroupName]="i">
+                                            <div class="card border-0">
+                                                <div class="card-body pl-0 pr-0 pb-0 pt-5">
+                                                    <i class="fa fa-times float-right pr-1 text-danger" style="cursor: pointer;"
+                                                        (click)="deleteDupNote(i)" *ngIf="!isView"></i>
+                                                    <i class="fa fa-check float-right pr-2 text-success" style="cursor: pointer;"
+                                                        (click)="saveDupNote(note)" *ngIf="!isView"></i>
+                                                    <h6>{{(note.value.author?.firstName || note.value.author?.lastName ? 
+                                                        (note.value.author?.firstName ? note.value.author.firstName + ' ' : '') 
+                                                        + (note.value.author?.lastName ? note.value.author.lastName : '') : 'Missing author')}} <small>{{note.value.createdOn}}</small></h6>
+                                                    <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="text"
+                                                        *ngIf="!isView"></textarea>
+                                                    <span style="font-weight: 100;" *ngIf="isView">{{note.value.text}}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div formArrayName="notes">
                                     <div class="row form-group">
                                         <div class="col-md-12 text-right pb-2"><button class="btn btn-primary p-2" (click)="addDupNote()"
                                                 *ngIf="!isView"><i class="fa fa-plus p-0"></i></button></div>
@@ -457,7 +546,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </ng-container>
                             <hr />
                         </form>
@@ -476,8 +565,11 @@
                                 <ng-container *ngIf="associatedStudies.length > 0">
                                     <ul>
                                         <li *ngFor="let study of associatedStudies; let i = index" class="pl-4">
-                                            {{study.studyName}}({{study.studyId}})
-                                            <i class="fa fa-times pl-3" (click)="removeDupStudy(study.id, study.studyId)"
+                                            <a [routerLink]="['/studies', study.study?.sdSid, 'view']">
+                                                {{study.study?.sdSid}}
+                                            </a>
+                                            <span title="{{study.study?.displayTitle}}">({{(study.study?.displayTitle && study.study?.displayTitle.length <= sliceLength) ? study.study?.displayTitle : (study.study?.displayTitle | slice:0:sliceLength) + '...'}})</span>
+                                            <i class="fa fa-times pl-3" (click)="removeDupStudy(study)"
                                                 *ngIf="!isView"></i>
                                         </li>
                                     </ul>
@@ -493,9 +585,20 @@
                                 <ng-container *ngIf="associatedObjects.length > 0">
                                     <ul>
                                         <li *ngFor="let object of associatedObjects; let i = index" class="pl-4">
-                                            {{object.objectId}}<span title="{{object.objectName}}">({{object.objectName | slice:0:50}}...)</span>
+                                            <a [routerLink]="['/data-objects', object.dataObject?.sdOid, 'view']">
+                                                {{object.dataObject?.sdOid}}
+                                            </a>
+                                            <span title="{{object.dataObject?.displayTitle}}">({{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}})</span>
                                             <i class="fa fa-times pl-3" (click)="removeDupObject(object.id)"
                                                 *ngIf="!isView"></i>
+                                            <ng-container *ngIf="prereqs[i]?.length > 0">
+                                                <ul style="list-style-type: square;">
+                                                    <li *ngFor="let prereq of prereqs[i]">
+                                                        {{prereq.prereqType?.name ? prereq.prereqType.name : 'Unknown prerequisite type'}} 
+                                                        <span title="{{prereq.prereqNotes}}">({{(prereq.prereqNotes?.length > sliceLength) ? ((prereq.prereqNotes | slice:0:sliceLength) + '...'): (prereq.prereqNotes)}})</span>
+                                                    </li>
+                                                </ul>
+                                            </ng-container>
                                         </li>
                                     </ul>
                                 </ng-container>
@@ -504,13 +607,15 @@
                                 <span class="font-style">Associated People</span>
                                 <button class="btn btn-primary float-right" (click)="addUser()" *ngIf="!isView">Add
                                     People</button>
-                                <ng-container *ngIf="associatedUser.length <= 0">
+                                <ng-container *ngIf="associatedUsers.length <= 0">
                                     <p>No Associated Users</p>
                                 </ng-container>
-                                <ng-container *ngIf="associatedUser.length > 0">
+                                <ng-container *ngIf="associatedUsers.length > 0">
                                     <ul>
-                                        <li *ngFor="let user of associatedUser; let i = index" class="pl-4">
-                                            {{user.person?.firstName}} {{user.person?.lastName}}
+                                        <li *ngFor="let user of associatedUsers; let i = index" class="pl-4">
+                                            <a [routerLink]="['/people', user.person?.id, 'view']">
+                                                {{user.person?.firstName}} {{user.person?.lastName}}
+                                            </a> ({{user.person?.email}})
                                             <i class="fa fa-times pl-3" (click)="removeDupUser(user.id)"
                                                 *ngIf="!isView"></i>
                                         </li>
@@ -519,62 +624,6 @@
                                 <br>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="objectprerequisite">
-                    <div class="col-md-12">
-                        <form [formGroup]="preReqForm">
-                            <div formArrayName="preRequisite">
-                                <div class="col-md-12" *ngFor="let preReq of preReqs().controls;let i = index" [formGroupName]="i">
-                                    <br>
-                                    <label for="preReqId" class="font-style text-capitalize">{{(preReqs()?.controls[i-1]?.value?.sdOid ===
-                                        preReqs()?.controls[i]?.value?.sdOid) && i!==0 ? '' : 'Pre-Requisite for Data Object' +
-                                        preReq.value.sdOid}}</label>
-                                    <mat-expansion-panel [expanded]="isView ? 'true' : 'true'">
-                                        <mat-expansion-panel-header> {{findPrereqType(prereqs[i].prereqType)}}
-                                        </mat-expansion-panel-header>
-                                        <div class="row form-group">
-                                            <div class="col-md-6" *ngIf="!isView">
-                                                <label for="notes" class="font-style text-capitalize">Pre-Requisite Type</label>
-                                                <select id="preReqId" formControlName="prereqType" class="form-control" *ngIf="!isView" disabled>
-                                                    <option [value]=preReqType.id *ngFor="let preReqType of preRequTypes">
-                                                        {{preReqType.name}}</option>
-                                                </select>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{findPrereqType(prereqs[i].prereqType)}}</h6>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="notes" class="font-style text-capitalize">Note</label>
-                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="prereqNotes"
-                                                    *ngIf="!isView" disabled></textarea>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{prereqs[i].prereqNotes}}
-                                                </h6>
-                                            </div>
-                                        </div>
-                                        <div class="row form-group">
-                                            <div class="col-md-6">
-                                                <label for="notes" class="font-style text-capitalize">Pre-Requisite met</label>
-                                                <!-- <input type="text" class="form-control" formControlName="prereqMet" *ngIf="!isView"> -->
-                                                <input class="form-control" placeholder="yyyy-mm-dd" name="prereqMet" ngbDatepicker
-                                                    #prereqMet="ngbDatepicker" (click)="prereqMet.toggle()"
-                                                    formControlName="prereqMet" [maxDate]="todayDate" *ngIf="!isView" container='body'>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{viewDate(prereqs[i].prereqMet)}}</h6>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="notes" class="font-style text-capitalize">Pre-Requisite met Note</label>
-                                                <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="notes"
-                                                    *ngIf="!isView"></textarea>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{prereqs[i].notes}}</h6>
-                                            </div>
-                                        </div>
-                                        <mat-action-row *ngIf="!isView">
-                                            <button mat-button color="primary" (click)="editPreReq(preReq)">Save</button>
-                                        </mat-action-row>                
-                                    </mat-expansion-panel>
-                                </div>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>

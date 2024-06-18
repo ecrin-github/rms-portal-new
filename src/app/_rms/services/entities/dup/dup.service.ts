@@ -169,28 +169,10 @@ export class DupService {
   }
 
 
-  // Dup Object pre-requisites
+  // Dup Object pre-requisites -- read only from DTP prereqs table
 
-  getDupObjectPrereqs(dupId) {
-    return this.http.get(`${base}/rms/dup/${dupId}/prereqs`);
-  }
-  getDupObjectPrereqsWfkn(sdOid, dupId) {
-    return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/objects/${sdOid}/prereqs`);
-  }
-  addDupObjectPrereq(dupId, sdOid, payload) {
-    return this.http.post(`${base}/data-uses/${dupId}/objects/${sdOid}/prereqs`, payload);
-  }
-  getDupObjectPrereq(id, sdOid, dupId) {
-    return this.http.get(`${base}/data-uses/${dupId}/objects/${sdOid}/prereqs/${id}`);
-  }
-  getDupObjectPrereqWfkn(id, sdOid, dupId) {
-    return this.http.get(`${base}/data-uses/with-fk-names/${dupId}/objects/${sdOid}/prereqs/${id}`);
-  }
-  editDupObjectPrereq(id, dupId, payload) {
-    return this.http.put(`${base}/rms/dup/${dupId}/prereqs/${id}`, payload);
-  }
-  deleteDupObjectPrereq(id, sdOid, dupId) {
-    return this.http.delete(`${base}/data-uses/${dupId}/objects/${sdOid}/prereqs/${id}`);
+  getDupObjectPrereqs(dataObjectsIds) {
+    return this.http.get(`${base}/mdm/dup/prereqs?dataObjectIds=${dataObjectsIds}`);
   }
 
   // DUP secondary use

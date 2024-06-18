@@ -36,7 +36,7 @@
                             <div class="col-md-6">
                                 <label for="langCode" class="font-style text-capitalize">Language</label>
                                 <ng-select class="form-control" id="langCode" [items]="languageCodes" formControlName="langCode"
-                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" appendTo="body" *ngIf="!isView" [searchFn]="customSearchLang">
+                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" *ngIf="!isView" [searchFn]="customSearchLang">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.langNameEn}}
                                     </ng-template>

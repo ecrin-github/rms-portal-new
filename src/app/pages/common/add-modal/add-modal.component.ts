@@ -25,14 +25,13 @@ export class AddModalComponent implements OnInit {
   type: any;
   todayDate: any;
   accessTypes: [] = [];
-  dupPreReqForm: UntypedFormGroup;
   isEmbargoRequested: boolean = false;
   pageSize: Number = 10000;
 
   constructor( private spinner: NgxSpinnerService, private fb: UntypedFormBuilder, private dtpService: DtpService, private toastr: ToastrService, private processLookup: ProcessLookupService,
     private activeModal: NgbActiveModal, private objectLookupService: ObjectLookupService, private dupService: DupService) { 
     this.preReqForm = this.fb.group({
-      objectId: '',
+      dtpDataObject: '',
       prereqType: '',
       prereqNotes: ''
     });
@@ -48,13 +47,6 @@ export class AddModalComponent implements OnInit {
       embargoStillApplies: null,
       objectId: ''
     });
-    this.dupPreReqForm = this.fb.group({
-      preRequisiteId: '',
-      preRequisiteNotes: '',
-      preRequisiteMet: '',
-      metNotes: '',
-      objectId: ''
-    })
 }
 
   ngOnInit(): void {
@@ -67,10 +59,6 @@ export class AddModalComponent implements OnInit {
     if (this.type === 'dtpEmbargo') {
       this.getAccessType();
       this.getDtpObjectList(this.dtpId);
-    }
-    if (this.type === 'dupPrereq') {
-      this.getPrereqTypes();
-      this.getDupObjectList(this.dupId);
     }
   }
   getPrereqTypes() {
@@ -127,7 +115,7 @@ export class AddModalComponent implements OnInit {
       payload.dtpId = this.dtpId;
       this.dtpService.addDtpObjectPrereq(this.dtpId,payload).subscribe((res: any) => {
         this.spinner.hide();
-        if(res.statusCode === 200) {
+        if(res.statusCode === 201) {
           this.toastr.success('Pre-Requisite added successfully');
           this.closeModal('data');
         } else {
@@ -143,25 +131,8 @@ export class AddModalComponent implements OnInit {
       const payload = this.embargoForm.value;
       this.dtpService.addDtpObject(this.dtpId, payload).subscribe((res: any) => {
         this.spinner.hide();
-        if (res.statusCode === 200) {
+        if (res.statusCode === 201) {
           this.toastr.success('Object Embargo added successfully');
-          this.closeModal('data');
-        } else {
-          this.toastr.error(res.messages[0]);
-        }
-      }, error => {
-        this.spinner.hide();
-        this.toastr.error(error.error.title);
-      })
-    }
-    if (this.type === 'dupPrereq') {
-      this.spinner.show();
-      const payload = this.dupPreReqForm.value;
-      payload.preRequisiteMet = this.dateToString(payload.preRequisiteMet);
-      this.dupService.addDupObjectPrereq(this.dupId, payload.objectId, payload).subscribe((res: any) => {
-        this.spinner.hide();
-        if (res.statusCode === 200) {
-          this.toastr.success('Pre-Requisite added successfully');
           this.closeModal('data');
         } else {
           this.toastr.error(res.messages[0]);
