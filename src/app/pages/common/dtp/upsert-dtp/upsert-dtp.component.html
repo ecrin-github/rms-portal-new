@@ -491,7 +491,10 @@
                                                     <li *ngFor="let instance of instanceArray[i]">
                                                         {{instance.resourceType?.name ? instance.resourceType?.name : 'No resource type defined'}}
                                                         <span title="{{instance.resourceComments}}">({{(instance.resourceComments.length === 0) ? 'No comments' : ((instance.resourceComments.length <= sliceLength) ? instance.resourceComments : (instance.resourceComments | slice:0:sliceLength) + '...')}})</span>
-                                                        <span class="pl-2"><button class="btn btn-success btn-sm" (click)="goToTsd(instance)">Upload</button></span>
+                                                        <span class="pl-2" [title]="lastCompletedStep >= 3 ? 'Data upload to the TSD Repository' : 'DTP step should be at \'Transfer\' to be able to upload the data'">
+                                                            <button [ngClass]="lastCompletedStep >= 3 ? 'btn-success' : 'btn-secondary'" 
+                                                                class="btn btn-sm" [disabled]="lastCompletedStep < 3" (click)="goToTsd(instance)">Upload</button>
+                                                        </span>
                                                     </li>
                                                 </ul>
                                             </ng-container>
