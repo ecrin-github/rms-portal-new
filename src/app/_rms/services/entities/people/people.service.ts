@@ -20,7 +20,7 @@ export class PeopleService {
     return this.http.put(`${base}/users/${id}/profile/${userProfileId}`, payload)
   }
   addPeople(payload) {
-    return this.http.post(`${base}/users/`, payload);
+    return this.http.post(`${base}/users/login`, payload);
   }
   deletePeopleById(id) {
     return this.http.delete(`${base}/users/${id}`);

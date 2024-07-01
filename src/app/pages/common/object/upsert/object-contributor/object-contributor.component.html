@@ -59,7 +59,7 @@
                                 <label for="organisation" class="font-style text-capitalize">Organisation</label>
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
                                     formControlName="organisation" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
-                                    notFoundText="No members found" placeholder="Select Organisation"
+                                    appendTo="body" notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(objectContributor.value.organisation)}}</h6>
@@ -70,7 +70,7 @@
                                 <label for="person" class="font-style text-capitalize">Person</label>
                                 <ng-select [items]="personList" bindLabel="id" bindValue="id" formControlName="person"
                                     [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
-                                    placeholder="Please select a person" *ngIf="!isView">
+                                    appendTo="body" placeholder="Please select a person" *ngIf="!isView">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.firstName}} {{item.lastName}}
                                     </ng-template>
@@ -87,7 +87,7 @@
                                 <label for="organisation" class="font-style text-capitalize">Organisation</label>
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
                                     formControlName="organisation" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
-                                    notFoundText="No members found" placeholder="Select Organisation"
+                                    appendTo="body" notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(objectContributor.value.organisation)}}</h6>

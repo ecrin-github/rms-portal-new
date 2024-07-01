@@ -21,7 +21,7 @@
                 <div class="col-12 mb-5" [id]="'objectiden'+i">
                     <mat-expansion-panel [expanded]="objectIdentifier.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findIdentifierTyepe(objectIdentifier.value.identifierType)}}:{{objectIdentifier.value.identifierValue}}
+                            {{findIdentifierTyepe(objectIdentifier.value.identifierType)}}: {{objectIdentifier.value.identifierValue}}
                         </mat-expansion-panel-header>
 
 
@@ -46,7 +46,7 @@
                                 <label for="identifierOrg" class="font-style text-capitalize">Identifier organisation</label>
                             <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
                                 formControlName="identifierOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
-                                notFoundText="No members found" placeholder="Select Organisation"
+                                appendTo="body" notFoundText="No members found" placeholder="Select Organisation"
                                 *ngIf="!isView">
                             </ng-select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(objectIdentifier.value.identifierOrg)}}</h6>

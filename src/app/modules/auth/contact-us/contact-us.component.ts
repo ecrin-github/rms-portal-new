@@ -38,7 +38,7 @@ export class ContactUsComponent implements OnInit {
   }
   goToMdr() {
     this.router.navigate([])
-    .then(result => { window.open('https://crmdr.org/', '_blank'); });
+    .then(result => { window.open('https://crmdr.ecrin.org/', '_blank'); });
   }
   goToLegalNotice() {
     this.router.navigate([])

@@ -32,6 +32,12 @@
                     <div class="card-body">
                         <div class="row form-group">
                             <div class="col-md-12">
+                                <label for="lsAaiId" class="font-style text-capitalize">LS AAI ID</label>
+                                <h6 style="font-weight: 100;">{{userData?.userProfile?.lsAaiId}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
                                 <label for="email" class="font-style text-capitalize" *ngIf="isView">email</label>
                                 <label for="email" class="font-style text-capitalize" *ngIf="!isView">email <sup>*</sup> </label>
                                 <input id="email" type="text" class="form-control" formControlName="email" *ngIf="!isView">

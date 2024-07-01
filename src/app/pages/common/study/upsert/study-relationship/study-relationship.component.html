@@ -34,8 +34,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="targetStudy" class="font-style text-capitalize">Target study</label>
-                                <ng-select [items]="studyType" bindLabel="id" bindValue="id" formControlName="targetStudy"
-                                [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No studies found"
+                                <ng-select [items]="studyType" bindLabel="id" bindValue="id" formControlName="targetStudy" appendTo="body" 
+                                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No studies found"
                                     placeholder="Select target study" *ngIf="!isView" [searchFn]="customSearchStudies" [compareWith]="compareStudies">
                                     <ng-template ng-label-tmp let-item="item">
                                         {{item.displayTitle}}
@@ -50,8 +50,8 @@
                                     </ng-template>
                                 </ng-select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">
-                                    <a *ngIf="isView" [routerLink]="isBrowsing ? ['/browsing/studies', studyRelation.value.targetStudy?.id, 'view'] 
-                                    : ['/studies', studyRelation.value.targetStudy?.id, 'view']">{{studyRelation.value.targetStudy?.id}}</a>
+                                    <a *ngIf="isView" [routerLink]="isBrowsing ? ['/browsing/studies', studyRelation.value.targetStudy?.sdSid, 'view'] 
+                                    : ['/studies', studyRelation.value.targetStudy?.sdSid, 'view']">{{studyRelation.value.targetStudy?.sdSid}}</a>
                                 </h6>
                             </div>
                         </div>

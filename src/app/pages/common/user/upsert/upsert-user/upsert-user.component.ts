@@ -78,6 +78,7 @@ export class UpsertUserComponent implements OnInit {
       designation: userData.userProfile?.designation,
       profTitle: userData.userProfile?.profTitle,
       organisation: userData.userProfile?.organisation?.id,
+      lsAaiId: userData.userProfile?.lsAaiId,
       isSuperuser: userData.isSuperuser,
       email: userData.email,
       password: userData.password,

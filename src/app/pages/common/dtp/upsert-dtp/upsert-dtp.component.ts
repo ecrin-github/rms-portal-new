@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {  NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -8,7 +8,6 @@ import { Observable, combineLatest, of } from 'rxjs';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { DtpService } from 'src/app/_rms/services/entities/dtp/dtp.service';
 import { ProcessLookupService } from 'src/app/_rms/services/entities/process-lookup/process-lookup.service';
-import KTWizard from '../../../../../assets/js/components/wizard'
 import { CommonModalComponent } from '../../common-modal/common-modal.component';
 import { ConfirmationWindow1Component } from '../../confirmation-window1/confirmation-window1.component';
 import { ConfirmationWindowComponent } from '../../confirmation-window/confirmation-window.component';
@@ -18,8 +17,7 @@ import { JsonGeneratorService } from 'src/app/_rms/services/entities/json-genera
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { HttpClient } from '@angular/common/http';
-import {RedirectService} from './redirect-service';
+import { RedirectService } from './redirect-service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
@@ -30,7 +28,7 @@ import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
   selector: 'app-upsert-dtp',
   templateUrl: './upsert-dtp.component.html',
   styleUrls: ['./upsert-dtp.component.scss'],
-  providers: [ScrollService]
+  providers: [ScrollService],
 })
 export class UpsertDtpComponent implements OnInit {
   form: UntypedFormGroup;
@@ -38,22 +36,19 @@ export class UpsertDtpComponent implements OnInit {
   objectEmbargoForm: UntypedFormGroup;
   isEdit: boolean = false;
   isView: boolean = false;
-  organizationList:[] = [];
-  statusList:[] = [];
+  organizationList: [] = [];
+  statusList = [];
   id: any;
   dtpData: any;
-  @ViewChild('wizard', { static: true }) el: ElementRef;
   wizard: any;
-  currentStatus: number = 2;
   sliceLength = 100;
   associatedStudies = [];
   associatedObjects = [];
   associatedUsers = [];
   todayDate: any;
-  submitted:boolean = false;
+  submitted: boolean = false;
   nextStep: number;
   buttonClick: any;
-  showStatus: boolean = false;
   showVariations: boolean = false;
   preRequTypes: [] = [];
   preRequisitData = [];
@@ -73,6 +68,17 @@ export class UpsertDtpComponent implements OnInit {
   embargoData: any;
   prereqs: any;
   dtpNotes: any;
+  stepperFields = {
+    1: ["setUpStartDate", "setUpCompleteDate"],
+    2: ["mdCompleteDate", "dtaAgreedDate"],
+    3: ["qcChecksCompleteDate"],
+    4: ["uploadCompleteDate"]
+  }
+  // TODO: patch everything here on load
+  currentStep: number = 1;
+  maxSteps: number = 4;
+  lastCompletedStep: number = -1;
+  storedDatesError = {1: [], 2: [], 3: [], 4: []};
 
   constructor(private statesService: StatesService,
               private backService: BackService,
@@ -92,24 +98,17 @@ export class UpsertDtpComponent implements OnInit {
               private jsonGenerator: JsonGeneratorService,
               private dataObjectService: DataObjectService, 
               private oidcSecurityService: OidcSecurityService, 
-              private http: HttpClient,
               private redirectService: RedirectService) {
     this.form = this.fb.group({
       organisation: ['', Validators.required],
       displayName: ['', Validators.required],
       status: '',
-      initialContactDate: null,
+      setUpStartDate: null,
       setUpCompleteDate: null,
-      mdAccessGrantedDate: null,
       mdCompleteDate: null,
       dtaAgreedDate: null,
-      uploadAccessRequestedDate: null,
-      uploadAccessConfirmedDate: null,
-      uploadCompleteDate: null,
       qcChecksCompleteDate: null,
-      mdIntegratedWithMdrDate: null,
-      availabilityRequestedDate: null,
-      availabilityConfirmedDate: null,
+      uploadCompleteDate: null,
       conformsToDefault: false,
       variations: '',
       dtaFilePath: '',
@@ -145,7 +144,7 @@ export class UpsertDtpComponent implements OnInit {
 
     if (this.router.url.includes('add')) {
       this.form.patchValue({
-        initialContactDate: this.todayDate
+        setUpStartDate: this.todayDate
       })
     }
     
@@ -164,7 +163,7 @@ export class UpsertDtpComponent implements OnInit {
       queryFuncs.push(this.getDtpById(this.id));
     }
 
-    // TODO: improve speed by removing calls not needed is isView
+    // TODO: improve speed by removing calls not needed if isView
     queryFuncs.push(this.getOrganisation());
     queryFuncs.push(this.getStatus());
     queryFuncs.push(this.getStudyList());
@@ -200,53 +199,98 @@ export class UpsertDtpComponent implements OnInit {
       setTimeout(() => {
         this.spinner.hide(); 
       });
+
+      this.verifyStep();
     });
   }
 
-  ngAfterViewInit() {
-    this.wizard = new KTWizard(this.el.nativeElement, {
-      startStep: 2,
-      clickableSteps: false,
-      navigation:true
-    });
-    // Checking if all the dates are entered in the current phase before going to the next phase
-    this.wizard.on('change', (wizardObj) => {
-      this.nextStep = this.buttonClick === 'next' ? wizardObj.getStep() + 1 : wizardObj.getStep() - 1;
-      if (!this.isView && this.buttonClick === 'next') {
-        if (this.nextStep - 1 === 1) {
-          if (this.form.value.initialContactDate === null || this.form.value.initialContactDate === '') {
-            this.wizard.stop();
-            this.toastr.error('Complete all the fields to go to the next phase')
+  changeStep(forward) {
+    if (forward) {
+      if (this.isView || (!(this.currentStep === this.maxSteps) && (this.currentStep <= this.lastCompletedStep))) {
+        if (this.storedDatesError[this.currentStep].length > 0) {
+          for (let errMessage of this.storedDatesError[this.currentStep]) {
+            this.toastr.error(errMessage, `Error on step ${this.currentStep}`);
           }
+        } else {
+          this.currentStep += 1;
+          this.updateIcons();
         }
-        if (this.nextStep - 1 === 2) {
-          if (this.form.value.setUpCompleteDate === null || this.form.value.setUpCompleteDate === '') {
-            this.wizard.stop();
-            this.toastr.error('Complete all the fields to go to the next phase')
-          }
-        }
-        if (this.nextStep - 1 === 3) {
-          if (this.form.value.mdAccessGrantedDate === null || this.form.value.mdAccessGrantedDate === '' || this.form.value.mdCompleteDate === null || this.form.value.mdCompleteDate === '' || this.form.value.dtaAgreedDate === null || this.form.value.dtaAgreedDate === '') {
-            this.wizard.stop();
-            this.toastr.error('Complete all the fields to go to the next phase')
-          }
-        }
-        if (this.nextStep - 1 === 4) {
-          if (this.form.value.uploadAccessRequestedDate === null || this.form.value.uploadAccessRequestedDate === '' ||
-            this.form.value.uploadAccessConfirmedDate === null || this.form.value.uploadAccessConfirmedDate === '' || this.form.value.uploadCompleteDate === null || this.form.value.uploadCompleteDate === '') {
-            this.wizard.stop();
-            this.toastr.error('Complete all the fields to go to the next phase')
-          }
-        }
-        if (this.nextStep - 1 === 5) {
-          if (this.form.value.qcChecksCompleteDate === null || this.form.value.qcChecksCompleteDate === '' || this.form.value.mdIntegratedWithMdrDate === null || this.form.value.mdIntegratedWithMdrDate === ''
-            || this.form.value.availabilityRequestedDate === '' || this.form.value.availabilityRequestedDate === null || this.form.value.availabilityConfirmedDate === '' || this.form.value.availabilityConfirmedDate === null) {
-            this.wizard.stop();
-            this.toastr.error('Complete all the fields to go to the next phase')
-          }
-        }
+      } else {
+        this.toastr.error('Complete all the fields to go to the next step');
       }
-    });
+    } else if (!(this.currentStep === 1)) {
+      this.currentStep -= 1;
+      this.updateIcons();
+    } else {
+      this.toastr.error('Something went wrong, please refresh the page');
+    }
+  }
+
+  verifyStep() {
+    this.storedDatesError = {1: [], 2: [], 3: [], 4: []};;
+    let lastDateField = '';
+    let isValid: boolean = true;
+    let notValidInd = this.maxSteps + 1;
+
+    for (let i = 1; i <= this.maxSteps; i++) {
+      for (const field of this.stepperFields[i]) {
+        if (!isValid) {
+          this.g[field].setValue(null);
+        } else if (!(this.form.value[field])) {
+          isValid = false;
+          notValidInd = i;
+          break;
+        }
+
+        if (lastDateField) {  // Note: if this.form.value[field] is not set, loop will break before (hence no checking here)
+          this.verifyDates(lastDateField, field, i);
+        }
+        lastDateField = field;
+      }
+    }
+
+    // Note: "notValidInd" will be this.maxSteps+1 if isValid
+    this.lastCompletedStep = notValidInd - 1;
+
+    this.updateIcons();
+    this.updateStatus();
+  }
+
+  verifyDates(lastDateField, currDateField, step) {
+    if (this.dateToString(this.form.value[lastDateField]) > this.dateToString(this.form.value[currDateField])) {
+      let errorMessage = '';
+
+      if (currDateField === 'setUpCompleteDate') {
+        errorMessage = 'Setup completed date cannot be greater than Setup started date.';
+      } else if (currDateField === 'mdCompleteDate') {
+        errorMessage = 'Metadata completed date cannot be greater than Setup completed date';
+      } else if (currDateField === 'dtaAgreedDate') {
+        errorMessage = 'Data Transfer Agreement date cannot be greater than Metadata completed date';
+      } else if (currDateField === 'qcChecksCompleteDate') {
+        errorMessage = 'Quality checks completed date cannot be greater than Data Transfer Agreement date';
+      } else if (currDateField === 'uploadCompleteDate') {
+        errorMessage = 'Upload complete date cannot be greater than Quality checks completed date';
+      }
+
+      this.storedDatesError[step].push(errorMessage);
+    }
+  }
+
+  updateIcons() {
+    const stepElements = document.querySelectorAll('.stepper-step');
+    stepElements.forEach((stepElement, stepNumber) => {
+      stepElement.setAttribute('data-stepper-state', stepNumber+1 <= this.currentStep ? 'activated' : '');
+    })
+  }
+
+  updateStatus() {
+    if (this.lastCompletedStep >= 0) {
+      if (this.lastCompletedStep === this.maxSteps) {
+        this.g['status'].setValue(this.statusList[this.lastCompletedStep-1]);
+      } else {
+        this.g['status'].setValue(this.statusList[this.lastCompletedStep]);
+      }
+    }
   }
 
   notes(): UntypedFormArray {
@@ -509,11 +553,13 @@ export class UpsertDtpComponent implements OnInit {
   setStatus(res) {
     if (res && res.results) {
       this.statusList = res.results;
-      const arr: any = this.statusList.filter((item: any) => item.name === 'Set up');
-      if (arr && arr.length) {
-        this.form.patchValue({
-          status: arr[0].id
-        })
+
+      this.statusList.sort((a: any, b: any) => { 
+        return a?.listOrder > b?.listOrder ? 1 : -1; 
+      });
+
+      if (this.statusList.length > 0) {
+        this.g['status'].setValue(this.statusList[0]);
       }
     }
   }
@@ -667,47 +713,40 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   dateToString(date) {
-    if (date) {
-      if (date.month<10) {
-        date.month = '0'+ date.month
-      }
-      if (date.day < 10) {
-        date.day = '0' + date.day
-      }
-      const dateString =  date.year + '-' + date.month + '-' + date.day;
+    if (date?.day && date?.month && date?.year) {
+      const dateString =  date.year + '-' + date.month.toString().padStart(2, '0') + '-' + date.day.toString().padStart(2, '0');
       return new Date(dateString).toISOString();
     } else {
-      return null
+      return null;
     }
   }
+
   stringToDate(date) {
     const dateArray = new Date(date);
-    return date ? { year: dateArray.getFullYear(), month: dateArray. getMonth()+1, day: dateArray. getDate()} : null;
+    return date ? { year: dateArray.getFullYear(), month: dateArray.getMonth()+1, day: dateArray.getDate()} : null;
   }
+
   viewDate(date) {
     const dateArray = new Date(date);
     return date ? dateArray.getFullYear() + '/' 
         + (dateArray.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + '/' 
-        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : 'No Date Provided';
+        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : '';
   }
+
   onSave() {
-    //setting local storage to reload the dashboard page when adding or editing the dtp
+    // Setting local storage to reload the dashboard page when adding or editing the dtp
     if (localStorage.getItem('updateDtpList')) {
       localStorage.removeItem('updateDtpList');
     }
     const payload = JSON.parse(JSON.stringify(this.form.value));
-    payload.initialContactDate = this.dateToString(payload.initialContactDate);
+    payload.setUpStartDate = this.dateToString(payload.setUpStartDate);
     payload.setUpCompleteDate = this.dateToString(payload.setUpCompleteDate);
-    payload.mdAccessGrantedDate = this.dateToString(payload.mdAccessGrantedDate);
     payload.mdCompleteDate = this.dateToString(payload.mdCompleteDate);
     payload.dtaAgreedDate = this.dateToString(payload.dtaAgreedDate);
+    payload.qcChecksCompleteDate = this.dateToString(payload.qcChecksCompleteDate);
     payload.uploadAccessRequestedDate = this.dateToString(payload.uploadAccessRequestedDate);
     payload.uploadAccessConfirmedDate = this.dateToString(payload.uploadAccessConfirmedDate);
     payload.uploadCompleteDate = this.dateToString(payload.uploadCompleteDate);
-    payload.qcChecksCompleteDate = this.dateToString(payload.qcChecksCompleteDate);
-    payload.mdIntegratedWithMdrDate = this.dateToString(payload.mdIntegratedWithMdrDate);
-    payload.availabilityRequestedDate = this.dateToString(payload.availabilityRequestedDate);
-    payload.availabilityConfirmedDate = this.dateToString(payload.availabilityConfirmedDate);
     if (payload.repoSignature1?.id) {
       payload.repoSignature1 = payload.repoSignature1.id;
     }
@@ -720,125 +759,74 @@ export class UpsertDtpComponent implements OnInit {
     if (payload.providerSignature2?.id) {
       payload.providerSignature2 = payload.providerSignature2.id;
     }
-    //dynamically updating the status based on the filled in dates
-    let status = ''
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '') {
-      status = 'set up';
+    if (payload.status?.id) {
+      payload.status = payload.status.id;
     }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '') {
-      status = 'preparation';
-    }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '' && this.form.value.mdAccessGrantedDate !== null && this.form.value.mdAccessGrantedDate !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '') {
-      status = 'transfer';
-    }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '' && this.form.value.mdAccessGrantedDate !== null && this.form.value.mdAccessGrantedDate !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequestedDate !== null && this.form.value.uploadAccessRequestedDate !== '' &&
-          this.form.value.uploadAccessConfirmedDate !== null && this.form.value.uploadAccessConfirmedDate !== '' && this.form.value.uploadCompleteDate !== null && this.form.value.uploadCompleteDate !== '') {
-      status = 'checking';
-    }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '' && this.form.value.mdAccessGrantedDate !== null && this.form.value.mdAccessGrantedDate !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequestedDate !== null && this.form.value.uploadAccessRequestedDate !== '' &&
-      this.form.value.uploadAccessConfirmedDate !== null && this.form.value.uploadAccessConfirmedDate !== '' && this.form.value.uploadCompleteDate !== null && this.form.value.uploadCompleteDate !== '' && this.form.value.qcChecksCompleteDate !== null && this.form.value.qcChecksCompleteDate !== '' && this.form.value.mdIntegratedWithMdrDate !== null && this.form.value.mdIntegratedWithMdrDate !== '' && this.form.value.availabilityRequestedDate !== '' && this.form.value.availabilityRequestedDate !== null && this.form.value.availabilityConfirmedDate !== '' && this.form.value.availabilityRequestedDate !== null) {
-      status = 'complete';
-    }
-    payload.status = this.getStatusByName(status);
-    //checking if the entered dates are greater than the previous ones
-    if (payload.initialContactDate > payload.setUpCompleteDate) {
-      this.toastr.error('Initial contact date cannot be greater than Set Up completed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.setUpCompleteDate > payload.mdAccessGrantedDate) {
-      this.toastr.error('set Up completed date cannot be greater than MD Access Granted date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.mdAccessGrantedDate > payload.mdCompleteDate) {
-      this.toastr.error('MD Access Granted date cannot be greater than MD Completed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.mdCompleteDate > payload.dtaAgreedDate) {
-      this.toastr.error('MD Completed date cannot be greater than DTA agreed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.dtaAgreedDate > payload.uploadAccessRequestedDate) {
-      this.toastr.error('DTA Agreed date cannot be greater than Upload Access Requested date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.uploadAccessRequestedDate > payload.uploadAccessConfirmedDate) {
-      this.toastr.error('Upload Access Requested date cannot be greater than Upload Access Confirmed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.uploadAccessConfirmedDate > payload.uploadCompleteDate) {
-      this.toastr.error('Upload Confirmed date cannot be greater than Upload Completed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.uploadCompleteDate > payload.qcChecksCompleteDate) {
-      this.toastr.error('Upload completed date cannot be greater than QC Checks Completed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.qcChecksCompleteDate > payload.mdIntegratedWithMdrDate) {
-      this.toastr.error('QC Checks completed date cannot be greater than MD integrated with MDR date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.mdIntegratedWithMdrDate > payload.availabilityRequestedDate) {
-      this.toastr.error('MD integrated with MDR date cannot be greater than availability requested date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    if (payload.availabilityRequestedDate > payload.availabilityConfirmedDate) {
-      this.toastr.error('Availability Reuested date cannot be greater than Availability Confirmed date. Dates entered in one phase cannot not be anterior to dates in a previous phase.');
-      return
-    }
-    this.submitted = true;
-    if (this.form.valid) {
-      if (this.isEdit) {
-        this.spinner.show();
-        payload.dtpId = this.id;
-        const editCoreDtp$ = this.dtpService.editDtp(this.id, payload);
-        const editDta$ = this.dtaData?.length ? this.dtpService.editDta(this.id, payload, this.dtaData[0].id) : this.dtpService.addDta(this.id, payload);
-        delete payload.notes;
-        const combine$ = combineLatest([editCoreDtp$, editDta$]).subscribe(([coreDtpRes, dtaRes] : [any, any]) => {
-          this.spinner.hide();
-          let success: boolean = true;
-          if (!(coreDtpRes.statusCode === 200 || coreDtpRes.statusCode === 201)) {
-            success = false;
-            this.toastr.error(coreDtpRes.messages[0]);
-          }
-          if (!(dtaRes.statusCode === 200 || dtaRes.statusCode === 201)) {
-            success = false;
-            this.toastr.error(dtaRes.messages[0]);
-          }
-          if (success) {
-            this.toastr.success('DTP updated successfully');
-            localStorage.setItem('updateDtpList', 'true');
-            this.showStatus = false;
-            this.reuseService.notifyComponents();
-            this.router.navigate([`/data-transfers/${this.id}/view`]);
-          }
-        }, error => {
-          this.spinner.hide();
-          this.toastr.error(error.error.title);
-        })
-      } else {
-        this.spinner.show();
-        this.dtpService.addDtp(payload).subscribe((res: any) => {
-          if (res.statusCode === 201) {
-            this.toastr.success('DTP added successfully.');
-            localStorage.setItem('updateDtpList', 'true');
-            this.showStatus = false;
-            this.reuseService.notifyComponents();
-            if (res.id) {
-              this.router.navigate([`/data-transfers/${res.id}/view`]);
-            } else {
-              this.back();
-            }
-          } else {
-            this.spinner.hide();
-            this.toastr.error(res.messages[0]);
-          }
-        }, error => {
-          this.spinner.hide();
-          this.toastr.error(error.error.title);
-        })
+
+    let hasErrors: boolean = false;
+    for (const [step, errors] of Object.entries(this.storedDatesError)) {
+      for (let errMessage of errors) {
+        if (!hasErrors) {
+          hasErrors = true;
+        }
+        this.toastr.error(errMessage, `Error on step ${step}`);
       }
-    } else {
-      this.toastr.error("Please correct the errors in the form's fields.");
+    }
+
+    if (!hasErrors) {
+      this.submitted = true;
+      if (this.form.valid) {
+        if (this.isEdit) {
+          this.spinner.show();
+          payload.dtpId = this.id;
+          const editCoreDtp$ = this.dtpService.editDtp(this.id, payload);
+          const editDta$ = this.dtaData?.length ? this.dtpService.editDta(this.id, payload, this.dtaData[0].id) : this.dtpService.addDta(this.id, payload);
+          delete payload.notes;
+          const combine$ = combineLatest([editCoreDtp$, editDta$]).subscribe(([coreDtpRes, dtaRes] : [any, any]) => {
+            this.spinner.hide();
+            let success: boolean = true;
+            if (!(coreDtpRes.statusCode === 200 || coreDtpRes.statusCode === 201)) {
+              success = false;
+              this.toastr.error(coreDtpRes.messages[0]);
+            }
+            if (!(dtaRes.statusCode === 200 || dtaRes.statusCode === 201)) {
+              success = false;
+              this.toastr.error(dtaRes.messages[0]);
+            }
+            if (success) {
+              this.toastr.success('DTP updated successfully');
+              localStorage.setItem('updateDtpList', 'true');
+              this.reuseService.notifyComponents();
+              this.router.navigate([`/data-transfers/${this.id}/view`]);
+            }
+          }, error => {
+            this.spinner.hide();
+            this.toastr.error(error.error.title);
+          })
+        } else {
+          this.spinner.show();
+          this.dtpService.addDtp(payload).subscribe((res: any) => {
+            if (res.statusCode === 201) {
+              this.toastr.success('DTP added successfully.');
+              localStorage.setItem('updateDtpList', 'true');
+              this.reuseService.notifyComponents();
+              if (res.id) {
+                this.router.navigate([`/data-transfers/${res.id}/view`]);
+              } else {
+                this.back();
+              }
+            } else {
+              this.spinner.hide();
+              this.toastr.error(res.messages[0]);
+            }
+          }, error => {
+            this.spinner.hide();
+            this.toastr.error(error.error.title);
+          })
+        }
+      } else {
+        this.toastr.error("Please correct the errors in the form's fields.");
+      }
     }
   }
 
@@ -851,29 +839,33 @@ export class UpsertDtpComponent implements OnInit {
     this.form.patchValue({
       organisation: data.organisation ? data.organisation.id : null,
       displayName: data.displayName,
-      status: data.status ? data.status.id : null,
-      initialContactDate: this.stringToDate(data.initialContactDate),
+      status: data.status,
+      setUpStartDate: this.stringToDate(data.setUpStartDate),
       setUpCompleteDate: this.stringToDate(data.setUpCompleteDate),
-      mdAccessGrantedDate: this.stringToDate(data.mdAccessGrantedDate),
       mdCompleteDate: this.stringToDate(data.mdCompleteDate),
       dtaAgreedDate: this.stringToDate(data.dtaAgreedDate),
-      uploadAccessRequestedDate: this.stringToDate(data.uploadAccessRequestedDate),
-      uploadAccessConfirmedDate: this.stringToDate(data.uploadAccessConfirmedDate),
-      uploadCompleteDate: this.stringToDate(data.uploadCompleteDate),
       qcChecksCompleteDate: this.stringToDate(data.qcChecksCompleteDate),
-      mdIntegratedWithMdrDate: this.stringToDate(data.mdIntegratedWithMdrDate),
-      availabilityRequestedDate: this.stringToDate(data.availabilityRequestedDate),
-      availabilityConfirmedDate: this.stringToDate(data.availabilityConfirmedDate),
+      uploadCompleteDate: this.stringToDate(data.uploadCompleteDate),
     });
-    const arr: any = this.statusList.filter((item: any) => item.id === this.dtpData.status.id);
-    if (arr && arr.length) {
-      this.currentStatus = arr[0].name.toLowerCase() === 'creation' ? 1 : arr[0].name.toLowerCase() === 'set up' ? 2 : arr[0].name.toLowerCase() === 'preparation' ? 3 : arr[0].name.toLowerCase() === 'transfer' ? 4 : arr[0].name.toLowerCase() === 'checking' ? 5 : arr[0].name.toLowerCase() === 'complete' ? 6 : 1;
-      this.wizard.goTo(this.currentStatus);
+
+    let found: boolean = false;
+    let i = this.maxSteps;
+
+    // Note: i >= 1 instead of i > i is wrong here
+    while (!found && i > 1) {
+      for (let field of this.stepperFields[i]) {
+        if (this.dtpData[field]) {
+          this.currentStep = i;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        i--;
+      }
     }
-    if (this.form.value.initialContactDate !== null && this.form.value.initialContactDate !== '' && this.form.value.setUpCompleteDate !== null && this.form.value.setUpCompleteDate !== '' && this.form.value.mdAccessGrantedDate !== null && this.form.value.mdAccessGrantedDate !== '' && this.form.value.mdCompleteDate !== null && this.form.value.mdCompleteDate !== '' && this.form.value.dtaAgreedDate !== null && this.form.value.dtaAgreedDate !== '' && this.form.value.uploadAccessRequestedDate !== null && this.form.value.uploadAccessRequestedDate !== '' &&
-      this.form.value.uploadAccessConfirmedDate !== null && this.form.value.uploadAccessConfirmedDate !== '' && this.form.value.uploadCompleteDate !== null && this.form.value.uploadCompleteDate !== '' && this.form.value.qcChecksCompleteDate !== null && this.form.value.qcChecksCompleteDate !== '' && this.form.value.mdIntegratedWithMdrDate !== null && this.form.value.mdIntegratedWithMdrDate !== '' && this.form.value.availabilityRequestedDate !== '' && this.form.value.availabilityRequestedDate !== null && this.form.value.availabilityConfirmedDate !== '' && this.form.value.availabilityRequestedDate !== null) {
-        this.showUploadButton = this.role === 'User' ? true : false;
-    }
+
+    this.currentStep = i;
   }
 
   patchDta(dtaData) {
@@ -1128,83 +1120,7 @@ export class UpsertDtpComponent implements OnInit {
     });*/
     this.jsonGenerator.jsonGenerator(payload, 'dtp');
   }
-  resetAll() {
-    const modal = this.modalService.open(ConfirmationWindow1Component, {size: 'lg', backdrop:'static'});
-    modal.result.then((data) => {
-      if (data) {
-        this.showStatus = true;
-      }
-    }, error => {})
-  }
-  onChange() {
-    //resetting the value when the status is changed
-    const status = this.findStatus(parseInt(this.form.value.status));
-    if (status.toLowerCase() === 'creation') {
-      this.form.patchValue({
-        setUpCompleteDate: null,
-        mdAccessGrantedDate: null,
-        mdCompleteDate: null,
-        dtaAgreedDate: null,
-        uploadAccessRequestedDate: null,
-        uploadAccessConfirmedDate: null,
-        uploadCompleteDate: null,
-        qcChecksCompleteDate: null,
-        mdIntegratedWithMdrDate: null,
-        availabilityRequestedDate: null,
-        availabilityConfirmedDate: null,
-      })
-    }
-    if (status.toLowerCase() === 'set up') {
-      this.form.patchValue({
-        setUpCompleteDate: null,
-        mdAccessGrantedDate: null,
-        mdCompleteDate: null,
-        dtaAgreedDate: null,
-        uploadAccessRequestedDate: null,
-        uploadAccessConfirmedDate: null,
-        uploadCompleteDate: null,
-        qcChecksCompleteDate: null,
-        mdIntegratedWithMdrDate: null,
-        availabilityRequestedDate: null,
-        availabilityConfirmedDate: null,
-      })
-    }
-    if (status.toLowerCase() === 'preparation') {
-      this.form.patchValue({
-        mdAccessGrantedDate: null,
-        mdCompleteDate: null,
-        dtaAgreedDate: null,
-        uploadAccessRequestedDate: null,
-        uploadAccessConfirmedDate: null,
-        uploadCompleteDate: null,
-        qcChecksCompleteDate: null,
-        mdIntegratedWithMdrDate: null,
-        availabilityRequestedDate: null,
-        availabilityConfirmedDate: null,
-      })
-    }
-    if (status.toLowerCase() === 'transfer') {
-      this.form.patchValue({
-        uploadAccessRequestedDate: null,
-        uploadAccessConfirmedDate: null,
-        uploadCompleteDate: null,
-        qcChecksCompleteDate: null,
-        mdIntegratedWithMdrDate: null,
-        availabilityRequestedDate: null,
-        availabilityConfirmedDate: null,
-      })
-    }
-    if (status.toLowerCase() === 'checking') {
-      this.form.patchValue({
-        qcChecksCompleteDate: null,
-        mdIntegratedWithMdrDate: null,
-        availabilityRequestedDate: null,
-        availabilityConfirmedDate: null,
-      })
-    }
-    this.currentStatus = status.toLowerCase() === 'creation' ? 1 : status.toLowerCase() === 'set up' ? 2 : status.toLowerCase() === 'preparation' ? 3 : status.toLowerCase() === 'transfer' ? 4 : status.toLowerCase() === 'checking' ? 5 : status.toLowerCase() === 'complete' ? 6 : 1;
-    this.wizard.goTo(this.currentStatus);
-  }
+  
   conformsToDefaultChange() {
     this.showVariations = this.form.value.conformsToDefault ? true : false
   }
@@ -1230,10 +1146,19 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   goToTsd(instance) {
+    // this.oidcSecurityService.getAccessToken().subscribe((userToken) => {
+    //   const headers = new HttpHeaders();
+    //   headers.set('Authorization', userToken);
+
+    //   this.http.get(`https://api-v2.ecrin-rms.org/api/data-objects/${instance.objectId}`, {headers}).subscribe(res => {
+    //     // @ts-ignore
+    //     const objectId = res['data'][0].id;
+    //     this.redirectService.postRedirect(instance.id, objectId, userToken);
+    //   });
+    // });
+
     this.oidcSecurityService.getAccessToken().subscribe((userToken) => {
       if (instance.id && instance.objectId) {
-        // const headers = new HttpHeaders();
-        // headers.set('Authorization', userToken);
         this.redirectService.postRedirect(instance.id, instance.objectId, userToken);
       } else {
         this.toastr.error('Object ID or Object instance ID is undefined, please try to refresh the page.', 'Data object upload error');

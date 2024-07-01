@@ -21,14 +21,14 @@
                 <div class="col-12 mb-5" [id]="'objectinst'+i">
                     <mat-expansion-panel [expanded]="objectInstance.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findResourceType(objectInstance.value.resourceType)}} : {{findOrganizationType(objectInstance.value.repositoryOrg)}}
+                            {{findResourceType(objectInstance.value.resourceType)}}: {{findOrganizationType(objectInstance.value.repositoryOrg)}}
                         </mat-expansion-panel-header>
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="repositoryOrg" class="font-style text-capitalize">Repository organisation</label>
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
                                     formControlName="repositoryOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
-                                    notFoundText="No members found" placeholder="Select Organisation"
+                                    appendTo="body" notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganizationType(objectInstance.value.repositoryOrg)}}</h6>
