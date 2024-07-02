@@ -40,7 +40,6 @@ export class UpsertDtpComponent implements OnInit {
   statusList = [];
   id: any;
   dtpData: any;
-  wizard: any;
   sliceLength = 100;
   associatedStudies = [];
   associatedObjects = [];
@@ -74,7 +73,6 @@ export class UpsertDtpComponent implements OnInit {
     3: ["qcChecksCompleteDate"],
     4: ["uploadCompleteDate"]
   }
-  // TODO: patch everything here on load
   currentStep: number = 1;
   maxSteps: number = 4;
   lastCompletedStep: number = -1;
@@ -196,11 +194,11 @@ export class UpsertDtpComponent implements OnInit {
         // getDtpObjectsAndInstances doesn't return a value
       }
 
+      this.verifyStep();
+
       setTimeout(() => {
         this.spinner.hide(); 
       });
-
-      this.verifyStep();
     });
   }
 
@@ -261,15 +259,15 @@ export class UpsertDtpComponent implements OnInit {
       let errorMessage = '';
 
       if (currDateField === 'setUpCompleteDate') {
-        errorMessage = 'Setup completed date cannot be greater than Setup started date.';
+        errorMessage = 'Setup completed date cannot be earlier than Setup started date.';
       } else if (currDateField === 'mdCompleteDate') {
-        errorMessage = 'Metadata completed date cannot be greater than Setup completed date';
+        errorMessage = 'Metadata completed date cannot be earlier than Setup completed date';
       } else if (currDateField === 'dtaAgreedDate') {
-        errorMessage = 'Data Transfer Agreement date cannot be greater than Metadata completed date';
+        errorMessage = 'Data Transfer Agreement date cannot be earlier than Metadata completed date';
       } else if (currDateField === 'qcChecksCompleteDate') {
-        errorMessage = 'Quality checks completed date cannot be greater than Data Transfer Agreement date';
+        errorMessage = 'Quality checks completed date cannot be earlier than Data Transfer Agreement date';
       } else if (currDateField === 'uploadCompleteDate') {
-        errorMessage = 'Upload complete date cannot be greater than Quality checks completed date';
+        errorMessage = 'Upload complete date cannot be earlier than Quality checks completed date';
       }
 
       this.storedDatesError[step].push(errorMessage);
@@ -551,7 +549,7 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   setStatus(res) {
-    if (res && res.results) {
+    if (res?.results) {
       this.statusList = res.results;
 
       this.statusList.sort((a: any, b: any) => { 
@@ -703,10 +701,12 @@ export class UpsertDtpComponent implements OnInit {
     const arr: any = this.preRequTypes.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
   }
+
   findAccessType(id) {
     const arr: any = this.accessTypes.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
   }
+
   findCheckSatus(id) {
     const arr: any = this.accessStatusTypes.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
@@ -747,6 +747,7 @@ export class UpsertDtpComponent implements OnInit {
     payload.uploadAccessRequestedDate = this.dateToString(payload.uploadAccessRequestedDate);
     payload.uploadAccessConfirmedDate = this.dateToString(payload.uploadAccessConfirmedDate);
     payload.uploadCompleteDate = this.dateToString(payload.uploadCompleteDate);
+
     if (payload.repoSignature1?.id) {
       payload.repoSignature1 = payload.repoSignature1.id;
     }
@@ -783,7 +784,6 @@ export class UpsertDtpComponent implements OnInit {
           const editDta$ = this.dtaData?.length ? this.dtpService.editDta(this.id, payload, this.dtaData[0].id) : this.dtpService.addDta(this.id, payload);
           delete payload.notes;
           const combine$ = combineLatest([editCoreDtp$, editDta$]).subscribe(([coreDtpRes, dtaRes] : [any, any]) => {
-            this.spinner.hide();
             let success: boolean = true;
             if (!(coreDtpRes.statusCode === 200 || coreDtpRes.statusCode === 201)) {
               success = false;
@@ -793,6 +793,7 @@ export class UpsertDtpComponent implements OnInit {
               success = false;
               this.toastr.error(dtaRes.messages[0]);
             }
+            this.spinner.hide();
             if (success) {
               this.toastr.success('DTP updated successfully');
               localStorage.setItem('updateDtpList', 'true');
@@ -878,17 +879,19 @@ export class UpsertDtpComponent implements OnInit {
       providerSignature1: dtaData[0]?.providerSignature1,
       providerSignature2: dtaData[0]?.providerSignature2
     });
-    // this.patchNotes(dtaData.dtpNotes);
     this.showVariations = dtaData[0]?.conformsToDefault ? true : false;
   }
+
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
     return organizationArray && organizationArray.length ? organizationArray[0].defaultName : ''
   }
+
   findStatus(id) {
     const statusArray: any = this.statusList.filter((type: any) => type.id === id);
     return statusArray && statusArray.length ? statusArray[0].name : '';
   }
+
   back(): void {
     this.backService.back();
   }
@@ -1124,10 +1127,12 @@ export class UpsertDtpComponent implements OnInit {
   conformsToDefaultChange() {
     this.showVariations = this.form.value.conformsToDefault ? true : false
   }
+
   findStudyById(sdSid) {
     const arr: any = this.studyList.filter((item: any) => item.sdSid === sdSid);
     return arr && arr.length ? arr[0].displayTitle : 'None';
   }
+
   findObjectById(objectId) {
     const arr: any = this.objectList.filter((item: any) => item.objectId === objectId);
     return arr && arr.length ? arr[0].displayTitle : 'None';
@@ -1165,6 +1170,7 @@ export class UpsertDtpComponent implements OnInit {
       }
     });
   }
+
   goToDo(object) {
     if (object.dataObject?.sdOid) {
       this.router.navigate([`/data-objects/${object.dataObject.sdOid}/edit`]);
@@ -1172,6 +1178,7 @@ export class UpsertDtpComponent implements OnInit {
       this.toastr.error('Data object ID is undefined, please try to navigate there manually.', 'Error navigating to data object page')
     }
   }
+
   ngOnDestroy() {
     this.scrollService.unsubscribeScroll();
   }
