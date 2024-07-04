@@ -148,7 +148,6 @@ export class ObjectInstanceComponent implements OnInit {
   }
   patchForm(instances) {
     this.form.setControl('objectInstances', this.patchArray(instances));
-    console.log('instance', this.objectInstances())
   }
   patchArray(instances): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
@@ -158,7 +157,7 @@ export class ObjectInstanceComponent implements OnInit {
         objectId: instance.objectId,
         repositoryOrg: instance.repositoryOrg ? instance.repositoryOrg.id : null,
         urlAccessible: instance.urlAccessible,
-        url: [{value: instance.url, disabled: instance.urlAccessible === 'true' || instance.urlAccessible === true ? false : true}],
+        url: instance.url,
         resourceType: instance.resourceType ? instance.resourceType.id : null,
         resourceSize: instance.resourceSize,
         resourceSizeUnit: instance.resourceSizeUnit ? instance.resourceSizeUnit.id : null,
