@@ -134,6 +134,12 @@ mat-cell, .mat-cell {
   padding: 1rem 2rem 1rem 0;
 }
 
+mat-cell:first-of-type,
+mat-header-cell:first-of-type,
+mat-footer-cell:first-of-type {
+  padding-left: 1rem !important;
+}
+
 .mat-expansion-panel-header[aria-disabled=true] {
   background-color: rgba(202, 202, 202, 0.5);
   opacity: 0.5;
@@ -160,12 +166,15 @@ mat-cell, .mat-cell {
   width: 100%;
 }
 
-/*.mat-column-id {
-  padding-left: 0px !important;
+.font-style {
+  font-size: 1.175rem !important;
+  font-weight: 600 !important;
+  color: #315492 !important;
 }
-.mat-column-title {
-  padding: 25px !important;
-}*/
+
+.hr-big {
+  border-top-width: 0.4rem;
+}
 
 @media screen and (max-width: 500px) {
   .mat-column-status {
@@ -197,14 +206,225 @@ mat-cell, .mat-cell {
   }
 }
 
-.font-style {
-  font-size: 1.175rem !important;
-  font-weight: 600 !important;
-  color: #315492 !important;
+.mat-column-actions {
+  flex: 0 0 10% !important;
+  width: 10% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
-.hr-big {
-  border-top-width: 0.4rem;
+/* Summary study columns */
+.mat-column-sdSid {
+  flex: 0 0 15% !important;
+  width: 15% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-studyTitle {
+  flex: 0 0 32% !important;
+  width: 32% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-studyOrganisation {
+  flex: 0 0 17% !important;
+  width: 17% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-studyType {
+  flex: 0 0 14% !important;
+  width: 14% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-studyStatus {
+  flex: 0 0 15% !important;
+  width: 15% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Summary DO columns */
+.mat-column-sdOid {
+  flex: 0 0 15% !important;
+  width: 15% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-objectTitle {
+  flex: 0 0 32% !important;
+  width: 32% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-objectOrganisation {
+  flex: 0 0 17% !important;
+  width: 17% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-objectType {
+  flex: 0 0 14% !important;
+  width: 14% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-linkedStudy {
+  flex: 0 0 15% !important;
+  width: 15% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Summary DTP columns */
+.mat-column-dtpId {
+  flex: 0 0 19% !important;
+  width: 19% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-dtpTitle {
+  flex: 0 0 37% !important;
+  width: 37% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-dtpOrganisation {
+  flex: 0 0 22% !important;
+  width: 22% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-dtpStatus {
+  flex: 0 0 14% !important;
+  width: 14% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Summary DUP columns */
+.mat-column-dupId {
+  flex: 0 0 19% !important;
+  width: 19% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-dupTitle {
+  flex: 0 0 37% !important;
+  width: 37% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-dupOrganisation {
+  flex: 0 0 22% !important;
+  width: 22% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-dupStatus {
+  flex: 0 0 14% !important;
+  width: 14% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Summary user columns */
+.mat-column-userName {
+  flex: 0 0 24% !important;
+  width: 24% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-userEmail {
+  flex: 0 0 28% !important;
+  width: 28% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-userOrganisation {
+  flex: 0 0 25% !important;
+  width: 25% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-userRole {
+  flex: 0 0 9% !important;
+  width: 9% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-isUser {
+  flex: 0 0 6% !important;
+  width: 6% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Stepper */

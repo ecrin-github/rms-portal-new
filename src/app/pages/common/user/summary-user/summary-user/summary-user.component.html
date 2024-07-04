@@ -13,32 +13,44 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-3">
+                <select class="form-control" [(ngModel)]="filterColumn" (change)="filterSearch()">
+                    <option selected disabled value="">Search by...</option>
+                    <option [value]=searchColumn.value *ngFor="let searchColumn of searchColumns">
+                        {{searchColumn.text}}</option>
+                </select>
+            </div>
+            <div class="col-md-9">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search Person..." [(ngModel)]="searchText" (keydown)="onInputChange($event)"/>
+                    <input type="text" class="form-control" placeholder="Search Person..." [(ngModel)]="searchText" (keyup)="onInputChange($event)"/>
                 </div>
             </div>
         </div>
         <mat-table [dataSource]="dataSource">
 
-            <ng-container matColumnDef="name">
+            <ng-container matColumnDef="userName">
                 <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
                 <mat-cell *matCellDef="let row"> <a [routerLink]="['/people', row.id, 'view']">{{row.firstName}} {{row.lastName}}</a></mat-cell>
             </ng-container>
 
-            <ng-container matColumnDef="email">
+            <ng-container matColumnDef="userEmail">
                 <mat-header-cell *matHeaderCellDef>Email</mat-header-cell>
                 <mat-cell *matCellDef="let row">{{row.email}}</mat-cell>
             </ng-container>
 
-            <ng-container matColumnDef="orgName">
-                <mat-header-cell *matHeaderCellDef>Organization</mat-header-cell>
+            <ng-container matColumnDef="userOrganisation">
+                <mat-header-cell *matHeaderCellDef>Organisation</mat-header-cell>
                 <mat-cell *matCellDef="let row">{{row.userProfile?.organisation?.defaultName}}</mat-cell>
             </ng-container>
 
-            <ng-container matColumnDef="roleName">
+            <ng-container matColumnDef="userRole">
                 <mat-header-cell *matHeaderCellDef>Role</mat-header-cell>
-                <mat-cell *matCellDef="let row">{{row.userProfile?.lsAaiId ? (row.isSuperuser ? 'Manager' : 'User') : '[No LS AAI ID]' }}</mat-cell>
+                <mat-cell *matCellDef="let row">{{row.userProfile?.lsAaiId ? (row.isSuperuser ? 'Manager' : 'User') : '' }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="isUser">
+                <mat-header-cell *matHeaderCellDef>Is user?</mat-header-cell>
+                <mat-cell *matCellDef="let row">{{row.userProfile?.lsAaiId ? 'Yes' : 'No' }}</mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="actions">

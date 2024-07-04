@@ -15,6 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { resolvePath } from 'src/assets/js/util.js';
 
 @Component({
   selector: 'app-summary-study',
@@ -24,11 +25,18 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 })
 
 export class SummaryStudyComponent implements OnInit {
-
   usedURLs = ['/', '/browsing', '/studies'];
-  displayedColumns = ['sdSid', 'title', 'type', 'status', 'actions'];
+  // search dropdown filters
+  searchColumns = [
+    {'value': 'sdSid', 'text': 'Study ID'},
+    {'value': 'displayTitle', 'text': 'Title'},
+    {'value': 'organisation.defaultName', 'text': 'Organisation'},
+    {'value': 'studyType.name', 'text': 'Study Type'},
+    {'value': 'studyStatus.name', 'text': 'Study Status'},
+  ]
+  filterColumn: string = 'displayTitle';
+  displayedColumns = ['sdSid', 'studyTitle', 'studyOrganisation', 'studyType', 'studyStatus', 'actions'];
   dataSource: MatTableDataSource<StudyListEntryInterface>;
-  filterOption: string = 'title';
   searchText:string = '';
   studyLength: number = 0;
   title: string = '';
@@ -37,7 +45,7 @@ export class SummaryStudyComponent implements OnInit {
   role: any;
   isBrowsing: boolean = false;
   deBouncedInputValue = this.searchText;
-  searchDebounec: Subject<string> = new Subject();
+  searchDebounce: Subject<string> = new Subject();
   sticky: boolean = false;
   scroll: any;
   notDashboard:boolean = false;
@@ -74,7 +82,7 @@ export class SummaryStudyComponent implements OnInit {
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd && this.usedURLs.includes(event.urlAfterRedirects) && this.dataChanged) {
-        this.filterSearch();
+        this.getStudyList();
         this.dataChanged = false;
       }
     });
@@ -85,13 +93,31 @@ export class SummaryStudyComponent implements OnInit {
       }
     });
   }
+  
+  getSortedStudies(studies) {
+    const { compare } = Intl.Collator('en-GB');
+    studies.sort((a, b) => {
+      if (a.organisation?.id === this.orgId) {
+        if (b.organisation?.id === this.orgId) {
+          return compare(a.displayTitle, b.displayTitle);
+        }
+        return -1;
+      } else if (b.organisation?.id === this.orgId) {
+        return 1;
+      } else {
+        return compare(a.displayTitle, b.displayTitle);
+      }
+    });
+  }
 
-  getAllStudyList() {
+  getStudyList() {
     this.spinner.show();
-    const pageSize = 10000
+    const pageSize = 10000;
     this.listService.getStudyList(pageSize, '').subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
+        if (this.isOrgIdValid) {
+          this.getSortedStudies(res.results);
+        }
         this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res.results);
         this.studyLength = res.count;
       } else {
@@ -99,78 +125,13 @@ export class SummaryStudyComponent implements OnInit {
         this.studyLength = res.count;
       }
       this.dataSource.paginator = this.paginator;
-      this.searchText = '';
+      this.filterSearch();
+      this.spinner.hide();
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);
-    })
+    });
   }
-  getStudyListByOrg() {
-    this.spinner.show();
-    this.listService.getStudyListByOrg(this.orgId).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res) {
-        this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res);
-        // this.studyLength = res.count;
-      } else {
-        this.dataSource = new MatTableDataSource();
-        // this.studyLength = res.count;
-      }
-      this.dataSource.paginator = this.paginator;
-      this.searchText = '';
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
-  }
-  getStudyList() {
-    if (this.role === 'User' && this.isOrgIdValid) {
-      this.getStudyListByOrg();
-    } else {
-      this.getAllStudyList();
-    }
-  }
-
-  getFilteredStudyList(title_fragment, page, size) {
-    if (this.role === 'User' && this.isOrgIdValid) {
-      return this.listService.getFilteredStudyListByOrg(title_fragment, this.orgId, page, size);
-    } else {
-      return this.listService.getFilteredStudyList(title_fragment, page, size);
-    }
-  }
- 
-  applyFilter(filterValue: string) {
-    filterValue = filterValue.trim(); // Remove whitespace
-    filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
-    this.dataSource.filter = filterValue;
-  }
-
-  filterSearch() {
-    let page = 1; let size = 10; // though not currently used
-    let title_fragment = this.searchText;
-    if (this.filterOption === 'title' && this.searchText !== '') {
-      this.spinner.show();
-      const filterService$ = this.getFilteredStudyList(title_fragment, page, size);
-      filterService$.subscribe((res: any) => {
-        this.spinner.hide()
-        if (res) {
-          this.dataSource = new MatTableDataSource<StudyListEntryInterface>(res);
-          // this.studyLength = res.totalRecords; // use this for database-paged record retrieval
-          // this.studyLength = res.count
-        } else {
-          this.dataSource = new MatTableDataSource();
-        }
-        this.dataSource.paginator = this.paginator;
-      }, error => {
-        this.spinner.hide();        
-
-        this.toastr.error(error.error.title);
-      })
-    }
-    if (this.searchText === '') {
-      this.getStudyList();
-    }
-  } 
 
   @HostListener('window:storage', ['$event'])
   refreshList(event) {
@@ -223,14 +184,24 @@ export class SummaryStudyComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   closeModal() {
     this.warningModal.close();
   }
+
   onInputChange(e) {
-    this.searchDebounec.next(e.target.value);
+    this.searchDebounce.next(e.target.value);
   }
+
+  filterSearch() {
+    this.dataSource.filterPredicate = (data, filter: string) => {
+      return filter && this.filterColumn && resolvePath(data, this.filterColumn)?.toLocaleLowerCase().includes(filter.toLocaleLowerCase());
+    }
+    this.dataSource.filter = this.searchText;
+  }
+  
   setupSearchDeBouncer() {
-    const search$ = this.searchDebounec.pipe(
+    const search$ = this.searchDebounce.pipe(
       debounceTime(350),
       distinctUntilChanged()
     ).subscribe((term: string) => {
@@ -238,6 +209,7 @@ export class SummaryStudyComponent implements OnInit {
       this.filterSearch();
     });
   }
+
   ngOnDestroy() {
     this.scrollService.unsubscribeScroll();
   }

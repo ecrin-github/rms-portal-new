@@ -15,6 +15,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { resolvePath } from 'src/assets/js/util.js';
 
 @Component({
   selector: 'app-summary-dup',
@@ -24,18 +25,25 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 })
 export class SummaryDupComponent implements OnInit {
   usedURLs = ['/', '/data-use'];
-  displayedColumns = ['dupId', 'organisation', 'title', 'status', 'actions'];
+  // search dropdown filters
+  searchColumns = [
+    { 'value': 'id', 'text': 'DUP ID' },
+    { 'value': 'displayName', 'text': 'Title' },
+    { 'value': 'organisation.defaultName', 'text': 'Organisation' },
+    { 'value': 'status.name', 'text': 'Status' },
+  ]
+  filterColumn: string = 'displayName';
+  displayedColumns = ['dupId', 'dupTitle', 'dupOrganisation', 'dupStatus', 'actions'];
   dataSource: MatTableDataSource<DupListEntryInterface>;
-  filterOption: string = 'title';
-  searchText:string = '';
+  searchText: string = '';
   dupLength: number = 0;
   warningModal: any;
   orgId: any;
   role: any;
   deBouncedInputValue = this.searchText;
-  searchDebounec: Subject<string> = new Subject();
+  searchDebounce: Subject<string> = new Subject();
   sticky: boolean = false;
-  notDashboard:boolean = false;
+  notDashboard: boolean = false;
   dataChanged: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
@@ -63,7 +71,7 @@ export class SummaryDupComponent implements OnInit {
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd && this.usedURLs.includes(event.urlAfterRedirects) && this.dataChanged) {
-        this.filterSearch();
+        this.getDupList();
         this.dataChanged = false;
       }
     });
@@ -75,77 +83,39 @@ export class SummaryDupComponent implements OnInit {
     });
   }
 
-  getAllDupList() {
+  getSortedDUPs(dups) {
+    const { compare } = Intl.Collator('en-GB');
+    dups.sort((a, b) => {
+      if (a.organisation?.id === this.orgId) {
+        if (b.organisation?.id === this.orgId) {
+          return compare(a.displayName, b.displayName);
+        }
+        return -1;
+      } else if (b.organisation?.id === this.orgId) {
+        return 1;
+      } else {
+        return compare(a.displayName, b.displayName);
+      }
+    });
+  }
+
+  getDupList() {
     this.spinner.show();
     const pageSize = 10000;
     this.listService.getDupList(pageSize, '').subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
+        this.getSortedDUPs(res.results);
         this.dataSource = new MatTableDataSource<DupListEntryInterface>(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
       }
       this.dataSource.paginator = this.paginator;
-      this.searchText = '';
+      this.spinner.hide();
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);
-    })
+    });
   }
-  getDupListByOrg() {
-    this.spinner.show();
-    this.listService.getDupListByOrg(this.orgId).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res) {
-        this.dataSource = new MatTableDataSource<DupListEntryInterface>(res);
-      } else {
-        this.dataSource = new MatTableDataSource();
-      }
-      this.dataSource.paginator = this.paginator;
-      this.searchText = '';
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
-  }
-  getDupList() {
-    if (this.role === 'User') {
-      this.getDupListByOrg();
-    } else {
-      this.getAllDupList();
-    }
-  }
-  
-  applyFilter(filterValue: string) {
-    filterValue = filterValue.trim(); // Remove whitespace
-    filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
-    this.dataSource.filter = filterValue;
-  }
-
-  filterSearch() {
-    let page = 1; let size = 10; // though not currently used
-    let title_fragment = this.searchText;
-    if (this.filterOption === 'title' && this.searchText !== '') {
-      this.spinner.show();
-      const filterService$ = this.role === 'Manager' ? this.listService.getFilteredDuptList(title_fragment, page, size) : this.listService.getFilteredDuptListByOrg(title_fragment, this.orgId, page, size);
-      filterService$.subscribe((res: any) => {
-        this.spinner.hide()
-        if (res) {
-          this.dataSource = new MatTableDataSource<DupListEntryInterface>(res);
-          // this.dupLength = res.count;
-        } else {
-          this.dataSource = new MatTableDataSource();
-        }
-        this.dataSource.paginator = this.paginator;
-      }, error => {
-        this.spinner.hide();
-        this.toastr.error(error.error.title);
-      })
-    }
-    if (this.searchText === '') {
-      this.getDupList();
-    }
-  } 
   
   @HostListener('window:storage', ['$event'])
   refreshList(event) {
@@ -153,6 +123,7 @@ export class SummaryDupComponent implements OnInit {
     this.getDupList();
     localStorage.removeItem('updateDupList');
   }
+
   deleteRecord(id) {
     this.dupService.getDupById(id).subscribe((res: any) => {
       if (res) {
@@ -171,17 +142,24 @@ export class SummaryDupComponent implements OnInit {
       }
     })
   }
+
   closeModal() {
     this.warningModal.close();
   }
+
   onInputChange(e) {
-    const searchText = e.target.value;
-    if (!!searchText) {
-      this.searchDebounec.next(searchText);
-    }
+    this.searchDebounce.next(e.target.value);
   }
+
+  filterSearch() {
+    this.dataSource.filterPredicate = (data, filter: string) => {
+      return filter && this.filterColumn && resolvePath(data, this.filterColumn)?.toLocaleLowerCase().includes(filter.toLocaleLowerCase());
+    }
+    this.dataSource.filter = this.searchText;
+  }
+
   setupSearchDeBouncer() {
-    const search$ = this.searchDebounec.pipe(
+    const search$ = this.searchDebounce.pipe(
       debounceTime(350),
       distinctUntilChanged()
     ).subscribe((term: string) => {
@@ -189,6 +167,7 @@ export class SummaryDupComponent implements OnInit {
       this.filterSearch();
     });
   }
+  
   ngOnDestroy() {
     this.scrollService.unsubscribeScroll();
   }

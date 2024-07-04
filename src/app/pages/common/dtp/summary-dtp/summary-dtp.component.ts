@@ -15,6 +15,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { resolvePath } from 'src/assets/js/util.js';
 
 @Component({
   selector: 'app-summary-dtp',
@@ -25,33 +26,40 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 export class SummaryDtpComponent implements OnInit {
   usedURLs = ['/', '/data-transfers'];
-  displayedColumns = ['dtpId', 'organisation', 'title', 'status', 'actions'];
+  // search dropdown filters
+  searchColumns = [
+    { 'value': 'id', 'text': 'DTP ID' },
+    { 'value': 'displayName', 'text': 'Title' },
+    { 'value': 'organisation.defaultName', 'text': 'Organisation' },
+    { 'value': 'status.name', 'text': 'Status' },
+  ]
+  filterColumn: string = 'displayName';
+  displayedColumns = ['dtpId', 'dtpTitle', 'dtpOrganisation', 'dtpStatus', 'actions'];
   dataSource: MatTableDataSource<DtpListEntryInterface>;
-  filterOption: string = 'title';
-  searchText:string = '';
+  searchText: string = '';
   dtpLength: number = 0;
   warningModal: any;
   orgId: any;
   role: any;
   deBouncedInputValue = this.searchText;
-  searchDebounec: Subject<string> = new Subject();
+  searchDebounce: Subject<string> = new Subject();
   sticky: boolean = false;
-  notDashboard:boolean = false;
+  notDashboard: boolean = false;
   dataChanged: boolean = false;
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  @ViewChild('exampleModal') exampleModal : TemplateRef<any>;
+  @ViewChild('exampleModal') exampleModal: TemplateRef<any>;
 
   constructor(private statesService: StatesService,
-              private reuseService: ReuseService,
-              private scrollService: ScrollService,
-              private listService: ListService, 
-              private spinner: NgxSpinnerService, 
-              private toastr: ToastrService, 
-              private modalService: NgbModal,
-              private dtpService: DtpService,
-              private permissionService: NgxPermissionsService, 
-              private router: Router) { }
+    private reuseService: ReuseService,
+    private scrollService: ScrollService,
+    private listService: ListService,
+    private spinner: NgxSpinnerService,
+    private toastr: ToastrService,
+    private modalService: NgbModal,
+    private dtpService: DtpService,
+    private permissionService: NgxPermissionsService,
+    private router: Router) { }
 
   ngOnInit() {
     this.role = this.statesService.currentAuthRole;
@@ -65,7 +73,7 @@ export class SummaryDtpComponent implements OnInit {
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd && this.usedURLs.includes(event.urlAfterRedirects) && this.dataChanged) {
-        this.filterSearch();
+        this.getDtpList();
         this.dataChanged = false;
       }
     });
@@ -77,77 +85,39 @@ export class SummaryDtpComponent implements OnInit {
     });
   }
 
-  getDtplistByOrg() {
-    this.spinner.show();
-    this.listService.getDtpListByOrg(this.orgId).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res) {
-        this.dataSource = new MatTableDataSource<DtpListEntryInterface>(res);
+  getSortedDTPs(dtps) {
+    const { compare } = Intl.Collator('en-GB');
+    dtps.sort((a, b) => {
+      if (a.organisation?.id === this.orgId) {
+        if (b.organisation?.id === this.orgId) {
+          return compare(a.displayName, b.displayName);
+        }
+        return -1;
+      } else if (b.organisation?.id === this.orgId) {
+        return 1;
       } else {
-        this.dataSource = new MatTableDataSource();
+        return compare(a.displayName, b.displayName);
       }
-      this.dataSource.paginator = this.paginator;
-      this.searchText = '';
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title)
-    })
+    });
   }
 
-  getAllDtpList() {
+  getDtpList() {
     this.spinner.show();
     const pageSize = 10000;
     this.listService.getDtpList(pageSize, '').subscribe((res: any) => {
-      this.spinner.hide();
       if (res && res.results) {
+        this.getSortedDTPs(res.results);
         this.dataSource = new MatTableDataSource<DtpListEntryInterface>(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
       }
       this.dataSource.paginator = this.paginator;
-      this.searchText = '';
+      this.filterSearch();
+      this.spinner.hide();
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title)
-    })
-  }
-  getDtpList() {
-    if (this.role === 'User') {
-      this.getDtplistByOrg();
-    } else {
-      this.getAllDtpList();
-    }
-  }
-  
-  applyFilter(filterValue: string) {
-    filterValue = filterValue.trim(); // Remove whitespace
-    filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
-    this.dataSource.filter = filterValue;
-  }
-
-  filterSearch() {
-    let page = 1; let size = 10; // though not currently used
-    let title_fragment = this.searchText;
-    if (this.filterOption === 'title' && this.searchText !== '') {
-      this.spinner.show();
-      const filterService$ = this.role === 'Manager' ? this.listService.getFilteredDtpList(title_fragment, page, size) : this.listService.getFilteredDtpListByOrg(title_fragment, this.orgId, page, size);
-      filterService$.subscribe((res: any) => {
-        this.spinner.hide()
-        if (res) {
-          this.dataSource = new MatTableDataSource<DtpListEntryInterface>(res);
-          // this.dtpLength = res.count;
-        } else {
-          this.dataSource = new MatTableDataSource();
-        }
-        this.dataSource.paginator = this.paginator;
-      }, error => {
-        this.spinner.hide();
-        this.toastr.error(error.error.title);
-      })
-    }
-    if (this.searchText === '') {
-      this.getDtpList();
-    }
+    });
   }
 
   @HostListener('window:storage', ['$event'])
@@ -156,6 +126,7 @@ export class SummaryDtpComponent implements OnInit {
     this.getDtpList();
     localStorage.removeItem('updateDtpList');
   }
+
   deleteRecord(id) {
     this.dtpService.getDtpById(id).subscribe((res: any) => {
       if (res) {
@@ -166,26 +137,32 @@ export class SummaryDtpComponent implements OnInit {
           deleteModal.componentInstance.type = 'dtp';
           deleteModal.componentInstance.id = id;
           deleteModal.result.then((data: any) => {
-            console.log('data', data)
             if (data) {
               this.getDtpList();
             }
           }, error => { });
         }
       }
-    }, error => {})
+    }, error => { })
   }
+
   closeModal() {
     this.warningModal.close();
   }
+
   onInputChange(e) {
-    const searchText = e.target.value;
-    if (!!searchText) {
-      this.searchDebounec.next(searchText);
-    }
+    this.searchDebounce.next(e.target.value);
   }
+
+  filterSearch() {
+    this.dataSource.filterPredicate = (data, filter: string) => {
+      return filter && this.filterColumn && resolvePath(data, this.filterColumn)?.toLocaleLowerCase().includes(filter.toLocaleLowerCase());
+    }
+    this.dataSource.filter = this.searchText;
+  }
+
   setupSearchDeBouncer() {
-    const search$ = this.searchDebounec.pipe(
+    const search$ = this.searchDebounce.pipe(
       debounceTime(350),
       distinctUntilChanged()
     ).subscribe((term: string) => {
