@@ -491,10 +491,30 @@
                                                     <li *ngFor="let instance of instanceArray[i]">
                                                         {{instance.resourceType?.name ? instance.resourceType?.name : 'No resource type defined'}}
                                                         <span title="{{instance.resourceComments}}">({{(instance.resourceComments.length === 0) ? 'No comments' : ((instance.resourceComments.length <= sliceLength) ? instance.resourceComments : (instance.resourceComments | slice:0:sliceLength) + '...')}})</span>
-                                                        <span class="pl-2" [title]="lastCompletedStep >= 3 ? 'Data upload to the TSD Repository' : 'DTP step should be at \'Transfer\' to be able to upload the data'">
-                                                            <button [ngClass]="lastCompletedStep >= 3 ? 'btn-success' : 'btn-secondary'" 
-                                                                class="btn btn-sm" [disabled]="lastCompletedStep < 3" (click)="goToTsd(instance)">Upload</button>
-                                                        </span>
+                                                        <ng-container *ngIf="!checkUrl(instance.url); else alreadyUploaded">
+                                                            <ng-container *ngIf="lastCompletedStep >= 3; else missingSteps">
+                                                                <ng-container *ngIf="canUpload(); else unauthorized">
+                                                                    <span class="pl-2" title="Data upload to the TSD Repository">
+                                                                        <button class="btn btn-sm btn-success" (click)="goToTsd(instance)">Upload</button>
+                                                                    </span>
+                                                                </ng-container>
+                                                                <ng-template #unauthorized>
+                                                                    <span class="pl-2" title="You have to be part of the associated people (below) of the DTP to be able to upload">
+                                                                        <button class="btn btn-sm btn-secondary" disabled>Upload</button>
+                                                                    </span>
+                                                                </ng-template>
+                                                            </ng-container>
+                                                            <ng-template #missingSteps>
+                                                                <span class="pl-2" title="DTP step should be at \'Transfer\' to be able to upload the data">
+                                                                    <button class="btn btn-sm btn-secondary" disabled>Upload</button>
+                                                                </span>
+                                                            </ng-template>
+                                                        </ng-container>
+                                                        <ng-template #alreadyUploaded>
+                                                            <span class="pl-2" title="Uploaded data is stored in TSD">
+                                                                <button class="btn btn-sm btn-success" disabled>Already uploaded</button>
+                                                            </span>
+                                                        </ng-template>
                                                     </li>
                                                 </ul>
                                             </ng-container>
