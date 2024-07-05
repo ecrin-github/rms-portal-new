@@ -43,6 +43,7 @@ export class SummaryStudyComponent implements OnInit {
   warningModal: any;
   orgId: any;
   role: any;
+  isManager: boolean = false;
   isBrowsing: boolean = false;
   deBouncedInputValue = this.searchText;
   searchDebounce: Subject<string> = new Subject();
@@ -71,6 +72,7 @@ export class SummaryStudyComponent implements OnInit {
     this.role = this.statesService.currentAuthRole;
     this.isOrgIdValid = this.statesService.isOrgIdValid();
     this.isBrowsing = this.router.url.includes('browsing');
+    this.isManager = this.statesService.isManager();
     if (!this.isBrowsing) {
       this.permissionService.loadPermissions([this.role]);
     }

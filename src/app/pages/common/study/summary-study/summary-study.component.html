@@ -77,10 +77,11 @@
                     <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']">
                         <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <a [routerLink]="['/studies', row.sdSid, 'edit']" *ngIf="!isBrowsing && row.organisation?.id === orgId">
+                    <a [routerLink]="['/studies', row.sdSid, 'edit']" *ngIf="!isBrowsing && (row.organisation?.id === orgId || isManager)">
                         <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngIf="!isBrowsing && row.organisation?.id === orgId">
+                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" 
+                        *ngIf="!isBrowsing && (row.organisation?.id === orgId || isManager)">
                     </i>
                 </mat-cell>
             </ng-container>
