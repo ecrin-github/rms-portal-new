@@ -66,12 +66,12 @@
                     </div>
                     <ng-container *ngIf="isView">
                         <ng-container *ngIf="objectData?.linkedStudy; else noLinkedStudy">
-                            <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.linkedStudy?.id)" style="cursor: pointer;">
-                                <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy.sdSid : 'None'}}</h6>
+                            <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.linkedStudy?.sdSid)" style="cursor: pointer;">
+                                <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy?.sdSid : 'None'}}</h6>
                             </a>
                         </ng-container>
                         <ng-template #noLinkedStudy>
-                            <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy.sdSid : 'None'}}</h6>
+                            <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy?.sdSid : 'None'}}</h6>
                         </ng-template>
                     </ng-container>
                     <br *ngIf="isView || isEdit">
