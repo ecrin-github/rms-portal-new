@@ -23,6 +23,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
+import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -60,6 +61,8 @@ export class UpsertDtpComponent implements OnInit {
   studyList: [] = [];
   objectList: [] = [];
   role: any;
+  user: UserInterface;
+  isManager: boolean = false;
   showUploadButton: boolean = false;
   instanceArray = [];
   pageSize: number = 10000;
@@ -131,7 +134,9 @@ export class UpsertDtpComponent implements OnInit {
 
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
+    this.isManager = this.statesService.isManager();
     this.role = this.statesService.currentAuthRole;
+    this.user = this.statesService.currentUser;
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
     this.id = this.activatedRoute.snapshot.params.id;
@@ -1136,6 +1141,19 @@ export class UpsertDtpComponent implements OnInit {
   findObjectById(objectId) {
     const arr: any = this.objectList.filter((item: any) => item.objectId === objectId);
     return arr && arr.length ? arr[0].displayTitle : 'None';
+  }
+
+  checkUrl(instanceUrl) {
+    return (instanceUrl + '').includes('tsd.usit.no');
+  }
+
+  canUpload() {
+    for (const aUser of this.associatedUsers) {
+      if (aUser.person?.id === this.user.id) {
+        return true;
+      }
+    }
+    return false;
   }
 
   customSearchUsers(term: string, item) {

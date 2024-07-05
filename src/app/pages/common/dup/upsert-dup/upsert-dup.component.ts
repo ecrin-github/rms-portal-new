@@ -47,6 +47,7 @@ export class UpsertDupComponent implements OnInit {
   studyList: [] = [];
   objectList: [] = [];
   role: any;
+  isManager: boolean = false;
   showUploadButton: boolean = false;
   pageSize: Number = 10000;
   duaData: any;
@@ -115,6 +116,7 @@ export class UpsertDupComponent implements OnInit {
 
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
+    this.isManager = this.statesService.isManager();
 
     if (this.isView) {
       this.scrollService.handleScroll([`/data-use/${this.id}/view`]);

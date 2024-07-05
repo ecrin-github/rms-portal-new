@@ -512,11 +512,16 @@
                                 <ng-container *ngIf="associatedUsers.length > 0">
                                     <ul>
                                         <li *ngFor="let user of associatedUsers; let i = index" class="pl-4">
-                                            <a [routerLink]="['/people', user.person?.id, 'view']">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}
-                                            </a> ({{user.person?.email}})
-                                            <i class="fa fa-times pl-3" (click)="removeDtpUser(user.id)"
-                                                *ngIf="!isView"></i>
+                                            <ng-container *ngIf="isManager; else displayUserInfo">
+                                                <a [routerLink]="['/people', user.person?.id, 'view']">
+                                                    {{user.person?.firstName}} {{user.person?.lastName}}
+                                                </a> ({{user.person?.email}})
+                                                <i class="fa fa-times pl-3" (click)="removeDtpUser(user.id)"
+                                                    *ngIf="!isView"></i>
+                                            </ng-container>
+                                            <ng-template #displayUserInfo>
+                                                {{user.person?.firstName}} {{user.person?.lastName}} ({{user.person?.email}})
+                                            </ng-template>
                                         </li>
                                     </ul>
                                 </ng-container>
