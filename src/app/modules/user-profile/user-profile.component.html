@@ -1,134 +1,84 @@
-<div class="row">
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-body text-center">
-        <h5 class="my-3">{{user?.firstName}} {{user?.lastName}}</h5>
-        <p class="text-muted mb-1">{{user?.organisation}}</p>
-        <p class="text-muted mb-1">{{user?.email}}</p>
-      </div>
-
-      <!-- <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="symbol symbol-60 symbol-xxl-100 mr-5 align-self-start align-self-xxl-center">
-            <div class="symbol-label" [style.backgroundImage]="'url('+ user?.pic +')'"></div>
-            <i class="symbol-badge bg-success"></i>
-          </div>
-          <div>
-            <a class="font-weight-bolder font-size-h5 text-dark-75 text-hover-primary cursor-pointer">
-              {{user?.name}}
-            </a>
-            <div class="text-muted">
-              {{user.companyName}}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="my-3">{{user?.firstName}} {{user?.lastName}}</h5>
+                    <p class="text-muted mb-1">{{user?.designation}}</p>
+                    <p class="text-muted mb-1">{{user?.userProfile?.organisation?.defaultName}}</p>
+                    <p class="text-muted mb-1">{{user?.email}}</p>
+                </div>
             </div>
-          </div>
         </div>
-        <div class="py-9" *ngIf="user">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <span class="font-weight-bold mr-2">Email:</span>
-            <a class="text-muted text-hover-primary">{{user?.email}}</a>
-          </div>
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <span class="font-weight-bold mr-2">Phone:</span>
-            <span class="text-muted">{{user?.phone}}</span>
-          </div>
-          <div class="d-flex align-items-center justify-content-between">
-            <span class="font-weight-bold mr-2">Location:</span>
-            <span class="text-muted">{{user?.location}}</span>
-          </div>
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-5 d-flex align-items-center">
+                            <h2>Personal information</h2>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="d-inline-flex align-items-center alert alert-info alert-no-b-margin" role="alert">
+                                <div class="pr-4">
+                                    <i class="fa fa-info-circle fa-3x info-icon"></i>
+                                </div>
+                                <div>
+                                    Your email and name can be modified on your Life Science account. For the other fields, please contact the
+                                    <a [routerLink]="['/contactUs']" class="alert-link">Repository Manager</a>.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form [formGroup]="userForm">
+                    <div class="card-body">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="lsAaiId" class="font-style text-capitalize">Life Science ID (LS AAI)</label>
+                                <h6 style="font-weight: 100;">{{userForm.get('lsAaiId')?.value}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="email" class="font-style text-capitalize">email</label>
+                                <h6 style="font-weight: 100;">{{userForm.get('email')?.value}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="firstName" class="font-style text-capitalize">first name</label>
+                                <h6 style="font-weight: 100;">{{userForm.get('firstName')?.value}}</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="font-style text-capitalize">last name</label>
+                                <h6 style="font-weight: 100;">{{userForm.get('lastName')?.value}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="profTitle" class="font-style text-capitalize">Title</label>
+                                <h6 style="font-weight: 100;">{{userForm.get('title')?.value}}</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="designation" class="font-style text-capitalize">Designation</label>
+                                <h6 style="font-weight: 100;">{{userForm.get('designation')?.value}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="email" class="font-style text-capitalize">organisation</label>
+                                <h6 style="font-weight: 100;">{{userForm.get('organisation')?.value}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label for="isSuperuser" class="font-style text-capitalize">Role</label>
+                                <h6 style="font-weight: 100;">{{userForm.get('role')?.value}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-      </div> -->
     </div>
-  </div>
-  <div class="col-md-8">
-    <div class="card h-100">
-      <div class="card-header">
-        <div class="row">
-          <div class="col-md-12">
-            <h3 class="card-label font-weight-bolder text-dark">Personal Information</h3>
-            <!-- <span class="text-muted font-weight-bold font-size-sm mt-1">Update your personal informaiton</span> -->
-          </div>
-          <!-- <div class="col-md-5 text-right">
-            <button type="submit" class="btn btn-success mr-2">Save
-              Changes</button>
-            <button type="reset" class="btn btn-secondary">Cancel</button>
-          </div> -->
-        </div>
-      </div>
-      <div class="card-body">
-        <form [formGroup]="form">
-          <div class="row">
-            <div class="col-md-12">
-              <h5 class="font-weight-bold mb-6">User's information</h5>
-            </div>
-          </div>
-          <!-- <div class="form-group row">
-            <label class="col-xl-3 col-lg-3 col-form-label">Avatar</label>
-            <div class="col-lg-9 col-xl-6">
-              <div class="image-input image-input-outline" id="kt_profile_avatar" [class.image-input-empty]="!user?.pic"
-                [style.backgroundImage]="'url(./assets/media/users/blank.png)'">
-                <div class="image-input-wrapper" [style.backgroundImage]="getPic()"></div>
-                <label class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                  data-action="change" data-toggle="tooltip" title="" data-original-title="Change avatar">
-                  <i class="fa fa-pen icon-sm text-muted"></i>
-                  <input type="file" name="profile_avatar" accept=".png, .jpg, .jpeg" />
-                  <input type="hidden" name="profile_avatar_remove" formControlName="pic" />
-                </label>
-                <span class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                  data-action="cancel" data-toggle="tooltip" title="" data-original-title="Cancel avatar">
-                  <i class="ki ki-bold-close icon-xs text-muted"></i>
-                </span>
-                <span *ngIf="user?.pic"
-                  class="btn btn-xs btn-icon btn-circle btn-white btn-hover-text-primary btn-shadow"
-                  (click)="deletePic()" data-action="remove" data-toggle="tooltip" title=""
-                  data-original-title="Remove avatar">
-                  <i class="ki ki-bold-close icon-xs text-muted"></i>
-                </span>
-              </div>
-              <span class="form-text text-muted">Allowed file types: png, jpg, jpeg.</span>
-            </div>
-          </div> -->
-          <div class="form-group row">
-            <label class="col-xl-3 col-lg-3 col-form-label">Life Science ID (LS AAI)</label>
-            <div class="col-9">
-              <input class="form-control form-control-lg" type="text" formControlName="lsAaiId" readonly/>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-xl-3 col-lg-3 col-form-label">First Name</label>
-            <div class="col-9">
-              <input class="form-control form-control-lg" type="text" formControlName="firstName" readonly/>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-xl-3 col-lg-3 col-form-label">Last Name</label>
-            <div class="col-9">
-              <input class="form-control form-control-lg" type="text" value="Bold"
-                formControlName="lastName" readonly/>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-xl-3 col-lg-3 col-form-label">Email Address</label>
-            <div class="col-9">
-                <input type="email" class="form-control form-control-lg" placeholder="Email"
-                  formControlName="email" readonly/>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-xl-3 col-lg-3 col-form-label">Organisation</label>
-            <div class="col-9">
-                <input type="organisation" class="form-control form-control-lg" placeholder="organisation"
-                  formControlName="organisation" readonly/>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-xl-3 col-lg-3 col-form-label">Role</label>
-            <div class="col-9">
-                <input type="role" class="form-control form-control-lg" placeholder="role"
-                  formControlName="role" readonly/>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 </div>

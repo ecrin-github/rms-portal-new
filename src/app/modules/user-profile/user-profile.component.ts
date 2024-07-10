@@ -9,7 +9,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
   styleUrls: ['./user-profile.component.scss']
 })
 export class UserProfileComponent implements OnInit {
-  form: UntypedFormGroup;
+  userForm: UntypedFormGroup;
   avatarPic = 'none';
   user: any;
   orgId: string;
@@ -20,11 +20,13 @@ export class UserProfileComponent implements OnInit {
     private userService: UserService,
     private fb: UntypedFormBuilder,
   ) {
-    this.form = this.fb.group({
+    this.userForm = this.fb.group({
       lsAaiId: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
+      title: ['', Validators.required],
+      designation: ['', Validators.required],
       organisation: ['', Validators.required],
       role: ['', ]
     });
@@ -33,20 +35,16 @@ export class UserProfileComponent implements OnInit {
   ngOnInit(): void {
     this.user = this.statesService.currentUser;
     this.patchForm();
-
-    // this.userService.getUserAccessData(this.statesService.currentUser.id).subscribe((res) => {
-    //   console.log(`user access data: ${JSON.stringify(res)}`);
-    // });
   }
 
   patchForm() {
-    this.form.patchValue({
+    this.userForm.patchValue({
       lsAaiId: this.user.userProfile.lsAaiId,
+      email: this.user.email,
       firstName: this.user.firstName,
       lastName: this.user.lastName,
-      email: this.user.email,
-      // title: this.user.userProfile.title,
-      // designation: this.user.userProfile.designation,
+      title: this.user.userProfile.profTitle,
+      designation: this.user.userProfile.designation,
       organisation: this.user.userProfile.organisation?.defaultName,
       role: this.user.isSuperuser ? 'Manager' : 'User'
     });

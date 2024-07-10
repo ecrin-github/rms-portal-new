@@ -90,6 +90,24 @@
   width: 100%;
 }
 
+.info-icon {
+  color: #249db2 !important;
+}
+
+.alert-info {
+  color: #0c5460 !important;
+  background-color: #d1ecf1 !important;
+  border-color: #bee5eb !important;
+}
+
+.alert-link:hover {
+  text-decoration: underline !important;
+}
+
+.alert-no-b-margin {
+  margin-bottom: 0 !important;
+}
+
 .angular-bootstrap-table {
   overflow-x: auto;
   th {
