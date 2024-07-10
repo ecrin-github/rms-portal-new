@@ -3,7 +3,7 @@ import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
-import { combineLatest } from 'rxjs';
+import { Observable, combineLatest, of } from 'rxjs';
 import { BackService } from 'src/app/_rms/services/back/back.service';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { PeopleService } from 'src/app/_rms/services/entities/people/people.service';
@@ -23,19 +23,18 @@ export class UpsertUserComponent implements OnInit {
   id: any;
   role: any;
   userData: any;
-  submitte: boolean = false;
-  pageSize:Number = 10000;
+  pageSize: Number = 10000;
 
   constructor(private statesService: StatesService,
-              private backService: BackService, 
-              private fb: UntypedFormBuilder, 
-              private router: Router, 
-              private activatedRoute: ActivatedRoute, 
-              private reuseService: ReuseService,
-              private peopleService: PeopleService, 
-              private spinner: NgxSpinnerService,
-              private toastr: ToastrService, 
-              private commonLookup: CommonLookupService) {
+    private backService: BackService,
+    private fb: UntypedFormBuilder,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private reuseService: ReuseService,
+    private peopleService: PeopleService,
+    private spinner: NgxSpinnerService,
+    private toastr: ToastrService,
+    private commonLookup: CommonLookupService) {
     this.userForm = this.fb.group({
       firstName: '',
       lastName: '',
@@ -47,7 +46,7 @@ export class UpsertUserComponent implements OnInit {
       password: '',
       username: ''
     })
-   }
+  }
 
   ngOnInit(): void {
     this.role = this.statesService.currentAuthRole;
@@ -59,6 +58,7 @@ export class UpsertUserComponent implements OnInit {
       this.getPeopleById(this.id);
     }
   }
+
   getPeopleById(id) {
     this.spinner.show();
     this.peopleService.getPeopleById(this.id).subscribe((res: any) => {
@@ -71,6 +71,7 @@ export class UpsertUserComponent implements OnInit {
       this.spinner.hide();
     })
   }
+
   patchForm(userData) {
     this.userForm.patchValue({
       firstName: userData.firstName,
@@ -85,6 +86,7 @@ export class UpsertUserComponent implements OnInit {
       username: userData.username
     })
   }
+
   getOrganization() {
     this.spinner.show();
     this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
@@ -97,30 +99,53 @@ export class UpsertUserComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   onSave() {
     if (localStorage.getItem('updateUserList')) {
       localStorage.removeItem('updateUserList');
     }
     const payload = JSON.parse(JSON.stringify(this.userForm.value));
-    this.submitte = true;
     if (this.userForm.valid) {
       if (this.isEdit) {
         this.spinner.show();
         const editUser$ = this.peopleService.editPeople(this.id, payload);
-        const editUserProfile$ = this.peopleService.editUserProfile(this.id, this.userData.userProfile?.id, payload);
+        let editUserProfile$: Observable<any>;
+        if (this.userData.userProfile?.id) {
+          editUserProfile$ = this.peopleService.editUserProfile(this.id, this.userData.userProfile?.id, payload);
+        } else {
+          editUserProfile$ = of(true);
+        }
         const combine$ = combineLatest([editUser$, editUserProfile$]).subscribe(([userRes, userProfileRes]: [any, any]) => {
-          this.spinner.hide();
-          if(userRes.statusCode === 200 && userProfileRes.statusCode === 200) {
-            this.toastr.success('Information updated successfully');
+          let redirect: boolean = false;
+          if (userRes.statusCode === 200) {
+            this.toastr.success('Base user information updated successfully');
             localStorage.setItem('updateUserList', 'true');
             this.reuseService.notifyComponents();
-            this.router.navigate([`/people/${this.id}/view`]);
+            redirect = true;
           } else {
             this.toastr.error(userRes?.messages[0]);
           }
+          if (userProfileRes.statusCode) {
+            if (userProfileRes.statusCode === 200) {
+              this.toastr.success('User profile information updated successfully');
+              localStorage.setItem('updateUserList', 'true');
+              this.reuseService.notifyComponents();
+              if (redirect) {
+                this.router.navigate([`/people/${this.id}/view`]);
+              }
+            } else {
+              this.toastr.error(userProfileRes?.messages[0]);
+            }
+          } else {
+            this.toastr.warning('No user profile associated to this user has been found, ' + 
+                                'user profile information has not been updated (LS AAI ID, title, designation, organisation)',
+                                '', { timeOut: 8000 });
+          }
+          this.spinner.hide();
         }, error => {
-          console.log('error', error);
-        }) 
+          this.spinner.hide();
+          this.toastr.error(error);
+        })
       } else {  // this.isAdd
         this.spinner.show();
         this.peopleService.addPeople(payload).subscribe((res: any) => {
@@ -144,9 +169,11 @@ export class UpsertUserComponent implements OnInit {
       }
     }
   }
+
   back(): void {
     this.backService.back();
   }
+
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((item: any) => item.id === id);
     return organizationArray && organizationArray.length ? organizationArray[0].defaultName : '';
