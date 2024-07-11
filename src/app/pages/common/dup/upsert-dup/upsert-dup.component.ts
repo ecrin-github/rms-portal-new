@@ -50,6 +50,7 @@ export class UpsertDupComponent implements OnInit {
   role: any;
   isManager: boolean = false;
   showUploadButton: boolean = false;
+  addDOButtonDisabled: boolean = true;
   pageSize: Number = 10000;
   duaData: any;
   dupNotes: any;
@@ -609,7 +610,7 @@ export class UpsertDupComponent implements OnInit {
 
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
-    studyModal.componentInstance.title = 'Add Study';
+    studyModal.componentInstance.title = 'Add Studies';
     studyModal.componentInstance.type = 'study';
     studyModal.componentInstance.dupId = this.id;
     studyModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
@@ -638,6 +639,9 @@ export class UpsertDupComponent implements OnInit {
   setDupStudies(res) {
     if (res) {
       this.associatedStudies = res.results ? res.results : [];
+      if (this.associatedStudies.length > 0) {
+        this.addDOButtonDisabled = false;
+      }
     }
   }
 
@@ -666,7 +670,7 @@ export class UpsertDupComponent implements OnInit {
 
   addDataObject() {
     const dataModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
-    dataModal.componentInstance.title = 'Add Data Object';
+    dataModal.componentInstance.title = 'Add Data Objects';
     dataModal.componentInstance.type = 'dataObject';
     dataModal.componentInstance.dupId = this.id;
     dataModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
@@ -733,7 +737,7 @@ export class UpsertDupComponent implements OnInit {
 
   addUser() {
     const userModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
-    userModal.componentInstance.title = 'Add User';
+    userModal.componentInstance.title = 'Add Users';
     userModal.componentInstance.type = 'user';
     userModal.componentInstance.dupId = this.id;
     userModal.componentInstance.currentUsersIds = new Set(this.associatedUsers.map((item) => item.person?.id));
