@@ -43,7 +43,6 @@ export class UpsertDupComponent implements OnInit {
   buttonClick: any;
   showVariations: boolean = false;
   sticky: boolean = false;
-  showButton: boolean = true;
   dupArr: any;
   studyList: [] = [];
   objectList: [] = [];

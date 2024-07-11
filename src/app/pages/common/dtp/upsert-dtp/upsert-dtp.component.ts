@@ -56,7 +56,6 @@ export class UpsertDtpComponent implements OnInit {
   accessTypes: [] = [];
   isEmbargoRequested = [];
   sticky: boolean = false;
-  showButton: boolean = true;
   accessStatusTypes: [] = [];
   dtpArr: any;
   studyList: [] = [];

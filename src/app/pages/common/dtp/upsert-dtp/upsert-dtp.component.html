@@ -20,7 +20,7 @@
                         </button>
                         <button class="btn btn-warning" (click)="back()">Back</button>
                     </ng-container>
-                    <ng-container *ngIf="!isView && showButton">
+                    <ng-container *ngIf="!isView">
                         <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
                         <button class="btn btn-warning" (click)="back()">Cancel</button>
                     </ng-container>
@@ -39,7 +39,7 @@
                 <ng-container *ngIf="isView || isEdit">
                     <ul class="nav nav-pills maxw-fit-content nav-fill" style="border-bottom: 1px solid lightgray">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#overview" data-toggle="tab" id="overviews" (click)="showButton = true">Overview</a>
+                            <a class="nav-link active" href="#overview" data-toggle="tab" id="overviews">Overview</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#setup" data-toggle="tab" id="setups">{{ isView ? 'Linked Objects and People' : 'Set up'}}</a>
