@@ -524,11 +524,11 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
+
                                 <hr>
                                 <span class="font-style">Associated Data Objects</span>
                                 <button class="btn btn-primary float-right" (click)="addDataObject()"
-                                    *ngIf="!isView">Add Data Object</button>
+                                    *ngIf="!isView" [disabled]="addDOButtonDisabled">Add Data Objects</button>
                                 <ng-container *ngIf="associatedObjects.length <= 0">
                                     <p>No Associated Data Object</p>
                                 </ng-container>
@@ -541,6 +541,21 @@
                                             <span title="{{object.dataObject?.displayTitle}}">({{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}})</span>
                                             <i class="fa fa-times pl-3" (click)="removeDupObject(object.id)"
                                                 *ngIf="!isView"></i>
+
+                                            <!-- Access type and embargo -->
+                                            <div class="d-inline-flex align-items-center alert alert-info" 
+                                                [ngClass]="i === 0 ? 'alert-small-first' : 'alert-small'" role="alert">
+                                                <div class="pr-2">
+                                                    <i class="fa fa-info-circle fa-lg info-icon"></i>
+                                                </div>
+                                                <div class="capitalize-first-word">
+                                                    {{object.dataObject?.accessType?.name ? (object.dataObject.accessType.name + ' access') : 'unknown access type'}},
+                                                    <!-- fix date here -->
+                                                    {{object.dataObject?.embargoExpiry ? ('embargo until: ' + object.dataObject?.embargoExpiry.slice(0, 10))  : 'no embargo'}}
+                                                </div>
+                                            </div>
+
+                                            <!-- DO instances -->
                                             <ng-container *ngIf="prereqs[i]?.length > 0">
                                                 <ul style="list-style-type: square;">
                                                     <li *ngFor="let prereq of prereqs[i]">
@@ -552,7 +567,6 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                                 <hr>
                                 <span class="font-style">Associated People</span>
                                 <button class="btn btn-primary float-right" (click)="addUser()" *ngIf="!isView">Add
@@ -576,7 +590,6 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                             </div>
                         </div>
                     </div>
@@ -585,5 +598,4 @@
         </div>
     </div>
 </div>
-
 <br />

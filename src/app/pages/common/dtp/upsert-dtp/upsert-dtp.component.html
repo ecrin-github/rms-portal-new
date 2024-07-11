@@ -459,11 +459,10 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                                 <hr>
                                 <span class="font-style">Associated Data Objects</span>
                                 <button class="btn btn-primary float-right" (click)="addDataObject()"
-                                    *ngIf="!isView">Add Data Objects</button>
+                                    *ngIf="!isView" [disabled]="addDOButtonDisabled">Add Data Objects</button>
                                 <ng-container *ngIf="associatedObjects.length <= 0">
                                     <p>No Associated Data Object</p>
                                 </ng-container>
@@ -476,14 +475,29 @@
                                             <span title="{{object.dataObject?.displayTitle}}">({{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}})</span>
                                             <i class="fa fa-times pl-3" (click)="removeDtpObject(object.id)"
                                                 *ngIf="!isView"></i>
+
+                                            <!-- Access type and embargo -->
+                                            <div class="d-inline-flex align-items-center alert alert-info" 
+                                                [ngClass]="i === 0 ? 'alert-small-first' : 'alert-small'" role="alert">
+                                                <div class="pr-2">
+                                                    <i class="fa fa-info-circle fa-lg info-icon"></i>
+                                                </div>
+                                                <div class="capitalize-first-word">
+                                                    {{object.dataObject?.accessType?.name ? (object.dataObject.accessType.name + ' access') : 'unknown access type'}},
+                                                    <!-- fix date here -->
+                                                    {{object.dataObject?.embargoExpiry ? ('embargo until: ' + object.dataObject?.embargoExpiry.slice(0, 10))  : 'no embargo'}}
+                                                </div>
+                                            </div>
+
+                                            <!-- DO Instances -->
                                             <ng-container *ngIf="instanceArray[i]?.length <= 0">
                                                 <ul style="list-style-type: none;">
-                                                    <li style="font-style:italic">currently there are no instances related to the data object, please create some before uploading<span class="pl-2"><button class="btn btn-success btn-sm"(click)="goToDo(object)">Create one</button></span></li>
+                                                    <li style="font-style:italic" class="associated-do-li">currently there are no instances related to the data object, please create some before uploading<span class="pl-2"><button class="btn btn-success btn-sm"(click)="goToDo(object)">Create one</button></span></li>
                                                 </ul>
                                             </ng-container>
                                             <ng-container *ngIf="instanceArray[i]?.length > 0">
                                                 <ul style="list-style-type: square;">
-                                                    <li *ngFor="let instance of instanceArray[i]">
+                                                    <li *ngFor="let instance of instanceArray[i]" class="associated-do-li">
                                                         {{instance.resourceType?.name ? instance.resourceType?.name : 'No resource type defined'}}
                                                         <span title="{{instance.resourceComments}}">({{(instance.resourceComments.length === 0) ? 'No comments' : ((instance.resourceComments.length <= sliceLength) ? instance.resourceComments : (instance.resourceComments | slice:0:sliceLength) + '...')}})</span>
                                                         <ng-container *ngIf="!checkUrl(instance.url); else alreadyUploaded">
@@ -500,7 +514,7 @@
                                                                 </ng-template>
                                                             </ng-container>
                                                             <ng-template #missingSteps>
-                                                                <span class="pl-2" title="DTP step should be at \'Transfer\' to be able to upload the data">
+                                                                <span class="pl-2" title="DTP step should be at 'Transfer' to be able to upload the data">
                                                                     <button class="btn btn-sm btn-secondary" disabled>Upload</button>
                                                                 </span>
                                                             </ng-template>
@@ -516,7 +530,6 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                                 <hr>
                                 <span class="font-style">Associated People</span>
                                 <button class="btn btn-primary float-right" (click)="addUser()" *ngIf="!isView">Add
@@ -540,7 +553,6 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                             </div>
                         </div>
                     </div>

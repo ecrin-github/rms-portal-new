@@ -108,6 +108,24 @@
   margin-bottom: 0 !important;
 }
 
+.alert-small-first {
+  padding: 0.5rem 0.75rem !important;
+  margin: 0.5rem 0 0 0.75rem !important;
+}
+
+.alert-small {
+  padding: 0.5rem 0.75rem !important;
+  margin: 1.5rem 0 0 0.75rem !important;
+}
+
+.associated-do-li {
+  margin-top: 0.6rem;
+}
+
+.capitalize-first-word:first-letter {
+  text-transform: uppercase;
+}
+
 .angular-bootstrap-table {
   overflow-x: auto;
   th {
