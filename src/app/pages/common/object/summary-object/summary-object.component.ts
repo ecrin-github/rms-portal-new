@@ -15,7 +15,7 @@ import { Subject, combineLatest } from 'rxjs';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
-import { resolvePath } from 'src/assets/js/util.js';
+import { resolvePath } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-summary-object',

@@ -5,10 +5,10 @@ export function resolvePath(object, path) {
 
 export function dateToString(date) {
     if (date?.day && date?.month && date?.year) {
-      const dateString =  date.year + '-' + date.month.toString().padStart(2, '0') + '-' + date.day.toString().padStart(2, '0');
-      return new Date(dateString).toISOString().slice(0, 10);
+        const dateString =  date.year + '-' + date.month.toString().padStart(2, '0') + '-' + date.day.toString().padStart(2, '0');
+        return new Date(dateString).toISOString().slice(0, 10);
     } else {
-      return null;
+        return null;
     }
 }
 

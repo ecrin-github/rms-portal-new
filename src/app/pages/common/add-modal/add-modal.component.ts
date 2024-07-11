@@ -8,7 +8,7 @@ import { DupService } from 'src/app/_rms/services/entities/dup/dup.service';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { ProcessLookupService } from 'src/app/_rms/services/entities/process-lookup/process-lookup.service';
-import { dateToString } from 'src/assets/js/util.js';
+import { dateToString } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-add-modal',

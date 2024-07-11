@@ -17,7 +17,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
-import { dateToString, stringToDate } from 'src/assets/js/util.js';
+import { dateToString, stringToDate } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-upsert-dup',

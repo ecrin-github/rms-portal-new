@@ -11,7 +11,7 @@ import { ConfirmationWindowComponent } from '../../../confirmation-window/confir
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/study-lookup.service';
 import { Router } from '@angular/router';
-import { dateToString, stringToDate } from 'src/assets/js/util.js';
+import { dateToString, stringToDate } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-study-identifier',

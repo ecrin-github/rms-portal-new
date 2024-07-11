@@ -10,7 +10,7 @@ import { ConfirmationWindowComponent } from '../../../confirmation-window/confir
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { Router } from '@angular/router';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
-import { dateToString, stringToDate } from 'src/assets/js/util.js';
+import { dateToString, stringToDate } from 'src/assets/js/util';
 
 
 @Component({
