@@ -65,7 +65,7 @@
                                         notFoundText="No members found" placeholder="Select Organisation" *ngIf="!isView"
                                         [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }" [readonly]="isEdit">
                                     </ng-select>
-                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.organisation.errors">
+                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.organisation.errors">
                                         <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>
                                     </div>
                                     <h6 *ngIf="isView" style="font-weight: 100;">
@@ -75,7 +75,7 @@
                                     <label for="" class="font-style text-capitalize">Display Name<sup>*</sup></label>
                                     <input type="text" class="form-control" formControlName="displayName" *ngIf="!isView"
                                         [ngClass]="{ 'is-invalid': submitted && g.displayName.errors }">
-                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.displayName.errors">
+                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.displayName.errors">
                                         <p *ngIf="submitted && g.displayName.errors.required"> Please enter the Display
                                             Name</p>
                                     </div>

@@ -61,7 +61,7 @@
                         <label for="displayTitle" class="font-style text-capitalize">Title <sup>*</sup> </label>
                         <textarea cols="30" rows="3" class="form-control" placeholder="Please enter a good mnemonic reference for your study"
                             formControlName="displayTitle" *ngIf="!isView" id="displayTitle" (change)="onChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.displayTitle.errors }"></textarea>
-                            <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.displayTitle.errors">
+                            <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.displayTitle.errors">
                                 <p *ngIf="isSubmitted && g.displayTitle.errors.required"> Please enter study title</p>
                             </div>
                         <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.displayTitle}}</h6>
@@ -95,7 +95,7 @@
                             <option selected disabled value="null">Please select...</option>
                             <option [value]=status.id *ngFor="let status of studyStatuses">{{status.name}}</option>
                         </select>
-                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyStatus.errors">
+                        <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.studyStatus.errors">
                             <p *ngIf="isSubmitted && g.studyStatus.errors.required"> Please enter the study status</p>
                         </div>
                         <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyStatus?.name}}</h6>
@@ -107,7 +107,7 @@
                             <option selected disabled value="null">Please select...</option>
                             <option [value]=type.id *ngFor="let type of studyTypes">{{type.name}}</option>
                         </select>
-                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyType.errors">
+                        <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.studyType.errors">
                             <p *ngIf="isSubmitted && g.studyType.errors.required"> Please enter the study type</p>
                         </div>
                         <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyType?.name}}</h6>
@@ -124,7 +124,7 @@
                         <label for="studyStartYear" class="font-style text-capitalize">Start Year <sup>*</sup> </label>
                         <p-calendar id="studyStartYear" formControlName="studyStartYear" view="year" dateFormat="yy"
                             *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStartYear.errors }" placeholder="Select a year"></p-calendar>
-                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.studyStartYear.errors">
+                        <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.studyStartYear.errors">
                             <p *ngIf="isSubmitted && g.studyStartYear.errors.required"> Please enter the study start year</p>
                         </div>
                         <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyStartYear}}</h6>
