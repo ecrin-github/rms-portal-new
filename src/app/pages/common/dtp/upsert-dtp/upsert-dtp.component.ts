@@ -24,6 +24,7 @@ import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
+import { dateToString, stringToDate } from 'src/assets/js/util.js';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -718,17 +719,11 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   dateToString(date) {
-    if (date?.day && date?.month && date?.year) {
-      const dateString =  date.year + '-' + date.month.toString().padStart(2, '0') + '-' + date.day.toString().padStart(2, '0');
-      return new Date(dateString).toISOString();
-    } else {
-      return null;
-    }
+    return dateToString(date);
   }
 
   stringToDate(date) {
-    const dateArray = new Date(date);
-    return date ? { year: dateArray.getFullYear(), month: dateArray.getMonth()+1, day: dateArray.getDate()} : null;
+    return stringToDate(date);
   }
 
   viewDate(date) {
