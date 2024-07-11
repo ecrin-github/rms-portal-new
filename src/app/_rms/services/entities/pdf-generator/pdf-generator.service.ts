@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { UpsertObjectComponent } from 'src/app/pages/common/object/upsert/upsert-object/upsert-object.component';
+import { dateToString } from 'src/assets/js/util';
 
 
 @Injectable({
@@ -613,37 +614,14 @@ export class PdfGeneratorService {
     currY += offsetT2;
     currY = this.makeTable([
       [
-        { content: 'Managing Organisation', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
         { content: 'Access Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        { content: 'Embargo Expiry Date', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
       ],
       [
-        { content: objectData.managingOrg?.defaultName ? objectData.managingOrg.defaultName : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.accessType?.name ? objectData.accessType.name : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        { content: objectData.embargoExpiry ? objectData.embargoExpiry.slice(0, 10) : 'No embargo', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
-
-    /* Access details */
-    currY += offsetSection;
-    doc.setFont(undefined, 'bold');
-    doc.setFontSize(t2Size);
-    doc.text('Access Details', currX, currY);
-
-    currY += offsetT2;
-    currY = this.makeTable([
-      [
-        { content: objectData.accessDetails ? objectData.accessDetails : 'No description', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-      ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-
-    currY += offsetT2;
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(textSize);
-    if (objectData.accessDetailsUrl) {
-      doc.text("URL: ", currX, currY);
-      doc.textWithLink(objectData.accessDetailsUrl, currX + 10, currY, {url: objectData.accessDetailsUrl});
-    } else {
-      doc.text("No URL provided", currX, currY);
-    }
     
     // If object class is dataset
     if (objectData.objectDatasets.length > 0) {

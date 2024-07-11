@@ -300,6 +300,7 @@ export class UpsertDtpComponent implements OnInit {
   notes(): UntypedFormArray {
    return this.form.get('notes') as UntypedFormArray;
   }
+
   newDtpNote(): UntypedFormGroup {
     return this.fb.group({
       dtpId: '',
@@ -308,12 +309,15 @@ export class UpsertDtpComponent implements OnInit {
       author: this.statesService.currentUser,
     })
   }
+
   addDtpNote() {
     this.notes().push(this.newDtpNote());
   }
+
   patchNotes(notes) {
     this.form.setControl('notes', this.patchNoteArray(notes));
   }
+
   patchNoteArray(notes): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     notes.forEach(note => {
@@ -386,9 +390,11 @@ export class UpsertDtpComponent implements OnInit {
       })
     }
   }
+
   preReqs(): UntypedFormArray {
     return this.preReqForm.get('preRequisite') as UntypedFormArray
   }
+
   newPreReq(): UntypedFormGroup {
     return this.fb.group({
       id: '',
@@ -409,9 +415,11 @@ export class UpsertDtpComponent implements OnInit {
       }
     }, error => {})
   }
+
   patchPreReq(preReqs) {
     this.preReqForm.setControl('preRequisite', this.patchPreReqArray(preReqs));
   }
+
   patchPreReqArray(preReqs): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     preReqs.forEach(preReq => {
@@ -424,6 +432,7 @@ export class UpsertDtpComponent implements OnInit {
     });
     return formArray;
   }
+
   editPreReq(preReqsObject) {
     const payload = JSON.parse(JSON.stringify(preReqsObject.value));  // Deep copy to keep whole data object to display sdOid
     if (payload.dtpDataObject?.id) {
@@ -442,6 +451,7 @@ export class UpsertDtpComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   removePreReq(i) {
     const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
     removeModal.componentInstance.type = 'objectPreReqDtp';
@@ -457,85 +467,6 @@ export class UpsertDtpComponent implements OnInit {
         });
       }
     }, error => {})
-  }
-  embargos(): UntypedFormArray {
-    return this.objectEmbargoForm.get('embargo') as UntypedFormArray
-  }
-  newEmbargo(): UntypedFormGroup{
-    return this.fb.group({
-      accessCheckStatus: '',
-      accessCheckBy: '',
-      accessDetails: '',
-      accessCheckDate: '',
-      accessType: '',
-      downloadAllowed: '',
-      dtpId: '',
-      embargoRegime: '',
-      embargoRequested: '',
-      embargoStillApplies: '',
-      id: '',
-      dataObject: '',
-    })
-  }
-  addEmbargo() {
-    const embargoModal = this.modalService.open(AddModalComponent, {size: 'lg', backdrop: 'static'});
-    embargoModal.componentInstance.title = 'Add Access details';
-    embargoModal.componentInstance.dtpId = this.id;
-    embargoModal.componentInstance.type = 'dtpEmbargo';
-    embargoModal.result.then((data) => {
-      if (data) {
-        this.getDtpObjectsAndInstances(this.id).subscribe();
-      }
-    }, error => {});
-  }
-  patchEmbargo(embargos) {
-    this.objectEmbargoForm.setControl('embargo', this.patchEmbargoArray(embargos))
-  }
-  patchEmbargoArray(embargos): UntypedFormArray {
-    const formArray = new UntypedFormArray([]);
-    embargos.forEach((embargo, index) => {
-      formArray.push(this.fb.group({
-        accessCheckStatus: embargo.accessCheckStatus ? embargo.accessCheckStatus.id : null,
-        accessCheckBy: embargo.accessCheckBy,
-        accessDetails: embargo.accessDetails,
-        accessCheckDate: this.stringToDate(embargo.accessCheckDate),
-        accessType: embargo.accessType ? embargo.accessType.id : null,
-        downloadAllowed: embargo.downloadAllowed,
-        dtpId: embargo.dtpId,
-        embargoRegime: embargo.embargoRegime,
-        embargoRequested: embargo.embargoRequested,
-        embargoStillApplies: embargo.embargoStillApplies,
-        id: embargo.id,
-        dataObject: embargo.dataObject
-      }))
-      this.isEmbargoRequested[index] = embargo.embargoRequested ? true : false;
-    });
-    return formArray;
-  }
-  onEmbargoChange(index) {
-    this.isEmbargoRequested[index] = !this.isEmbargoRequested[index];
-  }
-  editEmbargo(embargoObject) {
-    const payload = JSON.parse(JSON.stringify(embargoObject.value));
-    if (payload.dataObject?.id) {
-      payload.dataObject = payload.dataObject?.id;
-    }
-    if (payload.accessCheckBy?.id) {
-      payload.accessCheckBy = payload.accessCheckBy.id;
-    }
-    payload.accessCheckDate = this.dateToString(payload.accessCheckDate);
-    this.spinner.show();
-    this.dtpService.editDtpObject(payload.id, this.id, payload).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.statusCode === 200) {
-        this.toastr.success('Object Embargo updated successfully');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
   }
 
   get g() { return this.form.controls; }
@@ -604,7 +535,6 @@ export class UpsertDtpComponent implements OnInit {
         if (res) {
           this.associatedObjects = res.results ? res.results : [];
           this.embargoData = this.associatedObjects;
-          this.patchEmbargo(this.embargoData);
           // TODO improve with API for a single call
           this.associatedObjects.map((item, index) => {
             this.dataObjectService.getObjectInstances(item.dataObject?.id, this.pageSize).subscribe((res:any) => {
