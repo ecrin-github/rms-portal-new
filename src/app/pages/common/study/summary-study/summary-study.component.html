@@ -28,9 +28,10 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-3">
-                <select class="form-control" [(ngModel)]="filterOption">
+                <select class="form-control" [(ngModel)]="filterColumn" (change)="filterSearch()">
                     <option selected disabled value="">Search by...</option>
-                    <option value="title">Title</option>
+                    <option [value]=searchColumn.value *ngFor="let searchColumn of searchColumns">
+                        {{searchColumn.text}}</option>
                 </select>
             </div>
             <div class="col-md-9">
@@ -41,42 +42,46 @@
         </div>
 
         <mat-table [dataSource]="dataSource">
-
             <ng-container matColumnDef="sdSid">
-                <mat-header-cell *matHeaderCellDef> Id </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef>Study ID</mat-header-cell>
                 <mat-cell *matCellDef="let row"> 
                     <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']">{{row.sdSid}}</a> 
                 </mat-cell>
             </ng-container>
 
-            <ng-container matColumnDef="title">
-                <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+            <ng-container matColumnDef="studyTitle">
+                <mat-header-cell *matHeaderCellDef>Title</mat-header-cell>
                 <mat-cell *matCellDef="let row">
                     <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']">{{row.displayTitle}}</a>
                 </mat-cell>
             </ng-container>
 
-            <ng-container matColumnDef="type">
-                <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{row.studyType?.name}} </mat-cell>
+            <ng-container matColumnDef="studyOrganisation">
+                <mat-header-cell *matHeaderCellDef>Organisation</mat-header-cell>
+                <mat-cell *matCellDef="let row">{{row.organisation?.defaultName}}</mat-cell>
             </ng-container>
 
-            <ng-container matColumnDef="status">
-                <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{row.studyStatus?.name}} </mat-cell>
+            <ng-container matColumnDef="studyType">
+                <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                <mat-cell *matCellDef="let row">{{row.studyType?.name}}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="studyStatus">
+                <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+                <mat-cell *matCellDef="let row">{{row.studyStatus?.name}}</mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="actions">
-                <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
                 <mat-cell *matCellDef="let row">
                     <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']">
                         <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <a [routerLink]="['/studies', row.sdSid, 'edit']" *ngIf="!isBrowsing">
+                    <a [routerLink]="['/studies', row.sdSid, 'edit']" *ngIf="!isBrowsing && (row.organisation?.id === orgId || isManager)">
                         <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
                     </a>
-                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngIf="!isBrowsing">
-
+                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" 
+                        *ngIf="!isBrowsing && (row.organisation?.id === orgId || isManager)">
                     </i>
                 </mat-cell>
             </ng-container>

@@ -23,7 +23,7 @@
                         </button>
                         <button class="btn btn-warning" (click)="back()">Back</button>
                     </ng-container>
-                    <ng-container *ngIf="!isView && showButton">
+                    <ng-container *ngIf="!isView">
                         <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
                         <button class="btn btn-warning" (click)="back()">Cancel</button>
                     </ng-container>
@@ -42,13 +42,11 @@
                 <ng-container *ngIf="isView || isEdit">
                     <ul class="nav nav-pills maxw-fit-content nav-fill" style="border-bottom: 1px solid lightgray">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#overview" data-toggle="tab" id="overviews"
-                                (click)="showButton = true">Overview</a>
+                            <a class="nav-link active" href="#overview" data-toggle="tab" id="overviews">Overview</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#setup" data-toggle="tab" id="setups"
-                                (click)="showButton = false">{{ isView ? 'Linked
-                                Objects and People' : 'Set up'}}</a>
+                            <a class="nav-link" href="#setup" data-toggle="tab" id="setups">
+                                {{ isView ? 'Linked Objects and People' : 'Set up'}}</a>
                         </li>
                     </ul>
                 </ng-container>
@@ -65,7 +63,7 @@
                                         notFoundText="No members found" placeholder="Select Organisation" *ngIf="!isView"
                                         [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }" [readonly]="isEdit">
                                     </ng-select>
-                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.organisation.errors">
+                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.organisation.errors">
                                         <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>
                                     </div>
                                     <h6 *ngIf="isView" style="font-weight: 100;">
@@ -75,7 +73,7 @@
                                     <label for="" class="font-style text-capitalize">Display Name<sup>*</sup></label>
                                     <input type="text" class="form-control" formControlName="displayName" *ngIf="!isView"
                                         [ngClass]="{ 'is-invalid': submitted && g.displayName.errors }">
-                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.displayName.errors">
+                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.displayName.errors">
                                         <p *ngIf="submitted && g.displayName.errors.required"> Please enter the Display
                                             Name</p>
                                     </div>
@@ -85,243 +83,193 @@
                             <div class="row form-group" *ngIf="isEdit || isView">
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize pr-5">Status</label>
-                                    <button class="btn btn-danger btn-sm" *ngIf="!isView" (click)="resetAll()">Change Submission Status</button>
-                                    <select class="form-control" formControlName="status" *ngIf="showStatus" (change)="onChange()">
-                                        <option disabled selected value="">Select an option...</option>
-                                        <option [value]=status.id *ngFor="let status of statusList">{{status.name}}
-                                        </option>
-                                    </select>
-                                    <h6 *ngIf="!showStatus || isView" style="font-weight: 100;">
-                                        {{findStatus(dupData?.status?.id)}}</h6>
+                                    <h6 style="font-weight: 100;" *ngIf="!isView">{{g.status?.value?.name}}</h6>
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{dupData?.status?.name}}</h6>
                                 </div>
                             </div>
-                            <div #wizard class="wizard wizard-1" id="kt_wizard_v1" data-wizard-state="step-first" data-wizard-clickable="true">
-                                <div class="wizard-nav border-bottom">
-                                    <div class="wizard-steps p-8 p-lg-10">
-                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step">
-                                            <div class="wizard-label">
-                                                <i class="wizard-icon flaticon2-browser-1"></i>
-                                                <h3 class="wizard-title">Creation of DUP record</h3>
-                                                <i class="fa fa-check-circle" style="color: green;"
-                                                    *ngIf="!(isEdit || isView) ? 1 < currentStatus : 1 < currentStatus"></i>
-                                                <i class="fa fa-exclamation-circle" style="color: orange;" *ngIf="1 === currentStatus"></i>
+                            <div class="stepper-nav border-bottom">
+                                <div class="stepper-steps p-8 p-lg-10">
+                                    <a class="stepper-step" href="javascript:;" data-stepper-state=""
+                                        title="Set up of the DUP record (associated studies, objects, and users)">
+                                        <div class="stepper-label">
+                                            <i class="stepper-icon flaticon2-setup"></i>
+                                            <h3 class="stepper-title">Set up of studies, objects, users</h3>
+                                            <i class="fa fa-check-circle stepper-exclamation-circle" *ngIf="lastCompletedStep > 0"></i>
+                                            <i class="fa fa-exclamation-circle stepper-check-circle" *ngIf="lastCompletedStep < 1"></i>
+                                        </div>
+                                    </a>
+                                    <a class="stepper-step" href="javascript:;" data-stepper-state=""
+                                        title="Check that pre-requisites are met, preparation of the DUA">
+                                        <div class="stepper-label">
+                                            <i class="stepper-icon flaticon-responsive"></i>
+                                            <h3 class="stepper-title">Pre-reqs check, agreement preparation</h3>
+                                            <i class="fa fa-check-circle stepper-exclamation-circle" *ngIf="lastCompletedStep > 1"></i>
+                                            <i class="fa fa-exclamation-circle stepper-check-circle" *ngIf="lastCompletedStep === 1"></i>
+                                        </div>
+                                    </a>
+                                    <a class="stepper-step" href="javascript:;" data-stepper-state=""
+                                        title="Request and expiry of availability of the data">
+                                        <div class="stepper-label">
+                                            <i class="stepper-icon flaticon-globe"></i>
+                                            <h3 class="stepper-title">Availability of the data</h3>
+                                            <i class="fa fa-check-circle stepper-exclamation-circle" *ngIf="lastCompletedStep > 2"></i>
+                                            <i class="fa fa-exclamation-circle stepper-check-circle" *ngIf="lastCompletedStep === 2"></i>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center my-10 px-8 my-lg-15 px-lg-10">
+                                <div *ngIf="currentStep === 1" class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="" class="font-style text-capitalize">Setup started</label>
+                                            <div class="form-group" *ngIf="!isView">
+                                                <div class="input-group">
+                                                    <input class="form-control" placeholder="yyyy-mm-dd"
+                                                        name="setUpStartDate" ngbDatepicker #setUpStartDate="ngbDatepicker"
+                                                        [ngClass]="{ 'is-invalid': submitted && g.setUpStartDate.errors }"
+                                                        (click)="setUpStartDate.toggle()" (dateSelect)="verifyStep()"
+                                                        (input)="verifyStep()"
+                                                        formControlName="setUpStartDate" [maxDate]="todayDate" container='body'>
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary"
+                                                            (click)="setUpStartDate.toggle()" type="button">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </a>
-                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step">
-                                            <div class="wizard-label">
-                                                <i class="wizard-icon flaticon2-setup"></i>
-                                                <h3 class="wizard-title">Set up of users, objects etc</h3>
-                                                <i class="fa fa-check-circle" style="color: green;"
-                                                    *ngIf="!(isEdit || isView) ? 2 < currentStatus : 2 < currentStatus"></i>
-                                                <i class="fa fa-exclamation-circle" style="color: orange;" *ngIf="2 === currentStatus"></i>
+                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                                {{viewDate(dupData?.setUpStartDate)}}</h6>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="" class="font-style text-capitalize">Setup Completed</label>
+                                            <div class="form-group" *ngIf="!isView">
+                                                <div class="input-group">
+                                                    <input class="form-control" placeholder="yyyy-mm-dd"
+                                                        name="setUpCompleteDate" ngbDatepicker #setUpCompleteDate="ngbDatepicker"
+                                                        [ngClass]="{ 'is-invalid': submitted && g.setUpCompleteDate.errors }"
+                                                        (click)="setUpCompleteDate.toggle()" (dateSelect)="verifyStep()"
+                                                        (input)="verifyStep()"
+                                                        formControlName="setUpCompleteDate" [maxDate]="todayDate" container='body'>
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary"
+                                                            (click)="setUpCompleteDate.toggle()" type="button">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </a>
-                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step">
-                                            <div class="wizard-label">
-                                                <i class="wizard-icon flaticon-responsive"></i>
-                                                <h3 class="wizard-title">Check pre-reqs, prepare DUA</h3>
-                                                <i class="fa fa-check-circle" style="color: green;"
-                                                    *ngIf="!(isEdit || isView) ? 3 < currentStatus : 3 < currentStatus"></i>
-                                                <i class="fa fa-exclamation-circle" style="color: orange;" *ngIf="3 === currentStatus"></i>
-                                            </div>
-                                        </a>
-                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step">
-                                            <div class="wizard-label">
-                                                <i class="wizard-icon flaticon-truck"></i>
-                                                <h3 class="wizard-title">DUA agreed, objects available</h3>
-                                                <i class="fa fa-check-circle" style="color: green;"
-                                                    *ngIf="!(isEdit || isView) ? 4 < currentStatus : 4 < currentStatus"></i>
-                                                <i class="fa fa-exclamation-circle" style="color: orange;" *ngIf="4 === currentStatus"></i>
-                                            </div>
-                                        </a>
-                                        <a class="wizard-step" href="javascript:;" data-wizard-type="step">
-                                            <div class="wizard-label">
-                                                <i class="wizard-icon flaticon2-open-text-book"></i>
-                                                <h3 class="wizard-title">Access confirmed</h3>
-                                                <i class="fa fa-check-circle" style="color: green;"
-                                                *ngIf="5 === currentStatus" ></i>
-                                                <i class="fa fa-exclamation-circle" style="color: orange;" *ngIf="!(isEdit || isView) ? 5 < currentStatus : 5 < currentStatus"></i>
-                                            </div>
-                                        </a>
+                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                                {{viewDate(dupData?.setUpCompleteDate)}}</h6>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row justify-content-center my-10 px-8 my-lg-15 px-lg-10">
-                                    <div class="col-md-12" data-wizard-type="step-content" data-wizard-state="current">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label for="" class="font-style text-capitalize">Initial Contact
-                                                    Date</label>
-                                                <div class="form-group" *ngIf="!isView">
-                                                    <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="initialContactDate"
-                                                            ngbDatepicker #initialContactDate="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.initialContactDate.errors }"
-                                                            (click)="initialContactDate.toggle()" formControlName="initialContactDate"
-                                                            [maxDate]="todayDate" container='body'>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="initialContactDate.toggle()" type="button">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
+                                <div *ngIf="currentStep === 2"  class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="" class="font-style text-capitalize">Pre-requisites met</label>
+                                            <div class="form-group" *ngIf="!isView">
+                                                <div class="input-group">
+                                                    <input class="form-control" placeholder="yyyy-mm-dd"
+                                                        name="prereqsMetDate" ngbDatepicker #prereqsMetDate="ngbDatepicker"
+                                                        [ngClass]="{ 'is-invalid': submitted && g.prereqsMetDate.errors }"
+                                                        (click)="prereqsMetDate.toggle()" (dateSelect)="verifyStep()"
+                                                        (input)="verifyStep()"
+                                                        formControlName="prereqsMetDate" [maxDate]="todayDate" container='body'>
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary"
+                                                            (click)="prereqsMetDate.toggle()" type="button">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </button>
                                                     </div>
                                                 </div>
-                                                <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.initialContactDate)}}</h6>
                                             </div>
+                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                                {{viewDate(dupData?.prereqsMetDate)}}</h6>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="" class="font-style text-capitalize">Data Use Agreement</label>
+                                            <div class="form-group" *ngIf="!isView">
+                                                <div class="input-group">
+                                                    <input class="form-control" placeholder="yyyy-mm-dd"
+                                                        name="duaAgreedDate" ngbDatepicker #duaAgreedDate="ngbDatepicker"
+                                                        [ngClass]="{ 'is-invalid': submitted && g.duaAgreedDate.errors }"
+                                                        (click)="duaAgreedDate.toggle()" (dateSelect)="verifyStep()"
+                                                        (input)="verifyStep()"
+                                                        formControlName="duaAgreedDate" [maxDate]="todayDate" container='body'>
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary"
+                                                            (click)="duaAgreedDate.toggle()" type="button">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                                {{viewDate(dupData?.duaAgreedDate)}}</h6>
                                         </div>
                                     </div>
-                                    <div class="col-md-12" data-wizard-type="step-content">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label for="" class="font-style text-capitalize">Setup Completed</label>
-                                                <div class="form-group" *ngIf="!isView">
-                                                    <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="setUpCompletedDate" ngbDatepicker
-                                                            #setUpCompletedDate="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.setUpCompletedDate.errors }"
-                                                            (click)="setUpCompletedDate.toggle()" formControlName="setUpCompletedDate"
-                                                            [maxDate]="todayDate" container='body'>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="setUpCompletedDate.toggle()" type="button">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
+                                </div>
+                                <div *ngIf="currentStep === 3" class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="" class="font-style text-capitalize">Availability requested</label>
+                                            <div class="form-group" *ngIf="!isView">
+                                                <div class="input-group">
+                                                    <input class="form-control" placeholder="yyyy-mm-dd"
+                                                        name="availabilityRequestedDate" ngbDatepicker #availabilityRequestedDate="ngbDatepicker"
+                                                        [ngClass]="{ 'is-invalid': submitted && g.availabilityRequestedDate.errors }"
+                                                        (click)="availabilityRequestedDate.toggle()" (dateSelect)="verifyStep()"
+                                                        (input)="verifyStep()"
+                                                        formControlName="availabilityRequestedDate" [maxDate]="todayDate" container='body'>
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary"
+                                                            (click)="availabilityRequestedDate.toggle()" type="button">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </button>
                                                     </div>
                                                 </div>
-                                                <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.setUpCompletedDate)}}</h6>
                                             </div>
+                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                                {{viewDate(dupData?.availabilityRequestedDate)}}</h6>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="" class="font-style text-capitalize">Availability expires</label>
+                                            <div class="form-group" *ngIf="!isView">
+                                                <div class="input-group">
+                                                    <input class="form-control" placeholder="yyyy-mm-dd"
+                                                        name="availabilityExpiryDate" ngbDatepicker #availabilityExpiryDate="ngbDatepicker"
+                                                        [ngClass]="{ 'is-invalid': submitted && g.availabilityExpiryDate.errors }"
+                                                        (click)="availabilityExpiryDate.toggle()" (dateSelect)="verifyStep()"
+                                                        (input)="verifyStep()"
+                                                        formControlName="availabilityExpiryDate" [maxDate]="todayDate" container='body'>
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary"
+                                                            (click)="availabilityExpiryDate.toggle()" type="button">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                                {{viewDate(dupData?.availabilityExpiryDate)}}</h6>
                                         </div>
                                     </div>
-                                    <div class="col-md-12" data-wizard-type="step-content">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label for="" class="font-style text-capitalize">PreRequest Met</label>
-                                                <div class="form-group" *ngIf="!isView">
-                                                    <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="prereqsMetDate" ngbDatepicker
-                                                            #prereqsMetDate="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.prereqsMetDate.errors }"
-                                                            (click)="prereqsMetDate.toggle()" formControlName="prereqsMetDate" [maxDate]="todayDate" container='body'>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="prereqsMetDate.toggle()" type="button">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.prereqsMetDate)}}</h6>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="" class="font-style text-capitalize">DUA Agreed Date</label>
-                                                <div class="form-group" *ngIf="!isView">
-                                                    <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="duaAgreedDate" ngbDatepicker
-                                                            #duaAgreedDate="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.duaAgreedDate.errors }"
-                                                            (click)="duaAgreedDate.toggle()" formControlName="duaAgreedDate"
-                                                            [maxDate]="todayDate" container='body'>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="duaAgreedDate.toggle()" type="button">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.duaAgreedDate)}}</h6>
-                                            </div>
+                                </div>
+                                <div class="d-flex justify-content-between border-top pt-10">
+                                    <div class="mr-2">
+                                        <div class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4"
+                                            [hidden]="currentStep === 1" (click)="changeStep(false)">
+                                            Previous
                                         </div>
                                     </div>
-                                    <div class="col-md-12" data-wizard-type="step-content">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label for="" class="font-style text-capitalize">Availability
-                                                    Requested</label>
-                                                <div class="form-group" *ngIf="!isView">
-                                                    <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="availabilityRequestedDate"
-                                                            ngbDatepicker #availabilityRequestedDate="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityRequestedDate.errors }"
-                                                            (click)="availabilityRequestedDate.toggle()" formControlName="availabilityRequestedDate"
-                                                            [maxDate]="todayDate" container='body'>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="availabilityRequestedDate.toggle()"
-                                                                type="button">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.availabilityRequestedDate)}}
-                                                </h6>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="" class="font-style text-capitalize">Availability
-                                                    Confirmed</label>
-                                                <div class="form-group" *ngIf="!isView">
-                                                    <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="availabilityConfirmedDate"
-                                                            ngbDatepicker #availabilityConfirmedDate="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.availabilityConfirmedDate.errors }"
-                                                            (click)="availabilityConfirmedDate.toggle()" formControlName="availabilityConfirmedDate"
-                                                            [maxDate]="todayDate" container='body'>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="availabilityConfirmedDate.toggle()"
-                                                                type="button">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.availabilityConfirmedDate)}}
-                                                </h6>
-                                            </div>
+                                    <div>
+                                        <div class="btn btn-primary font-weight-bold text-uppercase px-9 py-4"
+                                            [hidden]="currentStep === maxSteps" (click)="changeStep(true)">
+                                            Next Step
                                         </div>
                                     </div>
-                                    <div class="col-md-12" data-wizard-type="step-content">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label for="" class="font-style text-capitalize">Access
-                                                    Confirmed</label>
-                                                <div class="form-group" *ngIf="!isView">
-                                                    <div class="input-group">
-                                                        <input class="form-control" placeholder="yyyy-mm-dd" name="accessConfirmedDate"
-                                                            ngbDatepicker #accessConfirmedDate="ngbDatepicker"
-                                                            [ngClass]="{ 'is-invalid': submitted && g.accessConfirmedDate.errors }"
-                                                            (click)="accessConfirmedDate.toggle()" formControlName="accessConfirmedDate"
-                                                            [maxDate]="todayDate" container='body'>
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary" (click)="accessConfirmedDate.toggle()" type="button">
-                                                                <i class="fa fa-calendar"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <h6 *ngIf="isView" style="font-weight: 100;">
-                                                    {{viewDate(dupData?.accessConfirmedDate)}}</h6>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between border-top pt-10">
-                                        <div class="mr-2">
-                                            <div class="btn btn-light-primary font-weight-bold text-uppercase px-9 py-4"
-                                                data-wizard-type="action-prev" (click)="buttonClick='previous'">
-                                                Previous
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="btn btn-primary font-weight-bold text-uppercase px-9 py-4"
-                                                data-wizard-type="action-next" [hidden]="isView ? !(currentStatus > nextStep) : false"
-                                                (click)="buttonClick='next'">
-                                                Next Step
-                                            </div>
-                                        </div>
-                                    </div>
-                        
                                 </div>
                             </div>
                             <hr *ngIf="!isEdit && !isView" />
@@ -330,6 +278,21 @@
                                 <br />
                                 <h3>Agreement Details</h3>
                                 <br />
+                                <div class="row form-group">
+                                    <div class="col-md-6">
+                                        <label for="filePath" class="font-style text-capitalize">Reason for secondary use</label>
+                                        <textarea cols="30" rows="4" class="form-control" id="secondaryUseReason" formControlName="secondaryUseReason"
+                                            *ngIf="!isView"></textarea>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? duaData[0]?.secondaryUseReason : ''}}</h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-check-label font-style text-capitalize" for="repolsProxyProvider">
+                                            repo is proxy provider</label>
+                                        <input class="form-check-input ml-4" type="checkbox" id="repolsProxyProvider"
+                                            formControlName="repoIsProxyProvider" *ngIf="!isView">
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData && duaData[0]?.repoIsProxyProvider ? 'Yes' : 'No'}}</h6>
+                                    </div>
+                                </div>
                                 <div class="row form-group">
                                     <div class="col-md-6">
                                         <label class="form-check-label font-style text-capitalize" for="conformsToDefault">
@@ -343,15 +306,6 @@
                                         <textarea cols="30" rows="3" class="form-control" id="variations" formControlName="variations"
                                             *ngIf="!isView"></textarea>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? duaData[0]?.variations : ''}}</h6>
-                                    </div>
-                                </div>
-                                <div class="row form-group">
-                                    <div class="col-md-6">
-                                        <label class="form-check-label font-style text-capitalize" for="repolsProxyProvider">
-                                            repo is proxy provider</label>
-                                        <input class="form-check-input ml-4" type="checkbox" id="repolsProxyProvider"
-                                            formControlName="repoIsProxyProvider" *ngIf="!isView">
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData && duaData[0]?.repoIsProxyProvider ? 'Yes' : 'No'}}</h6>
                                     </div>
                                 </div>
                                 <div class="row form-group">
@@ -574,11 +528,11 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
+
                                 <hr>
                                 <span class="font-style">Associated Data Objects</span>
                                 <button class="btn btn-primary float-right" (click)="addDataObject()"
-                                    *ngIf="!isView">Add Data Object</button>
+                                    *ngIf="!isView" [disabled]="addDOButtonDisabled">Add Data Objects</button>
                                 <ng-container *ngIf="associatedObjects.length <= 0">
                                     <p>No Associated Data Object</p>
                                 </ng-container>
@@ -591,6 +545,21 @@
                                             <span title="{{object.dataObject?.displayTitle}}">({{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}})</span>
                                             <i class="fa fa-times pl-3" (click)="removeDupObject(object.id)"
                                                 *ngIf="!isView"></i>
+
+                                            <!-- Access type and embargo -->
+                                            <div class="d-inline-flex align-items-center alert alert-info" 
+                                                [ngClass]="i === 0 ? 'alert-small-first' : 'alert-small'" role="alert">
+                                                <div class="pr-2">
+                                                    <i class="fa fa-info-circle fa-lg info-icon"></i>
+                                                </div>
+                                                <div class="capitalize-first-word">
+                                                    {{object.dataObject?.accessType?.name ? (object.dataObject.accessType.name + ' access') : 'unknown access type'}},
+                                                    <!-- fix date here -->
+                                                    {{object.dataObject?.embargoExpiry ? ('embargo until: ' + object.dataObject?.embargoExpiry.slice(0, 10))  : 'no embargo'}}
+                                                </div>
+                                            </div>
+
+                                            <!-- DO instances -->
                                             <ng-container *ngIf="prereqs[i]?.length > 0">
                                                 <ul style="list-style-type: square;">
                                                     <li *ngFor="let prereq of prereqs[i]">
@@ -602,7 +571,6 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                                 <hr>
                                 <span class="font-style">Associated People</span>
                                 <button class="btn btn-primary float-right" (click)="addUser()" *ngIf="!isView">Add
@@ -613,15 +581,19 @@
                                 <ng-container *ngIf="associatedUsers.length > 0">
                                     <ul>
                                         <li *ngFor="let user of associatedUsers; let i = index" class="pl-4">
-                                            <a [routerLink]="['/people', user.person?.id, 'view']">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}
-                                            </a> ({{user.person?.email}})
-                                            <i class="fa fa-times pl-3" (click)="removeDupUser(user.id)"
-                                                *ngIf="!isView"></i>
+                                            <ng-container *ngIf="isManager; else displayUserInfo">
+                                                <a [routerLink]="['/people', user.person?.id, 'view']">
+                                                    {{user.person?.firstName}} {{user.person?.lastName}}
+                                                </a> ({{user.person?.email}})
+                                                <i class="fa fa-times pl-3" (click)="removeDupUser(user.id)"
+                                                    *ngIf="!isView"></i>
+                                            </ng-container>
+                                            <ng-template #displayUserInfo>
+                                                {{user.person?.firstName}} {{user.person?.lastName}} ({{user.person?.email}})
+                                            </ng-template>
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                             </div>
                         </div>
                     </div>
@@ -630,5 +602,4 @@
         </div>
     </div>
 </div>
-
 <br />

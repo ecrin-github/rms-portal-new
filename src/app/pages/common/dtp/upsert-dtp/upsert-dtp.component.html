@@ -20,7 +20,7 @@
                         </button>
                         <button class="btn btn-warning" (click)="back()">Back</button>
                     </ng-container>
-                    <ng-container *ngIf="!isView && showButton">
+                    <ng-container *ngIf="!isView">
                         <button class="btn btn-success mr-5" (click)="onSave()">{{isEdit ? 'Apply Changes' : 'Save'}}</button>
                         <button class="btn btn-warning" (click)="back()">Cancel</button>
                     </ng-container>
@@ -39,18 +39,13 @@
                 <ng-container *ngIf="isView || isEdit">
                     <ul class="nav nav-pills maxw-fit-content nav-fill" style="border-bottom: 1px solid lightgray">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#overview" data-toggle="tab" id="overviews" (click)="showButton = true">Overview</a>
+                            <a class="nav-link active" href="#overview" data-toggle="tab" id="overviews">Overview</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#setup" data-toggle="tab" id="setups"
-                                (click)="showButton = false">{{ isView ? 'Linked Objects and People' : 'Set up'}}</a>
+                            <a class="nav-link" href="#setup" data-toggle="tab" id="setups">{{ isView ? 'Linked Objects and People' : 'Set up'}}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#objectsaccess" data-toggle="tab" id="objectsaccesss" (click)="showButton = false">Objects and Access</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#controlledaccess" data-toggle="tab" id="controlledaccesss"
-                                (click)="showButton = false">Controlled Access Details</a>
+                            <a class="nav-link" href="#controlledaccess" data-toggle="tab" id="controlledaccesss">Controlled Access Details</a>
                         </li>
                     </ul>
                 </ng-container>
@@ -67,7 +62,7 @@
                                         notFoundText="No members found" placeholder="Select Organisation"
                                         *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }">
                                     </ng-select>
-                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.organisation.errors">
+                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.organisation.errors">
                                         <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>
                                     </div>
                                     <h6 style="font-weight: 100;" *ngIf="isView">
@@ -77,7 +72,7 @@
                                     <label for="" class="font-style text-capitalize">display name<sup>*</sup></label>
                                     <input type="text" class="form-control" formControlName="displayName"
                                         *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.displayName.errors }">
-                                    <div class="col-md-12 invalid-feedback" *ngIf="submitted && g.displayName.errors">
+                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.displayName.errors">
                                         <p *ngIf="submitted && g.displayName.errors.required"> Please enter the Display
                                             Name
                                         </p>
@@ -95,7 +90,7 @@
                             <div class="stepper-nav border-bottom">
                                 <div class="stepper-steps p-8 p-lg-10">
                                     <a class="stepper-step" href="javascript:;" data-stepper-state=""
-                                        title="crDSR system being set up for further input">
+                                        title="Set up of the DTP record (associated studies, objects, and users)">
                                         <div class="stepper-label">
                                             <i class="stepper-icon flaticon2-setup"></i>
                                             <h3 class="stepper-title">Set up of studies, objects, users</h3>
@@ -104,7 +99,7 @@
                                         </div>
                                     </a>
                                     <a class="stepper-step" href="javascript:;" data-stepper-state=""
-                                        title="Metadata being provided and DTA being prepared">
+                                        title="Preparation of the DTA">
                                         <div class="stepper-label">
                                             <i class="stepper-icon flaticon-responsive"></i>
                                             <h3 class="stepper-title">Agreement preparation</h3>
@@ -113,7 +108,7 @@
                                         </div>
                                     </a>
                                     <a class="stepper-step" href="javascript:;" data-stepper-state=""
-                                        title="Transfer has occured-QC checks being carried out">
+                                        title="Quality checks of objects carried out before the transfer of objects">
                                         <div class="stepper-label">
                                             <i class="stepper-icon flaticon-globe"></i>
                                             <h3 class="stepper-title">Quality checks of objects</h3>
@@ -122,7 +117,7 @@
                                         </div>
                                     </a>
                                     <a class="stepper-step" href="javascript:;" data-stepper-state=""
-                                        title="DTA agreed, transfer can take place">
+                                        title="Transfer of all the associated data objects to TSD">
                                         <div class="stepper-label">
                                             <i class="stepper-icon flaticon-truck"></i>
                                             <h3 class="stepper-title">Transfer of objects to TSD</h3>
@@ -464,11 +459,10 @@
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                                 <hr>
                                 <span class="font-style">Associated Data Objects</span>
                                 <button class="btn btn-primary float-right" (click)="addDataObject()"
-                                    *ngIf="!isView">Add Data Objects</button>
+                                    *ngIf="!isView" [disabled]="addDOButtonDisabled">Add Data Objects</button>
                                 <ng-container *ngIf="associatedObjects.length <= 0">
                                     <p>No Associated Data Object</p>
                                 </ng-container>
@@ -481,27 +475,61 @@
                                             <span title="{{object.dataObject?.displayTitle}}">({{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}})</span>
                                             <i class="fa fa-times pl-3" (click)="removeDtpObject(object.id)"
                                                 *ngIf="!isView"></i>
+
+                                            <!-- Access type and embargo -->
+                                            <div class="d-inline-flex align-items-center alert alert-info" 
+                                                [ngClass]="i === 0 ? 'alert-small-first' : 'alert-small'" role="alert">
+                                                <div class="pr-2">
+                                                    <i class="fa fa-info-circle fa-lg info-icon"></i>
+                                                </div>
+                                                <div class="capitalize-first-word">
+                                                    {{object.dataObject?.accessType?.name ? (object.dataObject.accessType.name + ' access') : 'unknown access type'}},
+                                                    <!-- fix date here -->
+                                                    {{object.dataObject?.embargoExpiry ? ('embargo until: ' + object.dataObject?.embargoExpiry.slice(0, 10))  : 'no embargo'}}
+                                                </div>
+                                            </div>
+
+                                            <!-- DO Instances -->
                                             <ng-container *ngIf="instanceArray[i]?.length <= 0">
                                                 <ul style="list-style-type: none;">
-                                                    <li style="font-style:italic">currently there are no instances related to the data object, please create some before uploading<span class="pl-2"><button class="btn btn-success btn-sm"(click)="goToDo(object)">Create one</button></span></li>
+                                                    <li style="font-style:italic" class="associated-do-li">currently there are no instances related to the data object, please create some before uploading<span class="pl-2"><button class="btn btn-success btn-sm"(click)="goToDo(object)">Create one</button></span></li>
                                                 </ul>
                                             </ng-container>
                                             <ng-container *ngIf="instanceArray[i]?.length > 0">
                                                 <ul style="list-style-type: square;">
-                                                    <li *ngFor="let instance of instanceArray[i]">
+                                                    <li *ngFor="let instance of instanceArray[i]" class="associated-do-li">
                                                         {{instance.resourceType?.name ? instance.resourceType?.name : 'No resource type defined'}}
                                                         <span title="{{instance.resourceComments}}">({{(instance.resourceComments.length === 0) ? 'No comments' : ((instance.resourceComments.length <= sliceLength) ? instance.resourceComments : (instance.resourceComments | slice:0:sliceLength) + '...')}})</span>
-                                                        <span class="pl-2" [title]="lastCompletedStep >= 3 ? 'Data upload to the TSD Repository' : 'DTP step should be at \'Transfer\' to be able to upload the data'">
-                                                            <button [ngClass]="lastCompletedStep >= 3 ? 'btn-success' : 'btn-secondary'" 
-                                                                class="btn btn-sm" [disabled]="lastCompletedStep < 3" (click)="goToTsd(instance)">Upload</button>
-                                                        </span>
+                                                        <ng-container *ngIf="!checkUrl(instance.url); else alreadyUploaded">
+                                                            <ng-container *ngIf="lastCompletedStep >= 3; else missingSteps">
+                                                                <ng-container *ngIf="canUpload(); else unauthorized">
+                                                                    <span class="pl-2" title="Data upload to the TSD Repository">
+                                                                        <button class="btn btn-sm btn-success" (click)="goToTsd(instance)">Upload</button>
+                                                                    </span>
+                                                                </ng-container>
+                                                                <ng-template #unauthorized>
+                                                                    <span class="pl-2" title="You have to be part of the associated people (below) of the DTP to be able to upload">
+                                                                        <button class="btn btn-sm btn-secondary" disabled>Upload</button>
+                                                                    </span>
+                                                                </ng-template>
+                                                            </ng-container>
+                                                            <ng-template #missingSteps>
+                                                                <span class="pl-2" title="DTP step should be at 'Transfer' to be able to upload the data">
+                                                                    <button class="btn btn-sm btn-secondary" disabled>Upload</button>
+                                                                </span>
+                                                            </ng-template>
+                                                        </ng-container>
+                                                        <ng-template #alreadyUploaded>
+                                                            <span class="pl-2" title="Uploaded data is stored in TSD">
+                                                                <button class="btn btn-sm btn-success" disabled>Already uploaded</button>
+                                                            </span>
+                                                        </ng-template>
                                                     </li>
                                                 </ul>
                                             </ng-container>
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                                 <hr>
                                 <span class="font-style">Associated People</span>
                                 <button class="btn btn-primary float-right" (click)="addUser()" *ngIf="!isView">Add
@@ -512,111 +540,21 @@
                                 <ng-container *ngIf="associatedUsers.length > 0">
                                     <ul>
                                         <li *ngFor="let user of associatedUsers; let i = index" class="pl-4">
-                                            <a [routerLink]="['/people', user.person?.id, 'view']">
-                                                {{user.person?.firstName}} {{user.person?.lastName}}
-                                            </a> ({{user.person?.email}})
-                                            <i class="fa fa-times pl-3" (click)="removeDtpUser(user.id)"
-                                                *ngIf="!isView"></i>
+                                            <ng-container *ngIf="isManager; else displayUserInfo">
+                                                <a [routerLink]="['/people', user.person?.id, 'view']">
+                                                    {{user.person?.firstName}} {{user.person?.lastName}}
+                                                </a> ({{user.person?.email}})
+                                                <i class="fa fa-times pl-3" (click)="removeDtpUser(user.id)"
+                                                    *ngIf="!isView"></i>
+                                            </ng-container>
+                                            <ng-template #displayUserInfo>
+                                                {{user.person?.firstName}} {{user.person?.lastName}} ({{user.person?.email}})
+                                            </ng-template>
                                         </li>
                                     </ul>
                                 </ng-container>
-                                <br>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="tab-pane fade" id="objectsaccess">
-                    <div class="col-md-12">
-                        <form [formGroup]="objectEmbargoForm">
-                            <div formArrayName="embargo">
-                                <div class="col-md-12" *ngFor="let embargo of embargos().controls;let i = index" [formGroupName]="i">
-                                    <br>
-                                    <mat-expansion-panel [expanded]="isView ? 'true' : 'false'">
-                                        <mat-expansion-panel-header>Access data for Data Object {{embargoData[i].dataObject?.sdOid}}
-                                           <div class="col text-right"><i class="fas fa-square" [ngClass]="embargoData[i].accessType === 11 || embargoData[i].accessType === 12 ? 'text-success' : 'text-warning'"></i></div>
-                                        </mat-expansion-panel-header>
-                                        <div class="row form-group">
-                                            <div class="col-md-4">
-                                                <label for="accessType" class="font-style text-capitalize">Access Type</label>
-                                                <select id="accessType" formControlName="accessType" class="form-control" *ngIf="!isView">
-                                                    <option [value]=accessType.id *ngFor="let accessType of accessTypes">{{accessType.name}}
-                                                    </option>
-                                                </select>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{embargoData[i]?.accessType?.id ? findAccessType(embargoData[i].accessType.id) : ''}}</h6>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label for="accessDetails" class="font-style text-capitalize">access details</label>
-                                                <textarea id="accessDetails" cols="30" rows="3" class="form-control" formControlName="accessDetails"
-                                                    *ngIf="!isView"></textarea>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{embargoData[i]?.accessDetails}}</h6>
-                                            </div>
-                                            <div class="col-md-4 form-check m-auto">
-                                                <label class="form-check-label font-style text-capitalize" for="embargoRequested">embargo requested</label>
-                                                <input class="form-check-input ml-4" type="checkbox" id="embargoRequested" formControlName="embargoRequested" *ngIf="!isView" (change)="onEmbargoChange(i)">
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{embargoData[i]?.embargoRequested ? 'Yes' : 'No'}}</h6>
-                                            </div>
-                                        </div>
-                                        <div class="row form-group" *ngIf="isEmbargoRequested[i]">
-                                            <div class="col-md-8">
-                                                <label for="embargoRegime" class="font-style text-capitalize">embargo Regime</label>
-                                                <input type="text" class="form-control" id="embargoRegime" formControlName="embargoRegime" *ngIf="!isView">
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{embargoData[i]?.embargoRegime}}</h6>
-                                            </div>
-                                            <div class="col-md-4 form-check m-auto">
-                                                <label class="form-check-label font-style text-capitalize" for="embargoStillApplies">Embargo still applies</label>
-                                                <input class="form-check-input ml-4" type="checkbox" id="embargoStillApplies" formControlName="embargoStillApplies" *ngIf="!isView">
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{embargoData[i]?.embargoStillApplies ? 'Yes' : 'No'}}</h6>
-                                            </div>                        
-                                        </div>
-                                        <div class="row form-group">
-                                            <div class="col-md-4">
-                                                <label for="accessCheckStatus" class="font-style text-capitalize">Access check status</label>
-                                                <select id="accessCheckStatus" formControlName="accessCheckStatus" class="form-control" *ngIf="!isView">
-                                                    <option [value]=accessStatusType.id *ngFor="let accessStatusType of accessStatusTypes">{{accessStatusType.name}}
-                                                    </option>
-                                                </select>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{embargoData[i]?.accessCheckStatus?.id ? findCheckSatus(embargoData[i].accessCheckStatus.id) : ''}}</h6>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label for="accessCheckBy" class="font-style text-capitalize">access check by</label>
-                                                <ng-select id="accessCheckBy" [items]="associatedUsers" formControlName="accessCheckBy" [multiple]="false" 
-                                                    [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchUsers"
-                                                    bindValue="id" [compareWith]="compareUsers" notFoundText="No person found" placeholder="" *ngIf="!isView">
-                                                    <ng-template ng-label-tmp let-item="item">
-                                                        {{item.person?.firstName}} {{item.person?.lastName}}
-                                                    </ng-template>
-                                                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                                                        <div class="row m-0">
-                                                            <div class="col-md-8 col-8 p-0 m-0">
-                                                                <div class="col-md-12">{{item.person?.firstName}} {{item.person?.lastName}}</div>
-                                                                <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.person?.email}}</div>
-                                                            </div>
-                                                        </div>
-                                                    </ng-template>
-                                                </ng-select>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">
-                                                    {{embargoData[i].accessCheckBy?.id ? findPeopleById(embargoData[i]?.accessCheckBy?.id) : ''}}
-                                                </h6>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <label for="accessCheckDate" class="font-style text-capitalize">access check date</label>
-                                                <input class="form-control" placeholder="yyyy-mm-dd"
-                                                name="accessCheckDate" ngbDatepicker
-                                                #accessCheckDate="ngbDatepicker"
-                                                (click)="accessCheckDate.toggle()"
-                                                formControlName="accessCheckDate" [maxDate]="todayDate" *ngIf="!isView" container='body'>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{viewDate(embargoData[i]?.accessCheckDate)}}</h6>
-                                            </div>
-                                        </div>
-                                        <mat-action-row *ngIf="!isView">
-                                            <button mat-button color="primary" (click)="editEmbargo(embargo)">Save</button>
-                                        </mat-action-row>                
-                                    </mat-expansion-panel>
-                                </div>
-                            </div>
-                        </form>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="controlledaccess">

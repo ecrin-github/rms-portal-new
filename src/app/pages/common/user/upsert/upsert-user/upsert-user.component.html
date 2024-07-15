@@ -70,9 +70,9 @@
                         </div>
                         <div class="row form-group">
                             <div class="col-md-12">
-                                <label for="email" class="font-style text-capitalize">organization</label>
+                                <label for="email" class="font-style text-capitalize">organisation</label>
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" [multiple]="false" formControlName="organisation"
-                                    [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No organization found"
+                                    [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No organisation found"
                                     placeholder="Select Organisation" *ngIf="!isView">
                                 </ng-select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{userData?.userProfile?.organisation?.defaultName}}</h6>

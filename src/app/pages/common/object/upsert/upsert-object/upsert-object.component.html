@@ -61,17 +61,17 @@
                             </div>
                         </ng-template>
                     </ng-select>
-                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.linkedStudy.errors">
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.linkedStudy.errors">
                         <p *ngIf="isSubmitted && g.linkedStudy.errors.required">Please select a parent study</p>
                     </div>
                     <ng-container *ngIf="isView">
                         <ng-container *ngIf="objectData?.linkedStudy; else noLinkedStudy">
-                            <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.linkedStudy?.id)" style="cursor: pointer;">
-                                <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy.sdSid : 'None'}}</h6>
+                            <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.linkedStudy?.sdSid)" style="cursor: pointer;">
+                                <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy?.sdSid : 'None'}}</h6>
                             </a>
                         </ng-container>
                         <ng-template #noLinkedStudy>
-                            <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy.sdSid : 'None'}}</h6>
+                            <h6 style="font-weight: 100;">{{objectData?.linkedStudy ? objectData?.linkedStudy?.sdSid : 'None'}}</h6>
                         </ng-template>
                     </ng-container>
                     <br *ngIf="isView || isEdit">
@@ -87,7 +87,7 @@
                     <textarea id="displayTitle" cols="30" rows="3" class="form-control" placeholder="Please enter a good mnemonic reference for your data object"
                     formControlName="displayTitle" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.displayTitle.errors }"></textarea>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.displayTitle}}</h6>
-                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.displayTitle.errors">
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.displayTitle.errors">
                         <p *ngIf="isSubmitted && g.displayTitle.errors.required">Please enter a title for the Data Object</p>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                         <option selected disabled value="null">Please select object type</option>
                         <option [value]=type.id *ngFor="let type of objectTypes">{{type.name}}</option>
                     </select>
-                    <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && g.objectType.errors">
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.objectType.errors">
                         <p *ngIf="isSubmitted && g.objectType.errors.required"> Please enter the data object type</p>
                     </div>  
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectType ? objectData?.objectType.name : 'None'}}</h6>
@@ -142,48 +142,45 @@
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.langCode ? objectData?.langCode.langNameEn : 'None'}}</h6>
                 </div>
             </div>
-            <!-- <div class="row form-group">
-                <div class="col-md-6">
-                    <label for="managingOrg" class="font-style text-capitalize">Managing organisation</label>
-                    <ng-select [items]="organisations" bindLabel="defaultName" bindValue="id"
-                        formControlName="managingOrg" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
-                        notFoundText="No members found" placeholder="Select Organisation"
-                        *ngIf="!isView">
-                    </ng-select>
-
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.managingOrg ? objectData?.managingOrg.defaultName : 'None'}}</h6>
-                </div>
-                <div class="col-md-6">
-                    <label for="accessType" class="font-style text-capitalize">Access type</label>
-                    <select id="accessType" class="form-control" formControlName="accessType" *ngIf="!isView" (change)="onChangeAccessType()">
-                        <option selected disabled value="null">Please select type of access </option>
-                        <option [value]=access.id *ngFor="let access of accessTypes">{{access.name}}</option>
-                    </select>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessType ? objectData?.accessType.name : 'None'}}</h6>
-                </div>
-            </div> -->
-            <!-- <hr />
-            <div class="row" *ngIf = "showAccessDetails">
+            <div class="row">
                 <div class="col-md-12 text-center">
                     <h6 style="font-weight: 100;" class="pt-3 font-style">Access Details</h6>
                 </div>
             </div>
             <br />
-            <div class="row form-group" *ngIf = "showAccessDetails">
+            <div class="row form-group">
                 <div class="col-md-6">
-                    <label for="accessDetails" class="font-style text-capitalize">Description</label>
-                    <textarea id="accessDetails" class="form-control" cols="30" rows="5" placeholder="Enter description"
-                        formControlName="accessDetails" *ngIf="!isView"></textarea>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetails ? objectData?.accessDetails : 'None'}}</h6>
+                    <label for="accessType" class="font-style text-capitalize">Access type</label>
+                    <select id="accessType" class="form-control" formControlName="accessType" 
+                        [ngClass]="{ 'is-invalid': isSubmitted && g.accessType.errors }" *ngIf="!isView">
+                        <option selected disabled value="null">Please select type of access </option>
+                        <option [value]=access.id *ngFor="let access of accessTypes">{{access.name}}</option>
+                    </select>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessType ? objectData?.accessType.name : 'None'}}</h6>
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.accessType.errors">
+                        <p *ngIf="isSubmitted && g.accessType.errors">Please select the type of access to the data</p>
+                    </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="accessDetailsUrl" class="font-style text-capitalize">URL</label>
-                    <input id="accessDetailsUrl" type="text" class="form-control" placeholder="https://www.example.org/mydata"
-                        formControlName="accessDetailsUrl" *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView && objectData?.accessDetailsUrl"><a [href]='objectData.accessDetailsUrl' target="_blank">{{objectData.accessDetailsUrl}}</a></h6>
-                    <h6 style="font-weight: 100;" *ngIf="isView && !objectData?.accessDetailsUrl">None</h6>
+                    <label for="embargoExpiry" class="font-style text-capitalize">Embargo expiry date</label>
+                    <div class="input-group" *ngIf="!isView">
+                        <input class="form-control" placeholder="yyyy-mm-dd"
+                            name="embargoExpiry" ngbDatepicker #embargoExpiry="ngbDatepicker"
+                            [ngClass]="{ 'is-invalid': isSubmitted && g.embargoExpiry.errors }" [minDate]="minEmbargoDate"
+                            (click)="embargoExpiry.toggle()" formControlName="embargoExpiry" container='body'>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary"
+                                (click)="embargoExpiry.toggle()" type="button">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.embargoExpiry ? viewDate(objectData?.embargoExpiry) : 'No embargo'}}</h6>
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.embargoExpiry.errors">
+                        <p *ngIf="isSubmitted && g.embargoExpiry.errors">Please enter a valid date (date must be greater than today's date)</p>
+                    </div>
                 </div>
-            </div> -->
+            </div>
             <hr />
             <div formGroupName="objectDatasets" *ngIf="showDatasetKey">
                 <div class="row">
@@ -200,7 +197,7 @@
                             <option selected disabled value="null">Please select anonymisation level</option>
                             <option [value]=key.id *ngFor="let key of keyTypes">{{key.name}}</option>
                         </select>
-                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors">
+                        <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors">
                             <p *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors.required">Please select anonymisation type</p>
                         </div>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0] ? objectData?.objectDatasets[0]?.recordkeyType ? objectData?.objectDatasets[0]?.recordkeyType.name : 'None' : 'None'}}</h6>
@@ -209,7 +206,7 @@
                         <label for="recordkeyDetails" class="font-style text-capitalize">Anonymisation details<sup>*</sup></label>
                         <textarea id="recordkeyDetails" class="form-control" cols="30" rows="5" placeholder="Please enter a short summary of the justification for the classification given"
                             formControlName="recordkeyDetails" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && objectDatasetsControls.recordkeyDetails.errors }"></textarea>
-                        <div class="col-md-12 invalid-feedback" *ngIf="isSubmitted && objectDatasetsControls.recordkeyDetails.errors">
+                        <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && objectDatasetsControls.recordkeyDetails.errors">
                             <p *ngIf="isSubmitted && objectDatasetsControls.recordkeyDetails.errors.required">Please enter the details of the anonymisation</p>
                         </div>
                         <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.objectDatasets[0]?.recordkeyDetails ? objectData?.objectDatasets[0]?.recordkeyDetails : 'None'}}</h6>

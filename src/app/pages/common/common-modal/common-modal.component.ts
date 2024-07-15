@@ -83,52 +83,62 @@ export class CommonModalComponent implements OnInit {
 
   getStudyQueries(payload) {
     let studies$: Array<Observable<any>> = [];
-    payload.map ((item : any) => {
-      if (this.dtpId) {
-        studies$.push(this.addDtpStudy(this.dtpId, {dtpId: this.dtpId, study: item}));
-      }
-      if (this.dupId) {
-        studies$.push(this.addDupStudy(this.dupId, {dupId: this.dupId, study: item}));
-      }
-    });
 
-    studies$ = studies$.map((funct) => {
-      return funct.pipe(catchError(error => of(this.toastr.error(error.error.title))));
-    });
+    if (payload?.length > 0) {
+      payload.map ((item : any) => {
+        if (this.dtpId) {
+          studies$.push(this.addDtpStudy(this.dtpId, {dtpId: this.dtpId, study: item}));
+        }
+        if (this.dupId) {
+          studies$.push(this.addDupStudy(this.dupId, {dupId: this.dupId, study: item}));
+        }
+      });
+
+      studies$ = studies$.map((funct) => {
+        return funct.pipe(catchError(error => of(this.toastr.error(error.error.title))));
+      });
+    }
 
     return studies$;
   }
 
   getObjectQueries(payload) {
     let dataObjects$: Array<Observable<any>> = [];
-    payload.map((item : any) => {
-      if (this.dtpId) {
-        dataObjects$.push(this.addDtpObject(this.dtpId, {dtpId: this.dtpId, data_object: item}));
-      }
-      if (this.dupId) {
-        dataObjects$.push(this.addDupObject(this.dupId, {dupId: this.dupId, data_object: item}));
-      }
-    });
 
-    dataObjects$ = dataObjects$.map((funct) => {
-      return funct.pipe(catchError(error => of(this.toastr.error(error.error.title))));
-    });
+    if (payload?.length > 0) {
+      payload.map((item : any) => {
+        if (this.dtpId) {
+          dataObjects$.push(this.addDtpObject(this.dtpId, {dtpId: this.dtpId, data_object: item}));
+        }
+        if (this.dupId) {
+          dataObjects$.push(this.addDupObject(this.dupId, {dupId: this.dupId, data_object: item}));
+        }
+      });
+  
+      dataObjects$ = dataObjects$.map((funct) => {
+        return funct.pipe(catchError(error => of(this.toastr.error(error.error.title))));
+      });
+    }
 
     return dataObjects$;
   }
 
   getUserQueries(payload) {
     let users$: Array<Observable<any>> = [];
-    payload.map((item: any) => {
-      if (this.dtpId) {
-        users$.push(this.addDtpUser(this.dtpId, {dtpId: this.dtpId, person: item}));
-      } else if (this.dupId) {
-        users$.push(this.addDupUser(this.dupId, {dupId: this.dupId, person: item}));
-      }
-    });
-    users$ = users$.map((funct) => {
-      return funct.pipe(catchError(error => of(this.toastr.error(error.error.title))));
-    });
+
+    if (payload?.length > 0) {
+      payload.map((item: any) => {
+        if (this.dtpId) {
+          users$.push(this.addDtpUser(this.dtpId, {dtpId: this.dtpId, person: item}));
+        } else if (this.dupId) {
+          users$.push(this.addDupUser(this.dupId, {dupId: this.dupId, person: item}));
+        }
+      });
+      users$ = users$.map((funct) => {
+        return funct.pipe(catchError(error => of(this.toastr.error(error.error.title))));
+      });
+    }
+
     return users$;
   }
 

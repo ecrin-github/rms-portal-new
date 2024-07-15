@@ -23,6 +23,7 @@ export interface DataObjectInterface {
     publicationYear: number;
     langCode: {id:number, langNameEn: string} | null;
     accessType: {id: number, name: string};
+    embargoExpiry: string;
     managingOrgId: number;
     managingOrg: {id: number, defaultName: string } | null;
     accessDetails: string | null;
