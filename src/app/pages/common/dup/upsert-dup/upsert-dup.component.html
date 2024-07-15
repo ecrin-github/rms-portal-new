@@ -280,6 +280,21 @@
                                 <br />
                                 <div class="row form-group">
                                     <div class="col-md-6">
+                                        <label for="filePath" class="font-style text-capitalize">Reason for secondary use</label>
+                                        <textarea cols="30" rows="4" class="form-control" id="secondaryUseReason" formControlName="secondaryUseReason"
+                                            *ngIf="!isView"></textarea>
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? duaData[0]?.secondaryUseReason : ''}}</h6>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-check-label font-style text-capitalize" for="repolsProxyProvider">
+                                            repo is proxy provider</label>
+                                        <input class="form-check-input ml-4" type="checkbox" id="repolsProxyProvider"
+                                            formControlName="repoIsProxyProvider" *ngIf="!isView">
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData && duaData[0]?.repoIsProxyProvider ? 'Yes' : 'No'}}</h6>
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-md-6">
                                         <label class="form-check-label font-style text-capitalize" for="conformsToDefault">
                                             conforms to default</label>
                                         <input class="form-check-input ml-4" type="checkbox" id="conformsToDefault"
@@ -291,15 +306,6 @@
                                         <textarea cols="30" rows="3" class="form-control" id="variations" formControlName="variations"
                                             *ngIf="!isView"></textarea>
                                         <h6 style="font-weight: 100;" *ngIf="isView">{{duaData ? duaData[0]?.variations : ''}}</h6>
-                                    </div>
-                                </div>
-                                <div class="row form-group">
-                                    <div class="col-md-6">
-                                        <label class="form-check-label font-style text-capitalize" for="repolsProxyProvider">
-                                            repo is proxy provider</label>
-                                        <input class="form-check-input ml-4" type="checkbox" id="repolsProxyProvider"
-                                            formControlName="repoIsProxyProvider" *ngIf="!isView">
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{duaData && duaData[0]?.repoIsProxyProvider ? 'Yes' : 'No'}}</h6>
                                     </div>
                                 </div>
                                 <div class="row form-group">

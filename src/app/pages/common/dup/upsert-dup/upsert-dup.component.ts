@@ -91,6 +91,7 @@ export class UpsertDupComponent implements OnInit {
       duaAgreedDate: null,
       availabilityRequestedDate: null,
       availabilityExpiryDate: null,
+      secondaryUseReason: '',
       conformsToDefault: false,
       variations: '',
       repoIsProxyProvider: false,
@@ -579,6 +580,7 @@ export class UpsertDupComponent implements OnInit {
 
   patchDua(data) {
     this.form.patchValue({
+      secondaryUseReason: data[0]?.secondaryUseReason,
       variations: data[0]?.variations,
       conformsToDefault: data[0]?.conformsToDefault,
       repoIsProxyProvider: data[0]?.repoIsProxyProvider,
