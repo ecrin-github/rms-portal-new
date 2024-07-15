@@ -142,7 +142,7 @@
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.langCode ? objectData?.langCode.langNameEn : 'None'}}</h6>
                 </div>
             </div>
-            <div class="row form-group">
+            <!-- <div class="row form-group">
                 <div class="col-md-6">
                     <label for="managingOrg" class="font-style text-capitalize">Managing organisation</label>
                     <ng-select [items]="organisations" bindLabel="defaultName" bindValue="id"
@@ -161,8 +161,8 @@
                     </select>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessType ? objectData?.accessType.name : 'None'}}</h6>
                 </div>
-            </div>
-            <hr />
+            </div> -->
+            <!-- <hr />
             <div class="row" *ngIf = "showAccessDetails">
                 <div class="col-md-12 text-center">
                     <h6 style="font-weight: 100;" class="pt-3 font-style">Access Details</h6>
@@ -183,7 +183,7 @@
                     <h6 style="font-weight: 100;" *ngIf="isView && objectData?.accessDetailsUrl"><a [href]='objectData.accessDetailsUrl' target="_blank">{{objectData.accessDetailsUrl}}</a></h6>
                     <h6 style="font-weight: 100;" *ngIf="isView && !objectData?.accessDetailsUrl">None</h6>
                 </div>
-            </div>
+            </div> -->
             <hr />
             <div formGroupName="objectDatasets" *ngIf="showDatasetKey">
                 <div class="row">

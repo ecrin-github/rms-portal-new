@@ -14,6 +14,6 @@ export class UserService {
     return this.http.get(`${environment.userInfoUrl}`);
   }
   getUserRoleInfo(payload) {
-    return this.http.post(`${environment.baseUrlApi}/users/`, payload);
+    return this.http.post(`${environment.baseUrlApi}/users/login`, payload);
   }
 }

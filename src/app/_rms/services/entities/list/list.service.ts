@@ -1,6 +1,5 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BYPASS_LOG } from 'src/app/_rms/interceptor/myinterceptor.interceptor';
 import { environment } from 'src/environments/environment';
 
 const base = environment.baseUrlApi;
@@ -15,7 +14,7 @@ export class ListService {
   // study lists
 
   getStudyList(pageSize?,page?) {
-    return this.http.get(`${base}/mdm/studies?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
+    return this.http.get(`${base}/mdm/studies?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`);
   }
 
   getFilteredStudyList(title_fragment: string, page: number, size: number) {
@@ -40,7 +39,7 @@ export class ListService {
   // object lists
 
   getObjectList(pageSize?,page?) {
-    return this.http.get(`${base}/mdm/data-objects?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
+    return this.http.get(`${base}/mdm/data-objects?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`);
   }
   
   getFilteredObjectList(title_fragment: string, page: number, size: number) {
@@ -73,7 +72,7 @@ export class ListService {
   // DTP lists
 
   getDtpList(pageSize?, page?) {
-    return this.http.get(`${base}/rms/dtp?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
+    return this.http.get(`${base}/rms/dtp?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`);
   }
   
   getFilteredDtpList(title_fragment: string, page: number, size: number) {
@@ -94,7 +93,7 @@ export class ListService {
   // DUP lists
 
   getDupList(pageSize?, page?) {
-    return this.http.get(`${base}/rms/dup?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`,{ context: new HttpContext().set(BYPASS_LOG, true) });
+    return this.http.get(`${base}/rms/dup?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`);
   }
   
   getFilteredDuptList(title_fragment: string, page: number, size: number) {
@@ -114,7 +113,7 @@ export class ListService {
 
   // People Lists
   getPeopleList(pageSize?, page?) {
-    return this.http.get(`${base}/users/?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`, { context: new HttpContext().set(BYPASS_LOG, true) });
+    return this.http.get(`${base}/users/?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`);
   }
   getFilteredPeopleList(name_fragment: string, page: number, size: number) {
     return this.http.get(`${base}/users/by-name?name=${name_fragment}`);

@@ -13,11 +13,12 @@ export class RedirectService {
     ) {}
 
     public postRedirect(instanceId: number, objectId: number, token: string) {
-        // TODO: fix authorization header not appearing on TSD's side?
-        const xhttp = new XMLHttpRequest();
-        xhttp.open('POST', `https://crr.tsd.usit.no/${environment.tsdUploadPath}/import/${objectId}/${instanceId}`, false);
-        xhttp.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+        // const xhttp = new XMLHttpRequest();
+        // xhttp.open('POST', `https://crr.tsd.usit.no/${environment.tsdUploadPath}/import/${objectId}/${instanceId}`, false);
+        // xhttp.setRequestHeader('Authorization', 'Bearer ' + token);
+        // xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+        // xhttp.setRequestHeader('Content-Type', 'text/plain');
+        // console.log(`in post redirect, token: ${token}`);
 
         const form = this.document.createElement('form');
         form.method = 'POST';
@@ -31,6 +32,6 @@ export class RedirectService {
         form.append(input);
         this.document.body.appendChild(form);
         form.submit();
-        xhttp.send();
+        // xhttp.send();
     }
 }
