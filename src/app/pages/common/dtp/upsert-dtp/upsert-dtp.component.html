@@ -12,9 +12,9 @@
                                 <i class="fa fa-edit"></i> Edit
                             </a>
                         </ng-container>
-                        <!-- <button class="btn btn-primary mr-1" (click)="printDocument()">
+                        <button class="btn btn-primary mr-1" (click)="printDocument()">
                             <i class="fa fa-print"></i> PDF
-                        </button> -->
+                        </button>
                         <button class="btn btn-primary mr-1" (click)="jsonExport()">
                             <i class="fa fa-code"></i> JSON
                         </button>
@@ -509,7 +509,8 @@
                                                                 </ng-container>
                                                                 <ng-template #unauthorized>
                                                                     <span class="pl-2" title="You have to be part of the associated people (below) of the DTP to be able to upload">
-                                                                        <button class="btn btn-sm btn-secondary" disabled>Upload</button>
+                                                                        <!-- <button class="btn btn-sm btn-secondary" disabled>Upload</button> -->
+                                                                        <button class="btn btn-sm btn-success" (click)="goToTsd(instance)">Upload</button>
                                                                     </span>
                                                                 </ng-template>
                                                             </ng-container>

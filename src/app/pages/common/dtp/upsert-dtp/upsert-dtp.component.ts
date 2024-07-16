@@ -959,38 +959,10 @@ export class UpsertDtpComponent implements OnInit {
 
   printDocument() {
     const payload = JSON.parse(JSON.stringify(this.dtpData));
-    payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
-    payload.coreDtp.status = this.findStatus(payload.coreDtp.status);
-    payload.coreDtp.initialContactDate = this.viewDate(payload.coreDtp.initialContactDate);
-    payload.coreDtp.setUpCompleteDate = this.viewDate(payload.coreDtp.setUpCompleteDate);
-    payload.coreDtp.mdAccessGrantedDate = this.viewDate(payload.coreDtp.mdAccessGrantedDate);
-    payload.coreDtp.mdCompleteDate = this.viewDate(payload.coreDtp.mdCompleteDate);
-    payload.coreDtp.dtaAgreedDate = this.viewDate(payload.coreDtp.dtaAgreedDate);
-    payload.coreDtp.uploadAccessRequestedDate = this.viewDate(payload.coreDtp.uploadAccessRequestedDate);
-    payload.coreDtp.uploadAccessConfirmedDate = this.viewDate(payload.coreDtp.uploadAccessConfirmedDate);
-    payload.coreDtp.uploadCompleteDate = this.viewDate(payload.coreDtp.uploadCompleteDate);
-    payload.coreDtp.qcChecksCompleteDate = this.viewDate(payload.coreDtp.qcChecksCompleteDate);
-    payload.coreDtp.mdIntegratedWithMdrDate = this.viewDate(payload.coreDtp.mdIntegratedWithMdrDate);
-    payload.coreDtp.availabilityRequestedDate = this.viewDate(payload.coreDtp.availabilityRequestedDate);
-    payload.coreDtp.availabilityConfirmedDate = this.viewDate(payload.coreDtp.availabilityConfirmedDate);
-    payload.dtas[0].repoSignature1 = this.findPeopleById(payload.dtas[0].repoSignature1);
-    payload.dtas[0].repoSignature2 = this.findPeopleById(payload.dtas[0].repoSignature2);
-    payload.dtas[0].providerSignature1 = this.findPeopleById(payload.dtas[0].providerSignature1);
-    payload.dtas[0].providerSignature2 = this.findPeopleById(payload.dtas[0].providerSignature2);
-    payload.dtpNotes.map(item => {
-      item.author = this.findPeopleById(item.author);
-      item.createdOn = this.viewDate(item.createdOn);
-    })
-    payload.dtpStudies.map(item => {
-      item.studyName = this.findStudyById(item.sdSid);
-    })
-    payload.dtpObjects.map(item => {
-      item.objectName  =  this.findObjectById(item.objectId);
-      item.accessType = this.findAccessType(payload.accessType);
-      item.accessCheckStatus = this.findCheckSatus(item.accessCheckStatus);
-      item.accessCheckBy = this.findPeopleById(item.accessCheckBy);
-    });
-    this.pdfGeneratorService.dtpPdfGenerator(payload, this.associatedUsers);
+    payload.associatedStudies = this.associatedStudies;
+    payload.associatedObjects = this.associatedObjects;
+    payload.associatedUsers = this.associatedUsers;
+    this.pdfGeneratorService.dtpPdfGenerator(payload);
   }
 
   cleanJSON(obj) {
