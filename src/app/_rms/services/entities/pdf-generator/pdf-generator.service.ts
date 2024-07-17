@@ -77,7 +77,7 @@ export class PdfGeneratorService {
 
     const offsetX = 16;
     const offsetY = 25;
-    const offsetT1 = 10;
+    const offsetT1 = 12;
     const offsetT2 = 6;
     const offsetSection = 14;
     const offsetGeneral = 9;
@@ -92,15 +92,29 @@ export class PdfGeneratorService {
     /* Title */
     currY = this.makeTable([
       [
-        { content: dtpData.displayName, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
+        { content: `Data Transfer - ${dtpData.displayName}`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
+      ]
+    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+  
+    /* Study ID */
+    currY += offsetT1;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Transfering Organisation', currX, currY);
+    doc.setFont(undefined, 'normal');
+    
+    currY += offsetT2;
+    currY = this.makeTable([
+      [
+        { content: (dtpData.organisation?.defaultName ? dtpData.organisation.defaultName : '/'), rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
       ]
     ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
 
     /* Associated Studies */
-    currY += offsetT1;
+    currY += offsetSection;
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
-    doc.text('Associated Studies', currX, currY);
+    doc.text('Studies', currX, currY);
     doc.setFont(undefined, 'normal');
     doc.setFontSize(textSize);
     
@@ -126,7 +140,7 @@ export class PdfGeneratorService {
     currY += offsetSection;
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
-    doc.text('Associated Data Objects', currX, currY);
+    doc.text('Data Objects', currX, currY);
     
     currY += offsetT2;
     if (dtpData.associatedObjects.length > 0) {
