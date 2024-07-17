@@ -24,10 +24,14 @@ export class AuthComponent implements OnInit {
     this.router.navigate([])
       .then(result => { window.open('/contactUs', '_self'); });
   }
-  goToUserGuide() {
+  goToAbout() {
     this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crr/', '_blank'); });
-}
+    .then(result => { window.open('https://crr.gitbook.io/crdsr/', '_blank'); });
+  }
+  goToUserGuide() {
+  this.router.navigate([])
+  .then(result => { window.open('https://crr.gitbook.io/crdsr/user-guide/', '_blank'); });
+  }
   goToBrowse() {
     this.router.navigate([])
       .then(result => { window.open('/browsing', '_self'); });
@@ -39,6 +43,10 @@ export class AuthComponent implements OnInit {
   goToLegalNotice() {
     this.router.navigate([])
     .then(result => { window.open('https://crr.gitbook.io/crr/legal-notice', '_blank'); });
+  }
+  goToDataSharingPolicy() {
+    this.router.navigate([])
+    .then(result => { window.open('https://crr.gitbook.io/crdsr/data-sharing-policy', '_blank'); });
   }
   goToPrivacy() {
     this.router.navigate([])
