@@ -33,7 +33,6 @@ export class ObjectInstanceComponent implements OnInit {
     }
   }
   @Output() emitInstance: EventEmitter<any> = new EventEmitter();
-  len: any;
   pageSize: number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private router: Router, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private commonLookup: CommonLookupService) { 
@@ -51,6 +50,7 @@ export class ObjectInstanceComponent implements OnInit {
       this.getObjectInstance();
     }
   }
+
   objectInstances(): UntypedFormArray {
     return this.form.get('objectInstances') as UntypedFormArray;
   }
@@ -59,7 +59,7 @@ export class ObjectInstanceComponent implements OnInit {
     return this.fb.group({
       id: '',
       objectId: '',
-      repositoryOrg: '',
+      repository: '',
       urlAccessible: false,
       url: [{value: '', disabled: true}],
       resourceType: '',
@@ -71,24 +71,7 @@ export class ObjectInstanceComponent implements OnInit {
   }
 
   addObjectInstance() {
-    this.len = this.objectInstances().value.length;
-    if (this.len) {
-      if (this.objectInstances().value[this.len-1].urlAccessible === true || this.objectInstances().value[this.len-1].urlAccessible === 'true' ? this.objectInstances().value[this.len-1].repositoryOrg && this.objectInstances().value[this.len-1].url : this.objectInstances().value[this.len-1].repositoryOrg) {
-        this.objectInstances().push(this.newObjectInstance());
-      } else {
-        if (this.objectInstances().value[this.len-1].alreadyExist) {
-          this.objectInstances().push(this.newObjectInstance());
-        } else {
-          if (this.objectInstances().value[this.len-1].urlAccessible === true || this.objectInstances().value[this.len-1].urlAccessible === 'true') {
-            this.toastr.info('Please provide the Repository Organistion and URL in the previously added Object Instance');
-          } else {
-            this.toastr.info('Please provide the Repository Organistion in the previously added Object Instance');
-          }
-        }
-      }
-    } else {
-      this.objectInstances().push(this.newObjectInstance());
-    }
+    this.objectInstances().push(this.newObjectInstance());
   }
 
   removeObjectInstance(i: number) {
@@ -106,6 +89,7 @@ export class ObjectInstanceComponent implements OnInit {
       }, error => {})
     }
   }
+
   getSizeUnit() {
     this.objectLookupService.getSizeUnits(this.pageSize).subscribe((res: any) => {
       if(res.results) {
@@ -119,6 +103,7 @@ export class ObjectInstanceComponent implements OnInit {
       })
     });
   }
+
   getResourceType() {
     this.objectLookupService.getResourceTypes(this.pageSize).subscribe((res: any) => {
       if (res.results) {
@@ -132,6 +117,7 @@ export class ObjectInstanceComponent implements OnInit {
       })
     });
   }
+
   getObjectInstance() {
     this.objectService.getObjectInstances(this.objectId, this.pageSize).subscribe((res: any) => {
       if (res && res.results) {
@@ -146,16 +132,18 @@ export class ObjectInstanceComponent implements OnInit {
       })
     })
   }
+
   patchForm(instances) {
     this.form.setControl('objectInstances', this.patchArray(instances));
   }
+
   patchArray(instances): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     instances.forEach(instance => {
       formArray.push(this.fb.group({
         id: instance.id,
         objectId: instance.objectId,
-        repositoryOrg: instance.repositoryOrg ? instance.repositoryOrg.id : null,
+        repository: instance.repository,
         urlAccessible: instance.urlAccessible,
         url: instance.url,
         resourceType: instance.resourceType ? instance.resourceType.id : null,
@@ -167,6 +155,7 @@ export class ObjectInstanceComponent implements OnInit {
     });
     return formArray;
   }
+
   addInstance(index) {
     this.spinner.show();
     const payload = this.form.value.objectInstances[index];
@@ -191,6 +180,7 @@ export class ObjectInstanceComponent implements OnInit {
       })
     })
   }
+
   editInstance(instanceObject) {
     const payload = instanceObject.value;
     payload.urlAccessible = payload.urlAccessible === 'true' ? true : false;
@@ -212,6 +202,7 @@ export class ObjectInstanceComponent implements OnInit {
       })
     })
   }
+
   getOrganization() {
     this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
       if (res && res.results) {
@@ -225,18 +216,22 @@ export class ObjectInstanceComponent implements OnInit {
       })
     })
   }
+
   findResourceType(id) {
     const resourceArray: any = this.resourceType.filter((type: any) => type.id === id);
     return resourceArray && resourceArray.length ? resourceArray[0].name : '';
   }
+
   findOrganizationType(id) {
     const orgArr: any = this.organizationList?.filter((type:any) => type.id === id);
     return orgArr && orgArr.length ? orgArr[0].defaultName : '';
   }
+
   findSizeUnit(id) {
     const sizeArray: any = this.sizeUnit.filter((type: any) => type.id === id);
     return sizeArray && sizeArray.length ? sizeArray[0].name : '';
   }
+
   emitData() {
     const payload = this.form.value.objectInstances.map(item => {
       item.urlAccessible = item.urlAccessible === 'true' ? true : false;
@@ -250,6 +245,7 @@ export class ObjectInstanceComponent implements OnInit {
     })
     this.emitInstance.emit({data: payload, isEmit: false});
   }
+
   onChange(index) {
     if (this.objectInstances().value[index].urlAccessible === 'true' || this.objectInstances().value[index].urlAccessible === true) {
       this.objectInstances().controls[index].get('url').enable();
@@ -257,14 +253,16 @@ export class ObjectInstanceComponent implements OnInit {
       this.objectInstances().controls[index].get('url').disable();
     }
   }
+
   scrollToElement(): void {
     setTimeout(() => {
       const yOffset = -200; 
-      const element = document.getElementById('objectinst'+this.len);
+      const element = document.getElementById('objectinst' + (this.objectInstances().value.length-1));
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({top: y, behavior: 'smooth'});
     });
   }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }

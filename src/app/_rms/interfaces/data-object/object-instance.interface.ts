@@ -2,8 +2,7 @@ export interface ObjectInstanceInterface {
     id: number;
     sdOid: string;
     instanceTypeId: number;
-    repositoryOrgId: number;
-    repositoryOrg: string;
+    repository: string;
     url: string;
     urlAccessible: boolean;
     urlLastChecked: string;
