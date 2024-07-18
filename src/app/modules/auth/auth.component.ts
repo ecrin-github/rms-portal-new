@@ -27,10 +27,14 @@ export class AuthComponent implements OnInit {
     this.router.navigate([])
       .then(result => { window.open('/contactUs', '_self'); });
   }
-  goToUserGuide() {
+  goToAbout() {
     this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crr/', '_blank'); });
-}
+    .then(result => { window.open('https://crr.gitbook.io/crdsr/', '_tab1'); });
+  }
+  goToUserGuide() {
+  this.router.navigate([])
+  .then(result => { window.open('https://crr.gitbook.io/crdsr/user-guide/', '_tab1'); });
+  }
   goToBrowse() {
     this.router.navigate([])
       .then(result => { window.open('/browsing', '_self'); });
@@ -41,10 +45,14 @@ export class AuthComponent implements OnInit {
   }
   goToLegalNotice() {
     this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crr/legal-notice', '_blank'); });
+    .then(result => { window.open('https://crr.gitbook.io/crr/legal-notice', '_tab1'); });
+  }
+  goToDataSharingPolicy() {
+    this.router.navigate([])
+    .then(result => { window.open('https://crr.gitbook.io/crdsr/data-sharing-policy', '_tab1'); });
   }
   goToPrivacy() {
     this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crr/data-privacy-policy', '_blank'); });
+    .then(result => { window.open('https://crr.gitbook.io/crr/data-privacy-policy', '_tab1'); });
   }
 }
