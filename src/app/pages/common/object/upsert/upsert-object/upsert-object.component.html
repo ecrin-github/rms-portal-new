@@ -44,7 +44,7 @@
             </div>
             <div class="row form-group">
                 <div class="col-md-8">
-                    <label for="studyId" class="font-style text-capitalize">parent study<sup>*</sup></label>
+                    <label for="study" class="font-style text-capitalize">parent study<sup>*</sup></label>
                     <ng-select id="study" [items]="studyList" formControlName="linkedStudy"
                     [compareWith]="compareStudies" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                     notFoundText="No study found" placeholder="Please select parent study" [searchFn]="customSearchStudies" 
@@ -144,18 +144,28 @@
             </div>
             <div class="row">
                 <div class="col-md-12 text-center">
-                    <h6 style="font-weight: 100;" class="pt-3 font-style">Access Details</h6>
+                    <h6 style="font-weight: 100;" class="pt-3 font-style">Access Info</h6>
                 </div>
             </div>
             <br />
             <div class="row form-group">
                 <div class="col-md-6">
-                    <label for="accessType" class="font-style text-capitalize">Access type</label>
-                    <select id="accessType" class="form-control" formControlName="accessType" 
-                        [ngClass]="{ 'is-invalid': isSubmitted && g.accessType.errors }" *ngIf="!isView">
-                        <option selected disabled value="null">Please select type of access </option>
-                        <option [value]=access.id *ngFor="let access of accessTypes">{{access.name}}</option>
-                    </select>
+                    <label for="accessType" class="font-style text-capitalize">Access type<sup>*</sup></label>
+                    <ng-select id="accessType" [items]="accessTypes" formControlName="accessType" [compareWith]="compareAccessTypes" 
+                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
+                    notFoundText="No access type found" placeholder="Please select the data access type"
+                    *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.accessType.errors }" (change)="setShowControlledDetails()">
+                        <ng-template ng-label-tmp let-item="item">
+                            {{item.name}}
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                            <div class="row m-0">
+                                <div class="col-md-8 col-8 p-0 m-0">
+                                    <div class="col-md-12">{{item.name}}</div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </ng-select>
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessType ? objectData?.accessType.name : 'None'}}</h6>
                     <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.accessType.errors">
                         <p *ngIf="isSubmitted && g.accessType.errors">Please select the type of access to the data</p>
@@ -164,7 +174,7 @@
                 <div class="col-md-6">
                     <label for="embargoExpiry" class="font-style text-capitalize">Embargo expiry date</label>
                     <div class="input-group" *ngIf="!isView">
-                        <input class="form-control" placeholder="yyyy-mm-dd"
+                        <input class="form-control" placeholder="Leave empty if no embargo"
                             name="embargoExpiry" ngbDatepicker #embargoExpiry="ngbDatepicker"
                             [ngClass]="{ 'is-invalid': isSubmitted && g.embargoExpiry.errors }" [minDate]="minEmbargoDate"
                             (click)="embargoExpiry.toggle()" formControlName="embargoExpiry" container='body'>
@@ -178,6 +188,18 @@
                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.embargoExpiry ? viewDate(objectData?.embargoExpiry) : 'No embargo'}}</h6>
                     <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.embargoExpiry.errors">
                         <p *ngIf="isSubmitted && g.embargoExpiry.errors">Please enter a valid date (date must be greater than today's date)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group" *ngIf="showControlledDetails">
+                <div class="col-md-12">
+                    <label for="accessDetails" class="font-style text-capitalize">Controlled Access Details<sup>*</sup></label>
+                    <textarea id="accessDetails" class="form-control" cols="30" rows="5" formControlName="accessDetails"
+                        placeholder="Please enter the details for the controlled access of the data (e.g. organisation guidelines)"
+                        *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.accessDetails.errors }"></textarea>
+                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetails ? objectData.accessDetails : ''}}</h6>
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors">
+                        <p *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors.required">Please select anonymisation type</p>
                     </div>
                 </div>
             </div>

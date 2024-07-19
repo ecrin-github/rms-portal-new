@@ -19,6 +19,7 @@ import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { stringToDate, dateToString } from 'src/assets/js/util';
+import { RepoAccessTypeInterface } from 'src/app/_rms/interfaces/types/repo-access-type.interface';
 
 @Component({
   selector: 'app-upsert-object',
@@ -64,6 +65,7 @@ export class UpsertObjectComponent implements OnInit {
   descriptionTypes: [] = [];
   minEmbargoDate: any;
   isManager: boolean;
+  showControlledDetails: boolean = false;
   orgId: string;
   isSubmitted: boolean = false;
   isBrowsing: boolean = false;
@@ -412,7 +414,7 @@ export class UpsertObjectComponent implements OnInit {
       publicationYear: this.objectData.publicationYear ? new Date(`01/01/${this.objectData.publicationYear}`) : '',
       langCode: this.objectData.langCode ? this.objectData.langCode.id : null,
       organisation: this.objectData.organisation ? this.objectData.organisation.id : null,
-      accessType: this.objectData.accessType ? this.objectData.accessType.id : null,
+      accessType: this.objectData.accessType ? this.objectData.accessType : null,
       accessDetails: this.objectData.accessDetails,
       accessDetailsUrl: this.objectData.accessDetailsUrl,
       embargoExpiry: this.objectData.embargoExpiry ? stringToDate(this.objectData.embargoExpiry) : null,
@@ -438,6 +440,7 @@ export class UpsertObjectComponent implements OnInit {
       objectRights: this.objectData.objectRights ? this.objectData.objectRights : [],
       objectRelationships: this.objectData.objectRelationships ? this.objectData.objectRelationships : []
     });
+    this.setShowControlledDetails();
   }
 
   onSave() {
@@ -464,7 +467,7 @@ export class UpsertObjectComponent implements OnInit {
         objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType : null,
         organisation: this.objectForm.value.organisation ? this.objectForm.value.organisation : null,
         langCode: this.objectForm.value.langCode,
-        accessType: this.objectForm.value.accessType ? this.objectForm.value.accessType : null
+        accessType: this.objectForm.value.accessType ? this.objectForm.value.accessType.id : null
       }
       const datasetPayload = {
         recordkeyType: this.objectForm.value.objectDatasets.recordkeyType,
@@ -795,7 +798,21 @@ export class UpsertObjectComponent implements OnInit {
   }
 
   compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {
-    return o1?.id == o2?.id;
+    return o1?.id === o2?.id;
+  }
+
+  compareAccessTypes(at1: RepoAccessTypeInterface, at2: RepoAccessTypeInterface): boolean {
+    return at1?.id === at2?.id;
+  }
+
+  setShowControlledDetails() {
+    this.showControlledDetails = (this.objectForm.value.accessType?.name?.toLocaleLowerCase() === 'controlled');
+    if (this.showControlledDetails) {
+      this.g['accessDetails'].setValidators([Validators.required]);
+    } else {
+      this.g['accessDetails'].clearValidators();
+      this.g['accessDetails'].setErrors(null);
+    }
   }
 
   gotoTop() {
