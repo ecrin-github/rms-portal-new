@@ -181,7 +181,7 @@
                     </div>
                 </div>
             </div>
-            <hr />
+            <hr *ngIf="isEdit || isView"/>
             <div formGroupName="objectDatasets" *ngIf="showDatasetKey">
                 <div class="row">
                     <div class="col-md-12 text-center">
@@ -335,8 +335,8 @@
                     </div>
                 </div>
             </div>
-            <hr [ngClass]="{'hr-big': isEdit}"/>
             <ng-container *ngIf="isEdit || isView">
+                <hr [ngClass]="{'hr-big': isEdit}"/>
                 <div class="mt-12">
                     <mat-expansion-panel [expanded]="objectData?.objectInstances?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectInstances?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
