@@ -14,6 +14,7 @@ import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyContributorTypeInterface } from 'src/app/_rms/interfaces/study/study-contributor-type.interface';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
+import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
   selector: 'app-study-contributor',
@@ -29,6 +30,7 @@ export class StudyContributorComponent implements OnInit {
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   studyContributor: StudyContributorInterface;
+  isManager: boolean = false;
   personList: [] = [];
   isIndividual = [];
   notindividualArr: [] = [];
@@ -44,7 +46,18 @@ export class StudyContributorComponent implements OnInit {
   isBrowsing: boolean = false;
   pageSize: Number = 10000;
 
-  constructor( private fb: UntypedFormBuilder, private router: Router, private commonLookupService: CommonLookupService, private objectService: DataObjectService, private studyService: StudyService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private commonLookup: CommonLookupService, private listService: ListService) { 
+  constructor(private fb: UntypedFormBuilder, 
+              private router: Router, 
+              private commonLookupService: CommonLookupService, 
+              private objectService: DataObjectService, 
+              private studyService: StudyService, 
+              private spinner: NgxSpinnerService, 
+              private toastr: ToastrService, 
+              private modalService: NgbModal, 
+              private commonLookup: CommonLookupService, 
+              private statesService: StatesService,
+              private listService: ListService) {
+    
     this.form = this.fb.group({
       studyContributors: this.fb.array([])
     });
@@ -52,13 +65,24 @@ export class StudyContributorComponent implements OnInit {
 
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
+    this.isManager = this.statesService.isManager();
+
     this.getContributorTypes();
-    this.getOrganization();
     this.getPersonList();
+    this.getOrganisation(this.statesService.currentAuthOrgId).subscribe((res: OrganisationInterface) => {
+      this.setOrganisation(res);
+    });
+
+    // if (this.isEdit && this.isManager) {
+    if (this.isEdit) {
+      this.getOrganization();
+    }
+
     if (this.isEdit || this.isView) {
       this.getStudyContributor();
     }
   }
+
   studyContributors(): UntypedFormArray {
     return this.form.get('studyContributors') as UntypedFormArray;
   }
@@ -114,6 +138,7 @@ export class StudyContributorComponent implements OnInit {
       }, error => {});
     }
   }
+
   getContributorTypes() {
     this.commonLookupService.getContributorTypes(this.pageSize).subscribe((res: any) => {
       if (res.results) {
@@ -123,6 +148,7 @@ export class StudyContributorComponent implements OnInit {
       console.log('error', error);
     });
   }
+
   getOrganization() {
     this.commonLookupService.getOrganizationList(this.pageSize).subscribe((res: any) => {
       if (res && res.results) {
@@ -132,6 +158,7 @@ export class StudyContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   getPersonList() {
     this.listService.getPeopleList(this.pageSize, '').subscribe((res: any) => {
       if (res && res.results) {
@@ -141,6 +168,7 @@ export class StudyContributorComponent implements OnInit {
 
     })
   }
+
   getStudyContributor() {
     this.studyService.getStudyContributors(this.studyId).subscribe((res: any) => {
       if (res && res.results) {
@@ -151,9 +179,23 @@ export class StudyContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
+  getOrganisation(orgId) {
+    return this.commonLookupService.getOrganizationById(orgId);
+  }
+
+  setOrganisation(organisation: OrganisationInterface) {
+    if (organisation) {
+      this.form.patchValue({
+        organisation: organisation,
+      });
+    }
+  }
+
   patchForm(contributors) {
     this.form.setControl('studyContributors', this.patchArray(contributors));
   }
+
   patchArray(contributors): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     contributors.forEach(contributor => {
@@ -173,8 +215,9 @@ export class StudyContributorComponent implements OnInit {
     }
     return formArray;
   }
+
   updatePayload(payload) {
-    if (!payload.studyId && this.studyId) {  // TODO test
+    if (!payload.studyId && this.studyId) {
       payload.studyId = this.studyId;
     }
     if (payload.contributorType?.id) {
@@ -187,6 +230,7 @@ export class StudyContributorComponent implements OnInit {
       payload.person = payload.person.id;
     }
   }
+
   addContributor(index) {
     this.spinner.show();
     const payload = this.form.value.studyContributors[index];
@@ -208,6 +252,7 @@ export class StudyContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   editContributor(contributorStudy) {
     this.spinner.show();
 
@@ -227,6 +272,7 @@ export class StudyContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   emitData() {
     const payload = this.form.value.studyContributors.map(item => {
       item.isIndividual = item.isIndividual === 'true' ? true : false;
@@ -240,6 +286,7 @@ export class StudyContributorComponent implements OnInit {
     })
     this.emitContributor.emit({data: payload, isEmit: false});
   }
+
   onChange(index) {
     this.isIndividual[index] = this.form.value.studyContributors[index].isIndividual === 'true' ? true : false;
     this.studyContributors().at(index).patchValue({
@@ -248,6 +295,7 @@ export class StudyContributorComponent implements OnInit {
       person: null,
     })
   }
+
   sameAsAbove() {
     const arr = this.studyContributors().value;
     const preValue = arr[arr.length - 2];
@@ -258,27 +306,34 @@ export class StudyContributorComponent implements OnInit {
       person: preValue.person,
     })
   }
+
   compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {
     return o1?.id == o2?.id;
   }
+
   customSearchOrganisations(term: string, item) {
     term = term.toLocaleLowerCase();
     return item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
   }
+
   compareTypes(s1: StudyContributorTypeInterface, s2: StudyContributorTypeInterface): boolean {
     return s1?.id == s2?.id;
   }
+
   customSearchTypes(term: string, item) {
     term = term.toLocaleLowerCase();
     return item.name.toLocaleLowerCase().indexOf(term) > -1;
   }
+
   comparePersons(u1: UserInterface, u2: UserInterface): boolean {
     return u1?.id == u2?.id;
   }
+
   customSearchPersons(term: string, item) {
     term = term.toLocaleLowerCase();
     return item.firstName.toLocaleLowerCase().indexOf(term) > -1 || item.lastName.toLocaleLowerCase().indexOf(term) > -1;
   }
+
   scrollToElement(): void {
     setTimeout(() => {
       const yOffset = -200; 
@@ -287,6 +342,7 @@ export class StudyContributorComponent implements OnInit {
       window.scrollTo({top: y, behavior: 'smooth'});
     });
   }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }

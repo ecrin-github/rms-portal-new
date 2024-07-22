@@ -23,6 +23,8 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
+import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
+import { dateToString, stringToDate } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -40,7 +42,6 @@ export class UpsertDtpComponent implements OnInit {
   statusList = [];
   id: any;
   dtpData: any;
-  wizard: any;
   sliceLength = 100;
   associatedStudies = [];
   associatedObjects = [];
@@ -55,13 +56,15 @@ export class UpsertDtpComponent implements OnInit {
   accessTypes: [] = [];
   isEmbargoRequested = [];
   sticky: boolean = false;
-  showButton: boolean = true;
   accessStatusTypes: [] = [];
   dtpArr: any;
   studyList: [] = [];
   objectList: [] = [];
   role: any;
+  user: UserInterface;
+  isManager: boolean = false;
   showUploadButton: boolean = false;
+  addDOButtonDisabled: boolean = true;
   instanceArray = [];
   pageSize: number = 10000;
   dtaData: any;
@@ -74,7 +77,6 @@ export class UpsertDtpComponent implements OnInit {
     3: ["qcChecksCompleteDate"],
     4: ["uploadCompleteDate"]
   }
-  // TODO: patch everything here on load
   currentStep: number = 1;
   maxSteps: number = 4;
   lastCompletedStep: number = -1;
@@ -133,7 +135,9 @@ export class UpsertDtpComponent implements OnInit {
 
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
+    this.isManager = this.statesService.isManager();
     this.role = this.statesService.currentAuthRole;
+    this.user = this.statesService.currentUser;
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
     this.id = this.activatedRoute.snapshot.params.id;
@@ -196,11 +200,11 @@ export class UpsertDtpComponent implements OnInit {
         // getDtpObjectsAndInstances doesn't return a value
       }
 
+      this.verifyStep();
+
       setTimeout(() => {
         this.spinner.hide(); 
       });
-
-      this.verifyStep();
     });
   }
 
@@ -261,15 +265,15 @@ export class UpsertDtpComponent implements OnInit {
       let errorMessage = '';
 
       if (currDateField === 'setUpCompleteDate') {
-        errorMessage = 'Setup completed date cannot be greater than Setup started date.';
+        errorMessage = 'Setup completed date cannot be earlier than Setup started date.';
       } else if (currDateField === 'mdCompleteDate') {
-        errorMessage = 'Metadata completed date cannot be greater than Setup completed date';
+        errorMessage = 'Metadata completed date cannot be earlier than Setup completed date';
       } else if (currDateField === 'dtaAgreedDate') {
-        errorMessage = 'Data Transfer Agreement date cannot be greater than Metadata completed date';
+        errorMessage = 'Data Transfer Agreement date cannot be earlier than Metadata completed date';
       } else if (currDateField === 'qcChecksCompleteDate') {
-        errorMessage = 'Quality checks completed date cannot be greater than Data Transfer Agreement date';
+        errorMessage = 'Quality checks completed date cannot be earlier than Data Transfer Agreement date';
       } else if (currDateField === 'uploadCompleteDate') {
-        errorMessage = 'Upload complete date cannot be greater than Quality checks completed date';
+        errorMessage = 'Upload complete date cannot be earlier than Quality checks completed date';
       }
 
       this.storedDatesError[step].push(errorMessage);
@@ -296,6 +300,7 @@ export class UpsertDtpComponent implements OnInit {
   notes(): UntypedFormArray {
    return this.form.get('notes') as UntypedFormArray;
   }
+
   newDtpNote(): UntypedFormGroup {
     return this.fb.group({
       dtpId: '',
@@ -304,12 +309,15 @@ export class UpsertDtpComponent implements OnInit {
       author: this.statesService.currentUser,
     })
   }
+
   addDtpNote() {
     this.notes().push(this.newDtpNote());
   }
+
   patchNotes(notes) {
     this.form.setControl('notes', this.patchNoteArray(notes));
   }
+
   patchNoteArray(notes): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     notes.forEach(note => {
@@ -382,9 +390,11 @@ export class UpsertDtpComponent implements OnInit {
       })
     }
   }
+
   preReqs(): UntypedFormArray {
     return this.preReqForm.get('preRequisite') as UntypedFormArray
   }
+
   newPreReq(): UntypedFormGroup {
     return this.fb.group({
       id: '',
@@ -405,9 +415,11 @@ export class UpsertDtpComponent implements OnInit {
       }
     }, error => {})
   }
+
   patchPreReq(preReqs) {
     this.preReqForm.setControl('preRequisite', this.patchPreReqArray(preReqs));
   }
+
   patchPreReqArray(preReqs): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     preReqs.forEach(preReq => {
@@ -420,6 +432,7 @@ export class UpsertDtpComponent implements OnInit {
     });
     return formArray;
   }
+
   editPreReq(preReqsObject) {
     const payload = JSON.parse(JSON.stringify(preReqsObject.value));  // Deep copy to keep whole data object to display sdOid
     if (payload.dtpDataObject?.id) {
@@ -438,6 +451,7 @@ export class UpsertDtpComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   removePreReq(i) {
     const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
     removeModal.componentInstance.type = 'objectPreReqDtp';
@@ -453,85 +467,6 @@ export class UpsertDtpComponent implements OnInit {
         });
       }
     }, error => {})
-  }
-  embargos(): UntypedFormArray {
-    return this.objectEmbargoForm.get('embargo') as UntypedFormArray
-  }
-  newEmbargo(): UntypedFormGroup{
-    return this.fb.group({
-      accessCheckStatus: '',
-      accessCheckBy: '',
-      accessDetails: '',
-      accessCheckDate: '',
-      accessType: '',
-      downloadAllowed: '',
-      dtpId: '',
-      embargoRegime: '',
-      embargoRequested: '',
-      embargoStillApplies: '',
-      id: '',
-      dataObject: '',
-    })
-  }
-  addEmbargo() {
-    const embargoModal = this.modalService.open(AddModalComponent, {size: 'lg', backdrop: 'static'});
-    embargoModal.componentInstance.title = 'Add Access details';
-    embargoModal.componentInstance.dtpId = this.id;
-    embargoModal.componentInstance.type = 'dtpEmbargo';
-    embargoModal.result.then((data) => {
-      if (data) {
-        this.getDtpObjectsAndInstances(this.id).subscribe();
-      }
-    }, error => {});
-  }
-  patchEmbargo(embargos) {
-    this.objectEmbargoForm.setControl('embargo', this.patchEmbargoArray(embargos))
-  }
-  patchEmbargoArray(embargos): UntypedFormArray {
-    const formArray = new UntypedFormArray([]);
-    embargos.forEach((embargo, index) => {
-      formArray.push(this.fb.group({
-        accessCheckStatus: embargo.accessCheckStatus ? embargo.accessCheckStatus.id : null,
-        accessCheckBy: embargo.accessCheckBy,
-        accessDetails: embargo.accessDetails,
-        accessCheckDate: this.stringToDate(embargo.accessCheckDate),
-        accessType: embargo.accessType ? embargo.accessType.id : null,
-        downloadAllowed: embargo.downloadAllowed,
-        dtpId: embargo.dtpId,
-        embargoRegime: embargo.embargoRegime,
-        embargoRequested: embargo.embargoRequested,
-        embargoStillApplies: embargo.embargoStillApplies,
-        id: embargo.id,
-        dataObject: embargo.dataObject
-      }))
-      this.isEmbargoRequested[index] = embargo.embargoRequested ? true : false;
-    });
-    return formArray;
-  }
-  onEmbargoChange(index) {
-    this.isEmbargoRequested[index] = !this.isEmbargoRequested[index];
-  }
-  editEmbargo(embargoObject) {
-    const payload = JSON.parse(JSON.stringify(embargoObject.value));
-    if (payload.dataObject?.id) {
-      payload.dataObject = payload.dataObject?.id;
-    }
-    if (payload.accessCheckBy?.id) {
-      payload.accessCheckBy = payload.accessCheckBy.id;
-    }
-    payload.accessCheckDate = this.dateToString(payload.accessCheckDate);
-    this.spinner.show();
-    this.dtpService.editDtpObject(payload.id, this.id, payload).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res.statusCode === 200) {
-        this.toastr.success('Object Embargo updated successfully');
-      } else {
-        this.toastr.error(res.messages[0]);
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
-    })
   }
 
   get g() { return this.form.controls; }
@@ -551,7 +486,7 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   setStatus(res) {
-    if (res && res.results) {
+    if (res?.results) {
       this.statusList = res.results;
 
       this.statusList.sort((a: any, b: any) => { 
@@ -591,6 +526,9 @@ export class UpsertDtpComponent implements OnInit {
   setDtpStudies(res) {
     if (res) {
       this.associatedStudies = res.results ? res.results : [];
+      if (this.associatedStudies.length > 0) {
+        this.addDOButtonDisabled = false;
+      }
     }
   }
 
@@ -600,7 +538,6 @@ export class UpsertDtpComponent implements OnInit {
         if (res) {
           this.associatedObjects = res.results ? res.results : [];
           this.embargoData = this.associatedObjects;
-          this.patchEmbargo(this.embargoData);
           // TODO improve with API for a single call
           this.associatedObjects.map((item, index) => {
             this.dataObjectService.getObjectInstances(item.dataObject?.id, this.pageSize).subscribe((res:any) => {
@@ -703,27 +640,23 @@ export class UpsertDtpComponent implements OnInit {
     const arr: any = this.preRequTypes.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
   }
+
   findAccessType(id) {
     const arr: any = this.accessTypes.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
   }
+
   findCheckSatus(id) {
     const arr: any = this.accessStatusTypes.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
   }
 
   dateToString(date) {
-    if (date?.day && date?.month && date?.year) {
-      const dateString =  date.year + '-' + date.month.toString().padStart(2, '0') + '-' + date.day.toString().padStart(2, '0');
-      return new Date(dateString).toISOString();
-    } else {
-      return null;
-    }
+    return dateToString(date);
   }
 
   stringToDate(date) {
-    const dateArray = new Date(date);
-    return date ? { year: dateArray.getFullYear(), month: dateArray.getMonth()+1, day: dateArray.getDate()} : null;
+    return stringToDate(date);
   }
 
   viewDate(date) {
@@ -747,6 +680,7 @@ export class UpsertDtpComponent implements OnInit {
     payload.uploadAccessRequestedDate = this.dateToString(payload.uploadAccessRequestedDate);
     payload.uploadAccessConfirmedDate = this.dateToString(payload.uploadAccessConfirmedDate);
     payload.uploadCompleteDate = this.dateToString(payload.uploadCompleteDate);
+
     if (payload.repoSignature1?.id) {
       payload.repoSignature1 = payload.repoSignature1.id;
     }
@@ -783,7 +717,6 @@ export class UpsertDtpComponent implements OnInit {
           const editDta$ = this.dtaData?.length ? this.dtpService.editDta(this.id, payload, this.dtaData[0].id) : this.dtpService.addDta(this.id, payload);
           delete payload.notes;
           const combine$ = combineLatest([editCoreDtp$, editDta$]).subscribe(([coreDtpRes, dtaRes] : [any, any]) => {
-            this.spinner.hide();
             let success: boolean = true;
             if (!(coreDtpRes.statusCode === 200 || coreDtpRes.statusCode === 201)) {
               success = false;
@@ -793,6 +726,7 @@ export class UpsertDtpComponent implements OnInit {
               success = false;
               this.toastr.error(dtaRes.messages[0]);
             }
+            this.spinner.hide();
             if (success) {
               this.toastr.success('DTP updated successfully');
               localStorage.setItem('updateDtpList', 'true');
@@ -878,24 +812,26 @@ export class UpsertDtpComponent implements OnInit {
       providerSignature1: dtaData[0]?.providerSignature1,
       providerSignature2: dtaData[0]?.providerSignature2
     });
-    // this.patchNotes(dtaData.dtpNotes);
     this.showVariations = dtaData[0]?.conformsToDefault ? true : false;
   }
+
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
     return organizationArray && organizationArray.length ? organizationArray[0].defaultName : ''
   }
+
   findStatus(id) {
     const statusArray: any = this.statusList.filter((type: any) => type.id === id);
     return statusArray && statusArray.length ? statusArray[0].name : '';
   }
+
   back(): void {
     this.backService.back();
   }
 
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
-    studyModal.componentInstance.title = 'Add Study';
+    studyModal.componentInstance.title = 'Add Studies and Data Objects';
     studyModal.componentInstance.type = 'study';
     studyModal.componentInstance.dtpId = this.id;
     studyModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
@@ -942,7 +878,7 @@ export class UpsertDtpComponent implements OnInit {
 
   addDataObject() {
     const dataModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
-    dataModal.componentInstance.title = 'Add Data Object';
+    dataModal.componentInstance.title = 'Add Data Objects';
     dataModal.componentInstance.type = 'dataObject';
     dataModal.componentInstance.dtpId = this.id;
     dataModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
@@ -974,7 +910,7 @@ export class UpsertDtpComponent implements OnInit {
 
   addUser() {
     const userModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
-    userModal.componentInstance.title = 'Add User';
+    userModal.componentInstance.title = 'Add Users';
     userModal.componentInstance.type = 'user';
     userModal.componentInstance.dtpId = this.id;
     userModal.componentInstance.currentUsersIds = new Set(this.associatedUsers.map((item) => item.person?.id));
@@ -1023,38 +959,10 @@ export class UpsertDtpComponent implements OnInit {
 
   printDocument() {
     const payload = JSON.parse(JSON.stringify(this.dtpData));
-    payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
-    payload.coreDtp.status = this.findStatus(payload.coreDtp.status);
-    payload.coreDtp.initialContactDate = this.viewDate(payload.coreDtp.initialContactDate);
-    payload.coreDtp.setUpCompleteDate = this.viewDate(payload.coreDtp.setUpCompleteDate);
-    payload.coreDtp.mdAccessGrantedDate = this.viewDate(payload.coreDtp.mdAccessGrantedDate);
-    payload.coreDtp.mdCompleteDate = this.viewDate(payload.coreDtp.mdCompleteDate);
-    payload.coreDtp.dtaAgreedDate = this.viewDate(payload.coreDtp.dtaAgreedDate);
-    payload.coreDtp.uploadAccessRequestedDate = this.viewDate(payload.coreDtp.uploadAccessRequestedDate);
-    payload.coreDtp.uploadAccessConfirmedDate = this.viewDate(payload.coreDtp.uploadAccessConfirmedDate);
-    payload.coreDtp.uploadCompleteDate = this.viewDate(payload.coreDtp.uploadCompleteDate);
-    payload.coreDtp.qcChecksCompleteDate = this.viewDate(payload.coreDtp.qcChecksCompleteDate);
-    payload.coreDtp.mdIntegratedWithMdrDate = this.viewDate(payload.coreDtp.mdIntegratedWithMdrDate);
-    payload.coreDtp.availabilityRequestedDate = this.viewDate(payload.coreDtp.availabilityRequestedDate);
-    payload.coreDtp.availabilityConfirmedDate = this.viewDate(payload.coreDtp.availabilityConfirmedDate);
-    payload.dtas[0].repoSignature1 = this.findPeopleById(payload.dtas[0].repoSignature1);
-    payload.dtas[0].repoSignature2 = this.findPeopleById(payload.dtas[0].repoSignature2);
-    payload.dtas[0].providerSignature1 = this.findPeopleById(payload.dtas[0].providerSignature1);
-    payload.dtas[0].providerSignature2 = this.findPeopleById(payload.dtas[0].providerSignature2);
-    payload.dtpNotes.map(item => {
-      item.author = this.findPeopleById(item.author);
-      item.createdOn = this.viewDate(item.createdOn);
-    })
-    payload.dtpStudies.map(item => {
-      item.studyName = this.findStudyById(item.sdSid);
-    })
-    payload.dtpObjects.map(item => {
-      item.objectName  =  this.findObjectById(item.objectId);
-      item.accessType = this.findAccessType(payload.accessType);
-      item.accessCheckStatus = this.findCheckSatus(item.accessCheckStatus);
-      item.accessCheckBy = this.findPeopleById(item.accessCheckBy);
-    });
-    this.pdfGeneratorService.dtpPdfGenerator(payload, this.associatedUsers);
+    payload.associatedStudies = this.associatedStudies;
+    payload.associatedObjects = this.associatedObjects;
+    payload.associatedUsers = this.associatedUsers;
+    this.pdfGeneratorService.dtpPdfGenerator(payload);
   }
 
   cleanJSON(obj) {
@@ -1124,13 +1032,28 @@ export class UpsertDtpComponent implements OnInit {
   conformsToDefaultChange() {
     this.showVariations = this.form.value.conformsToDefault ? true : false
   }
+
   findStudyById(sdSid) {
     const arr: any = this.studyList.filter((item: any) => item.sdSid === sdSid);
     return arr && arr.length ? arr[0].displayTitle : 'None';
   }
+
   findObjectById(objectId) {
     const arr: any = this.objectList.filter((item: any) => item.objectId === objectId);
     return arr && arr.length ? arr[0].displayTitle : 'None';
+  }
+
+  checkUrl(instanceUrl) {
+    return (instanceUrl + '').includes('tsd.usit.no');
+  }
+
+  canUpload() {
+    for (const aUser of this.associatedUsers) {
+      if (aUser.person?.id === this.user.id) {
+        return true;
+      }
+    }
+    return false;
   }
 
   customSearchUsers(term: string, item) {
@@ -1165,6 +1088,7 @@ export class UpsertDtpComponent implements OnInit {
       }
     });
   }
+
   goToDo(object) {
     if (object.dataObject?.sdOid) {
       this.router.navigate([`/data-objects/${object.dataObject.sdOid}/edit`]);
@@ -1172,6 +1096,7 @@ export class UpsertDtpComponent implements OnInit {
       this.toastr.error('Data object ID is undefined, please try to navigate there manually.', 'Error navigating to data object page')
     }
   }
+
   ngOnDestroy() {
     this.scrollService.unsubscribeScroll();
   }

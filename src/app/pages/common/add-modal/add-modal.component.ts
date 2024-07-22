@@ -8,6 +8,7 @@ import { DupService } from 'src/app/_rms/services/entities/dup/dup.service';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { ProcessLookupService } from 'src/app/_rms/services/entities/process-lookup/process-lookup.service';
+import { dateToString } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-add-modal',
@@ -143,20 +144,11 @@ export class AddModalComponent implements OnInit {
       })
     }
   }
+  
   dateToString(date) {
-    if (date) {
-      if (date.month<10) {
-        date.month = '0'+ date.month
-      }
-      if (date.day < 10) {
-        date.day = '0' + date.day
-      }
-      const dateString =  date.year + '-' + date.month + '-' + date.day;
-      return new Date(dateString).toISOString();
-    } else {
-      return null
-    }
+    return dateToString(date);
   }
+
   closeModal(data) {
     this.activeModal.close(data);
   }

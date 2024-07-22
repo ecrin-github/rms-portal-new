@@ -5,13 +5,12 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { ObjectIdentifierInterface } from 'src/app/_rms/interfaces/data-object/object-identifier.interface';
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
-import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { Router } from '@angular/router';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
-
+import { dateToString, stringToDate } from 'src/assets/js/util';
 
 
 @Component({
@@ -151,7 +150,7 @@ export class ObjectIdentifierComponent implements OnInit {
         objectId: identifier.objectId,
         identifierValue: identifier.identifierValue,
         identifierType: identifier.identifierType ? identifier.identifierType.id : null,
-        identifierDate: identifier.identifierDate ? this.stringTodate(identifier.identifierDate): '',
+        identifierDate: identifier.identifierDate ? stringToDate(identifier.identifierDate): '',
         identifierOrg: identifier.identifierOrg ? identifier.identifierOrg.id : null,
         alreadyExist: true
       }))
@@ -211,14 +210,11 @@ export class ObjectIdentifierComponent implements OnInit {
     const orgArr: any = this.organizationList.filter((type: any) => type.id === id);
     return orgArr && orgArr.length ? orgArr[0].defaultName : '';
   }
+
   dateToString(date) {
-    const monthArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return date ? date.year+' '+monthArr[date.month-1]+' '+date.day : '';
+    return dateToString(date);
   }
-  stringTodate(date) {
-    const dateArray = new Date(date);
-    return date ? {year: dateArray.getFullYear(), month: dateArray.getMonth() + 1, day: dateArray.getDate()} : null
-  }
+
   emitData() {
     const payload = this.form.value.objectIdentifiers.map(item => {
       item.identifierDate = this.dateToString(item.identifierDate);

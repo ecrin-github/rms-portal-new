@@ -40,14 +40,14 @@
                                     <option value=false>No</option>
                                     <option value=true>Yes</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.urlAccessible}}</h6>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.urlAccessible ? "Yes" : "No"}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="url" class="font-style text-capitalize">Access details: URL</label>
                                 <input id="url" type="text" class="form-control" placeholder="https://www.example.org/mydata"
-                                    formControlName="url" *ngIf="!isView" />
+                                    formControlName="url" *ngIf="!isView"/>
                                 <a href="{{objectInstance.value.url}}">
                                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
                                 </a>

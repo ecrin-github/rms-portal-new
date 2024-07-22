@@ -11,6 +11,7 @@ import { ConfirmationWindowComponent } from '../../../confirmation-window/confir
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/study-lookup.service';
 import { Router } from '@angular/router';
+import { dateToString, stringToDate } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-study-identifier',
@@ -145,7 +146,7 @@ export class StudyIdentifierComponent implements OnInit {
         studyId: identifier.studyId,
         identifierValue: identifier.identifierValue,
         identifierType: identifier.identifierType ? identifier.identifierType.id : null,
-        identifierDate: identifier.identifierDate ? this.stringTodate(identifier.identifierDate) : '',
+        identifierDate: identifier.identifierDate ? stringToDate(identifier.identifierDate) : '',
         identifierLink: identifier.identifierLink,
         identifierOrg: identifier.identifierOrg ? identifier.identifierOrg.id : null,
         alreadyExist: true
@@ -192,14 +193,11 @@ export class StudyIdentifierComponent implements OnInit {
       this.toastr.error(error.error.title);
     });
   }
+
   dateToString(date) {
-    const monthArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return date ? date.year+' '+monthArr[date.month-1]+' '+date.day : '';
+    return dateToString(date);
   }
-  stringTodate(date) {
-    const dateArray = new Date(date);
-    return date ? {year: dateArray.getFullYear(), month: dateArray.getMonth() + 1, day: dateArray.getDate()} : null
-  }
+
   findIdentifierType(id) {
     const identifierTypeArray:any = this.identifierTypes.filter((type: any) => type.id === id);
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : ''

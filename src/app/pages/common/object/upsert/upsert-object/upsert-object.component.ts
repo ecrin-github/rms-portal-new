@@ -1,10 +1,10 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RoutesRecognized } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { combineLatest, Observable, of, Subscription } from 'rxjs';
-import { catchError, finalize, map, switchMap, timeout } from 'rxjs/operators';
+import { catchError, filter, finalize, map, pairwise, switchMap, timeout } from 'rxjs/operators';
 import { DataObjectInterface } from 'src/app/_rms/interfaces/data-object/data-object.interface';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyDataInterface } from 'src/app/_rms/interfaces/study/study.interface';
@@ -18,6 +18,8 @@ import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generato
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
+import { stringToDate, dateToString } from 'src/assets/js/util';
+import { RepoAccessTypeInterface } from 'src/app/_rms/interfaces/types/repo-access-type.interface';
 
 @Component({
   selector: 'app-upsert-object',
@@ -61,8 +63,9 @@ export class UpsertObjectComponent implements OnInit {
   topicTypes: [] = [];
   identifierTypes: [] = [];
   descriptionTypes: [] = [];
-  showAccessDetails: boolean = true;
+  minEmbargoDate: any;
   isManager: boolean;
+  showControlledDetails: boolean = false;
   orgId: string;
   isSubmitted: boolean = false;
   isBrowsing: boolean = false;
@@ -93,9 +96,9 @@ export class UpsertObjectComponent implements OnInit {
       objectType: null,
       publicationYear: null,
       langCode: '',
-      managingOrg: '',
       organisation: null,
-      accessType: null,
+      accessType: ['', Validators.required],
+      embargoExpiry: null,
       accessDetails: '',
       accessDetailsUrl: '',
       eoscCategory: 0,
@@ -134,6 +137,10 @@ export class UpsertObjectComponent implements OnInit {
       this.spinner.show(); 
     });
 
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    // TODO: check getMonth
+    this.minEmbargoDate = {year: tomorrow.getFullYear(), month: tomorrow.getMonth()+1, day: tomorrow.getDate()};
     this.isAdd = this.router.url.includes('add') ? true : false;
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
@@ -230,6 +237,7 @@ export class UpsertObjectComponent implements OnInit {
   getNextDOSdOid() {
     return this.objectService.getNextDOSdOid();
   }
+
   setDOSdOid(sdOidRes) {
     if ('sdOid' in sdOidRes) {
       this.sdOid = sdOidRes['sdOid'];
@@ -238,6 +246,7 @@ export class UpsertObjectComponent implements OnInit {
       });
     }
   }
+
   getStudyList() {
     let studyList$: Observable<Object>;
     if (!(this.isManager || this.isBrowsing)) {
@@ -247,6 +256,7 @@ export class UpsertObjectComponent implements OnInit {
     }
     return studyList$;
   }
+
   setStudyList(studyList) {
     if (!this.isManager) {
       if (studyList) {
@@ -258,61 +268,76 @@ export class UpsertObjectComponent implements OnInit {
       }
     }
   }
+
   findStudyById(sdSid) {
     const arr: any = this.studyList.filter((item: any) => item.sdSid === sdSid);
     return arr && arr.length ? arr[0].displayTitle+'('+arr[0].sdSid+')' : ''
   }
+
   getObjectClasses() {
     return this.objectLookupService.getObjectClasses(this.pageSize);
   }
+
   setObjectClasses(objectClasses) {
     if (objectClasses?.results) {
       this.objectClasses = objectClasses.results;
     }
   }
+
   getObjectTypes() {
     return this.objectLookupService.getObjectTypes(this.pageSize);
   }
+
   setObjectTypes(objectTypes) {
     if (objectTypes?.results) {
       this.objectTypes = objectTypes.results;
     }
   }
+
   getAccessTypes() {
     return this.objectLookupService.getAccessTypes(this.pageSize);
   }
+
   setAccessTypes(accessTypes) {
     if (accessTypes?.results) {
       this.accessTypes = accessTypes.results;
     }
   }
+
   getKeyTypes() {
     return this.objectLookupService.getRecordKeyTypes(this.pageSize);
   }
+
   setKeyTypes(keyTypes) {
     if (keyTypes?.results) {
       this.keyTypes = keyTypes.results;
     }
   }
+
   getDeidentificationTypes() {
     return this.objectLookupService.getDeidentificationTypes(this.pageSize);
   }
+
   setDeidentificationTypes(deidentificationTypes) {
     if (deidentificationTypes?.results) {
       this.deidentificationTypes = deidentificationTypes.results;
     }
   }
+
   getConsentTypes() {
     return this.objectLookupService.getConsentTypes(this.pageSize);
   }
+
   setConsentTypes(consentTypes) {
     if (consentTypes?.results) {
       this.consentTypes = consentTypes.results;
     }
   }
+
   getLanguageCodes() {
     return this.commonLookupService.getLanguageCodes(this.pageSize);
   }
+
   setLanguageCodes(languageCodes) {
     if (languageCodes?.results) {
       const { compare } = Intl.Collator('en-GB');
@@ -324,17 +349,21 @@ export class UpsertObjectComponent implements OnInit {
       }
     }
   }
+
   getOrganisations() {
     return this.commonLookupService.getOrganizationList(this.pageSize);
   }
+
   setOrganisations(organisations) {
     if (organisations?.results) {
       this.organisations = organisations.results;
     }
   }
+
   getObjectById(id) {
     return this.objectService.getDataObjectById(id);
   }
+
   setObjectById(objectData) {
     if (objectData) {
       this.objectData = objectData;
@@ -347,6 +376,14 @@ export class UpsertObjectComponent implements OnInit {
       this.patchObjectForm();
     }
   }
+
+  viewDate(date) {
+    const dateArray = new Date(date);
+    return date ? dateArray.getFullYear() + '/' 
+        + (dateArray.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + '/' 
+        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : '';
+  }
+
   patchObjectForm() {
     const arr: any = this.objectClasses.filter((item:any) => item.name === 'Dataset');
     if (this.objectData.objectClass) {
@@ -367,10 +404,6 @@ export class UpsertObjectComponent implements OnInit {
         }
       });
     }
-    const arrAccessType: any = this.accessTypes.filter((item: any) => item.name === 'Public on-screen access and download');
-    if (this.objectData.accessType) {
-      this.showAccessDetails =  this.objectData.accessType.id === arrAccessType[0]?.id ? false : true;
-    }
     this.objectForm.patchValue({
       linkedStudy: this.objectData.linkedStudy ? this.objectData.linkedStudy : null,
       doi: this.objectData.doi,
@@ -380,11 +413,11 @@ export class UpsertObjectComponent implements OnInit {
       objectType: this.objectData.objectType ? this.objectData.objectType.id : null,
       publicationYear: this.objectData.publicationYear ? new Date(`01/01/${this.objectData.publicationYear}`) : '',
       langCode: this.objectData.langCode ? this.objectData.langCode.id : null,
-      managingOrg: this.objectData.managingOrg ? this.objectData.managingOrg.id : null,
       organisation: this.objectData.organisation ? this.objectData.organisation.id : null,
-      accessType: this.objectData.accessType ? this.objectData.accessType.id : null,
+      accessType: this.objectData.accessType ? this.objectData.accessType : null,
       accessDetails: this.objectData.accessDetails,
       accessDetailsUrl: this.objectData.accessDetailsUrl,
+      embargoExpiry: this.objectData.embargoExpiry ? stringToDate(this.objectData.embargoExpiry) : null,
       eoscCategory: this.objectData.eoscCategory,
       objectDatasets: {
         recordkeyType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordkeyType ? this.objectData.objectDatasets[0].recordkeyType.id : null :null,
@@ -407,7 +440,9 @@ export class UpsertObjectComponent implements OnInit {
       objectRights: this.objectData.objectRights ? this.objectData.objectRights : [],
       objectRelationships: this.objectData.objectRelationships ? this.objectData.objectRelationships : []
     });
+    this.setShowControlledDetails();
   }
+
   onSave() {
     this.spinner.show();
     if (localStorage.getItem('updateObjectList')) {
@@ -423,16 +458,16 @@ export class UpsertObjectComponent implements OnInit {
         publicationYear: this.objectForm.value.publicationYear ? this.objectForm.value.publicationYear.getFullYear() : null,
         accessDetails: this.objectForm.value.accessDetails,
         accessDetailsUrl: this.objectForm.value.accessDetailsUrl,
+        embargoExpiry: this.objectForm.value.embargoExpiry ? dateToString(this.objectForm.value.embargoExpiry) : null,
         urlLastChecked: this.objectForm.value.urlLastChecked,
         addStudyContributors: true,
         addStudyTopics: true,
         linkedStudy: this.objectForm.value.linkedStudy ? this.objectForm.value.linkedStudy.id : null,
         objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass : null,
         objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType : null,
-        managingOrg: this.objectForm.value.managingOrg ? this.objectForm.value.managingOrg : null,
         organisation: this.objectForm.value.organisation ? this.objectForm.value.organisation : null,
         langCode: this.objectForm.value.langCode,
-        accessType: this.objectForm.value.accessType ? this.objectForm.value.accessType : null
+        accessType: this.objectForm.value.accessType ? this.objectForm.value.accessType.id : null
       }
       const datasetPayload = {
         recordkeyType: this.objectForm.value.objectDatasets.recordkeyType,
@@ -539,19 +574,23 @@ export class UpsertObjectComponent implements OnInit {
   //   const deidentificationArray: any = this.deidentificationType.filter((type: any) => type.id === id);
   //   return deidentificationArray && deidentificationArray.length ? deidentificationArray[0].name : 'None';
   // }
+
   findConsentType(id) {
     const consentTypeArray: any = this.consentTypes.filter((type: any) => type.id === id);
     return consentTypeArray && consentTypeArray.length ?consentTypeArray[0].name : 'None';
   }
+
   findLangCode(languageCode) {
     setTimeout(() => {
       const langArr: any = this.languageCodes.filter((type: any) => type.languageCode === languageCode);
       return langArr && langArr.length? langArr[0].id : '';
     }, 2000);
   }
+
   back(): void {
     this.backService.back();
   }
+
   onChange() {
     const arr: any = this.objectClasses.filter((item:any) => item.name.toLowerCase() === 'dataset');
     this.showDatasetKey = this.objectForm.value.objectClass === arr[0].id ? true : false;
@@ -566,6 +605,7 @@ export class UpsertObjectComponent implements OnInit {
       this.objectForm.controls['objectDatasets']['controls']['recordkeyDetails'].setErrors(null);
     }
   }
+
   onTypeChange() {
     this.showTopic = false;
     const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
@@ -616,95 +656,112 @@ export class UpsertObjectComponent implements OnInit {
     this.jsonGenerator.jsonGenerator(payload, 'object');
   }
 
-// code to get values for id for generating pdf and json
+  /* code to get values for id for generating pdf and json */
   getSizeUnits() {
     return this.objectLookupService.getSizeUnits(this.pageSize);
   }
+
   setSizeUnits(sizeUnits) {
     if (sizeUnits?.results) {
       this.sizeUnits = sizeUnits.results;
     }
   }
+
   findSizeUnit(id) {
     const sizeArray: any = this.sizeUnits.filter((type: any) => type.id === parseInt(id));
     return sizeArray && sizeArray.length ? sizeArray[0].name : '';
   }
+
   getResourceTypes() {
     return this.objectLookupService.getResourceTypes(this.pageSize);
   }
+
   setResourceTypes(resourceTypes) {
     if (resourceTypes?.results) {
       this.resourceTypes = resourceTypes.results;
     }
   }
+
   findResourceType(id) {
     const resourceArray: any = this.resourceTypes.filter((type: any) => type.id === id);
     return resourceArray && resourceArray.length ? resourceArray[0].name : '';
   }
+
   getTitleTypes() {
     return this.objectLookupService.getObjectTitleTypes(this.pageSize);
   }
+
   setTitleTypes(titleTypes) {
     if (titleTypes?.results) {
       this.titleTypes = titleTypes.results;
     }
   }
+
   findTitleType(id) {
     const titleTypeArray: any = this.titleTypes.filter((type: any) => type.id === id);
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : ''
   }
+
   getDateTypes() {
     return this.objectLookupService.getDateTypes(this.pageSize);
   }
+
   setDateTypes(dateTypes) {
     if (dateTypes?.results) {
       this.dateTypes = dateTypes.results;
     }
   }
+
   findDateType(id) {
     const dateTypeArray: any = this.dateTypes.filter((type: any) => type.id === id);
     return dateTypeArray && dateTypeArray.length ? dateTypeArray[0].name : '';
   }
+
   getTopicTypes() {
     return this.commonLookupService.getTopicTypes(this.pageSize);
   }
+
   setTopicTypes(topicTypes) {
     if (topicTypes?.results) {
       this.topicTypes = topicTypes.results;
     }
   }
+
   findTopicType(id) {
     const topicTypeArrray: any = this.topicTypes.filter((type: any) => type.id === id);
     return topicTypeArrray && topicTypeArrray.length ? topicTypeArrray[0].name : '';
   }
+
   getIdentifierTypes() {
     return this.objectLookupService.getObjectIdentifierTypes(this.pageSize);
   }
+
   setIdentifierTypes(identifierTypes) {
     if (identifierTypes?.results) {
       this.identifierTypes = identifierTypes.results;
     }
   }
+
   findIdentifierType(id) {
     const identifierTypeArray: any = this.identifierTypes.filter((type: any) => type.id === id);
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : '';
   }
+
   getDescriptionTypes() {
     return this.objectLookupService.getDescriptionTypes(this.pageSize);
   }
+
   setDescriptionTypes(descriptionTypes) {
     if (descriptionTypes?.results) {
       this.descriptionTypes = descriptionTypes.results;
     }
   }
+
   findDescriptionType(id) {
     const descriptionArray: any = this.descriptionTypes.filter((type: any) => type.id === id);
     return descriptionArray && descriptionArray.length ? descriptionArray[0].name : '';
   }
-  onChangeAccessType() {
-    const arr: any = this.accessTypes.filter((item: any) => item.name === 'Public on-screen access and download');
-    this.showAccessDetails = parseInt(this.objectForm.value.accessType) === arr[0].id ? false : true;
-  }
+
   onChangeParentStudy() {
     if (!this.objectForm.value.linkedStudy) {
       this.organisationName = "";
@@ -717,6 +774,7 @@ export class UpsertObjectComponent implements OnInit {
       organisation: this.objectForm.value.linkedStudy?.organisation ? this.objectForm.value.linkedStudy.organisation.id : null
     })
   }
+
   goToParentStudy(sdSid) {
     if (this.isBrowsing) {
       this.router.navigate([`/browsing/studies/${sdSid}/view`]);
@@ -724,20 +782,39 @@ export class UpsertObjectComponent implements OnInit {
       this.router.navigate([`/studies/${sdSid}/view`]);
     }
   }
+
   customSearchStudies(term: string, item) {
     term = term.toLocaleLowerCase();
     return item.sdSid?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
   }
+
   compareStudies(s1: StudyDataInterface, s2: StudyDataInterface): boolean {
     return s1?.id == s2?.id;
   }
+
   customSearchOrganisations(term: string, item) {
     term = term.toLocaleLowerCase();
     return item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
   }
+
   compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {
-    return o1?.id == o2?.id;
+    return o1?.id === o2?.id;
   }
+
+  compareAccessTypes(at1: RepoAccessTypeInterface, at2: RepoAccessTypeInterface): boolean {
+    return at1?.id === at2?.id;
+  }
+
+  setShowControlledDetails() {
+    this.showControlledDetails = (this.objectForm.value.accessType?.name?.toLocaleLowerCase() === 'controlled');
+    if (this.showControlledDetails) {
+      this.g['accessDetails'].setValidators([Validators.required]);
+    } else {
+      this.g['accessDetails'].clearValidators();
+      this.g['accessDetails'].setErrors(null);
+    }
+  }
+
   gotoTop() {
     window.scroll({ 
       top: 0, 
@@ -745,6 +822,7 @@ export class UpsertObjectComponent implements OnInit {
       behavior: 'smooth' 
     });
   }
+
   ngOnDestroy() {
     this.scrollService.unsubscribeScroll();
     this.subscription.unsubscribe();

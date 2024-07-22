@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { UpsertObjectComponent } from 'src/app/pages/common/object/upsert/upsert-object/upsert-object.component';
+import { dateToString } from 'src/assets/js/util';
 
 
 @Injectable({
@@ -15,101 +16,191 @@ export class PdfGeneratorService {
 
   constructor() { }
 
-  dtpPdfGenerator(dtpData, peopleData) {
-    
+  colSpanCalc(nbColRow) {
+    return Math.floor(this.colNb/nbColRow);
+  }
+
+  makeTable(data, doc, x, y, theme, styles, columnStyles, didDrawCell?) {
+    const offsetUpTables = 3; // Tables start lower than other regular jsPdf objects for some reason so we apply a negative offset 
+    y -= offsetUpTables;
+    // Setting column widths (colSpan) dynamically depending on the number of items in the row
+    data.forEach((row) => {
+      const rowLen = row.length;
+      row.forEach((cell) => {
+        if (!('colSpan' in cell)) {
+          cell.colspan = this.colSpanCalc(rowLen);
+        }
+      })
+    });
+
+    // Creating table
+    let tableMeta = null;
+    if (didDrawCell) {
+      autoTable(doc, {
+        startY: y,
+        margin: {left: x},
+        styles: styles,
+        columnStyles: columnStyles,
+        theme: theme,
+        body: data,
+        rowPageBreak: 'avoid',
+        didDrawCell: didDrawCell,
+        didDrawPage: function (data) {
+          if (!tableMeta) {
+            tableMeta = data.table;
+          }
+        }
+      });
+    } else {
+      autoTable(doc, {
+        startY: y,
+        margin: {left: x},
+        styles: styles,
+        columnStyles: columnStyles,
+        theme: theme,
+        body: data,
+        rowPageBreak: 'avoid',
+        didDrawPage: function (data) {
+          if (!tableMeta) {
+            tableMeta = data.table;
+          }
+        }
+      });
+    }
+
+    // Returning y position of table bottom
+    return tableMeta?.finalY ? tableMeta.finalY : y;
+  }
+
+  dtpPdfGenerator(dtpData) {
     const doc = new jsPDF();
 
-    const bodyData: Array<any> = [];
+    const offsetX = 16;
+    const offsetY = 25;
+    const offsetT1 = 12;
+    const offsetT2 = 6;
+    const offsetSection = 14;
+    const offsetGeneral = 9;
+    const t1Size = 18;
+    const t2Size = 15;
+    const t3Size = 12;
+    const textSize = 10;
 
-    bodyData.push([{content: dtpData.coreDtp.displayName, colSpan: 4, rowSpan: 1, styles: {halign: 'left', fontStyle: 'bold', fontSize: 16}}]);
-    bodyData.push([
-      { content: 'Organisation: ' + dtpData.coreDtp.orgId, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Status: ' + dtpData.coreDtp.statusId, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } }
-    ]);
-    bodyData.push([
-      { content: 'Initial Contact Date: ' + dtpData.coreDtp.initialContactDate, colSpan: 2, styles: { halign: 'left' } },
-      { content: 'SetUp Completed: ' + dtpData.coreDtp.setUpCompleted, colSpan: 2, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'MD Access Granted: ' + dtpData.coreDtp.mdAccessGranted, colSpan: 2, styles: { halign: 'left' } },
-      { content: 'MD Completed: ' + dtpData.coreDtp.mdCompleteDate, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ])
-    bodyData.push([
-      { content: 'DTA Agreed: ' + dtpData.coreDtp.dtaAgreedDate, rowSpan: 1, colSpan: 2, styles: { halign: 'left' } },
-      { content: 'Upload Access Requested: ' + dtpData.coreDtp.uploadAccessRequested, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } }
-    ]);
-    bodyData.push([
-      { content: 'Upload Access Confirmed: ' + dtpData.coreDtp.uploadAccessConfirmed, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Upload Completed: ' + dtpData.coreDtp.uploadsComplete, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'QC Checks Completed: ' + dtpData.coreDtp.qcChecksCompleted, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'MD integrated with MDR: ' + dtpData.coreDtp.mdIntegratedWithMdr, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ])
-    bodyData.push([
-      { content: 'Availability Requested: ' + dtpData.coreDtp.availabilityRequested, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Availability Confirmed: ' + dtpData.coreDtp.availabilityConfirmed, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } }
-    ]);
-    bodyData.push([
-      { content: 'Agreement Details', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
-    bodyData.push([
-      { content: 'Conforms To Default: ' + dtpData.dtas[0].conformsToDefault, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Variations: ' + dtpData.dtas[0].variations, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'DTA File Path: ' + dtpData.dtas[0].dtaFilePath, colSpan: 4, rowSpan: 1, styles: { halign: 'left' } }
-    ])
-    bodyData.push([
-      { content: 'Repository Signatory 1: ' + dtpData.dtas[0].repoSignatory1, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Repository Signatory 2: ' + dtpData.dtas[0].repoSignatory2, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'Repository Signatory 3: ' + dtpData.dtas[0].providerSignatory1, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Repository Signatory 4: ' + dtpData.dtas[0].providerSignatory2, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'Notes', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
-    for (let note of dtpData.dtpNotes) {
-      bodyData.push([
-        { content: note.author + ' ' + note.createdOn + ':' + note.text, colSpan: 4, rowSpan: 1, styles: { halign: 'left' } },
-      ])
-    }
-    bodyData.push([
-      { content: 'Associated Studies', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
+    let currX = offsetX;
+    let currY = offsetY;
 
-    for ( let study of dtpData.dtpStudies) {
-      bodyData.push([
-        { content: study.studyName + '(' + study.sdSid + ')', colSpan: 4, rowSpan: 1, styles: { halign: 'left' } },
-      ])
-    } 
-    bodyData.push([
-      { content: 'Associated Objects', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
-    for ( let object of dtpData.dtpObjects) {
-      const content = object.sdOid + '(' + object.objectName + ') \n Access Type: ' + object.accessTypeId + '  Access Details: ' + object.accessDetails + '\nEmbargo Requested: ' + object.embargoRequested +
-                        '  Access Check Status: ' + object.accessCheckStatusId + '  Access Check By: ' + object.accessCheckBy;
-      bodyData.push([
-        { content: content,colSpan: 4, rowSpan: 1, styles: { halign: 'left' } },
-      ])
+    /* Title */
+    currY = this.makeTable([
+      [
+        { content: `Data Transfer - ${dtpData.displayName}`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
+      ]
+    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+  
+    /* Study ID */
+    currY += offsetT1;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Transfering Organisation', currX, currY);
+    doc.setFont(undefined, 'normal');
+    
+    currY += offsetT2;
+    currY = this.makeTable([
+      [
+        { content: (dtpData.organisation?.defaultName ? dtpData.organisation.defaultName : '/'), rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
+      ]
+    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+
+    /* Associated Studies */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Studies', currX, currY);
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(textSize);
+    
+    currY += offsetT2;
+    if (dtpData.associatedStudies.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Study ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Study Title', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        ]
+      ].concat(
+        dtpData.associatedStudies.map(associatedStudy => [
+          { content: (associatedStudy.study?.sdSid ? associatedStudy.study.sdSid : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (associatedStudy.study?.displayTitle ? associatedStudy.study.displayTitle : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      )
+      , doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     }
-    bodyData.push([
-      { content: 'Associated People', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
-    for (let person of peopleData) {
-      bodyData.push([
-        { content: person.personName, colSpan: 4, rowSpan: 1, styles: { halign: 'left' } },
-      ])
+
+    /* Associated Data Objects */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Data Objects', currX, currY);
+    
+    currY += offsetT2;
+    if (dtpData.associatedObjects.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Data Object ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Data Object Title', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Access Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Embargo', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Data Object Instances', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } }
+        ]
+      ].concat(
+        dtpData.associatedObjects.map(obj => [
+            { content: (obj.dataObject?.sdOid ? obj.dataObject.sdOid : this.defaultMissingValueText), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize} },
+            { content: (obj.dataObject?.displayTitle ? obj.dataObject.displayTitle : this.defaultMissingValueText), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+            { content: (obj.dataObject?.accessType?.name ? obj.dataObject.accessType.name : 'Unknown'), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+            { content: (obj.dataObject?.embargoExpiry ? ('Until ' + obj.dataObject.embargoExpiry.slice(0, 10)) : '/'), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+            { content: (obj.dataObject?.objectInstances?.length > 0 ?
+              (obj.dataObject?.objectInstances?.map(instance => {
+                return '• ' + (instance?.resourceType?.name ? instance.resourceType.name : 'Unknown resource type');
+              }).join('\n')) : 'No instances'), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      ), doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     }
-    autoTable(doc, {
-      startY: 20,
-      theme: 'plain',
-      body: bodyData,
-    })
-    doc.save(dtpData.coreDtp.displayName + '.pdf');
+
+    /* Associated People */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Associated People', currX, currY);
+    
+    currY += offsetT2;
+    if (dtpData.associatedUsers.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Name', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Email', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        ]
+      ].concat(
+        dtpData.associatedUsers.map(user => [
+          { content: (user.person?.firstName || user.person?.lastName ? (user.person.firstName + ' ' + user.person.lastName).trim() : this.defaultMissingValueText), 
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (user.person?.email ? user.person.email : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      )
+      , doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+    }
+
+    doc.save(dtpData.displayName + '.pdf');
   }
+
   dupPdfGenerator(dupData, peopleData) {
     const doc = new jsPDF();
 
@@ -197,43 +288,6 @@ export class PdfGeneratorService {
       body: bodyData,
     })
     doc.save(dupData.coreDup.displayName + '.pdf');
-  }
-
-  colSpanCalc(nbColRow) {
-    return Math.floor(this.colNb/nbColRow);
-  }
-
-  makeTable(data, doc, x, y, theme, styles, columnStyles) {
-    const offsetUpTables = 3; // Tables start lower than other regular jsPdf objects for some reason so we apply a negative offset 
-    y -= offsetUpTables;
-    // Setting column widths (colSpan) dynamically depending on the number of items in the row
-    data.forEach((row) => {
-      const rowLen = row.length;
-      row.forEach((cell) => {
-        if (!('colSpan' in cell)) {
-          cell.colspan = this.colSpanCalc(rowLen);
-        }
-      })
-    });
-
-    // Creating table
-    let tableMeta = null;
-    autoTable(doc, {
-      startY: y,
-      margin: {left: x},
-      styles: styles,
-      columnStyles: columnStyles,
-      theme: theme,
-      body: data,
-      rowPageBreak: 'avoid',
-      didDrawPage: function (data) {
-        if (!tableMeta) {
-          tableMeta = data.table;
-        }
-      }
-    });
-    // Returning y position of table bottom
-    return tableMeta?.finalY ? tableMeta.finalY : y;
   }
 
   studyPdfGenerator(studyData) {
@@ -478,8 +532,7 @@ export class PdfGeneratorService {
           { content: (
             contributor.isIndividual ? 
               (contributor.person?.firstName || contributor.person?.lastName ? 
-                (contributor.person?.firstName ? contributor.person.firstName + ' ' : '') 
-                + (contributor.person?.lastName ? contributor.person.lastName : '') : this.defaultMissingValueText)
+                (contributor.person.firstName + ' ' + contributor.person?.lastName).trim() : this.defaultMissingValueText)
             : 'N/A'
           ), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (contributor.contributorType?.name ? contributor.contributorType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
@@ -613,37 +666,14 @@ export class PdfGeneratorService {
     currY += offsetT2;
     currY = this.makeTable([
       [
-        { content: 'Managing Organisation', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
         { content: 'Access Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        { content: 'Embargo Expiry Date', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
       ],
       [
-        { content: objectData.managingOrg?.defaultName ? objectData.managingOrg.defaultName : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.accessType?.name ? objectData.accessType.name : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        { content: objectData.embargoExpiry ? objectData.embargoExpiry.slice(0, 10) : 'No embargo', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
-
-    /* Access details */
-    currY += offsetSection;
-    doc.setFont(undefined, 'bold');
-    doc.setFontSize(t2Size);
-    doc.text('Access Details', currX, currY);
-
-    currY += offsetT2;
-    currY = this.makeTable([
-      [
-        { content: objectData.accessDetails ? objectData.accessDetails : 'No description', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-      ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-
-    currY += offsetT2;
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(textSize);
-    if (objectData.accessDetailsUrl) {
-      doc.text("URL: ", currX, currY);
-      doc.textWithLink(objectData.accessDetailsUrl, currX + 10, currY, {url: objectData.accessDetailsUrl});
-    } else {
-      doc.text("No URL provided", currX, currY);
-    }
     
     // If object class is dataset
     if (objectData.objectDatasets.length > 0) {
@@ -880,8 +910,7 @@ export class PdfGeneratorService {
           { content: (
             contributor.isIndividual ? 
               (contributor.person?.firstName || contributor.person?.lastName ? 
-                (contributor.person?.firstName ? contributor.person.firstName + ' ' : '') 
-                + (contributor.person?.lastName ? contributor.person.lastName : '') : this.defaultMissingValueText)
+                (contributor.person.firstName + ' ' + contributor.person?.lastName).trim() : this.defaultMissingValueText)
             : 'N/A'
           ), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (contributor.contributorType?.name ? contributor.contributorType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
@@ -1017,7 +1046,6 @@ export class PdfGeneratorService {
       currY = this.makeTable([
         [
           { content: 'Relationship Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', cellWidth: 'auto', fontSize: t3Size } },
-          // TODO: "sdOid" instead of "ID"?
           { content: 'Target Object ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', cellWidth: 'auto', fontSize: t3Size } },
           { content: 'Target Object Title', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', cellWidth: 'auto', fontSize: t3Size } }
         ]
