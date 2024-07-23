@@ -1,2 +1,5 @@
 # rms-portal-new
-RMS Portal with Python backend
+Front end for the Clinical Research Data Sharing Repository
+
+
+versioning convention:  [major releases].[new features/major fixes/].[minor fixes])
