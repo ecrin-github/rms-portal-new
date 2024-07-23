@@ -243,7 +243,7 @@
                                                         [ngClass]="{ 'is-invalid': submitted && g.availabilityExpiryDate.errors }"
                                                         (click)="availabilityExpiryDate.toggle()" (dateSelect)="verifyStep()"
                                                         (input)="verifyStep()"
-                                                        formControlName="availabilityExpiryDate" [maxDate]="todayDate" container='body'>
+                                                        formControlName="availabilityExpiryDate" [minDate]="todayDate" container='body'>
                                                     <div class="input-group-append">
                                                         <button class="btn btn-primary"
                                                             (click)="availabilityExpiryDate.toggle()" type="button">
