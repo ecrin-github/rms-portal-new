@@ -202,7 +202,7 @@
                     </div>
                 </div>
             </ng-container>
-            <hr [ngClass]="{'hr-big': isEdit}"/>
+            <hr *ngIf="isEdit || isView" class="hr-big"/>
             <ng-container *ngIf="isEdit || isView">
                 <div class="mt-8">
                     <mat-expansion-panel [expanded]="studyData?.studyIdentifiers?.length > 0 ? true : false" [disabled]="(isView && studyData?.studyIdentifiers?.length === 0) ? true : false">
@@ -250,8 +250,6 @@
                     </mat-expansion-panel>
                 </div>
                 <hr />
-            </ng-container>
-            <ng-container>
                 <mat-expansion-panel [expanded]="associatedObjects?.length > 0 ? true : false" [disabled]="(isView && associatedObjects?.length === 0) ? true : false">
                     <mat-expansion-panel-header>
                         <h6 class="pt-3 font-style">Study object(s)</h6>
