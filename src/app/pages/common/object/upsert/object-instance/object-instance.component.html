@@ -6,7 +6,7 @@
     </div>
 </div>
 <form [formGroup]="form">
-    <ng-template [ngIf]="objectInstances().length <= 0">
+    <ng-template [ngIf]="objectInstancesForm().length <= 0">
         <div class="row">
             <div class="col-12 mb-3 mt-3 text-center justify-content-center">
                 <p>No object instances yet</p>
@@ -14,15 +14,21 @@
         </div>
     </ng-template>
 
-    <ng-template [ngIf]="objectInstances().length > 0">
+    <ng-template [ngIf]="objectInstancesForm().length > 0">
         <div formArrayName="objectInstances">
-            <div class="row" *ngFor="let objectInstance of objectInstances().controls; let i = index;"
+            <div class="row" *ngFor="let objectInstance of objectInstancesForm().controls; let i = index;"
                 [formGroupName]="i">
                 <div class="col-12 mb-5" [id]="'objectinst'+i">
                     <mat-expansion-panel [expanded]="objectInstance.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findResourceType(objectInstance.value.resourceType)}}: {{objectInstance.value.repository}}
+                            {{objectInstance.value.sdIid}}: {{findResourceType(objectInstance.value.resourceType)}}
                         </mat-expansion-panel-header>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="sd_iid" class="font-style text-capitalize">Instance ID</label>
+                                <h6 style="font-weight: 100;" id="sd_iid">{{objectInstance.value.sdIid}}</h6>
+                            </div>
+                        </div>
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="repository" class="font-style text-capitalize">Repository</label>
