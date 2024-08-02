@@ -498,6 +498,7 @@
                                             <ng-container *ngIf="instanceArray[i]?.length > 0">
                                                 <ul style="list-style-type: square;">
                                                     <li *ngFor="let instance of instanceArray[i]" class="associated-do-li">
+                                                        {{instance.sdIid ? instance.sdIid : '\<No instance ID\>'}}: 
                                                         {{instance.resourceType?.name ? instance.resourceType?.name : 'No resource type defined'}}
                                                         <span title="{{instance.resourceComments}}">({{(instance.resourceComments.length === 0) ? 'No comments' : ((instance.resourceComments.length <= sliceLength) ? instance.resourceComments : (instance.resourceComments | slice:0:sliceLength) + '...')}})</span>
                                                         <ng-container *ngIf="!checkUrl(instance.url); else alreadyUploaded">

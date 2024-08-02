@@ -541,6 +541,7 @@ export class UpsertDtpComponent implements OnInit {
           // TODO improve with API for a single call
           this.associatedObjects.map((item, index) => {
             this.dataObjectService.getObjectInstances(item.dataObject?.id, this.pageSize).subscribe((res:any) => {
+              res.results.forEach(inst => inst.sdOid = item.dataObject?.sdOid);
               this.instanceArray[index] = res.results;
             }, error => {
               this.toastr.error(error.error.title);
@@ -857,7 +858,7 @@ export class UpsertDtpComponent implements OnInit {
     this.spinner.show();
     this.commonLookup.objectInvolvementDtp(this.id, dtpStudy.study?.id).subscribe((res: any) => {
       if (res.studyAssociated && res.objectsAssociated) {
-        this.toastr.error(`Objects linked to this study are also linked to this DTP. Disassociate these objects from this DTP before deleting the study.`);
+        this.toastr.error(`Object(s) linked to this study are linked to this DTP. Remove the object(s) before removing this study.`);
         this.spinner.hide();
       } else {
         this.dtpService.deleteDtpStudy(dtpStudy.id, this.id).subscribe((res: any) => {
@@ -1081,8 +1082,8 @@ export class UpsertDtpComponent implements OnInit {
     // });
 
     this.oidcSecurityService.getAccessToken().subscribe((userToken) => {
-      if (instance.id && instance.objectId) {
-        this.redirectService.postRedirect(instance.id, instance.objectId, userToken);
+      if (instance.sdIid && instance.sdOid) {
+        this.redirectService.postRedirect(instance.sdIid, instance.sdOid, userToken);
       } else {
         this.toastr.error('Object ID or Object instance ID is undefined, please try to refresh the page.', 'Data object upload error');
       }
