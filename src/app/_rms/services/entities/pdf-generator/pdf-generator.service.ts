@@ -765,7 +765,7 @@ export class PdfGeneratorService {
         currY = this.makeTable([
           [
             { content: (instance.resourceType?.name ? instance.resourceType.name : 'Unknown type') + ': '
-              + (instance.repositoryOrg?.defaultName ? instance.repositoryOrg?.defaultName : 'Unknown organisation'), 
+              + (instance.repository ? instance.repository : 'Unknown repository'), 
               rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t4Size } },
           ]
         ]
@@ -774,10 +774,10 @@ export class PdfGeneratorService {
         currY += offsetLinkedTables;
         currY = this.makeTable([
           [
-            { content: 'Repository Organisation', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: textSize } },
+            { content: 'Repository', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: textSize } },
           ],
           [
-            { content: instance.repositoryOrg?.defaultName ? instance.repositoryOrg?.defaultName : this.defaultMissingValueText, 
+            { content: instance.repository ? instance.repository : this.defaultMissingValueText, 
               rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize } },
           ]
         ]

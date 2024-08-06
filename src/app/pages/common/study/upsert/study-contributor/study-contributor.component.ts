@@ -6,14 +6,11 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { StudyContributorInterface } from 'src/app/_rms/interfaces/study/study-contributor.interface';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
-import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { StudyService } from 'src/app/_rms/services/entities/study/study.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
-import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyContributorTypeInterface } from 'src/app/_rms/interfaces/study/study-contributor-type.interface';
-import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 
 @Component({
@@ -31,7 +28,6 @@ export class StudyContributorComponent implements OnInit {
   @Input() isEdit: boolean;
   studyContributor: StudyContributorInterface;
   isManager: boolean = false;
-  personList: [] = [];
   isIndividual = [];
   notindividualArr: [] = [];
   individualArr: [] = [];
@@ -42,22 +38,18 @@ export class StudyContributorComponent implements OnInit {
   }
   @Output() emitContributor: EventEmitter<any> = new EventEmitter();
   arrLength = 0;
-  len: any;
   isBrowsing: boolean = false;
   pageSize: Number = 10000;
 
-  constructor(private fb: UntypedFormBuilder, 
-              private router: Router, 
-              private commonLookupService: CommonLookupService, 
-              private objectService: DataObjectService, 
-              private studyService: StudyService, 
-              private spinner: NgxSpinnerService, 
-              private toastr: ToastrService, 
-              private modalService: NgbModal, 
-              private commonLookup: CommonLookupService, 
-              private statesService: StatesService,
-              private listService: ListService) {
-    
+  constructor(
+    private fb: UntypedFormBuilder, 
+    private router: Router, 
+    private commonLookupService: CommonLookupService, 
+    private studyService: StudyService, 
+    private spinner: NgxSpinnerService, 
+    private toastr: ToastrService, 
+    private modalService: NgbModal, 
+    private statesService: StatesService) {
     this.form = this.fb.group({
       studyContributors: this.fb.array([])
     });
@@ -68,7 +60,6 @@ export class StudyContributorComponent implements OnInit {
     this.isManager = this.statesService.isManager();
 
     this.getContributorTypes();
-    this.getPersonList();
     this.getOrganisation(this.statesService.currentAuthOrgId).subscribe((res: OrganisationInterface) => {
       this.setOrganisation(res);
     });
@@ -99,28 +90,12 @@ export class StudyContributorComponent implements OnInit {
     });
   }
 
+  checkIsIndividual(value) {
+    return value === true || value === 'true';
+  }
+
   addStudyContributor() {
-    this.len = this.studyContributors().value.length;
-    if (this.len) {
-      if (this.studyContributors().value[this.len-1].isIndividual === 'true' || this.studyContributors().value[this.len-1].isIndividual === true ? this.studyContributors().value[this.len-1].contributorType && this.studyContributors().value[this.len-1].organisation  : this.studyContributors().value[this.len-1].contributorType && this.studyContributors().value[this.len-1].organisation) {
-        this.arrLength = this.studyContributors().value.length;
-        this.studyContributors().push(this.newStudyContributor());
-      } else {
-        if (this.studyContributors().value[this.len - 1].alreadyExist) {
-          this.arrLength = this.studyContributors().value.length;
-          this.studyContributors().push(this.newStudyContributor());
-        } else {
-          if (this.studyContributors().value[this.len - 1].isIndividual === 'true' || this.studyContributors().value[this.len - 1].isIndividual === true) {
-            this.toastr.info('Please provide Contributor Type, Organization, Persons First Name and Family Name in the previously added Study Contibutor');
-          } else {
-            this.toastr.info('Please provide Contributor Type and Organization in the previously added Study Contibutor');
-          }
-        }
-      }
-    } else {
-      this.arrLength = this.studyContributors().value.length;
-      this.studyContributors().push(this.newStudyContributor());
-    }
+    this.studyContributors().push(this.newStudyContributor());
   }
 
   removeStudyContributor(i: number) {
@@ -156,16 +131,6 @@ export class StudyContributorComponent implements OnInit {
       }
     }, error => {
       this.toastr.error(error.error.title);
-    })
-  }
-
-  getPersonList() {
-    this.listService.getPeopleList(this.pageSize, '').subscribe((res: any) => {
-      if (res && res.results) {
-        this.personList = res.results;
-      }
-    }, error => {
-
     })
   }
 
@@ -226,14 +191,11 @@ export class StudyContributorComponent implements OnInit {
     if (payload.organisation?.id) {
       payload.organisation = payload.organisation.id;
     }
-    if (payload.person?.id) {
-      payload.person = payload.person.id;
-    }
   }
 
   addContributor(index) {
     this.spinner.show();
-    const payload = this.form.value.studyContributors[index];
+    const payload = JSON.parse(JSON.stringify(this.form.value.studyContributors[index]));
     if (payload.id) {
       delete payload.id;
     }
@@ -255,8 +217,7 @@ export class StudyContributorComponent implements OnInit {
 
   editContributor(contributorStudy) {
     this.spinner.show();
-
-    const payload = contributorStudy.value;
+    const payload = JSON.parse(JSON.stringify(contributorStudy.value));
     this.updatePayload(payload);
     
     this.studyService.editStudyContributor(payload.id, payload.studyId, payload).subscribe((res: any) => {
@@ -275,7 +236,7 @@ export class StudyContributorComponent implements OnInit {
 
   emitData() {
     const payload = this.form.value.studyContributors.map(item => {
-      item.isIndividual = item.isIndividual === 'true' ? true : false;
+      item.isIndividual = this.checkIsIndividual(item.isIndividual);
       if (!item.id) {
         delete item.id;
       }
@@ -288,12 +249,12 @@ export class StudyContributorComponent implements OnInit {
   }
 
   onChange(index) {
-    this.isIndividual[index] = this.form.value.studyContributors[index].isIndividual === 'true' ? true : false;
+    this.isIndividual[index] = this.checkIsIndividual(this.form.value.studyContributors[index].isIndividual);
     this.studyContributors().at(index).patchValue({
       contributorType: null,
       organisation: null,
-      person: null,
-    })
+      person: '',
+    });
   }
 
   sameAsAbove() {
@@ -325,19 +286,10 @@ export class StudyContributorComponent implements OnInit {
     return item.name.toLocaleLowerCase().indexOf(term) > -1;
   }
 
-  comparePersons(u1: UserInterface, u2: UserInterface): boolean {
-    return u1?.id == u2?.id;
-  }
-
-  customSearchPersons(term: string, item) {
-    term = term.toLocaleLowerCase();
-    return item.firstName.toLocaleLowerCase().indexOf(term) > -1 || item.lastName.toLocaleLowerCase().indexOf(term) > -1;
-  }
-
   scrollToElement(): void {
     setTimeout(() => {
       const yOffset = -200; 
-      const element = document.getElementById('conpanel'+this.len);
+      const element = document.getElementById('conpanel' + this.studyContributors().value.length);
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({top: y, behavior: 'smooth'});
     });

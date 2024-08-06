@@ -191,6 +191,7 @@
                     </div>
                 </div>
             </div>
+            <hr *ngIf="isEdit || isView"/>
             <div class="row form-group" *ngIf="showControlledDetails">
                 <div class="col-md-12">
                     <label for="accessDetails" class="font-style text-capitalize">Controlled Access Details<sup>*</sup></label>
@@ -203,7 +204,6 @@
                     </div>
                 </div>
             </div>
-            <hr />
             <div formGroupName="objectDatasets" *ngIf="showDatasetKey">
                 <div class="row">
                     <div class="col-md-12 text-center">
@@ -357,14 +357,14 @@
                     </div>
                 </div>
             </div>
-            <hr [ngClass]="{'hr-big': isEdit}"/>
             <ng-container *ngIf="isEdit || isView">
+                <hr [ngClass]="{'hr-big': isEdit}"/>
                 <div class="mt-12">
                     <mat-expansion-panel [expanded]="objectData?.objectInstances?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectInstances?.length === 0) ? true : false">
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object instance(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-instance [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
+                        <app-object-instance [objectId]="id" [sdOid]="sdOid" [totalInstances]="totalInstances" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="objectData?.objectTitles?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectTitles?.length === 0) ? true : false">

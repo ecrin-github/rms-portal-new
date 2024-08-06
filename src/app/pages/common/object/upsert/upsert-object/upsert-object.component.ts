@@ -45,10 +45,10 @@ export class UpsertObjectComponent implements OnInit {
   organisationName: string;
   id: string;
   sdOid: string;
+  totalInstances: number;
   objectData: DataObjectInterface;
   subscription: Subscription = new Subscription();
   initiateEmit: boolean = false;
-  count = 0;
   showDatasetKey: boolean = false;
   showTopic: boolean = false;
   showIdentifier: boolean = false;
@@ -368,6 +368,7 @@ export class UpsertObjectComponent implements OnInit {
     if (objectData) {
       this.objectData = objectData;
       this.id = objectData.id;
+      this.totalInstances = objectData.totalInstances;
       this.organisationName = objectData.organisation?.defaultName;
       // Check if user allowed to edit the object, in which case edit button is shown (for view)
       if (this.objectData.organisation?.id === this.orgId) {
@@ -552,7 +553,6 @@ export class UpsertObjectComponent implements OnInit {
       this.spinner.hide();
       this.toastr.error("Please correct the errors in the form's fields.");
     }
-    this.count = 0;
   }
   // findObjectClass(id) {
   //   const objectClassArray: any = this.objectClass.filter((type: any) => type.id === id);
