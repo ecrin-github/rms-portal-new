@@ -45,7 +45,7 @@ export class ObjectInstanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
-    this.getSizeUnit();
+    // this.getSizeUnit();
     this.getResourceType();
     this.getOrganization();
     if (this.isEdit || this.isView) {
@@ -67,8 +67,8 @@ export class ObjectInstanceComponent implements OnInit {
       urlAccessible: false,
       url: [{value: '', disabled: true}],
       resourceType: '',
-      resourceSize: 0,
-      resourceSizeUnit: '',
+      // resourceSize: 0,
+      // resourceSizeUnit: '',
       resourceComments: '',
       alreadyExist: false
     });
@@ -95,19 +95,19 @@ export class ObjectInstanceComponent implements OnInit {
     }
   }
 
-  getSizeUnit() {
-    this.objectLookupService.getSizeUnits(this.pageSize).subscribe((res: any) => {
-      if(res.results) {
-        this.sizeUnit = res.results;
-      }
-    }, error => {
-      console.log('error', error);
-      const arr = Object.keys(error.error);
-      arr.map((item,index) => {
-        this.toastr.error(`${item} : ${error.error[item]}`);
-      })
-    });
-  }
+  // getSizeUnit() {
+  //   this.objectLookupService.getSizeUnits(this.pageSize).subscribe((res: any) => {
+  //     if(res.results) {
+  //       this.sizeUnit = res.results;
+  //     }
+  //   }, error => {
+  //     console.log('error', error);
+  //     const arr = Object.keys(error.error);
+  //     arr.map((item,index) => {
+  //       this.toastr.error(`${item} : ${error.error[item]}`);
+  //     })
+  //   });
+  // }
 
   getResourceType() {
     this.objectLookupService.getResourceTypes(this.pageSize).subscribe((res: any) => {
@@ -153,8 +153,8 @@ export class ObjectInstanceComponent implements OnInit {
         urlAccessible: instance.urlAccessible,
         url: instance.url,
         resourceType: instance.resourceType ? instance.resourceType.id : null,
-        resourceSize: instance.resourceSize,
-        resourceSizeUnit: instance.resourceSizeUnit ? instance.resourceSizeUnit.id : null,
+        // resourceSize: instance.resourceSize,
+        // resourceSizeUnit: instance.resourceSizeUnit ? instance.resourceSizeUnit.id : null,
         resourceComments: instance.resourceComments,
         alreadyExist: true
       }))
@@ -233,10 +233,10 @@ export class ObjectInstanceComponent implements OnInit {
     return orgArr && orgArr.length ? orgArr[0].defaultName : '';
   }
 
-  findSizeUnit(id) {
-    const sizeArray: any = this.sizeUnit.filter((type: any) => type.id === id);
-    return sizeArray && sizeArray.length ? sizeArray[0].name : '';
-  }
+  // findSizeUnit(id) {
+  //   const sizeArray: any = this.sizeUnit.filter((type: any) => type.id === id);
+  //   return sizeArray && sizeArray.length ? sizeArray[0].name : '';
+  // }
 
   emitData() {
     const payload = this.form.value.objectInstances.map(item => {

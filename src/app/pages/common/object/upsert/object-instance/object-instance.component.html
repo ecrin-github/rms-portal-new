@@ -32,6 +32,9 @@
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="repository" class="font-style text-capitalize">Repository</label>
+                                <span class="pl-2" *ngIf="!isView" title="Fill in this field manually if uploading to somewhere else than the secure research environment (TSD).">
+                                    <i class="fa fa-info-circle pl-1"></i>
+                                </span>
                                 <input id="repository" type="text" class="form-control" placeholder="Enter the data repository name"
                                             formControlName="repository" *ngIf="!isView" />
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.repository}}</h6>
@@ -67,7 +70,7 @@
                         </div>
                         <br />
                         <div class="row">
-                            <div class="col-md-6">
+                            <!-- <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-8">
                                         <label for="resourceSize" class="font-style text-capitalize">Resource size</label>
@@ -84,8 +87,8 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
+                            </div> -->
+                            <div class="col-md-12">
                                 <label for="resourceComments" class="font-style text-capitalize">Comments</label>
                                 <textarea id="resourceComments" class="form-control" cols="30" rows="5" placeholder="Any further technical information about the resource"
                                     formControlName="resourceComments" *ngIf="!isView"></textarea>
