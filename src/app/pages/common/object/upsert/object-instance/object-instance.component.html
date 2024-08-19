@@ -52,6 +52,9 @@
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="url" class="font-style text-capitalize">Access URL</label>
+                                <span class="pl-2" *ngIf="!isView" title="Fill in this field manually if uploading to somewhere else than the secure research environment (TSD).">
+                                    <i class="fa fa-info-circle pl-1"></i>
+                                </span>
                                 <input id="url" type="text" class="form-control" placeholder="https://www.example.org/mydata"
                                     formControlName="url" *ngIf="!isView"/>
                                 <a href="{{objectInstance.value.url}}">
