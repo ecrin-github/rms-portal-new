@@ -23,9 +23,11 @@ export class ObjectInstanceComponent implements OnInit {
   organizationList: []  [];
   subscription: Subscription = new Subscription();
   @Input() objectId: string;
+  @Input() sdOid: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
-  objectInstance: ObjectInstanceInterface;
+  @Input() totalInstances: number;
+  objectInstances: ObjectInstanceInterface;
   isBrowsing: boolean = false;
   @Input() set initiateEmit(initiateEmit: any) {
     if (initiateEmit) {
@@ -33,7 +35,6 @@ export class ObjectInstanceComponent implements OnInit {
     }
   }
   @Output() emitInstance: EventEmitter<any> = new EventEmitter();
-  len: any;
   pageSize: number = 10000;
 
   constructor( private fb: UntypedFormBuilder, private router: Router, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private commonLookup: CommonLookupService) { 
@@ -44,81 +45,70 @@ export class ObjectInstanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
-    this.getSizeUnit();
+    // this.getSizeUnit();
     this.getResourceType();
     this.getOrganization();
     if (this.isEdit || this.isView) {
-      this.getObjectInstance();
+      this.getObjectInstances();
     }
   }
-  objectInstances(): UntypedFormArray {
+
+  objectInstancesForm(): UntypedFormArray {
     return this.form.get('objectInstances') as UntypedFormArray;
   }
 
   newObjectInstance(): UntypedFormGroup {
+    this.totalInstances += 1;
     return this.fb.group({
       id: '',
-      objectId: '',
-      repositoryOrg: '',
+      sdIid: 'DSRI-' + this.sdOid.slice(5, ) + '.' + (this.totalInstances),
+      dataObject: '',
+      repository: '',
       urlAccessible: false,
       url: [{value: '', disabled: true}],
       resourceType: '',
-      resourceSize: 0,
-      resourceSizeUnit: '',
+      // resourceSize: 0,
+      // resourceSizeUnit: '',
       resourceComments: '',
       alreadyExist: false
     });
   }
 
   addObjectInstance() {
-    this.len = this.objectInstances().value.length;
-    if (this.len) {
-      if (this.objectInstances().value[this.len-1].urlAccessible === true || this.objectInstances().value[this.len-1].urlAccessible === 'true' ? this.objectInstances().value[this.len-1].repositoryOrg && this.objectInstances().value[this.len-1].url : this.objectInstances().value[this.len-1].repositoryOrg) {
-        this.objectInstances().push(this.newObjectInstance());
-      } else {
-        if (this.objectInstances().value[this.len-1].alreadyExist) {
-          this.objectInstances().push(this.newObjectInstance());
-        } else {
-          if (this.objectInstances().value[this.len-1].urlAccessible === true || this.objectInstances().value[this.len-1].urlAccessible === 'true') {
-            this.toastr.info('Please provide the Repository Organistion and URL in the previously added Object Instance');
-          } else {
-            this.toastr.info('Please provide the Repository Organistion in the previously added Object Instance');
-          }
-        }
-      }
-    } else {
-      this.objectInstances().push(this.newObjectInstance());
-    }
+    this.objectInstancesForm().push(this.newObjectInstance());
   }
 
   removeObjectInstance(i: number) {
-    if (!this.objectInstances().value[i].alreadyExist) {
-      this.objectInstances().removeAt(i);
+    if (!this.objectInstancesForm().value[i].alreadyExist) {
+      this.objectInstancesForm().removeAt(i);
+      this.totalInstances -= 1;
     } else {
       const deleteModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop:'static'});
       deleteModal.componentInstance.type = 'objectInstance';
-      deleteModal.componentInstance.id = this.objectInstances().value[i].id;
-      deleteModal.componentInstance.objectId = this.objectInstances().value[i].objectId;
+      deleteModal.componentInstance.id = this.objectInstancesForm().value[i].id;
+      deleteModal.componentInstance.objectId = this.objectInstancesForm().value[i].dataObject;
       deleteModal.result.then((data) => {
         if (data) {
-          this.objectInstances().removeAt(i);
+          this.objectInstancesForm().removeAt(i);
         }
       }, error => {})
     }
   }
-  getSizeUnit() {
-    this.objectLookupService.getSizeUnits(this.pageSize).subscribe((res: any) => {
-      if(res.results) {
-        this.sizeUnit = res.results;
-      }
-    }, error => {
-      console.log('error', error);
-      const arr = Object.keys(error.error);
-      arr.map((item,index) => {
-        this.toastr.error(`${item} : ${error.error[item]}`);
-      })
-    });
-  }
+
+  // getSizeUnit() {
+  //   this.objectLookupService.getSizeUnits(this.pageSize).subscribe((res: any) => {
+  //     if(res.results) {
+  //       this.sizeUnit = res.results;
+  //     }
+  //   }, error => {
+  //     console.log('error', error);
+  //     const arr = Object.keys(error.error);
+  //     arr.map((item,index) => {
+  //       this.toastr.error(`${item} : ${error.error[item]}`);
+  //     })
+  //   });
+  // }
+
   getResourceType() {
     this.objectLookupService.getResourceTypes(this.pageSize).subscribe((res: any) => {
       if (res.results) {
@@ -132,11 +122,12 @@ export class ObjectInstanceComponent implements OnInit {
       })
     });
   }
-  getObjectInstance() {
+
+  getObjectInstances() {
     this.objectService.getObjectInstances(this.objectId, this.pageSize).subscribe((res: any) => {
       if (res && res.results) {
-        this.objectInstance = res.results.length ? res.results : [];
-        this.patchForm(this.objectInstance);
+        this.objectInstances = res.results.length ? res.results : [];
+        this.patchForm(this.objectInstances);
       }
     }, error => {
       // this.toastr.error(error.error.title);
@@ -146,31 +137,35 @@ export class ObjectInstanceComponent implements OnInit {
       })
     })
   }
+
   patchForm(instances) {
     this.form.setControl('objectInstances', this.patchArray(instances));
   }
+
   patchArray(instances): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     instances.forEach(instance => {
       formArray.push(this.fb.group({
         id: instance.id,
-        objectId: instance.objectId,
-        repositoryOrg: instance.repositoryOrg ? instance.repositoryOrg.id : null,
+        sdIid: instance.sdIid,
+        dataObject: instance.dataObject,
+        repository: instance.repository,
         urlAccessible: instance.urlAccessible,
         url: instance.url,
         resourceType: instance.resourceType ? instance.resourceType.id : null,
-        resourceSize: instance.resourceSize,
-        resourceSizeUnit: instance.resourceSizeUnit ? instance.resourceSizeUnit.id : null,
+        // resourceSize: instance.resourceSize,
+        // resourceSizeUnit: instance.resourceSizeUnit ? instance.resourceSizeUnit.id : null,
         resourceComments: instance.resourceComments,
         alreadyExist: true
       }))
     });
     return formArray;
   }
+
   addInstance(index) {
     this.spinner.show();
     const payload = this.form.value.objectInstances[index];
-    payload.objectId = this.objectId;
+    payload.dataObject = this.objectId;
     payload.urlAccessible = payload.urlAccessible === 'true' ? true : false;
     delete payload.id;
 
@@ -178,7 +173,7 @@ export class ObjectInstanceComponent implements OnInit {
       this.spinner.hide();
       if( res.statusCode === 201) {
         this.toastr.success('Object Instance added successfully');
-        this.getObjectInstance();
+        this.getObjectInstances();
       } else {
         this.toastr.error(res.messages[0]);
       }
@@ -191,15 +186,16 @@ export class ObjectInstanceComponent implements OnInit {
       })
     })
   }
+
   editInstance(instanceObject) {
     const payload = instanceObject.value;
     payload.urlAccessible = payload.urlAccessible === 'true' ? true : false;
     this.spinner.show();
-    this.objectService.editObjectInstance(payload.id, payload.objectId, payload).subscribe((res: any) => {
+    this.objectService.editObjectInstance(payload.id, payload.dataObject, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
         this.toastr.success('Object Instance updated successfully');
-        this.getObjectInstance();
+        this.getObjectInstances();
       } else {
         this.toastr.error(res.messages[0]);
       }
@@ -212,6 +208,7 @@ export class ObjectInstanceComponent implements OnInit {
       })
     })
   }
+
   getOrganization() {
     this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
       if (res && res.results) {
@@ -225,46 +222,53 @@ export class ObjectInstanceComponent implements OnInit {
       })
     })
   }
+
   findResourceType(id) {
     const resourceArray: any = this.resourceType.filter((type: any) => type.id === id);
     return resourceArray && resourceArray.length ? resourceArray[0].name : '';
   }
+
   findOrganizationType(id) {
     const orgArr: any = this.organizationList?.filter((type:any) => type.id === id);
     return orgArr && orgArr.length ? orgArr[0].defaultName : '';
   }
-  findSizeUnit(id) {
-    const sizeArray: any = this.sizeUnit.filter((type: any) => type.id === id);
-    return sizeArray && sizeArray.length ? sizeArray[0].name : '';
-  }
+
+  // findSizeUnit(id) {
+  //   const sizeArray: any = this.sizeUnit.filter((type: any) => type.id === id);
+  //   return sizeArray && sizeArray.length ? sizeArray[0].name : '';
+  // }
+
   emitData() {
     const payload = this.form.value.objectInstances.map(item => {
       item.urlAccessible = item.urlAccessible === 'true' ? true : false;
       if (!item.id) {
         delete item.id;
       }
-      if(this.objectId) {
-        item.objectId = this.objectId;
+      if (this.objectId) {
+        item.dataObject = this.objectId;
       }
       return item;
     })
     this.emitInstance.emit({data: payload, isEmit: false});
   }
+
   onChange(index) {
-    if (this.objectInstances().value[index].urlAccessible === 'true' || this.objectInstances().value[index].urlAccessible === true) {
-      this.objectInstances().controls[index].get('url').enable();
+    if (this.objectInstancesForm().value[index].urlAccessible === 'true' || this.objectInstancesForm().value[index].urlAccessible === true) {
+      this.objectInstancesForm().controls[index].get('url').enable();
     } else {
-      this.objectInstances().controls[index].get('url').disable();
+      this.objectInstancesForm().controls[index].get('url').disable();
     }
   }
+
   scrollToElement(): void {
     setTimeout(() => {
       const yOffset = -200; 
-      const element = document.getElementById('objectinst'+this.len);
+      const element = document.getElementById('objectinst' + (this.objectInstancesForm().value.length-1));
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({top: y, behavior: 'smooth'});
     });
   }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }

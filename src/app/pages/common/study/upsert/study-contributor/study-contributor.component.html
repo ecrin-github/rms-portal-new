@@ -23,9 +23,7 @@
                     <mat-expansion-panel [expanded]="studyContributor.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
                             {{ studyContributor.value?.contributorType?.name ? studyContributor.value.contributorType.name : ''}}:
-                            {{ studyContributor.value.isIndividual ? 
-                                studyContributor.value.person?.firstName && studyContributor.value.person?.lastName ? 
-                                    studyContributor.value.person.firstName + ' ' + studyContributor.value.person.lastName : '' 
+                            {{ studyContributor.value.isIndividual ? studyContributor.value.person 
                                 : studyContributor.value.organisation?.defaultName ? studyContributor.value.organisation.defaultName : '' }}
                         </mat-expansion-panel-header>
                         <div class="row form-group">
@@ -63,21 +61,8 @@
                             <div class="col-md-6">
                                 <div *ngIf="isIndividual[i] ? isIndividual[i] : ( studyContributor.value.isIndividual==='true' || studyContributor.value.isIndividual===true)">
                                     <label for="person" class="font-style text-capitalize">Person</label>
-                                    <ng-select [items]="personList" formControlName="person" [multiple]="false" [virtualScroll]="true" 
-                                        appendTo="body" class="form-control ng-form-control" notFoundText="No members found"
-                                        [compareWith]="comparePersons" [searchFn]="customSearchPersons" placeholder="Please select a person" *ngIf="!isView">
-                                        <ng-template ng-label-tmp let-item="item">
-                                            {{item.firstName}} {{item.lastName}}
-                                        </ng-template>
-                                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
-                                            <div class="row m-0">
-                                                <div class="col-md-8 col-8 p-0 m-0">
-                                                    <div class="col-md-12">{{item.firstName}} {{item.lastName}}</div>
-                                                </div>
-                                            </div>
-                                        </ng-template>
-                                    </ng-select>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{ studyContributor.value.person?.firstName }} {{ studyContributor.value.person?.lastName }}</h6>
+                                    <input type="text" id="person" class="form-control" placeholder="" formControlName="person" *ngIf="!isView"/>
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{studyContributor.value.person}}</h6>
                                 </div>
                             </div>
                             <div class="col-md-6">

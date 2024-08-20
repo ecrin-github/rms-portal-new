@@ -9,7 +9,6 @@ import { CommonLookupService } from 'src/app/_rms/services/entities/common-looku
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
-import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 
 @Component({
   selector: 'app-object-contributor',
@@ -32,12 +31,17 @@ export class ObjectContributorComponent implements OnInit {
     }
   }
   @Output() emitContributor: EventEmitter<any> = new EventEmitter();
-  len: any;
   isBrowsing: boolean = false;
   pagesize: Number = 10000;
-  personList = [];
 
-  constructor( private fb: UntypedFormBuilder,private router: Router, private commonLooupService: CommonLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private listService: ListService) { 
+  constructor(
+    private fb: UntypedFormBuilder, 
+    private router: Router, 
+    private commonLooupService: CommonLookupService, 
+    private objectService: DataObjectService, 
+    private spinner: NgxSpinnerService, 
+    private toastr: ToastrService, 
+    private modalService: NgbModal) {
     this.form = this.fb.group({
       objectContributors: this.fb.array([])
     });
@@ -47,11 +51,11 @@ export class ObjectContributorComponent implements OnInit {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getContributorType();
     this.getOrganization();
-    this.getPersonList();
     if (this.isEdit || this.isView) {
       this.getObjectContributor();
     }
   }
+
   objectContributors(): UntypedFormArray {
     return this.form.get('objectContributors') as UntypedFormArray;
   }
@@ -68,28 +72,19 @@ export class ObjectContributorComponent implements OnInit {
     });
   }
 
+  checkIsIndividual(value) {
+    return value === true || value === 'true';
+  }
+
   addObjectContributor() {
-    this.len = this.objectContributors().value.length;
-    if (this.len) {
-      if (this.objectContributors().value[this.len-1].contributorType) {
-        this.objectContributors().push(this.newObjectContributor());
-      } else {
-        if (this.objectContributors().value[this.len-1].alreadyExist) {
-          this.objectContributors().push(this.newObjectContributor());
-        } else {
-          this.toastr.info('Please provide the Contributor type in the previously added Object Contributor');
-        }
-      }
-    } else {
-      this.objectContributors().push(this.newObjectContributor());
-    }
+    this.objectContributors().push(this.newObjectContributor());
   }
 
   removeObjectContributor(i: number) {
     if (!this.objectContributors().value[i].alreadyExist) {
       this.objectContributors().removeAt(i);
     } else {
-      const removeModal = this.modalService.open(ConfirmationWindowComponent, {size: 'lg', backdrop: 'static'});
+      const removeModal = this.modalService.open(ConfirmationWindowComponent, { size: 'lg', backdrop: 'static' });
       removeModal.componentInstance.type = 'objectContributor';
       removeModal.componentInstance.id = this.objectContributors().value[i].id;
       removeModal.componentInstance.objectId = this.objectContributors().value[i].objectId;
@@ -97,9 +92,10 @@ export class ObjectContributorComponent implements OnInit {
         if (data) {
           this.objectContributors().removeAt(i);
         }
-      }, error => {})
+      }, error => { })
     }
   }
+
   getContributorType() {
     this.commonLooupService.getContributorTypes(this.pagesize).subscribe((res: any) => {
       if (res.results) {
@@ -109,6 +105,7 @@ export class ObjectContributorComponent implements OnInit {
       console.log('error', error);
     });
   }
+
   getObjectContributor() {
     this.objectService.getObjectContributors(this.objectId).subscribe((res: any) => {
       if (res && res.results) {
@@ -119,9 +116,11 @@ export class ObjectContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   patchForm(contributors) {
     this.form.setControl('objectContributors', this.patchArray(contributors));
   }
+
   patchArray(contributors): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
     contributors.forEach(contributor => {
@@ -131,19 +130,33 @@ export class ObjectContributorComponent implements OnInit {
         contributorType: contributor.contributorType ? contributor.contributorType.id : null,
         isIndividual: contributor.isIndividual,
         organisation: contributor.organisation ? contributor.organisation.id : null,
-        person: contributor.person ? contributor.person.id : null,
+        person: contributor.person,
         alreadyExist: true
       }))
     });
     return formArray;
   }
+
+  updatePayload(payload) {
+    if (!payload.objectId && this.objectId) {
+      payload.objectId = this.objectId;
+    }
+    if (payload.contributorType?.id) {
+      payload.contributorType = payload.contributorType.id;
+    }
+    if (payload.organisation?.id) {
+      payload.organisation = payload.organisation.id;
+    }
+  }
+
   addContributor(index) {
     this.spinner.show();
-    const payload = this.form.value.objectContributors[index];
-    payload.objectId = this.objectId;
-    payload.isIndividual = payload.isIndividual === 'true' ? true : false;
-    delete payload.id;
-
+    const payload = JSON.parse(JSON.stringify(this.form.value.objectContributors[index]));
+    if (payload.id) {
+      delete payload.id;
+    }
+    this.updatePayload(payload);
+    
     this.objectService.addObjectContributor(this.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 201) {
@@ -157,10 +170,12 @@ export class ObjectContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+  
   editContributor(contributorObject) {
-    const payload = contributorObject.value;
-    payload.isIndividual = payload.isIndividual === 'true' ? true : false;
     this.spinner.show();
+    const payload = JSON.parse(JSON.stringify(contributorObject.value));
+    this.updatePayload(payload);
+
     this.objectService.editObjectContributor(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
@@ -174,7 +189,8 @@ export class ObjectContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-    getOrganization() {
+
+  getOrganization() {
     this.commonLooupService.getOrganizationList(this.pagesize).subscribe((res: any) => {
       if (res && res.results) {
         this.organizationList = res.results;
@@ -183,53 +199,50 @@ export class ObjectContributorComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   findOrganization(id) {
     const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
     return organizationArray && organizationArray.length ? organizationArray[0].defaultName : '';
   }
+
   findContributorType(id) {
     const contributorArray: any = this.contributorType.filter((type: any) => type.id === id);
     return contributorArray && contributorArray.length ? contributorArray[0].name : '';
   }
+
   emitData() {
     const payload = this.form.value.objectContributors.map(item => {
-      item.isIndividual = item.isIndividual === 'true' ? true : false;
+      item.isIndividual = this.checkIsIndividual(item.isIndividual);
       if (!item.id) {
         delete item.id;
       }
-      if(this.objectId) {
+      if (this.objectId) {
         item.objectId = this.objectId;
       }
       return item;
     })
-    this.emitContributor.emit({data: payload, isEmit: false});
+    this.emitContributor.emit({ data: payload, isEmit: false });
   }
+
   onChange(index) {
-    this.isIndividual[index] = this.form.value.objectContributors[index].isIndividual === 'true' ? true : false;
-  }
-  scrollToElement(): void {
-    setTimeout(() => {
-      const yOffset = -200; 
-      const element = document.getElementById('objectconst'+this.len);
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({top: y, behavior: 'smooth'});
+    this.isIndividual[index] = this.checkIsIndividual(this.form.value.objectContributors[index].isIndividual);
+    this.objectContributors().at(index).patchValue({
+      contributorType: null,
+      organisation: null,
+      person: '',
     });
   }
-  getPersonList() {
-    this.listService.getPeopleList(this.pagesize, '').subscribe((res: any) => {
-      if (res && res.results) {
-        this.personList = res.results;
-      }
-    }, error => {
 
-    })
+  scrollToElement(): void {
+    setTimeout(() => {
+      const yOffset = -200;
+      const element = document.getElementById('objectconst' + this.objectContributors().value.length);
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    });
   }
-  findPerson(id) {
-    const personArray: any = this.personList.filter((item: any) => item.id === id);
-    return personArray && personArray.length ? personArray[0].firstName + ' ' + personArray[0].lastName : ''
-  }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-
 }
