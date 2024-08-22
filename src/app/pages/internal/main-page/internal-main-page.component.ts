@@ -61,7 +61,7 @@ export class InternalMainPageComponent implements OnInit {
         this.peopleChartOptions = this.getChartOptions(this.peopleTotal, 'Total People', false);
         this.dtpTotal = res.dtp.total;
         this.dtpChartOptions = this.getChartOptions(this.dtpTotal, 'Completed DTs', false);  
-        this.dupTotal = res.dtp.total;
+        this.dupTotal = res.dup.total;
         this.dupChartOptions = this.getChartOptions(this.dupTotal, 'Completed DUs', false);
         }
     }, error => {
