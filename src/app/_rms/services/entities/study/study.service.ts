@@ -11,20 +11,12 @@ export class StudyService {
 
   constructor( private http: HttpClient) { }
 
-  // MDR related calls
- 
-  getFullStudyFromMdr(regId: number, sdSid: string) {
-    return this.http.get(`${base}/mdm/studies/new-mdr?regId=${regId}&sdSid=${sdSid}`);
-  }
-  
+  /* MDR related calls */
   getStudyFromMdr(regId: number, sdSid: string) {
-    // N.B. Limited use - was for testing only
-    return this.http.get(`${base}/studies/mdr/${regId}/${sdSid}/data`);
+    return this.http.get(`${base}/mdm/studies/mdr?regId=${regId}&sdSid=${sdSid}`);
   }
-
   
-  // study data
-  
+  /* study data */
   addStudy(payload) {
     // note inclusion of explicit sdSid in call
     return this.http.post(`${base}/mdm/studies`, payload);

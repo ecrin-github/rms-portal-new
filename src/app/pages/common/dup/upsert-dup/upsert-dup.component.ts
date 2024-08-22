@@ -650,7 +650,7 @@ export class UpsertDupComponent implements OnInit {
     this.spinner.show();
     this.commonLookup.objectInvolvementDup(this.id, dupStudy.study?.id).subscribe((res: any) => {
       if (res.studyAssociated && res.objectsAssociated) {
-        this.toastr.error(`Objects linked to this study is linked to this DUP. So, delete the objects before deleting this study`);
+        this.toastr.error(`Object(s) linked to this study are linked to this DUP. Remove the object(s) before removing this study.`);
         this.spinner.hide();
       } else {
         this.dupService.deleteDupStudy(dupStudy.id, this.id).subscribe((res: any) => {

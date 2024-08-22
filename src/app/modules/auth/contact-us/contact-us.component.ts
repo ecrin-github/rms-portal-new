@@ -85,7 +85,7 @@ export class ContactUsComponent implements OnInit {
         }
         this.commonLookUpService.emailAPI(payload).subscribe((res: any) => {
           if (res.status === 'success') {
-            this.toastr.success('Thank you for contacting us. An email has been sent to you mail address.')
+            this.toastr.success('Thank you for contacting us. An email has been sent to your mail address.')
           }
         }, error => {
           this.toastr.error(error.message);
