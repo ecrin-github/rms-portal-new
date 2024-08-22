@@ -12,6 +12,14 @@ export function dateToString(date) {
     }
 }
 
+export function dateObjToTimeString(date) {
+    if (date instanceof Date) {
+        return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} \
+        ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+    }
+    throw new Error("Date must be an instance of Date class");
+}
+
 export function stringToDate(date) {
     const dateArray = new Date(date);
     return date ? {year: dateArray.getFullYear(), month: dateArray.getMonth() + 1, day: dateArray.getDate()} : null;

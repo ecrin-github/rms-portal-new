@@ -9,6 +9,7 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { UserService } from '../user/user.service';
 import { LsAaiUserInterface } from '../../interfaces/user/ls-aai/ls-aai.user.interface';
 import { NgxPermissionsService } from 'ngx-permissions';
+import { WebSocketService } from '../notifications/websocket.service';
 
 
 @Injectable({
@@ -24,7 +25,8 @@ export class AuthService {
     private router: Router,
     private oidcSecurityService: OidcSecurityService,
     private userService: UserService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private webSocketService: WebSocketService,
   ) { }
 
   isAuthenticUser() {
@@ -38,6 +40,7 @@ export class AuthService {
           // Note: userData in checkAuth result is obtained from localStorage (and therefore can be tampered with), so we have to query LS AAI again
           // Note 2: querying LS AAI even if statesService.currentUser is set for added security (preventing client-side memory tampering)
           await this.getUser();
+          this.webSocketService.startConnection();
         } else {
           this.logout();
         }
@@ -80,6 +83,7 @@ export class AuthService {
       // this.oidcSecurityService.logoff('', {urlHandler: this.urlHandler}).subscribe((res2) => {
         // localStorage.clear();
       // });
+      this.webSocketService.close();
       this.oidcSecurityService.logoff().subscribe();
     } else {
       localStorage.clear();
