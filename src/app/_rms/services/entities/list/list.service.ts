@@ -82,10 +82,6 @@ export class ListService {
     return this.http.get(`${base}/users/?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`);
   }
 
-  getPeopleListByOrg(orgId: number) {
-    return this.http.get(`${base}/users/by-org?orgId=${orgId}`);
-  }
-
   getRecentPeopleList(n: number) {
     return this.http.get(`${base}/people/list/recent/${n}`);
   }
