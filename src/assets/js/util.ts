@@ -24,3 +24,7 @@ export function stringToDate(date) {
     const dateArray = new Date(date);
     return date ? {year: dateArray.getFullYear(), month: dateArray.getMonth() + 1, day: dateArray.getDate()} : null;
 }
+
+export function isWholeNumber(value) {
+    return /^-?\d+$/.test(value);
+}
