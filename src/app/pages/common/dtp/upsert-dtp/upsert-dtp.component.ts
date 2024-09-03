@@ -556,10 +556,21 @@ export class UpsertDtpComponent implements OnInit {
     return this.dtpService.getDtpObjectPrereqs(id);
   }
 
+  getSortedPrereqs(prereqs) {
+    const { compare } = Intl.Collator('en-GB');
+    prereqs.sort((a, b) => {
+      if (a.dtpDataObject.dataObject?.sdOid === b.dtpDataObject.dataObject?.sdOid) {
+        return compare(a.prereqType?.name, b.prereqType?.name);
+      } else {
+        return a.dtpDataObject.dataObject?.sdOid > b.dtpDataObject.dataObject?.sdOid ? 1 : -1;
+      }
+    });
+  }
+
   setDtpObjectPrereqs(res) {
     if (res && res.results) {
+      this.getSortedPrereqs(res.results);
       this.prereqs = res.results;
-      this.prereqs.sort((a, b) => (a.dataObject?.id > b.dataObject?.id ? 1 : -1));
       this.patchPreReq(this.prereqs);
     }
   }
@@ -963,6 +974,7 @@ export class UpsertDtpComponent implements OnInit {
     payload.associatedStudies = this.associatedStudies;
     payload.associatedObjects = this.associatedObjects;
     payload.associatedUsers = this.associatedUsers;
+    payload.prereqs = this.prereqs;
     this.pdfGeneratorService.dtpPdfGenerator(payload);
   }
 

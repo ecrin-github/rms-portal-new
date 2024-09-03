@@ -173,6 +173,33 @@ export class PdfGeneratorService {
       currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     }
 
+    /* Data Objects Controlled Access Pre-requisites */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Data Objects Controlled Access Prerequisites', currX, currY);
+    
+    currY += offsetT2;
+    if (dtpData.prereqs.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Data Object ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Prerequisite type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Prerequisite details', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        ]
+      ].concat(
+        dtpData.prereqs.map(prereq => [
+          { content: (prereq?.dtpDataObject?.dataObject?.sdOid ? prereq.dtpDataObject.dataObject.sdOid : this.defaultMissingValueText), 
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (prereq?.prereqType?.name ? prereq.prereqType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (prereq.prereqNotes ? prereq.prereqNotes : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      )
+      , doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+    }
+
     /* Associated People */
     currY += offsetSection;
     doc.setFontSize(t2Size);
@@ -258,7 +285,7 @@ export class PdfGeneratorService {
       ])
     }
     bodyData.push([
-      { content: 'Associated Studies', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
+      { content: 'Studies', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
     ]);
 
     for ( let study of dupData.dupStudies) {
@@ -267,7 +294,7 @@ export class PdfGeneratorService {
       ])
     } 
     bodyData.push([
-      { content: 'Associated Objects', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
+      { content: 'Objects', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
     ]);
     for ( let object of dupData.dupObjects) {
       bodyData.push([
