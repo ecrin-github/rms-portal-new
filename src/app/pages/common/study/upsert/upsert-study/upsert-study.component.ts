@@ -537,7 +537,7 @@ export class UpsertStudyComponent implements OnInit {
     if (this.addType === 'usingTrialId') {
       // TODO
       this.spinner.show();
-      this.studyService.getFullStudyFromMdr(this.registryId, this.trialId).subscribe((res: any) => {
+      this.studyService.getStudyFromMdr(this.registryId, this.trialId).subscribe((res: any) => {
         if (res.statusCode === 200) {
           this.toastr.success('Study imported successfully.');
           localStorage.setItem('updateStudyList', 'true');
