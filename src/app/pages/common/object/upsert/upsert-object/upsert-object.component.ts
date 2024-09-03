@@ -290,7 +290,8 @@ export class UpsertObjectComponent implements OnInit {
 
   setObjectTypes(objectTypes) {
     if (objectTypes?.results) {
-      this.objectTypes = objectTypes.results;
+      const { compare } = Intl.Collator('en-GB');
+      this.objectTypes = objectTypes.results.sort((a, b) => compare(a.name, b.name));
     }
   }
 
@@ -411,7 +412,7 @@ export class UpsertObjectComponent implements OnInit {
       displayTitle: this.objectData.displayTitle,
       version: this.objectData.version,
       objectClass: this.objectData.objectClass ? this.objectData.objectClass.id : null,
-      objectType: this.objectData.objectType ? this.objectData.objectType.id : null,
+      objectType: this.objectData.objectType ? this.objectData.objectType : null,
       publicationYear: this.objectData.publicationYear ? new Date(`01/01/${this.objectData.publicationYear}`) : '',
       langCode: this.objectData.langCode ? this.objectData.langCode.id : null,
       organisation: this.objectData.organisation ? this.objectData.organisation.id : null,
@@ -465,7 +466,7 @@ export class UpsertObjectComponent implements OnInit {
         addStudyTopics: true,
         linkedStudy: this.objectForm.value.linkedStudy ? this.objectForm.value.linkedStudy.id : null,
         objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass : null,
-        objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType : null,
+        objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType.id : null,
         organisation: this.objectForm.value.organisation ? this.objectForm.value.organisation : null,
         langCode: this.objectForm.value.langCode,
         accessType: this.objectForm.value.accessType ? this.objectForm.value.accessType.id : null
@@ -788,6 +789,11 @@ export class UpsertObjectComponent implements OnInit {
     return item.sdSid?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
   }
 
+  customSearchObjectTypes(term: string, item) {
+    term = term.toLocaleLowerCase();
+    return item.name?.toLocaleLowerCase().indexOf(term) > -1;
+  }
+
   compareStudies(s1: StudyDataInterface, s2: StudyDataInterface): boolean {
     return s1?.id == s2?.id;
   }
@@ -803,6 +809,10 @@ export class UpsertObjectComponent implements OnInit {
 
   compareAccessTypes(at1: RepoAccessTypeInterface, at2: RepoAccessTypeInterface): boolean {
     return at1?.id === at2?.id;
+  }
+  
+  compareObjectTypes(ot1, ot2): boolean {
+    return ot1?.id === ot2?.id;
   }
 
   setShowControlledDetails() {

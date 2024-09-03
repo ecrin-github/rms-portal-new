@@ -103,10 +103,21 @@
                 </div>
                 <div class="col-md-6">
                     <label for="objectType" class="font-style text-capitalize">Object type</label>
-                    <select id="objectType" class="form-control" formControlName="objectType" *ngIf="!isView" (change)="onTypeChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.objectType.errors }">
-                        <option selected disabled value="null">Please select object type</option>
-                        <option [value]=type.id *ngFor="let type of objectTypes">{{type.name}}</option>
-                    </select>
+                    <ng-select id="objectType" [items]="objectTypes" formControlName="objectType" [compareWith]="compareObjectTypes" 
+                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchObjectTypes"
+                    notFoundText="No object type found" placeholder="Please select the object type"
+                    *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.objectType.errors }" (change)="onTypeChange()">
+                        <ng-template ng-label-tmp let-item="item">
+                            {{item.name}}
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                            <div class="row m-0">
+                                <div class="col-md-8 col-8 p-0 m-0">
+                                    <div class="col-md-12">{{item.name}}</div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </ng-select>
                     <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.objectType.errors">
                         <p *ngIf="isSubmitted && g.objectType.errors.required"> Please enter the data object type</p>
                     </div>  
