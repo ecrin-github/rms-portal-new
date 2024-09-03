@@ -530,7 +530,7 @@ export class UpsertDtpComponent implements OnInit {
         if (isWholeNumber(a.study?.sdSid.slice(5, ))) {
           if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
             // Both a and b are int
-            return parseInt(a.study?.sdSid.slice(5, )) > parseInt(b.study?.sdSid.slice(5, ));
+            return parseInt(a.study?.sdSid.slice(5, )) > parseInt(b.study?.sdSid.slice(5, )) ? 1 : -1;
           }
         } else {
           if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
@@ -563,7 +563,7 @@ export class UpsertDtpComponent implements OnInit {
         if (isWholeNumber(a.dataObject?.sdOid.slice(5, ))) {
           if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
             // Both a and b are int
-            return parseInt(a.dataObject?.sdOid.slice(5, )) > parseInt(b.dataObject?.sdOid.slice(5, ));
+            return parseInt(a.dataObject?.sdOid.slice(5, )) > parseInt(b.dataObject?.sdOid.slice(5, )) ? 1 : -1;
           }
         } else {
           if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
