@@ -24,7 +24,7 @@ import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
-import { dateToString, stringToDate } from 'src/assets/js/util';
+import { dateToString, isWholeNumber, stringToDate } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -523,20 +523,68 @@ export class UpsertDtpComponent implements OnInit {
     return this.dtpService.getDtpStudies(id);
   }
 
+  getSortedDtpStudies(studies) {
+    const { compare } = Intl.Collator('en-GB');
+    studies.sort((a, b) => {
+      if (a.study?.sdSid.length > 5 && b.study?.sdSid.length > 5) {
+        if (isWholeNumber(a.study?.sdSid.slice(5, ))) {
+          if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
+            // Both a and b are int
+            return parseInt(a.study?.sdSid.slice(5, )) > parseInt(b.study?.sdSid.slice(5, )) ? 1 : -1;
+          }
+        } else {
+          if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
+            // a is not int, b is int
+            return 1;
+          } else {
+            // Both a and b are not int
+            return compare(a.study?.sdSid, b.study?.sdsdSidOid);
+          }
+        }
+      }
+      return -1;
+    });
+  }
+
   setDtpStudies(res) {
     if (res) {
-      this.associatedStudies = res.results ? res.results : [];
+      this.getSortedDtpStudies(res.results);
+      this.associatedStudies = res.results;
       if (this.associatedStudies.length > 0) {
         this.addDOButtonDisabled = false;
       }
     }
   }
 
+  getSortedDtpObjects(objects) {
+    const { compare } = Intl.Collator('en-GB');
+    objects.sort((a, b) => {
+      if (a.dataObject?.sdOid.length > 5 && b.dataObject?.sdOid.length > 5) {
+        if (isWholeNumber(a.dataObject?.sdOid.slice(5, ))) {
+          if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
+            // Both a and b are int
+            return parseInt(a.dataObject?.sdOid.slice(5, )) > parseInt(b.dataObject?.sdOid.slice(5, )) ? 1 : -1;
+          }
+        } else {
+          if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
+            // a is not int, b is int
+            return 1;
+          } else {
+            // Both a and b are not int
+            return compare(a.dataObject?.sdOid, b.dataObject?.sdOid);
+          }
+        }
+      }
+      return -1;
+    });
+  }
+
   getDtpObjectsAndInstances(id) {
     return this.dtpService.getDtpObjects(id).pipe(
       map((res: any) => {
         if (res) {
-          this.associatedObjects = res.results ? res.results : [];
+          this.getSortedDtpObjects(res.results);
+          this.associatedObjects = res.results;
           this.embargoData = this.associatedObjects;
           // TODO improve with API for a single call
           this.associatedObjects.map((item, index) => {
@@ -556,10 +604,21 @@ export class UpsertDtpComponent implements OnInit {
     return this.dtpService.getDtpObjectPrereqs(id);
   }
 
+  getSortedPrereqs(prereqs) {
+    const { compare } = Intl.Collator('en-GB');
+    prereqs.sort((a, b) => {
+      if (a.dtpDataObject.dataObject?.sdOid === b.dtpDataObject.dataObject?.sdOid) {
+        return compare(a.prereqType?.name, b.prereqType?.name);
+      } else {
+        return a.dtpDataObject.dataObject?.sdOid > b.dtpDataObject.dataObject?.sdOid ? 1 : -1;
+      }
+    });
+  }
+
   setDtpObjectPrereqs(res) {
     if (res && res.results) {
+      this.getSortedPrereqs(res.results);
       this.prereqs = res.results;
-      this.prereqs.sort((a, b) => (a.dataObject?.id > b.dataObject?.id ? 1 : -1));
       this.patchPreReq(this.prereqs);
     }
   }
@@ -588,9 +647,17 @@ export class UpsertDtpComponent implements OnInit {
     return this.dtpService.getDtpPeople(id);
   }
 
+  getSortedDtpPeople(people) {
+    const { compare } = Intl.Collator('en-GB');
+    people.sort((a, b) => {
+      return compare(a.person?.lastName, b.person?.lastName);
+    });
+  }
+
   setDtpPeople(res) {
     if (res) {
-      this.associatedUsers = res.results ? res.results : [];
+      this.getSortedDtpPeople(res.results);
+      this.associatedUsers = res.results;
     }
   }
 
@@ -963,6 +1030,7 @@ export class UpsertDtpComponent implements OnInit {
     payload.associatedStudies = this.associatedStudies;
     payload.associatedObjects = this.associatedObjects;
     payload.associatedUsers = this.associatedUsers;
+    payload.prereqs = this.prereqs;
     this.pdfGeneratorService.dtpPdfGenerator(payload);
   }
 

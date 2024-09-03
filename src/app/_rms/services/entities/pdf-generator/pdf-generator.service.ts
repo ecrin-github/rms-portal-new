@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { UpsertObjectComponent } from 'src/app/pages/common/object/upsert/upsert-object/upsert-object.component';
-import { dateToString } from 'src/assets/js/util';
 
 
 @Injectable({
@@ -12,7 +11,7 @@ export class PdfGeneratorService {
 
   colNb = 12;
   monthNames = ["January", "February", "March",  "April", "May", "June",  "July", "August", "September", "October", "November", "December"];
-  defaultMissingValueText = '/';
+  defaultMissingValueText = '';
 
   constructor() { }
 
@@ -106,7 +105,7 @@ export class PdfGeneratorService {
     currY += offsetT2;
     currY = this.makeTable([
       [
-        { content: (dtpData.organisation?.defaultName ? dtpData.organisation.defaultName : '/'), rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
+        { content: (dtpData.organisation?.defaultName ? dtpData.organisation.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
       ]
     ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
 
@@ -149,7 +148,7 @@ export class PdfGeneratorService {
           { content: 'Data Object ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
           { content: 'Data Object Title', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
           { content: 'Access Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
-          { content: 'Embargo', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Embargo Until', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
           { content: 'Data Object Instances', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } }
         ]
       ].concat(
@@ -160,7 +159,7 @@ export class PdfGeneratorService {
                         rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
             { content: (obj.dataObject?.accessType?.name ? obj.dataObject.accessType.name : 'Unknown'), 
                         rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-            { content: (obj.dataObject?.embargoExpiry ? ('Until ' + obj.dataObject.embargoExpiry.slice(0, 10)) : '/'), 
+            { content: (obj.dataObject?.embargoExpiry ? (obj.dataObject.embargoExpiry.slice(0, 10)) : this.defaultMissingValueText), 
                         rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
             { content: (obj.dataObject?.objectInstances?.length > 0 ?
               (obj.dataObject?.objectInstances?.map(instance => {
@@ -169,6 +168,33 @@ export class PdfGeneratorService {
                         rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       ), doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+    }
+
+    /* Data Objects Controlled Access Pre-requisites */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Data Objects Controlled Access Prerequisites', currX, currY);
+    
+    currY += offsetT2;
+    if (dtpData.prereqs.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Data Object ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Prerequisite type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Prerequisite details', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        ]
+      ].concat(
+        dtpData.prereqs.map(prereq => [
+          { content: (prereq?.dtpDataObject?.dataObject?.sdOid ? prereq.dtpDataObject.dataObject.sdOid : this.defaultMissingValueText), 
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (prereq?.prereqType?.name ? prereq.prereqType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (prereq.prereqNotes ? prereq.prereqNotes : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      )
+      , doc, currX, currY, 'grid', {}, {});
     } else {
       currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     }
@@ -258,7 +284,7 @@ export class PdfGeneratorService {
       ])
     }
     bodyData.push([
-      { content: 'Associated Studies', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
+      { content: 'Studies', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
     ]);
 
     for ( let study of dupData.dupStudies) {
@@ -267,7 +293,7 @@ export class PdfGeneratorService {
       ])
     } 
     bodyData.push([
-      { content: 'Associated Objects', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
+      { content: 'Objects', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
     ]);
     for ( let object of dupData.dupObjects) {
       bodyData.push([
@@ -370,7 +396,7 @@ export class PdfGeneratorService {
       [
         { content: studyData.studyStatus.name, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: studyData.studyType.name, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-        { content: (studyData.studyStartMonth ? this.monthNames[studyData.studyStartMonth - 1] + ' ' : '') + studyData.studyStartYear, 
+        { content: (studyData.studyStartMonth ? this.monthNames[studyData.studyStartMonth - 1] + ' ' : this.defaultMissingValueText) + studyData.studyStartYear, 
           rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
       ],
     ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
@@ -574,7 +600,7 @@ export class PdfGeneratorService {
   objectPdfGenerator(objectData) {
     const doc = new jsPDF();
 
-    const isShowTopicType = UpsertObjectComponent.isShowTopicType(objectData.objectType?.name ? objectData.objectType.name: '');
+    const isShowTopicType = UpsertObjectComponent.isShowTopicType(objectData.objectType?.name ? objectData.objectType.name: this.defaultMissingValueText);
     const offsetX = 16;
     const offsetY = 25;
     const offsetT1 = 10;
@@ -805,7 +831,7 @@ export class PdfGeneratorService {
           ],
           [
             { content: instance.resourceType?.name ? instance.resourceType.name : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize } },
-            { content: (instance.resourceSize + (instance.resourceSizeUnit?.name ? ' ' + instance.resourceSizeUnit.name : '')), 
+            { content: (instance.resourceSize + (instance.resourceSizeUnit?.name ? ' ' + instance.resourceSizeUnit.name : this.defaultMissingValueText)), 
               rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize } },
           ]
         ]
@@ -874,13 +900,13 @@ export class PdfGeneratorService {
         objectData.objectDates.map(date => [
           { content: (date.dateType?.name ? date.dateType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (date.dateIsRange ? 'Yes' : 'No'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-          { content: (date.startYear ? date.startYear : '') + '-' 
-                      + (date.startMonth ? date.startMonth : '') + '-' 
-                      + (date.startDay ? date.startDay : ''), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (date.startYear ? date.startYear : this.defaultMissingValueText) + '-' 
+                      + (date.startMonth ? date.startMonth : this.defaultMissingValueText) + '-' 
+                      + (date.startDay ? date.startDay : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (date.dateIsRange ? 
-                      ((date.endYear ? date.endYear : '') + '-' 
-                      + (date.endMonth ? date.endMonth : '') + '-' 
-                      + (date.endDay ? date.endDay : '')) : 'N/A'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+                      ((date.endYear ? date.endYear : this.defaultMissingValueText) + '-' 
+                      + (date.endMonth ? date.endMonth : this.defaultMissingValueText) + '-' 
+                      + (date.endDay ? date.endDay : this.defaultMissingValueText)) : 'N/A'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       )
       , doc, currX, currY, 'grid', {}, {});
