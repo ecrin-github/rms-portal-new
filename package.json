@@ -1,6 +1,6 @@
 {
   "name": "rms-portal",
-  "version": "1.5.0",
+  "version": "1.5.1dev",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
