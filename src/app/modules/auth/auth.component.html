@@ -1,7 +1,7 @@
-<div id="flex-container" style="overflow: hidden;">
+<div id="auth-container">
   <header>
-    <div class="row">
-      <div class="col-md-6 pl-10 pt-5">
+    <div class="row hop">
+      <div class="col-4 pl-10 pt-5 hop">
         <div class="dropdown show mt-auto">
           <i class="fas fa-align-justify dropdown-toggle" style="cursor: pointer; font-size: 25px;" aria-hidden="true"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
@@ -14,83 +14,70 @@
             -->
             <a class="dropdown-item" href="javascript:void(0)" (click)="goToDataSharingPolicy()">Data Sharing Policy</a>
             <a class="dropdown-item" href="javascript:void(0)" (click)="goToPrivacy()">Data Privacy Policy</a>
+            <span class="dropdown-item" id="version">{{appVersion}}</span>
           </div>
         </div>
       </div>
-      <div class="col-md-6">
-        <a href="https://ecrin.org/" target="_blank"><img src="./assets/media/logos/ecrin-logo.png"
-            style="height: 55px;" /></a>
+      <div class="col-8 text-right pr-10 hop">
+        <a href="https://ecrin.org/" target="_blank"><img src="./assets/media/logos/ecrin-logo.png" class="tr-logos" alt="ECRIN logo"/></a>
         <a href="https://www.uio.no/english/services/it/research/sensitive-data/" target="_blank"><img
-            src="./assets/media/logos/uio-english.jpg" style="height: 55px;" /></a>
+            src="./assets/media/logos/uio-english.jpg"  class="tr-logos" alt="UiO logo"/></a>
       </div>
     </div>
   </header>
-  <article>
-    <div class="row">
-      <div class="col-md-12 p-10">
-        <div class="row pt-10">
-          <div class="col-md-12 text-center p-0">
-            <img src="./assets/media/logos/crDSRb.png" alt="Clinical Research Data Sharing Repository">
-          </div>
-          <!--
-          <div class="col-md-9 m-auto p-0">
-            <span class="text-uppercase" style="font-size: 35px; font-weight: bold;">Clinical Research Data Sharing Repository</span>
-            <span style="color: #828598 !important; font-weight: 900 !important; margin-left: 1px !important;">
-              {{appVersion}}
-            </span>
-          </div>
-        -->
-        </div>
-        <div class="row pt-10">
-          <div class="col-md-12 text-center">
-            <span style="font-size: x-large;">Supporting clinical researchers in sharing their data</span>
-          </div>
-        </div>
-        <div class="row pt-10">
-          <div class="col-md-4 text-center p-2"><button class="btn btn-primary"
-              style="background: #000091; font-weight: bold;" (click)="login()">Login</button></div>
-          <div class="col-md-4 text-center p-2"><button class="btn btn-primary"
-              style="background: #000091; font-weight: bold;" (click)="goToContact()">Contact Us</button></div>
-          <div class="col-md-4 text-center p-2"><button class="btn btn-primary"
-              style="background: #000091; font-weight: bold;" (click)="goToBrowse()">Browse</button></div>
-        </div>
-      </div>
-      <div class="row pt-10">
-      <div class="col-md-12 p-10">
-        <span style="font-size: large">
-      The clinical research Data Sharing Repository is capable of holding any type of digital object 
-      -data sets, documents, media file etc- in a secure research environment (TRE). 
-      The repository collects the metadata necessary for the Findability of the objects, promoting data sharing in clinical research.
-      </span>
+  <main>
+    <div class="row justify-content-center pt-10" id="logo-div">
+      <img src="./assets/media/logos/crDSRb.png" id="main-logo" alt="Clinical Research Data Sharing Repository">
     </div>
-</div>
-  </div>
-  </article>
-  <footer>
-    <div class="row" style="background-color: #000091;">
-      <div class="col-2 col-md-2 m-auto p-0" style="background: white;">
-        <img src="./assets/media/logos/funded.png" alt="" class="img-fluid">
+    <div class="row pt-4">
+      <div class="col-12 text-center">
+        <span id="tagline">Supporting clinical researchers in sharing their data</span>
       </div>
-      <div class="col-2 col-md-2 m-auto">
-        <ul style="color: white; list-style: none; font-size: 14px; margin-bottom: 0;">
+    </div>
+    <div class="row pt-10">
+      <div class="col-md-4 text-center p-2">
+        <button class="btn btn-primary home-buttons blue" (click)="login()">Login</button>
+      </div>
+      <div class="col-md-4 text-center p-2">
+        <button class="btn btn-primary home-buttons blue" (click)="goToContact()">Contact Us</button>
+      </div>
+      <div class="col-md-4 text-center p-2">
+        <button class="btn btn-primary home-buttons blue" (click)="goToBrowse()">Browse</button>
+      </div>
+    </div>
+    <div class="row pt-10">
+      <div class="col-md-12 pl-20 pr-20 pt-5 text-center display-text">
+        <span id="dsr-desc">
+        The clinical research Data Sharing Repository is capable of holding any type of digital object 
+        -data sets, documents, media file etc- in a secure research environment (TRE). 
+        The repository collects the metadata necessary for the Findability of the objects, promoting data sharing in clinical research.
+        </span>
+      </div>
+    </div>
+  </main>
+  <footer class="blue">
+    <div class="row hop">
+      <div class="col-2 col-md-2 p-0 m-2 d-flex align-items-center" id="funded">
+        <img src="./assets/media/logos/funded.png" alt="Funded by the European Union" class="img-fluid">
+      </div>
+      <div class="col-2 col-md-2 hop">
+        <ul id="links">
           <li style="cursor: pointer;" (click)="goToAbout()">About</li>
           <li style="cursor: pointer;" (click)="goToUserGuide()">User Guide</li>
           <li style="cursor: pointer;" (click)="goToMdr()">crMDR</li>
         </ul>
       </div>
-      <div class="col-5 col-md-5 text-right display-text">
-        <span style="font-size: 9px; color: white;">All Projects are supported by the Horizon Europe and Horizon 2020
+      <div class="col-4 text-right display-text hop">
+        <span id="projects-text">All Projects are supported by the Horizon Europe and Horizon 2020
           Programme.<br> Canserv under GA 101058620, BY-COVID under GA 101046203 <br> EOSC-Life under GA 824087</span>
       </div>
-      <div class="col-3 col-md-3 m-auto">
-        <div class="row">
-          <div class="col-4 col-md-4 p-0"><a href="https://www.eosc-life.eu/" target="_blank"><img
-                src="./assets/media/logos/eoscBW.png" alt="" class="img-fluid"></a></div>
-          <div class="col-4 col-md-4 p-0"><a href="https://by-covid.org/" target="_blank"><img
-                src="./assets/media/logos/bycovdBW.png" alt="" class="img-fluid"></a></div>
-          <div class="col-4 col-md-4 p-0"><a href="https://www.canserv.eu/" target="_blank"><img
-                src="./assets/media/logos/canservBW.png" alt="" class="img-fluid"></a></div>
-        </div>
+      <div class="col hop text-right d-flex align-items-center">
+        <a href="https://www.eosc-life.eu/" target="_blank"><img
+              src="./assets/media/logos/eoscBW.png" alt="EOSC-Life" class="img-fluid"></a>
+        <a href="https://by-covid.org/" target="_blank"><img
+              src="./assets/media/logos/bycovdBW.png" alt="BY-COVID" class="img-fluid"></a>
+        <a href="https://www.canserv.eu/" target="_blank"><img
+              src="./assets/media/logos/canservBW.png" alt="Canserv" class="img-fluid"></a>
       </div>
     </div>
   </footer>
