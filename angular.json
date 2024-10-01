@@ -42,7 +42,8 @@
             ],
             "scripts": [
               "node_modules/apexcharts/dist/apexcharts.min.js",
-              "node_modules/clipboard/dist/clipboard.js"
+              "node_modules/clipboard/dist/clipboard.js",
+              "node_modules/jquery/dist/jquery.min.js"
             ],
             "vendorChunk": true,
             "extractLicenses": false,
@@ -53,6 +54,7 @@
           },
           "configurations": {
             "production": {
+              "index": "src/index_prod.html",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",

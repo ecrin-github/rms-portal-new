@@ -20,6 +20,11 @@ export class AuthComponent implements OnInit {
     this.appVersion = environment.appVersion;
     this.showFooter = this.router.url.includes('contactUs') ? false : true;
   }
+  ngAfterViewInit(): void {
+    if (environment.production) {
+      document.getElementById('matomo-opt-out-icon').style.bottom = "12vh";
+    }
+  }
   login() {
     this.oidcSecurityService.authorize();
   }
