@@ -13,17 +13,10 @@ export class RedirectService {
     ) {}
 
     public postRedirect(instanceId: number, objectId: number, token: string) {
-        // const xhttp = new XMLHttpRequest();
-        // xhttp.open('POST', `https://crr.tsd.usit.no/${environment.tsdUploadPath}/import/${objectId}/${instanceId}`, false);
-        // xhttp.setRequestHeader('Authorization', 'Bearer ' + token);
-        // xhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
-        // xhttp.setRequestHeader('Content-Type', 'text/plain');
-        // console.log(`in post redirect, token: ${token}`);
-
         const form = this.document.createElement('form');
         form.method = 'POST';
         form.target = '_top';
-        form.action = `https://crr.tsd.usit.no/${environment.tsdUploadPath}/import/${objectId}/${instanceId}`;
+        form.action = `https://crdsr.tsd.usit.no/${environment.tsdUploadPath}/import/${objectId}/${instanceId}`;
         const input = this.document.createElement('input');
         input.type = 'hidden';
         input.name = 'id_token';

@@ -902,7 +902,7 @@ export class UpsertDupComponent implements OnInit {
 
   goToTsd() {
     this.router.navigate([])
-    .then(result => { window.open('https://crr.tsd.usit.no/', '_blank'); });
+    .then(result => { window.open('https://crdsr.tsd.usit.no/', '_blank'); });
   }
 
   ngOnDestroy() {
