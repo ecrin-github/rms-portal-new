@@ -31,35 +31,10 @@
                         </div>
                         <div class="row form-group">
                             <div class="col-md-6">
-                                <label for="repository" class="font-style text-capitalize">Repository</label>
-                                <span class="pl-2" *ngIf="!isView" title="Fill in this field manually if uploading to somewhere else than the secure research environment (TSD).">
-                                    <i class="fa fa-info-circle pl-1"></i>
-                                </span>
-                                <input id="repository" type="text" class="form-control" placeholder="Enter the data repository name"
-                                            formControlName="repository" *ngIf="!isView" />
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.repository}}</h6>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="urlAccessible" class="font-style text-capitalize">Direct access to instance</label>
-                                <select id="urlAccessible" class="form-control" formControlName="urlAccessible" *ngIf="!isView" (change)="onChange(i)">
-                                    <option selected disabled value="null">Select an option...</option>
-                                    <option value=false>No</option>
-                                    <option value=true>Yes</option>
-                                </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.urlAccessible ? "Yes" : "No"}}</h6>
-                            </div>
-                        </div>
-                        <div class="row form-group">
-                            <div class="col-md-6">
-                                <label for="url" class="font-style text-capitalize">Access URL</label>
-                                <span class="pl-2" *ngIf="!isView" title="Fill in this field manually if uploading to somewhere else than the secure research environment (TSD).">
-                                    <i class="fa fa-info-circle pl-1"></i>
-                                </span>
-                                <input id="url" type="text" class="form-control" placeholder="https://www.example.org/mydata"
-                                    formControlName="url" *ngIf="!isView"/>
-                                <a href="{{objectInstance.value.url}}">
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
-                                </a>
+                                <label for="title" class="font-style text-capitalize">Title</label>
+                                <input id="title" type="text" class="form-control" placeholder="Enter a title for this instance"
+                                            formControlName="title" *ngIf="!isView" maxlength="200"/>
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.title}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="resourceType" class="font-style text-capitalize">Resource type</label>
@@ -69,6 +44,28 @@
                                     </option>
                                 </select>
                                 <h6 style="font-weight: 100;" *ngIf="isView">{{findResourceType(objectInstance.value.resourceType)}}</h6>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="repository" class="font-style text-capitalize">Repository</label>
+                                <span class="pl-2" *ngIf="!isView" title="Fill in this field manually if the data is uploaded somewhere else than this repository.">
+                                    <i class="fa fa-info-circle pl-1"></i>
+                                </span>
+                                <input id="repository" type="text" class="form-control" placeholder="Enter the data repository name"
+                                            formControlName="repository" *ngIf="!isView" />
+                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.repository}}</h6>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="url" class="font-style text-capitalize">Access URL</label>
+                                <span class="pl-2" *ngIf="!isView" title="Fill in this field manually if the data is uploaded somewhere else than this repository.">
+                                    <i class="fa fa-info-circle pl-1"></i>
+                                </span>
+                                <input id="url" type="text" class="form-control" placeholder="https://www.example.org/mydata"
+                                    formControlName="url" *ngIf="!isView"/>
+                                <a href="{{objectInstance.value.url}}">
+                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
+                                </a>
                             </div>
                         </div>
                         <br />

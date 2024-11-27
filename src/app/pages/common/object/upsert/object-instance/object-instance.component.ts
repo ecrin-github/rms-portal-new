@@ -64,8 +64,8 @@ export class ObjectInstanceComponent implements OnInit {
       sdIid: 'DSRI-' + this.sdOid.slice(5, ) + '.' + (this.totalInstances),
       dataObject: '',
       repository: '',
-      urlAccessible: false,
-      url: [{value: '', disabled: true}],
+      title: '',
+      url: '',
       resourceType: '',
       // resourceSize: 0,
       // resourceSizeUnit: '',
@@ -150,7 +150,7 @@ export class ObjectInstanceComponent implements OnInit {
         sdIid: instance.sdIid,
         dataObject: instance.dataObject,
         repository: instance.repository,
-        urlAccessible: instance.urlAccessible,
+        title: instance.title,
         url: instance.url,
         resourceType: instance.resourceType ? instance.resourceType.id : null,
         // resourceSize: instance.resourceSize,
@@ -166,7 +166,7 @@ export class ObjectInstanceComponent implements OnInit {
     this.spinner.show();
     const payload = this.form.value.objectInstances[index];
     payload.dataObject = this.objectId;
-    payload.urlAccessible = payload.urlAccessible === 'true' ? true : false;
+    payload.urlAccessible = true;
     delete payload.id;
 
     this.objectService.addObjectInstance(this.objectId, payload).subscribe((res: any) => {
@@ -189,7 +189,7 @@ export class ObjectInstanceComponent implements OnInit {
 
   editInstance(instanceObject) {
     const payload = instanceObject.value;
-    payload.urlAccessible = payload.urlAccessible === 'true' ? true : false;
+    payload.urlAccessible = true;
     this.spinner.show();
     this.objectService.editObjectInstance(payload.id, payload.dataObject, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -240,7 +240,6 @@ export class ObjectInstanceComponent implements OnInit {
 
   emitData() {
     const payload = this.form.value.objectInstances.map(item => {
-      item.urlAccessible = item.urlAccessible === 'true' ? true : false;
       if (!item.id) {
         delete item.id;
       }
@@ -250,14 +249,6 @@ export class ObjectInstanceComponent implements OnInit {
       return item;
     })
     this.emitInstance.emit({data: payload, isEmit: false});
-  }
-
-  onChange(index) {
-    if (this.objectInstancesForm().value[index].urlAccessible === 'true' || this.objectInstancesForm().value[index].urlAccessible === true) {
-      this.objectInstancesForm().controls[index].get('url').enable();
-    } else {
-      this.objectInstancesForm().controls[index].get('url').disable();
-    }
   }
 
   scrollToElement(): void {
