@@ -6,20 +6,16 @@
             </div>
             <ng-container *ngIf="!isBrowsing && isOrgIdValid">
                 <div class="col-md-6 text-right">
-                    <a [routerLink]="['/studies', 'add']" [queryParams]="{type: 'manual'}" class="btn btn-success">
-                        <i class="fa fa-plus"></i> New study
-                    </a>
-                    <!-- Adding using trial ID removed for now -->
-                    <!-- <div class="btn-group">
+                    <div class="btn-group">
                         <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false">
                             <i class="fa fa-plus"></i> New study
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/studies/add?type=usingTrialId">Using Trial Registry</a>
-                            <a class="dropdown-item" href="/studies/add?type=manual">Manually</a>
+                            <a class="dropdown-item" [routerLink]="['/studies', 'add']" [queryParams]="{type: 'usingTrialId'}">Using Trial Registry</a>
+                            <a class="dropdown-item" [routerLink]="['/studies', 'add']" [queryParams]="{type: 'manual'}">Manually</a>
                         </div>
-                    </div> -->
+                    </div>
                 </div>    
             </ng-container>
         </div>
@@ -75,12 +71,12 @@
                 <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
                 <mat-cell *matCellDef="let row">
                     <a [routerLink]="isBrowsing ? ['/browsing/studies', row.sdSid, 'view'] : ['/studies', row.sdSid, 'view']">
-                        <i class="fa fa-eye mr-5" style="color:#0688fa;"></i>
+                        <i class="fa fa-eye mr-4" style="color:#0688fa;"></i>
                     </a>
                     <a [routerLink]="['/studies', row.sdSid, 'edit']" *ngIf="!isBrowsing && (row.organisation?.id === orgId || isManager)">
-                        <i class="fa fa-edit mr-5" style="color:#0688fa;"></i>
+                        <i class="fa fa-edit mr-4" style="color:#0688fa;"></i>
                     </a>
-                    <i class="fa fa-trash mr-5" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" 
+                    <i class="fa fa-trash mr-4" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" 
                         *ngIf="!isBrowsing && (row.organisation?.id === orgId || isManager)">
                     </i>
                 </mat-cell>
