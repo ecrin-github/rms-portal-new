@@ -611,6 +611,27 @@ mat-footer-cell:first-of-type {
   font-size: 2.5rem;
 }
 
+.objectinstance-headertext {
+  display: flex;
+  flex: 1 0 auto !important;
+  align-items: center;
+}
+
+.uploadicon-container {
+  flex: 0 0 2rem;
+  margin-right: 1rem;
+}
+
+.upload-icon {
+  font-size: 2rem;
+  color: #3aa677;
+  opacity: 80%;
+}
+
+.mat-expansion-panel-header-instance {
+  padding: 0 1.5rem !important;
+}
+
 #matomo-wrapper {
   display: none;
   position: fixed;
