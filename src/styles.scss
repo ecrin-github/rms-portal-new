@@ -606,7 +606,7 @@ mat-footer-cell:first-of-type {
   padding: 8px;
   border: 2px solid #000091;
   background-color: rgba(255,255,255,0.7);
-  z-index: 49;
+  z-index: 1001 !important;
   color: #000091;
   font-size: 2.5rem;
 }
@@ -639,7 +639,7 @@ mat-footer-cell:first-of-type {
   bottom: 0;
   width: 100%;
   background-color: rgba(0,0,145,0.9);
-  z-index: 50;
+  z-index: 1002 !important;
   color: #FFFFFF;
   font-size: 18px;
   padding: 24px 60px;
