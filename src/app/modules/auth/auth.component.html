@@ -8,12 +8,12 @@
           <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
             <a class="dropdown-item" href="javascript:void(0)" (click)="goToAbout()">About</a>
             <a class="dropdown-item" href="javascript:void(0)" (click)="goToUserGuide()">User Guide</a>
-            <a class="dropdown-item" href="javascript:void(0)" (click)="goToMdr()">MetaData Repository crMDR</a>
             <!-- tbc
             <a class="dropdown-item" href="javascript:void(0)" (click)="goToLegalNotice()">Legal Notice</a>
             -->
             <a class="dropdown-item" href="javascript:void(0)" (click)="goToDataSharingPolicy()">Data Sharing Policy</a>
-            <a class="dropdown-item" href="javascript:void(0)" (click)="goToPrivacy()">Data Privacy Policy</a>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="goToDTP()">Data Transfer Process</a>
+            <a class="dropdown-item" href="javascript:void(0)" (click)="goToMdr()">MetaData Repository crMDR</a>
             <span class="dropdown-item" id="version">{{appVersion}}</span>
           </div>
         </div>
@@ -67,9 +67,9 @@
           <li style="cursor: pointer;" (click)="goToMdr()">crMDR</li>
         </ul>
       </div>
-      <div class="col-4 text-right display-text hop">
+      <div class="col-4 text-right display-text hop pt-1">
         <span id="projects-text">All Projects are supported by the Horizon Europe and Horizon 2020
-          Programme.<br> BY-COVID under GA 101046203 <br> EOSC-Life under GA 824087</span>
+          Programme.<br>GA 824087 (EOSC-Life), GA 101046203 (BY-COVID)</span>
       </div>
       <div class="col hop text-right align-items-center mr-6">
         <a href="https://www.eosc-life.eu/" target="_blank" class="project-logos"><img

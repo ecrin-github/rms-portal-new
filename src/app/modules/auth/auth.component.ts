@@ -56,8 +56,8 @@ export class AuthComponent implements OnInit {
     this.router.navigate([])
     .then(result => { window.open('https://crr.gitbook.io/crdsr/data-sharing-policy', '_tab1'); });
   }
-  goToPrivacy() {
+  goToDTP() {
     this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crr/data-privacy-policy', '_tab1'); });
+    .then(result => { window.open('https://crr.gitbook.io/crdsr/data-transfer-process', '_tab1'); });
   }
 }
