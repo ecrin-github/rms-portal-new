@@ -129,7 +129,7 @@
                     <label for="doi" class="font-style text-capitalize">DOI</label>
                     <input id="doi" type="text" class="form-control" placeholder="Enter the relevant Digital Object Identifier" formControlName="doi"
                         *ngIf="!isView" />
-                    <h6 style="font-weight: 100;" *ngIf="isView"><a [href]='"https://scholar.google.fr/scholar?q="+objectData?.doi' target="_blank">{{objectData?.doi}}</a></h6>
+                    <h6 style="font-weight: 100;" *ngIf="isView"><a [href]='"https://doi.org/"+objectData?.doi' target="_blank">{{objectData?.doi}}</a></h6>
                 </div>
                 <div class="col-md-6">
                     <label for="version" class="font-style text-capitalize">Version</label>
