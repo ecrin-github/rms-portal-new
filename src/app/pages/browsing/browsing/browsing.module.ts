@@ -39,7 +39,7 @@ import { NgxPermissionsModule } from 'ngx-permissions';
         }
       },
       {
-        path: 'study',
+        path: 'studies',
         pathMatch: 'full',
         component: SummaryStudyComponent,
         data: { 
