@@ -20,7 +20,8 @@
                 <div class="col-12 mb-5" [id]="'topicpanel'+i">
                     <mat-expansion-panel [expanded]="studyTopic.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findTopicType(studyTopic.value.topicType)}}: {{studyTopic.value.meshValue}}
+                            {{findTopicType(studyTopic.value.topicType)}}: {{studyTopic.value.meshValue}} 
+                                {{studyTopic.value.originalValue?.name ? "(" + studyTopic.value.originalValue?.name + ")" : ""}}
                         </mat-expansion-panel-header>
 
                         <div class="row form-group">
