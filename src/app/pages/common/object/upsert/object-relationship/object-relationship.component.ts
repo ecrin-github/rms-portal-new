@@ -153,15 +153,15 @@ export class ObjectRelationshipComponent implements OnInit {
     return formArray;
   }
   updatePayload(payload) {
-    if (!payload.objectId && this.objectId) {  // TODO test
+    if (!payload.objectId && this.objectId) {
       payload.objectId = this.objectId;
     }
-    if (payload.targetObject?.sdOid) {
-      payload.targetObject = payload.targetObject.sdOid;
+    if (payload.targetObject?.id) {
+      payload.targetObject = payload.targetObject.id;
     }
   }
   addRelation(index) {
-    if (this.form.value.objectRelationships[index].targetObject?.sdOid === this.objectId) {
+    if (this.form.value.objectRelationships[index].targetObject?.id === this.objectId) {
       this.toastr.error('Data Object can not be put in relationship to itself');
     } else {
       this.spinner.show();
@@ -173,6 +173,7 @@ export class ObjectRelationshipComponent implements OnInit {
         this.spinner.hide();
         if (res.statusCode === 201) {
           this.toastr.success('Object Relationship is added successfully');
+          this.getObjectRelation();
         } else {
           this.toastr.error(res.messages[0]);
         }
@@ -187,7 +188,7 @@ export class ObjectRelationshipComponent implements OnInit {
     }
   }
   editRelation(relationObject) {
-    if (relationObject.value.targetObject?.sdOid === this.objectId) {
+    if (relationObject.value.targetObject?.id === this.objectId) {
       this.toastr.error('Data Object can not be put in relationship to itself');
     } else {
       const payload = relationObject.value;
@@ -197,6 +198,7 @@ export class ObjectRelationshipComponent implements OnInit {
         this.spinner.hide();
         if (res.statusCode === 200) {
           this.toastr.success('Object Relationship updated successfully');
+          this.getObjectRelation();
         } else {
           this.toastr.error(res.messages[0]);
         }
@@ -206,7 +208,7 @@ export class ObjectRelationshipComponent implements OnInit {
         const arr = Object.keys(error.error);
         arr.map((item,index) => {
           this.toastr.error(`${item} : ${error.error[item]}`);
-        })  
+        });
       })
     }
   }

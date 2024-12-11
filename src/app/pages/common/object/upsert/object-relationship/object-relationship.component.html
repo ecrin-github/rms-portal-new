@@ -22,7 +22,7 @@
                 <div class="col-12 mb-5" [id]="'objectrel'+i">
                     <mat-expansion-panel [expanded]="objectRelation.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="text-truncate">
-                            {{findRelationType(objectRelation.value.relationshipType)}}: {{objectRelation.value.targetObject?.sdOid ? objectRelation.value.targetObject.sdOid : objectRelation.value.targetObject ? objectRelation.value.targetObject : ''}}
+                            {{findRelationType(objectRelation.value.relationshipType)}}: {{objectRelation.value.targetObject?.sdOid ? objectRelation.value.targetObject.sdOid : ''}}
                         </mat-expansion-panel-header>
 
                         <div class="row form-group">
@@ -46,7 +46,7 @@
                                         <div class="row m-0">
                                             <div class="col-md-8 col-8 p-0 m-0">
                                                 <div class="col-md-12">{{item.displayTitle}}</div>
-                                                <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.id}}</div>
+                                                <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.sdOid}}</div>
                                             </div>
                                         </div>
                                     </ng-template>
