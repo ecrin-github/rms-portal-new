@@ -141,7 +141,7 @@ export class StudyRelationshipComponent implements OnInit {
     return formArray;
   }
   updatePayload(payload) {
-    if (!payload.studyId && this.studyId) {  // TODO test
+    if (!payload.studyId && this.studyId) {
       payload.studyId = this.studyId;
     }
     if (payload.targetStudy?.id) {
@@ -188,7 +188,11 @@ export class StudyRelationshipComponent implements OnInit {
         }
       }, error => {
         this.spinner.hide();
-        this.toastr.error(error.error.title);
+        // this.toastr.error(error.error.title);
+        const arr = Object.keys(error.error);
+        arr.map((item,index) => {
+          this.toastr.error(`${item} : ${error.error[item]}`);
+        });
       })
     }
   }
