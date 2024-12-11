@@ -638,13 +638,7 @@ export class UpsertStudyComponent implements OnInit {
       behavior: 'smooth' 
     });
   }
-  goToObject(sdOid) {
-    if (this.isBrowsing) {
-      this.router.navigate([`/browsing/data-objects/${sdOid}/view`]);
-    } else {
-      this.router.navigate([`/data-objects/${sdOid}/view`]);
-    }
-  }
+
   ngOnDestroy() {
     this.scrollService.unsubscribeScroll();
     this.subscription.unsubscribe();
