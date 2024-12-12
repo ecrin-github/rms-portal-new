@@ -65,7 +65,7 @@ export class UpsertObjectComponent implements OnInit {
   descriptionTypes: [] = [];
   minEmbargoDate: any;
   isManager: boolean;
-  showControlledDetails: boolean = false;
+  controlled: boolean = false;
   orgId: string;
   isSubmitted: boolean = false;
   isBrowsing: boolean = false;
@@ -442,7 +442,7 @@ export class UpsertObjectComponent implements OnInit {
       objectRights: this.objectData.objectRights ? this.objectData.objectRights : [],
       objectRelationships: this.objectData.objectRelationships ? this.objectData.objectRelationships : []
     });
-    this.setShowControlledDetails();
+    this.setControlled();
   }
 
   onSave() {
@@ -815,16 +815,20 @@ export class UpsertObjectComponent implements OnInit {
     return ot1?.id === ot2?.id;
   }
 
-  setShowControlledDetails() {
-    this.showControlledDetails = (this.objectForm.value.accessType?.name?.toLocaleLowerCase() === 'controlled');
-    if (this.showControlledDetails) {
+  setControlled() {
+    this.controlled = (this.objectForm.value.accessType?.name?.toLocaleLowerCase() === 'controlled');
+    this.showControlledDetails();
+  }
+
+  showControlledDetails() {
+    if (this.controlled) {
       this.g['accessDetails'].setValidators([Validators.required]);
     } else {
       this.g['accessDetails'].clearValidators();
       this.g['accessDetails'].setErrors(null);
     }
   }
-
+  
   gotoTop() {
     window.scroll({ 
       top: 0, 

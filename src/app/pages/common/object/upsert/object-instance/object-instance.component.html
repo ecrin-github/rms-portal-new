@@ -22,7 +22,7 @@
                     <mat-expansion-panel [expanded]="objectInstance.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="mat-expansion-panel-header-instance">
                             <div class="uploadicon-container">
-                                <i class="fa fa-solid fa-file-circle-check upload-icon" *ngIf="objectInstance.value.url"></i>
+                                <i class="fa fa-solid fa-file-circle-check upload-icon" *ngIf="objectInstance.controls['url'].value"></i>
                             </div>
                             <span class="objectinstance-headertext">{{objectInstance.value.sdIid}}: {{objectInstance.value.title || findResourceType(objectInstance.value.resourceType)}}</span>
                         </mat-expansion-panel-header>

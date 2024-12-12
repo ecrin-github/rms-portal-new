@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
@@ -24,6 +24,7 @@ export class ObjectInstanceComponent implements OnInit {
   subscription: Subscription = new Subscription();
   @Input() objectId: string;
   @Input() sdOid: string;
+  @Input() controlled: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   @Input() totalInstances: number;
@@ -63,9 +64,9 @@ export class ObjectInstanceComponent implements OnInit {
       id: '',
       sdIid: 'DSRI-' + this.sdOid.slice(5, ) + '.' + (this.totalInstances),
       dataObject: '',
-      repository: '',
+      repository: {value: '', disabled: (!this.isView ? this.controlled : false)},
+      url: {value: '', disabled: (!this.isView ? this.controlled : false)},
       title: '',
-      url: '',
       resourceType: '',
       // resourceSize: 0,
       // resourceSizeUnit: '',
@@ -155,9 +156,9 @@ export class ObjectInstanceComponent implements OnInit {
         id: instance.id,
         sdIid: instance.sdIid,
         dataObject: instance.dataObject,
-        repository: instance.repository,
         title: instance.title,
-        url: instance.url,
+        repository: {value: instance.repository, disabled: (!this.isView ? this.controlled : false)},
+        url: {value: instance.url, disabled: (!this.isView ? this.controlled : false)},
         resourceType: instance.resourceType ? instance.resourceType.id : null,
         // resourceSize: instance.resourceSize,
         // resourceSizeUnit: instance.resourceSizeUnit ? instance.resourceSizeUnit.id : null,
@@ -275,6 +276,24 @@ export class ObjectInstanceComponent implements OnInit {
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({top: y, behavior: 'smooth'});
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (!this.isView) {
+      if (changes.controlled) {
+        if (changes.controlled.currentValue) {  // Controlled true, disabling
+          this.objectInstancesForm().controls.forEach(inst => {
+            inst.get("url").disable();
+            inst.get("repository").disable();
+          });
+        } else {  // Controlled false, enabling
+          this.objectInstancesForm().controls.forEach(inst => {
+            inst.get("url").enable();
+            inst.get("repository").enable();
+          });
+        }
+      }
+    }
   }
 
   ngOnDestroy() {

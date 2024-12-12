@@ -165,7 +165,7 @@
                     <ng-select id="accessType" [items]="accessTypes" formControlName="accessType" [compareWith]="compareAccessTypes" 
                     [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                     notFoundText="No access type found" placeholder="Please select the data access type"
-                    *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.accessType.errors }" (change)="setShowControlledDetails()">
+                    *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.accessType.errors }" (change)="setControlled()">
                         <ng-template ng-label-tmp let-item="item">
                             {{item.name}}
                         </ng-template>
@@ -203,7 +203,7 @@
                 </div>
             </div>
             <hr *ngIf="isEdit || isView"/>
-            <div class="row form-group" *ngIf="showControlledDetails">
+            <div class="row form-group" *ngIf="controlled">
                 <div class="col-md-12">
                     <label for="accessDetails" class="font-style text-capitalize">Controlled Access Details<sup>*</sup></label>
                     <textarea id="accessDetails" class="form-control" cols="30" rows="5" formControlName="accessDetails"
@@ -375,7 +375,8 @@
                         <mat-expansion-panel-header>
                             <h6 class="pt-3 font-style">Object instance(s)</h6>
                         </mat-expansion-panel-header>
-                        <app-object-instance [objectId]="id" [sdOid]="sdOid" [totalInstances]="totalInstances" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
+                        <app-object-instance [objectId]="id" [sdOid]="sdOid" [totalInstances]="totalInstances" 
+                            [controlled]="controlled" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-instance>
                     </mat-expansion-panel>
                     <hr />
                     <mat-expansion-panel [expanded]="objectData?.objectTitles?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectTitles?.length === 0) ? true : false">
