@@ -44,6 +44,9 @@ export class DataObjectService {
   getObjectInstances(sdOid,pageSize) {
     return this.http.get(`${base}/mdm/data-objects/${sdOid}/object-instances?page_size=${pageSize}`);
   }
+  getPublicObjectInstances(sdOid,pageSize) {
+    return this.http.get(`${base}/mdm/data-objects/${sdOid}/object-instances-public?page_size=${pageSize}`);
+  }
   addObjectInstance(sdOid, payload) {
     return this.http.post(`${base}/mdm/data-objects/${sdOid}/object-instances`, payload);
   }

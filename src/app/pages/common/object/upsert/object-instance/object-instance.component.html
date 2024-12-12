@@ -66,9 +66,14 @@
                                 </span>
                                 <input id="url" type="text" class="form-control" placeholder="https://www.example.org/mydata"
                                     formControlName="url" *ngIf="!isView"/>
-                                <a href="{{objectInstance.value.url}}">
+                                <ng-container *ngIf="objectInstance.value.url != '[hidden]'; else displayHidden">
+                                    <a href="{{objectInstance.value.url}}">
+                                        <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
+                                    </a>
+                                </ng-container>
+                                <ng-template #displayHidden>
                                     <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
-                                </a>
+                                </ng-template>
                             </div>
                         </div>
                         <br />

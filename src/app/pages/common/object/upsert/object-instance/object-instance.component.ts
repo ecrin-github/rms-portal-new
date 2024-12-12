@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ObjectInstanceInterface } from 'src/app/_rms/interfaces/data-object/object-instance.interface';
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -124,7 +124,13 @@ export class ObjectInstanceComponent implements OnInit {
   }
 
   getObjectInstances() {
-    this.objectService.getObjectInstances(this.objectId, this.pageSize).subscribe((res: any) => {
+    let instObs: Observable<Object> = null;
+    if (this.isBrowsing) {
+      instObs = this.objectService.getPublicObjectInstances(this.objectId, this.pageSize);
+    } else {
+      instObs = this.objectService.getObjectInstances(this.objectId, this.pageSize);
+    }
+    instObs.subscribe((res: any) => {
       if (res && res.results) {
         this.objectInstances = res.results.length ? res.results : [];
         this.patchForm(this.objectInstances);
@@ -162,11 +168,21 @@ export class ObjectInstanceComponent implements OnInit {
     return formArray;
   }
 
+  updatePayload(payload) {
+    console.log(payload);
+    if (!payload.dataObject && this.objectId) {
+      payload.dataObject = this.objectId;
+    }
+    if (payload.resourceType?.id) {
+      payload.resourceType = payload.resourceType.id;
+    }
+    console.log(payload);
+  }
+
   addInstance(index) {
     this.spinner.show();
     const payload = this.form.value.objectInstances[index];
-    payload.dataObject = this.objectId;
-    payload.urlAccessible = true;
+    this.updatePayload(payload);
     delete payload.id;
 
     this.objectService.addObjectInstance(this.objectId, payload).subscribe((res: any) => {
@@ -188,9 +204,10 @@ export class ObjectInstanceComponent implements OnInit {
   }
 
   editInstance(instanceObject) {
-    const payload = instanceObject.value;
-    payload.urlAccessible = true;
     this.spinner.show();
+    const payload = instanceObject.value;
+    this.updatePayload(payload);
+
     this.objectService.editObjectInstance(payload.id, payload.dataObject, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
