@@ -40,7 +40,7 @@
                 <label for="registryId" class="font-style text-capitalize">Trial Registry ID</label>
                 <select id="registryId" class="form-control" [(ngModel)]="registryId">
                     <option selected disabled value="">Select an ID...</option>
-                    <option [value]=registry.id *ngFor="let registry of trialRegistries">{{registry.name}}</option>
+                    <option [value]=registry.id *ngFor="let registry of trialRegistries">{{registry.id}} - {{registry.name}}</option>
                 </select>
             </div>
             <div class="col-md-6">
@@ -255,7 +255,8 @@
                         <h6 class="pt-3 font-style">Study object(s)</h6>
                     </mat-expansion-panel-header>
                     <ul>
-                        <li *ngFor="let object of associatedObjects"><a href="javascript:void(0)" (click)="goToObject(object.id)">{{object.displayTitle}} ({{object.sdOid}})</a></li>
+                        <li *ngFor="let object of associatedObjects">
+                            <a [routerLink]="isBrowsing ? ['/browsing/data-objects', object.sdOid, 'view'] : ['/data-objects', object.sdOid, 'view']">{{object.displayTitle}} ({{object.sdOid}})</a></li>
                     </ul>
                 </mat-expansion-panel>
             </ng-container>

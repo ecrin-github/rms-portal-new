@@ -46,8 +46,6 @@ export class LayoutComponent implements OnInit, AfterViewInit {
   @ViewChild('ktHeader', { static: true }) ktHeader: ElementRef;
 
   // Role checker
-  public isExternalUser = false;
-  public isInternalUser = true;
   isBrowsing: boolean = false;
 
   constructor(
@@ -57,16 +55,6 @@ export class LayoutComponent implements OnInit, AfterViewInit {
     private router: Router
   ) {
     this.initService.init();
-
-    // Roles checker
-    if (this.statesService.isExternalUser) {
-      this.isExternalUser = true;
-      this.isInternalUser = false;
-    }
-    if (this.statesService.isInternalUser) {
-      this.isExternalUser = false;
-      this.isInternalUser = true;
-    }
   }
 
   ngOnInit(): void {
@@ -124,16 +112,6 @@ export class LayoutComponent implements OnInit, AfterViewInit {
     this.extrasScrollTopDisplay = this.layout.getProp(
       'extras.scrolltop.display'
     );
-
-    // Roles checker
-    if (this.statesService.isExternalUser) {
-      this.isExternalUser = true;
-      this.isInternalUser = false;
-    }
-    if (this.statesService.isInternalUser) {
-      this.isExternalUser = false;
-      this.isInternalUser = true;
-    }
   }
 
   ngAfterViewInit(): void {

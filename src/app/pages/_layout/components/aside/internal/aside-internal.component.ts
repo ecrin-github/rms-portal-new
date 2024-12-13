@@ -2,6 +2,7 @@ import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { LayoutService } from '../../../../../_rms';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-aside-internal',
@@ -21,15 +22,18 @@ export class AsideInternalComponent implements OnInit {
   asideMenuScroll = 1;
   asideSelfMinimizeToggle = false;
   menuSelected: string = 'dashboard';
+  isBrowsing: boolean = true;
   isManager: boolean = false;
 
   constructor(private statesService: StatesService,
               private layout: LayoutService, 
-              private loc: Location) { }
+              private loc: Location,
+              private router: Router) { }
 
   ngOnInit(): void {
     const orgId = this.statesService.currentAuthOrgId;
     this.isManager = this.statesService.isManager();
+    this.isBrowsing = this.router.url.includes('browsing') ? true : false;
 
     // load view settings
     this.disableAsideSelfDisplay =

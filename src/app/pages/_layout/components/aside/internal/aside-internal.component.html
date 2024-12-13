@@ -26,12 +26,12 @@
       <!-- begin::1 Level -->
       <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active"
         [routerLinkActiveOptions]="{exact: true}">
-        <a class="menu-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <a class="menu-link" [routerLink]="isBrowsing ? '/browsing' : '/'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <i class="fa fa-home svg-icon menu-icon" aria-hidden="true" style="color: aqua;"></i>
           <span class="menu-text" style="color: aqua;">Dashboard</span>
         </a>
       </li>
-      <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active"
+      <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active" *ngIf="!isBrowsing"
         [routerLinkActiveOptions]="{exact: true}">
         <a class="menu-link" routerLink="/data-transfers" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <i class="fas fa-exchange-alt svg-icon menu-icon" aria-hidden="true" style="color: aqua;"></i>
@@ -39,7 +39,7 @@
         </a>
       </li>
 
-      <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active"
+      <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active" *ngIf="!isBrowsing"
         [routerLinkActiveOptions]="{exact: true}">
         <a class="menu-link" routerLink="/data-use" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <i class="fas fa-shield-alt svg-icon menu-icon" aria-hidden="true" style="color: aqua;"></i>
@@ -49,14 +49,14 @@
 
       <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active"
         [routerLinkActiveOptions]="{exact: true}">
-        <a class="menu-link" routerLink="/studies" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <a class="menu-link" [routerLink]="isBrowsing ? '/browsing/studies' : '/studies'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <i class="fas fa-newspaper svg-icon menu-icon" aria-hidden="true" style="color: aqua;"></i>
           <span class="menu-text" style="color: aqua;">Studies</span>
         </a>
       </li>
       <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active"
         [routerLinkActiveOptions]="{exact: true}">
-        <a class="menu-link" routerLink="/data-objects" routerLinkActive="active"
+        <a class="menu-link" [routerLink]="isBrowsing ? '/browsing/data-objects' : '/data-objects'" routerLinkActive="active"
           [routerLinkActiveOptions]="{exact: true}">
           <i class="far fa-folder svg-icon menu-icon" aria-hidden="true" style="color: aqua;"></i>
           <span class="menu-text" style="color: aqua;">Data objects</span>

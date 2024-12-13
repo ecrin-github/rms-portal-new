@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ObjectInstanceInterface } from 'src/app/_rms/interfaces/data-object/object-instance.interface';
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -24,6 +24,7 @@ export class ObjectInstanceComponent implements OnInit {
   subscription: Subscription = new Subscription();
   @Input() objectId: string;
   @Input() sdOid: string;
+  @Input() controlled: string;
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   @Input() totalInstances: number;
@@ -63,9 +64,9 @@ export class ObjectInstanceComponent implements OnInit {
       id: '',
       sdIid: 'DSRI-' + this.sdOid.slice(5, ) + '.' + (this.totalInstances),
       dataObject: '',
-      repository: '',
+      repository: {value: '', disabled: (!this.isView ? this.controlled : false)},
+      url: {value: '', disabled: (!this.isView ? this.controlled : false)},
       title: '',
-      url: '',
       resourceType: '',
       // resourceSize: 0,
       // resourceSizeUnit: '',
@@ -124,7 +125,13 @@ export class ObjectInstanceComponent implements OnInit {
   }
 
   getObjectInstances() {
-    this.objectService.getObjectInstances(this.objectId, this.pageSize).subscribe((res: any) => {
+    let instObs: Observable<Object> = null;
+    if (this.isBrowsing) {
+      instObs = this.objectService.getPublicObjectInstances(this.objectId, this.pageSize);
+    } else {
+      instObs = this.objectService.getObjectInstances(this.objectId, this.pageSize);
+    }
+    instObs.subscribe((res: any) => {
       if (res && res.results) {
         this.objectInstances = res.results.length ? res.results : [];
         this.patchForm(this.objectInstances);
@@ -149,9 +156,9 @@ export class ObjectInstanceComponent implements OnInit {
         id: instance.id,
         sdIid: instance.sdIid,
         dataObject: instance.dataObject,
-        repository: instance.repository,
         title: instance.title,
-        url: instance.url,
+        repository: {value: instance.repository, disabled: (!this.isView ? this.controlled : false)},
+        url: {value: instance.url, disabled: (!this.isView ? this.controlled : false)},
         resourceType: instance.resourceType ? instance.resourceType.id : null,
         // resourceSize: instance.resourceSize,
         // resourceSizeUnit: instance.resourceSizeUnit ? instance.resourceSizeUnit.id : null,
@@ -162,11 +169,21 @@ export class ObjectInstanceComponent implements OnInit {
     return formArray;
   }
 
+  updatePayload(payload) {
+    console.log(payload);
+    if (!payload.dataObject && this.objectId) {
+      payload.dataObject = this.objectId;
+    }
+    if (payload.resourceType?.id) {
+      payload.resourceType = payload.resourceType.id;
+    }
+    console.log(payload);
+  }
+
   addInstance(index) {
     this.spinner.show();
     const payload = this.form.value.objectInstances[index];
-    payload.dataObject = this.objectId;
-    payload.urlAccessible = true;
+    this.updatePayload(payload);
     delete payload.id;
 
     this.objectService.addObjectInstance(this.objectId, payload).subscribe((res: any) => {
@@ -188,9 +205,10 @@ export class ObjectInstanceComponent implements OnInit {
   }
 
   editInstance(instanceObject) {
-    const payload = instanceObject.value;
-    payload.urlAccessible = true;
     this.spinner.show();
+    const payload = instanceObject.value;
+    this.updatePayload(payload);
+
     this.objectService.editObjectInstance(payload.id, payload.dataObject, payload).subscribe((res: any) => {
       this.spinner.hide();
       if (res.statusCode === 200) {
@@ -258,6 +276,24 @@ export class ObjectInstanceComponent implements OnInit {
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({top: y, behavior: 'smooth'});
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (!this.isView) {
+      if (changes.controlled) {
+        if (changes.controlled.currentValue) {  // Controlled true, disabling
+          this.objectInstancesForm().controls.forEach(inst => {
+            inst.get("url").disable();
+            inst.get("repository").disable();
+          });
+        } else {  // Controlled false, enabling
+          this.objectInstancesForm().controls.forEach(inst => {
+            inst.get("url").enable();
+            inst.get("repository").enable();
+          });
+        }
+      }
+    }
   }
 
   ngOnDestroy() {

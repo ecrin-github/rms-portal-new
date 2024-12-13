@@ -20,7 +20,7 @@ import { StudyInterface } from 'src/app/_rms/interfaces/study/study.interface';
 export class StudyRelationshipComponent implements OnInit {
   form: UntypedFormGroup;
   relationshipType: [] = [];
-  studyType:[] = [];
+  studies:[] = [];
   subscription: Subscription = new Subscription();
   @Input() isView: boolean;
   @Input() isEdit: boolean;
@@ -108,7 +108,7 @@ export class StudyRelationshipComponent implements OnInit {
   getStudyList() {
     this.listService.getStudyList(this.pageSize, '').subscribe((res: any) => {
       if (res && res.results) {
-        this.studyType = res.results.length ? res.results : [];
+        this.studies = res.results.length ? res.results : [];
       }
     }, error => {
       this.toastr.error(error.error.title);
@@ -124,8 +124,8 @@ export class StudyRelationshipComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
-  patchForm(relationhips) {
-    this.form.setControl('studyRelationships', this.patchArray(relationhips));
+  patchForm(relationships) {
+    this.form.setControl('studyRelationships', this.patchArray(relationships));
   }
   patchArray(relationships): UntypedFormArray {
     const formArray = new UntypedFormArray([]);
@@ -141,7 +141,7 @@ export class StudyRelationshipComponent implements OnInit {
     return formArray;
   }
   updatePayload(payload) {
-    if (!payload.studyId && this.studyId) {  // TODO test
+    if (!payload.studyId && this.studyId) {
       payload.studyId = this.studyId;
     }
     if (payload.targetStudy?.id) {
@@ -188,7 +188,11 @@ export class StudyRelationshipComponent implements OnInit {
         }
       }, error => {
         this.spinner.hide();
-        this.toastr.error(error.error.title);
+        // this.toastr.error(error.error.title);
+        const arr = Object.keys(error.error);
+        arr.map((item,index) => {
+          this.toastr.error(`${item} : ${error.error[item]}`);
+        });
       })
     }
   }
@@ -197,7 +201,7 @@ export class StudyRelationshipComponent implements OnInit {
     return relationArray && relationArray.length ? relationArray[0].name : '';
   }
   findStudyTitle(id) {
-    const studyArray: any = this.studyType.filter((type: any) => type.studyId === id);
+    const studyArray: any = this.studies.filter((type: any) => type.studyId === id);
     return studyArray && studyArray.length ? studyArray[0].displayTitle : ''
   }
   emitData() {
