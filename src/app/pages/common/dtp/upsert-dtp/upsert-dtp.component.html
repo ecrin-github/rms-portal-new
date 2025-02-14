@@ -470,9 +470,9 @@
                                     <ul>
                                         <li *ngFor="let object of associatedObjects; let i = index" class="pl-4">
                                             <a [routerLink]="['/data-objects', object.dataObject?.sdOid, 'view']">
-                                                {{object.dataObject?.sdOid}}
+                                                {{object.dataObject?.sdOid}}-
                                             </a>
-                                            <span title="{{object.dataObject?.displayTitle}}">({{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}})</span>
+                                            <span class="associated-do-title" title="{{object.dataObject?.displayTitle}}">{{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}}</span>
                                             <i class="fa fa-times pl-3" (click)="removeDtpObject(object.id)"
                                                 *ngIf="!isView"></i>
 
@@ -492,15 +492,18 @@
                                             <!-- DO Instances -->
                                             <ng-container *ngIf="instanceArray[i]?.length <= 0">
                                                 <ul style="list-style-type: none;">
-                                                    <li style="font-style:italic" class="associated-do-li">currently there are no instances related to the data object, please create some before uploading<span class="pl-2"><button class="btn btn-success btn-sm"(click)="goToDo(object)">Create one</button></span></li>
+                                                    <li style="font-style:italic" class="dtp-associated-do-li">Currently there are no instances related to the data object, please create at least one before uploading
+                                                        <span class="pl-2">
+                                                            <a class="btn btn-sm btn-success" style="font-style:normal" [routerLink]="['/data-objects', object.dataObject?.sdOid, 'edit']">Create one</a>
+                                                        </span>
+                                                    </li>
                                                 </ul>
                                             </ng-container>
                                             <ng-container *ngIf="instanceArray[i]?.length > 0">
                                                 <ul style="list-style-type: square;">
-                                                    <li *ngFor="let instance of instanceArray[i]" class="associated-do-li">
+                                                    <li *ngFor="let instance of instanceArray[i]" class="dtp-associated-do-li">
                                                         {{instance.sdIid ? instance.sdIid : '\<No instance ID\>'}}: 
-                                                        {{instance.resourceType?.name ? instance.resourceType?.name : 'No resource type defined'}}
-                                                        <span title="{{instance.resourceComments}}">({{(instance.resourceComments.length === 0) ? 'No comments' : ((instance.resourceComments.length <= sliceLength) ? instance.resourceComments : (instance.resourceComments | slice:0:sliceLength) + '...')}})</span>
+                                                        {{instance.title ? instance.title : '\<No title\>'}} ({{instance.resourceType?.name ? instance.resourceType?.name : '\<No resource type defined\>'}})
                                                         <ng-container *ngIf="!checkUrl(instance.url); else alreadyUploaded">
                                                             <ng-container *ngIf="isView; else notView">
                                                                 <ng-container *ngIf="lastCompletedStep >= 3; else missingSteps">
