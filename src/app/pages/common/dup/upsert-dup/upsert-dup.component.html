@@ -15,9 +15,9 @@
                                 <i class="fa fa-edit"></i> Edit
                             </a>
                         </ng-container>
-                        <!-- <button class="btn btn-primary mr-1" (click)="printDocument()">
+                        <button class="btn btn-primary mr-1" (click)="printDocument()">
                             <i class="fa fa-print"></i> PDF
-                        </button> -->
+                        </button>
                         <button class="btn btn-primary mr-1" (click)="jsonExport()">
                             <i class="fa fa-code"></i> JSON
                         </button>
@@ -99,10 +99,10 @@
                                         </div>
                                     </a>
                                     <a class="stepper-step" href="javascript:;" data-stepper-state=""
-                                        title="Check that pre-requisites are met, preparation of the DUA">
+                                        title="Check that prerequisites are met, preparation of the DUA">
                                         <div class="stepper-label">
                                             <i class="stepper-icon flaticon-responsive"></i>
-                                            <h3 class="stepper-title">Pre-reqs check, agreement preparation</h3>
+                                            <h3 class="stepper-title">Prereqs check, agreement preparation</h3>
                                             <i class="fa fa-check-circle stepper-exclamation-circle" *ngIf="lastCompletedStep > 1"></i>
                                             <i class="fa fa-exclamation-circle stepper-check-circle" *ngIf="lastCompletedStep === 1"></i>
                                         </div>
@@ -168,7 +168,7 @@
                                 <div *ngIf="currentStep === 2"  class="col-md-12">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <label for="" class="font-style text-capitalize">Pre-requisites met</label>
+                                            <label for="" class="font-style text-capitalize">Prerequisites met</label>
                                             <div class="form-group" *ngIf="!isView">
                                                 <div class="input-group">
                                                     <input class="form-control" placeholder="yyyy-mm-dd"
@@ -538,36 +538,77 @@
                                 </ng-container>
                                 <ng-container *ngIf="associatedObjects.length > 0">
                                     <ul>
-                                        <li *ngFor="let object of associatedObjects; let i = index" class="pl-4">
+                                        <li *ngFor="let object of associatedObjects; let i = index" class="pl-2 pt-5">
                                             <a [routerLink]="['/data-objects', object.dataObject?.sdOid, 'view']">
-                                                {{object.dataObject?.sdOid}}
+                                                {{object.dataObject?.sdOid}} -
                                             </a>
-                                            <span title="{{object.dataObject?.displayTitle}}">({{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}})</span>
+                                            <span class="associated-do-title" title="{{object.dataObject?.displayTitle}}">{{(object.dataObject?.displayTitle && object.dataObject?.displayTitle.length <= sliceLength) ? object.dataObject?.displayTitle : (object.dataObject?.displayTitle | slice:0:sliceLength) + '...'}}</span>
                                             <i class="fa fa-times pl-3" (click)="removeDupObject(object.id)"
                                                 *ngIf="!isView"></i>
 
-                                            <!-- Access type and embargo -->
-                                            <div class="d-inline-flex align-items-center alert alert-info" 
-                                                [ngClass]="i === 0 ? 'alert-small-first' : 'alert-small'" role="alert">
-                                                <div class="pr-2">
-                                                    <i class="fa fa-info-circle fa-lg info-icon"></i>
-                                                </div>
-                                                <div class="capitalize-first-word">
-                                                    {{object.dataObject?.accessType?.name ? (object.dataObject.accessType.name + ' access') : 'unknown access type'}},
-                                                    <!-- fix date here -->
-                                                    {{object.dataObject?.embargoExpiry ? ('embargo until: ' + object.dataObject?.embargoExpiry.slice(0, 10))  : 'no embargo'}}
-                                                </div>
-                                            </div>
+                                            <!-- DO Instances -->
+                                            <ul style="list-style-type: circle;">
+                                                <li class="li-subtitle pt-1">Data object instances</li>
+                                                <ng-container *ngIf="associatedObjects[i]?.dataObject?.objectInstances?.length > 0; else noInstances">
+                                                    <ul style="list-style-type: square;">
+                                                        <li *ngFor="let instance of associatedObjects[i]?.dataObject?.objectInstances" class="dup-associated-do-li">
+                                                            {{instance.sdIid ? instance.sdIid : '\<No instance ID\>'}}: 
+                                                            {{instance.title ? instance.title : '\<No title\>'}} ({{instance.resourceType?.name ? instance.resourceType?.name : '\<No resource type defined\>'}})
+                                                            <ng-container *ngIf="checkUrl(instance.url); else notUploaded">
+                                                                <ng-container *ngIf="isView; else notView">
+                                                                    <ng-container *ngIf="lastCompletedStep >= 2; else missingSteps">
+                                                                        <ng-container *ngIf="canAccess(); else unauthorized">
+                                                                            <span class="pl-2" title="Data upload to the TSD Repository">
+                                                                                <a class="btn btn-sm btn-success" target="_blank" href="{{instance.url}}">Access data</a>
+                                                                            </span>
+                                                                        </ng-container>
+                                                                        <ng-template #unauthorized>
+                                                                            <span class="pl-2" title="You have to be part of the associated people (below) of the DUP to be able to get access to the data">
+                                                                                <button class="btn btn-sm btn-secondary" disabled>Access data</button>
+                                                                            </span>
+                                                                        </ng-template>
+                                                                    </ng-container>
+                                                                    <ng-template #missingSteps>
+                                                                        <span class="pl-2" title="DUP step should be at 'Availability of the data' to be able to access the data">
+                                                                            <button class="btn btn-sm btn-secondary" disabled>Access data</button>
+                                                                        </span>
+                                                                    </ng-template>
+                                                                </ng-container>
+                                                                <ng-template #notView>
+                                                                    <span class="pl-2" title="Data access is not enabled when editing the DUP">
+                                                                        <button class="btn btn-sm btn-secondary" disabled>Access data</button>
+                                                                    </span>
+                                                                </ng-template>
+                                                            </ng-container>
+                                                            <ng-template #notUploaded>
+                                                                <span class="pl-2" title="Data needs to be uploaded to TSD before accessing it">
+                                                                    <button class="btn btn-sm btn-secondary" disabled>Data not uploaded</button>
+                                                                </span>
+                                                            </ng-template>
+                                                        </li>
+                                                    </ul>
+                                                </ng-container>
+                                                <ng-template #noInstances>
+                                                    <ul style="list-style-type: none;">
+                                                        <li style="font-style:italic" class="dup-associated-do-li">There are no instances related to the data object, please create at least one before uploading and requesting access
+                                                            <span class="pl-2">
+                                                                <a [routerLink]="['/data-objects', object.dataObject?.sdOid, 'edit']" style="font-style:normal" class="btn btn-success btn-sm">Go to data object</a>
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+                                                </ng-template>
+                                                <!-- Prereqs-->
+                                                <li class="li-subtitle">Access prerequisites</li>
+                                                <ng-container *ngIf="prereqs[i]?.length > 0">
+                                                    <ul style="list-style-type: square;">
+                                                        <li *ngFor="let prereq of prereqs[i]">
+                                                            {{prereq.prereqType?.name ? prereq.prereqType.name : 'Unknown prerequisite type'}}
+                                                            <span title="{{prereq.prereqNotes}}">: {{(prereq.prereqNotes?.length > sliceLength) ? ((prereq.prereqNotes | slice:0:sliceLength) + '...'): (prereq.prereqNotes)}}</span>
+                                                        </li>
+                                                    </ul>
+                                                </ng-container>
+                                            </ul>
 
-                                            <!-- DO instances -->
-                                            <ng-container *ngIf="prereqs[i]?.length > 0">
-                                                <ul style="list-style-type: square;">
-                                                    <li *ngFor="let prereq of prereqs[i]">
-                                                        {{prereq.prereqType?.name ? prereq.prereqType.name : 'Unknown prerequisite type'}} 
-                                                        <span title="{{prereq.prereqNotes}}">({{(prereq.prereqNotes?.length > sliceLength) ? ((prereq.prereqNotes | slice:0:sliceLength) + '...'): (prereq.prereqNotes)}})</span>
-                                                    </li>
-                                                </ul>
-                                            </ng-container>
                                         </li>
                                     </ul>
                                 </ng-container>
