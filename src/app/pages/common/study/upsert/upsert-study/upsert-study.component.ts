@@ -84,7 +84,7 @@ export class UpsertStudyComponent implements OnInit {
       sdSid: '',
       displayTitle: ['', Validators.required],
       briefDescription: '',
-      dataSharingStatement: '',
+      dataSharingStatement: ['', Validators.required],
       organisation: null,
       studyType: [null, Validators.required],
       studyStatus: [null, Validators.required],

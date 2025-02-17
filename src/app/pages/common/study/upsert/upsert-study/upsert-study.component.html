@@ -125,7 +125,7 @@
                         <p-calendar id="studyStartYear" formControlName="studyStartYear" view="year" dateFormat="yy"
                             *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStartYear.errors }" placeholder="Select a year"></p-calendar>
                         <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.studyStartYear.errors">
-                            <p *ngIf="isSubmitted && g.studyStartYear.errors.required"> Please enter the study start year</p>
+                            <p *ngIf="isSubmitted && g.studyStartYear.errors.required">Please enter the study start year</p>
                         </div>
                         <h6 *ngIf="isView" class="text-value">{{studyData?.studyStartYear}}</h6>
                     </div>
@@ -141,9 +141,12 @@
                 </div>
                 <div class="row form-group">
                     <div class="col-md-12">
-                        <label for="dataSharingStatement" class="font-style text-capitalize">Data sharing statement</label>
+                        <label for="dataSharingStatement" class="font-style text-capitalize">Data sharing statement*</label>
                         <textarea class="form-control" cols="30" rows="5" placeholder="Please enter a Data sharing statement related to your submission, e.g. ‘Submitter agrees that data can be shared with others by the repository manager’, or ‘Any request of sharing the data should be agreed directly with the submitter’, etc."
                             formControlName="dataSharingStatement" *ngIf="!isView" id="dataSharingStatement"></textarea>
+                        <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.dataSharingStatement.errors">
+                            <p *ngIf="isSubmitted && g.dataSharingStatement.errors.required">Please enter a data sharing statement</p>
+                        </div>
                         <h6 *ngIf="isView" class="text-value">{{studyData?.dataSharingStatement}}</h6>
                     </div>
                 </div>
