@@ -203,18 +203,6 @@
                 </div>
             </div>
             <hr *ngIf="isEdit || isView"/>
-            <div class="row form-group" *ngIf="controlled">
-                <div class="col-md-12">
-                    <label for="accessDetails" class="font-style text-capitalize">Controlled Access Details<sup>*</sup></label>
-                    <textarea id="accessDetails" class="form-control" cols="30" rows="5" formControlName="accessDetails"
-                        placeholder="Please enter the details for the controlled access of the data (e.g. organisation guidelines)"
-                        *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.accessDetails.errors }"></textarea>
-                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectData?.accessDetails ? objectData.accessDetails : ''}}</h6>
-                    <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors">
-                        <p *ngIf="isSubmitted && objectDatasetsControls.recordkeyType.errors.required">Please select anonymisation type</p>
-                    </div>
-                </div>
-            </div>
             <div formGroupName="objectDatasets" *ngIf="showDatasetKey">
                 <div class="row">
                     <div class="col-md-12 text-center">
