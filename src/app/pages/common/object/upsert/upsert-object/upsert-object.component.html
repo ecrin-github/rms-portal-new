@@ -66,12 +66,12 @@
                     </div>
                     <ng-container *ngIf="isView">
                         <ng-container *ngIf="objectData?.linkedStudy; else noLinkedStudy">
-                            <a href="javascript:void(0)" (click)="goToParentStudy(objectData?.linkedStudy?.sdSid)" style="cursor: pointer;">
-                                <h6 class="text-value">{{objectData?.linkedStudy ? objectData?.linkedStudy?.sdSid : 'None'}}</h6>
-                            </a>
+                            <h6 class="text-value">
+                                <a [routerLink]="isBrowsing ? ['/browsing/studies', objectData.linkedStudy.sdSid, 'view'] : ['/studies', objectData.linkedStudy.sdSid, 'view']">{{objectData.linkedStudy.sdSid}}</a>
+                            </h6>
                         </ng-container>
                         <ng-template #noLinkedStudy>
-                            <h6 class="text-value">{{objectData?.linkedStudy ? objectData?.linkedStudy?.sdSid : 'None'}}</h6>
+                            <h6 class="text-value">None</h6>
                         </ng-template>
                     </ng-container>
                     <br *ngIf="isView || isEdit">
@@ -160,7 +160,7 @@
             </div>
             <br />
             <div class="row form-group">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <label for="accessType" class="font-style text-capitalize">Access type<sup>*</sup></label>
                     <ng-select id="accessType" [items]="accessTypes" formControlName="accessType" [compareWith]="compareAccessTypes" 
                     [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
@@ -182,7 +182,7 @@
                         <p *ngIf="isSubmitted && g.accessType.errors">Please select the type of access to the data</p>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <label for="embargoExpiry" class="font-style text-capitalize">Embargo expiry date</label>
                     <div class="input-group" *ngIf="!isView">
                         <input class="form-control" placeholder="Leave empty if no embargo"
@@ -201,9 +201,33 @@
                         <p *ngIf="isSubmitted && g.embargoExpiry.errors">Please enter a valid date (date must be greater than today's date)</p>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <label class="font-style text-capitalize">Parent study data sharing statement</label>
+                    <ng-container *ngIf="!isAdd; else isAddDss">
+                        <mat-expansion-panel>
+                            <mat-expansion-panel-header>
+                                <h6 class="pt-3 font-style">Display data sharing statement</h6>
+                            </mat-expansion-panel-header>
+                            <h6 class="text-value">{{objectData?.linkedStudy?.dataSharingStatement ? objectData.linkedStudy.dataSharingStatement : 'No data sharing statement'}}</h6>
+                        </mat-expansion-panel>
+                    </ng-container>
+                    <ng-template #isAddDss>
+                        <ng-container *ngIf="objectForm?.value?.linkedStudy; else noParentStudy">
+                            <mat-expansion-panel>
+                                <mat-expansion-panel-header>
+                                    <h6 class="pt-3 font-style">Display data sharing statement</h6>
+                                </mat-expansion-panel-header>
+                                <h6 class="text-value">{{objectForm.value.linkedStudy.dataSharingStatement ? objectForm.value.linkedStudy.dataSharingStatement : 'No data sharing statement'}}</h6>
+                            </mat-expansion-panel>
+                        </ng-container>
+                        <ng-template #noParentStudy>
+                            <h6 class="text-value">Select a parent study to display its data sharing statement</h6>
+                        </ng-template>
+                    </ng-template>
+                </div>
             </div>
-            <hr *ngIf="isEdit || isView"/>
             <div formGroupName="objectDatasets" *ngIf="showDatasetKey">
+                <hr/>
                 <div class="row">
                     <div class="col-md-12 text-center">
                         <span class="pt-3 font-style">Dataset anonymisation status</span>

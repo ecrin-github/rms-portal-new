@@ -776,14 +776,6 @@ export class UpsertObjectComponent implements OnInit {
     })
   }
 
-  goToParentStudy(sdSid) {
-    if (this.isBrowsing) {
-      this.router.navigate([`/browsing/studies/${sdSid}/view`]);
-    } else {
-      this.router.navigate([`/studies/${sdSid}/view`]);
-    }
-  }
-
   customSearchStudies(term: string, item) {
     term = term.toLocaleLowerCase();
     return item.sdSid?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
