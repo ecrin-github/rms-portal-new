@@ -30,6 +30,7 @@ export class SummaryObjectComponent implements OnInit {
     {'value': 'displayTitle', 'text': 'Title'},
     {'value': 'organisation.defaultName', 'text': 'Organisation'},
     {'value': 'objectType.name', 'text': 'Object Type'},
+    {'value': 'accessType.name', 'text': 'Access'},
     {'value': 'linkedStudy.sdSid', 'text': 'Linked Study'},
   ]
   filterColumn: string = 'displayTitle';
