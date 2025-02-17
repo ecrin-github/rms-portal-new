@@ -54,6 +54,11 @@
                 <mat-cell *matCellDef="let row">{{row.objectType?.name}}</mat-cell>
             </ng-container>
 
+            <ng-container matColumnDef="access">
+                <mat-header-cell *matHeaderCellDef>Access</mat-header-cell>
+                <mat-cell *matCellDef="let row">{{row.accessType?.name}}</mat-cell>
+            </ng-container>
+
             <ng-container matColumnDef="linkedStudy">
                 <mat-header-cell *matHeaderCellDef>Linked study</mat-header-cell>
                 <mat-cell *matCellDef="let row">

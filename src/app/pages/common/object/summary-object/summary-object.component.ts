@@ -33,7 +33,7 @@ export class SummaryObjectComponent implements OnInit {
     {'value': 'linkedStudy.sdSid', 'text': 'Linked Study'},
   ]
   filterColumn: string = 'displayTitle';
-  displayedColumns = ['sdOid', 'objectTitle', 'objectOrganisation', 'objectType', 'linkedStudy', 'actions'];
+  displayedColumns = ['sdOid', 'objectTitle', 'objectOrganisation', 'objectType', 'access', 'linkedStudy', 'actions'];
   usedURLs = ['/', '/browsing', '/data-objects'];
   dataSource: MatTableDataSource<ObjectListEntryInterface>;
   searchText: string = '';
