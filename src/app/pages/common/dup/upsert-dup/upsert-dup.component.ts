@@ -17,7 +17,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
-import { dateToString, stringToDate } from 'src/assets/js/util';
+import { dateToString, isWholeNumber, stringToDate } from 'src/assets/js/util';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
 
 @Component({
@@ -641,8 +641,9 @@ export class UpsertDupComponent implements OnInit {
   }
 
   setDupStudies(res) {
-    if (res) {
-      this.associatedStudies = res.results ? res.results : [];
+    if (res?.results?.length > 0) {
+      this.getSortedDupStudies(res.results);
+      this.associatedStudies = res.results;
       if (this.associatedStudies.length > 0) {
         this.addDOButtonDisabled = false;
       }
@@ -693,7 +694,7 @@ export class UpsertDupComponent implements OnInit {
     return this.dupService.getDupObjects(id).pipe(
       mergeMap((res: any) => {
         if (res?.results?.length > 0) {
-          // TODO: this.getSortedDtpObjects(res.results);
+          this.getSortedDupObjects(res.results);
           this.associatedObjects = res.results;
           this.dataObjectIds = this.associatedObjects.map((assocDo: any) => assocDo.dataObject.id);
           return this.getDupObjectPrereqs(this.dataObjectIds);
@@ -732,6 +733,52 @@ export class UpsertDupComponent implements OnInit {
     }, error => {
       this.toastr.error(error.error.title);
     })
+  }
+
+  getSortedDupStudies(studies) {
+    const { compare } = Intl.Collator('en-GB');
+    studies.sort((a, b) => {
+      if (a.study?.sdSid.length > 5 && b.study?.sdSid.length > 5) {
+        if (isWholeNumber(a.study?.sdSid.slice(5, ))) {
+          if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
+            // Both a and b are int
+            return parseInt(a.study?.sdSid.slice(5, )) > parseInt(b.study?.sdSid.slice(5, )) ? 1 : -1;
+          }
+        } else {
+          if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
+            // a is not int, b is int
+            return 1;
+          } else {
+            // Both a and b are not int
+            return compare(a.study?.sdSid, b.study?.sdSid);
+          }
+        }
+      }
+      return -1;
+    });
+  }
+
+  getSortedDupObjects(objects) {
+    const { compare } = Intl.Collator('en-GB');
+    objects.sort((a, b) => {
+      if (a.dataObject?.sdOid.length > 5 && b.dataObject?.sdOid.length > 5) {
+        if (isWholeNumber(a.dataObject?.sdOid.slice(5, ))) {
+          if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
+            // Both a and b are int
+            return parseInt(a.dataObject?.sdOid.slice(5, )) > parseInt(b.dataObject?.sdOid.slice(5, )) ? 1 : -1;
+          }
+        } else {
+          if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
+            // a is not int, b is int
+            return 1;
+          } else {
+            // Both a and b are not int
+            return compare(a.dataObject?.sdOid, b.dataObject?.sdOid);
+          }
+        }
+      }
+      return -1;
+    });
   }
 
   addUser() {
