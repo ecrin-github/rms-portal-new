@@ -65,7 +65,7 @@
                                     <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.organisation.errors">
                                         <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>
                                     </div>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">
+                                    <h6 class="text-value" *ngIf="isView">
                                         {{findOrganization(dtpData?.organisation?.id)}}</h6>
                                 </div>
                                 <div class="col-md-6">
@@ -77,14 +77,14 @@
                                             Name
                                         </p>
                                     </div>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.displayName}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{dtpData?.displayName}}</h6>
                                 </div>
                             </div>
                             <div class="row form-group" *ngIf="isEdit || isView">
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize pr-5">Status</label>
-                                    <h6 style="font-weight: 100;" *ngIf="!isView">{{g.status?.value?.name}}</h6>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{dtpData?.status?.name}}</h6>
+                                    <h6 class="text-value" *ngIf="!isView">{{g.status?.value?.name}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{dtpData?.status?.name}}</h6>
                                 </div>
                             </div>
                             <div class="stepper-nav border-bottom">
@@ -148,7 +148,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                            <h6 class="text-value" *ngIf="isView">
                                                 {{viewDate(dtpData?.setUpStartDate)}}</h6>
                                         </div>
                                         <div class="col-md-6">
@@ -169,7 +169,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                            <h6 class="text-value" *ngIf="isView">
                                                 {{viewDate(dtpData?.setUpCompleteDate)}}</h6>
                                         </div>
                                     </div>
@@ -194,7 +194,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                            <h6 class="text-value" *ngIf="isView">
                                                 {{viewDate(dtpData?.mdCompleteDate)}}</h6>
                                         </div>
                                         <div class="col-md-6">
@@ -215,7 +215,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                            <h6 class="text-value" *ngIf="isView">
                                                 {{viewDate(dtpData?.dtaAgreedDate)}}</h6>
                                         </div>
                                     </div>
@@ -240,7 +240,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                            <h6 class="text-value" *ngIf="isView">
                                                 {{viewDate(dtpData?.qcChecksCompleteDate)}}</h6>
                                         </div>
                                     </div>
@@ -265,7 +265,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <h6 style="font-weight: 100;" *ngIf="isView">
+                                            <h6 class="text-value" *ngIf="isView">
                                                 {{viewDate(dtpData?.uploadCompleteDate)}}</h6>
                                         </div>
                                     </div>
@@ -297,7 +297,7 @@
                                             conforms to default</label>
                                         <input class="form-check-input ml-4" type="checkbox" id="conformsToDefault"
                                             formControlName="conformsToDefault" (change)="conformsToDefaultChange()" *ngIf="!isView">
-                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                        <h6 class="text-value" *ngIf="isView">
                                             {{dtaData && dtaData[0]?.conformsToDefault ? 'Yes' : 'No'}}
                                         </h6>
                                     </div>
@@ -305,7 +305,7 @@
                                         <label for="variations" class="font-style text-capitalize">variations</label>
                                         <textarea cols="30" rows="3" class="form-control" id="variations" formControlName="variations"
                                             *ngIf="!isView"></textarea>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? dtaData[0]?.variations : ''}}
+                                        <h6 class="text-value" *ngIf="isView">{{dtaData ? dtaData[0]?.variations : ''}}
                                         </h6>
                                     </div>
                                 </div>
@@ -313,7 +313,7 @@
                                     <div class="col-md-6">
                                         <label for="filePath" class="font-style text-capitalize">DTA file path</label>
                                         <input type="text" class="form-control" id="filePath" formControlName="dtaFilePath" *ngIf="!isView">
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{dtaData ? dtaData[0]?.dtaFilePath : ''}}
+                                        <h6 class="text-value" *ngIf="isView">{{dtaData ? dtaData[0]?.dtaFilePath : ''}}
                                         </h6>
                                     </div>
                                 </div>
@@ -335,7 +335,7 @@
                                                 </div>
                                             </ng-template>
                                         </ng-select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                        <h6 class="text-value" *ngIf="isView">
                                             {{dtaData && dtaData[0]?.repoSignature1?.id ? findPeopleById(dtaData[0].repoSignature1.id) : ''}}
                                         </h6>
                                     </div>
@@ -356,7 +356,7 @@
                                                 </div>
                                             </ng-template>
                                         </ng-select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                        <h6 class="text-value" *ngIf="isView">
                                             {{dtaData && dtaData[0]?.repoSignature2?.id ? findPeopleById(dtaData[0].repoSignature2.id) : ''}}
                                         </h6>
                                     </div>
@@ -379,7 +379,7 @@
                                                 </div>
                                             </ng-template>
                                         </ng-select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                        <h6 class="text-value" *ngIf="isView">
                                             {{dtaData && dtaData[0]?.providerSignature1?.id ? findPeopleById(dtaData[0].providerSignature1.id) : ''}}
                                         </h6>
                                     </div>
@@ -400,7 +400,7 @@
                                                 </div>
                                             </ng-template>
                                         </ng-select>
-                                        <h6 style="font-weight: 100;" *ngIf="isView">
+                                        <h6 class="text-value" *ngIf="isView">
                                             {{dtaData && dtaData[0]?.providerSignature2?.id ? findPeopleById(dtaData[0].providerSignature2.id) : ''}}
                                         </h6>
                                     </div>
@@ -426,7 +426,7 @@
                                                         + (note.value.author?.lastName ? note.value.author.lastName : '') : 'Missing author')}} <small>{{note.value.createdOn}}</small></h6>
                                                     <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="text"
                                                         *ngIf="!isView"></textarea>
-                                                    <span style="font-weight: 100;" *ngIf="isView">{{note.value.text}}</span>
+                                                    <span class="text-value" *ngIf="isView">{{note.value.text}}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -590,14 +590,14 @@
                                                     <option [value]=preReqType.id *ngFor="let preReqType of preRequTypes">{{preReqType.name}}
                                                     </option>
                                                 </select>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                                <h6 class="text-value" *ngIf="isView">
                                                     {{prereqs[i]?.prereqType?.id ? findPrereqType(prereqs[i].prereqType.id) : 'No prerequisite type specified'}}</h6>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="notes" class="font-style text-capitalize">Note</label>
                                                 <textarea id="notes" cols="30" rows="3" class="form-control" formControlName="prereqNotes"
                                                     *ngIf="!isView"></textarea>
-                                                <h6 style="font-weight: 100;" *ngIf="isView">{{prereqs[i]?.prereqNotes}}</h6>
+                                                <h6 class="text-value" *ngIf="isView">{{prereqs[i]?.prereqNotes}}</h6>
                                             </div>
                                         </div>
                                         <mat-action-row *ngIf="!isView">

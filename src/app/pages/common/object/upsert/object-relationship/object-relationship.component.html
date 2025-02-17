@@ -32,7 +32,7 @@
                                     <option disabled selected value="null">Please select the type of relationship</option>
                                     <option [value]=relationship.id *ngFor="let relationship of relationshipType">{{relationship.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findRelationType(objectRelation.value.relationshipType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findRelationType(objectRelation.value.relationshipType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="targetObject" class="font-style text-capitalize">Target data object</label>
@@ -51,7 +51,7 @@
                                         </div>
                                     </ng-template>
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                <h6 class="text-value" *ngIf="isView">
                                     <a *ngIf="isView" [routerLink]="isBrowsing ? ['/browsing/data-objects', objectRelation.value.targetObject?.sdOid, 'view'] 
                                     : ['/data-objects', objectRelation.value.targetObject?.sdOid, 'view']">{{objectRelation.value.targetObject?.sdOid}}</a>
                                 </h6>

@@ -30,7 +30,7 @@
                                     <option disabled selected value="null">Please select relationship type</option>
                                     <option [value]="relationship.id" *ngFor="let relationship of relationshipType">{{relationship.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findRelationshipType(studyRelation.value.relationshipType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findRelationshipType(studyRelation.value.relationshipType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="targetStudy" class="font-style text-capitalize">Target study</label>
@@ -49,7 +49,7 @@
                                         </div>
                                     </ng-template>
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">
+                                <h6 class="text-value" *ngIf="isView">
                                     <a *ngIf="isView" [routerLink]="isBrowsing ? ['/browsing/studies', studyRelation.value.targetStudy?.sdSid, 'view'] 
                                     : ['/studies', studyRelation.value.targetStudy?.sdSid, 'view']">{{studyRelation.value.targetStudy?.sdSid}}</a>
                                 </h6>

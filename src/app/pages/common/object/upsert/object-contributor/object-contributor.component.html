@@ -34,7 +34,7 @@
                                     <option value=false>No</option>
                                     <option value=true>Yes</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{(objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true) ? 'Yes' : 'No'}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{(objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true) ? 'Yes' : 'No'}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="contributorType" class="font-style text-capitalize">Contributor type</label>
@@ -43,7 +43,7 @@
                                     <option [value]=contributor.id *ngFor="let contributor of contributorType">
                                         {{contributor.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findContributorType(objectContributor.value.contributorType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findContributorType(objectContributor.value.contributorType)}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -51,7 +51,7 @@
                                 <div *ngIf="isIndividual[i] ? isIndividual[i] : ( objectContributor.value.isIndividual==='true' || objectContributor.value.isIndividual===true)">
                                     <label for="person" class="font-style text-capitalize">Person</label>
                                     <input type="text" id="person" class="form-control" placeholder="" formControlName="person" *ngIf="!isView"/>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectContributor.value.person}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{objectContributor.value.person}}</h6>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -61,7 +61,7 @@
                                     appendTo="body" notFoundText="No members found" placeholder="Select Organisation"
                                     *ngIf="!isView">
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(objectContributor.value.organisation)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findOrganization(objectContributor.value.organisation)}}</h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">

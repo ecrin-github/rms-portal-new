@@ -29,7 +29,7 @@
                                     <option disabled selected value="null">Select title type</option>
                                     <option [value]="title.id" *ngFor="let title of titleType">{{title.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTitleType(studyTitle.value.titleType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findTitleType(studyTitle.value.titleType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="langCode" class="font-style text-capitalize">Language</label>
@@ -42,7 +42,7 @@
                                         {{item.langNameEn}}
                                     </ng-template>
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTitle.value.langCode?.langNameEn}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{studyTitle.value.langCode?.langNameEn}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -50,7 +50,7 @@
                                 <label for="titleText" class="font-style text-capitalize">Title text</label>
                                 <textarea id="titleText" class="form-control" placeholder="Please enter title"
                                 formControlName="titleText" *ngIf="!isView" rows="4"></textarea>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTitle.value.titleText}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{studyTitle.value.titleText}}</h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">

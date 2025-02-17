@@ -35,7 +35,7 @@
                                     <option value=false>No</option>
                                     <option value=true>Yes</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyContributor.value.isIndividual ? 'Yes' : 'No'}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{studyContributor.value.isIndividual ? 'Yes' : 'No'}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="contributorType" class="font-style text-capitalize">Contributor type</label>
@@ -54,7 +54,7 @@
                                     </ng-template>
                                 </ng-select>
                                 
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{ studyContributor.value.contributorType?.name }}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{ studyContributor.value.contributorType?.name }}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -62,7 +62,7 @@
                                 <div *ngIf="isIndividual[i] ? isIndividual[i] : ( studyContributor.value.isIndividual==='true' || studyContributor.value.isIndividual===true)">
                                     <label for="person" class="font-style text-capitalize">Person</label>
                                     <input type="text" id="person" class="form-control" placeholder="" formControlName="person" *ngIf="!isView"/>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{studyContributor.value.person}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{studyContributor.value.person}}</h6>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -77,7 +77,7 @@
                                         {{item.defaultName}}
                                     </ng-template>
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{ studyContributor.value.organisation?.defaultName }}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{ studyContributor.value.organisation?.defaultName }}</h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">
