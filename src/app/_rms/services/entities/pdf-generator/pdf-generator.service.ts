@@ -366,7 +366,7 @@ export class PdfGeneratorService {
       )
       , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'No object-specific prerequisites', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     }
 
     /* Associated People */
