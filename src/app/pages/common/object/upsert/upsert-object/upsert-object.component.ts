@@ -168,7 +168,7 @@ export class UpsertObjectComponent implements OnInit {
       queryFuncs.push(this.getObjectById(this.sdOid));
     }
     if (this.isView) {
-      this.scrollService.handleScroll([`/data-objects/${this.sdOid}/view`]);
+      this.scrollService.handleScroll([`/data-objects/${this.sdOid}/view`, `/browsing/data-objects/${this.sdOid}/view`]);
     }
     // Queries required even for view because of pdf/json exports
     queryFuncs.push(this.getResourceTypes());

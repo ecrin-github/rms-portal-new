@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header">
-        <div id="navbar" [ngClass]="isBrowsing ? 'browsing-header' : ''">
+        <div id="navbar">
             <div class="row upsert-navbar">
                 <div class="col-md-4">
                     <h2 class="text-capitalize">{{ isView ? 'Study Details' : isEdit ? 'Editing Study Details' : 'Add a new study'}}</h2>
@@ -33,6 +33,7 @@
             </div>
         </div>
     </div>
+    <div id="permanentNavbar"></div>
 
     <div class="card-body" id="content">
         <div class="row form-group" *ngIf="isAdd && addType === 'usingTrialId'">

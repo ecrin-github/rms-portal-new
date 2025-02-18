@@ -123,80 +123,90 @@ export class UpsertStudyComponent implements OnInit {
       this.studyForm.get('studyStatus').setValidators(Validators.required);
       this.studyForm.get('studyStartYear').setValidators(Validators.required);
     }
+    
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.addType = params.type;
+    
+      let queryFuncs: Array<Observable<any>> = [];
 
-    let queryFuncs: Array<Observable<any>> = [];
-
-    // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
-    // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
-    if (this.isAdd) {
-      queryFuncs.push(this.getOrganisation(this.orgId));
-      // Getting new study ID if manual add
-      queryFuncs.push(this.getQueryParams());
-    }
-    if ((this.isEdit || this.isAdd) && this.isManager) {
-      queryFuncs.push(this.getOrganisations());
-    }
-
-    // Need to pipe both getStudy and getAssociatedObjects because they need to be completed in order
-    if (this.isEdit || this.isView) {
-      queryFuncs.push(this.getStudyById(this.sdSid).pipe(
-        mergeMap((res: StudyInterface) => {
-          if (res) {
-            this.setStudyById(res);
-          }
-          return this.getAssociatedObjects(this.id);
-        })
-      ));
-    }
-
-    if (this.isView) {
-      this.scrollService.handleScroll([`/studies/${this.sdSid}/view`]);
-    }
-    // Queries required even for view because of pdf/json exports
-    queryFuncs.push(this.getStudyTypes());
-    queryFuncs.push(this.getGenderEligibility());
-    queryFuncs.push(this.getStudyStatuses());
-    queryFuncs.push(this.getTimeUnits());
-    queryFuncs.push(this.getIdentifierTypes());
-    queryFuncs.push(this.getTitleTypes());
-    queryFuncs.push(this.getFeatureTypes());
-    queryFuncs.push(this.getFeatureValues());
-    queryFuncs.push(this.getTopicTypes());
-    queryFuncs.push(this.getTopicVocabularies());
-    queryFuncs.push(this.getRelationshipTypes());
-
-    let obsArr: Array<Observable<any>> = [];
-    queryFuncs.forEach((funct) => {
-      obsArr.push(funct.pipe(catchError(error => of(this.toastr.error(error.error.title)))));
-    });
-
-    combineLatest(obsArr).subscribe(res => {
-      this.setRelationshipTypes(res.pop());
-      this.setTopicVocabularies(res.pop());
-      this.setTopicTypes(res.pop());
-      this.setFeatureValues(res.pop());
-      this.setFeatureTypes(res.pop());
-      this.setTitleTypes(res.pop());
-      this.setIdentifierTypes(res.pop());
-      this.setTimeUnits(res.pop());
-      this.setStudyStatuses(res.pop());
-      this.setGenderEligibility(res.pop());
-      this.setStudyTypes(res.pop());
-
-      if (this.isEdit || this.isView) {
-        // setStudyById not used here, see above
-        this.setAssociatedObjects(res.pop());
+      // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
+      // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
+      if (this.isAdd) {
+        if (this.addType === 'usingTrialId') {
+          queryFuncs.push(this.getTrialRegistries());
+        }
+        queryFuncs.push(this.getOrganisation(this.orgId));
+        // Getting new study ID if manual add
+        queryFuncs.push(this.getQueryParams());
       }
       if ((this.isEdit || this.isAdd) && this.isManager) {
-        this.setOrganisations(res.pop());
-      }
-      if (this.isAdd) {
-        this.setStudySdSid(res.pop());
-        this.setOrganisation(res.pop());
+        queryFuncs.push(this.getOrganisations());
       }
 
-      setTimeout(() => {
-        this.spinner.hide();
+      // Need to pipe both getStudy and getAssociatedObjects because they need to be completed in order
+      if (this.isEdit || this.isView) {
+        queryFuncs.push(this.getStudyById(this.sdSid).pipe(
+          mergeMap((res: StudyInterface) => {
+            if (res) {
+              this.setStudyById(res);
+            }
+            return this.getAssociatedObjects(this.id);
+          })
+        ));
+      }
+
+      if (this.isView) {
+        this.scrollService.handleScroll([`/studies/${this.sdSid}/view`, `/browsing/studies/${this.sdSid}/view`]);
+      }
+      // Queries required even for view because of pdf/json exports
+      queryFuncs.push(this.getStudyTypes());
+      queryFuncs.push(this.getGenderEligibility());
+      queryFuncs.push(this.getStudyStatuses());
+      queryFuncs.push(this.getTimeUnits());
+      queryFuncs.push(this.getIdentifierTypes());
+      queryFuncs.push(this.getTitleTypes());
+      queryFuncs.push(this.getFeatureTypes());
+      queryFuncs.push(this.getFeatureValues());
+      queryFuncs.push(this.getTopicTypes());
+      queryFuncs.push(this.getTopicVocabularies());
+      queryFuncs.push(this.getRelationshipTypes());
+
+      let obsArr: Array<Observable<any>> = [];
+      queryFuncs.forEach((funct) => {
+        obsArr.push(funct.pipe(catchError(error => of(this.toastr.error(error.error.title)))));
+      });
+
+      combineLatest(obsArr).subscribe(res => {
+        this.setRelationshipTypes(res.pop());
+        this.setTopicVocabularies(res.pop());
+        this.setTopicTypes(res.pop());
+        this.setFeatureValues(res.pop());
+        this.setFeatureTypes(res.pop());
+        this.setTitleTypes(res.pop());
+        this.setIdentifierTypes(res.pop());
+        this.setTimeUnits(res.pop());
+        this.setStudyStatuses(res.pop());
+        this.setGenderEligibility(res.pop());
+        this.setStudyTypes(res.pop());
+
+        if (this.isEdit || this.isView) {
+          // setStudyById not used here, see above
+          this.setAssociatedObjects(res.pop());
+        }
+        if ((this.isEdit || this.isAdd) && this.isManager) {
+          this.setOrganisations(res.pop());
+        }
+        if (this.isAdd) {
+          this.setStudySdSid(res.pop());
+          this.setOrganisation(res.pop());
+          if (this.addType === 'usingTrialId') {
+            this.setTrialRegistries(res.pop());
+          }
+        }
+
+        setTimeout(() => {
+          this.spinner.hide();
+        });
       });
     });
   }
@@ -216,9 +226,11 @@ export class UpsertStudyComponent implements OnInit {
       })
     );
   }
+
   getNextStudySdSid() {
     return this.studyService.getNextStudySdSid();
   }
+
   setStudySdSid(sdSidRes) {
     if ('sdSid' in sdSidRes) {
       this.sdSid = sdSidRes['sdSid'];
@@ -227,34 +239,42 @@ export class UpsertStudyComponent implements OnInit {
       });
     }
   }
+
   getStudyTypes() {
     return this.studyLookupService.getStudyTypes(this.pageSize);
   }
+
   setStudyTypes(studyTypes) {
     if (studyTypes?.results) {
       this.studyTypes = studyTypes.results;
       this.studyTypeChange();
     }
   }
+
   getStudyStatuses() {
     return this.studyLookupService.getStudyStatuses(this.pageSize);
   }
+
   setStudyStatuses(studyStatuses) {
     if (studyStatuses?.results) {
       this.studyStatuses = studyStatuses.results;
     }
   }
+
   getGenderEligibility() {
     return this.studyLookupService.getGenderEligibilities(this.pageSize);
   }
+
   setGenderEligibility(genderEligibility) {
     if (genderEligibility?.results) {
       this.genderEligibility = genderEligibility.results;
     }
   }
+
   getTimeUnits() {
     return this.studyLookupService.getTimeUnits(this.pageSize);
   }
+
   setTimeUnits(timeUnits) {
     if (timeUnits?.results) {
       this.timeUnits = timeUnits.results;
@@ -267,9 +287,11 @@ export class UpsertStudyComponent implements OnInit {
       }
     }
   }
+
   getStudyById(id) {
     return this.studyService.getStudyById(id);
   }
+
   setStudyById(studyData) {
     if (studyData) {
       this.studyData = studyData;
@@ -283,18 +305,22 @@ export class UpsertStudyComponent implements OnInit {
       this.patchStudyForm();
     }
   }
+
   findStudyStatusById(id) {
     const statusArray = this.studyStatuses.filter((type: any) => type.id === id);
     return statusArray && statusArray.length ? statusArray : { name: '' }
   }
+
   findStudyTypeById(id) {
     const studyArray = this.studyTypes.filter((type: any) => type.id === id);
     return studyArray && studyArray.length ? studyArray[0] : { name: '' };
   }
+
   findGenderEligibilityId(id) {
     const genderArray = this.genderEligibility.filter((type: any) => type.id === id);
     return genderArray && genderArray.length ? genderArray[0] : { name: '' };
   }
+
   findTimeUnitsById(id) {
     const ageArray = this.timeUnits.filter((type: any) => type.id === id);
     return ageArray && ageArray.length ? ageArray[0] : { name: '' };
@@ -304,98 +330,122 @@ export class UpsertStudyComponent implements OnInit {
   getIdentifierTypes() {
     return this.studyLookupService.getStudyIdentifierTypes(this.pageSize);
   }
+
   setIdentifierTypes(identifierTypes) {
     if (identifierTypes?.results) {
       this.identifierTypes = identifierTypes.results;
     }
   }
+
   findIdentifierType(id) {
     const identifierTypeArray:any = this.identifierTypes.filter((type: any) => type.id === id);
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : ''
   }
+
   getTitleTypes() {
     return this.studyLookupService.getStudyTitleTypes(this.pageSize);
   }
+
   setTitleTypes(titleTypes) {
     if (titleTypes?.results) {
       this.titleTypes = titleTypes.results;
     }
   }
+
   findTitleType(id) {
     const titleTypeArray: any = this.titleTypes.filter((type: any) => type.id === id);
     return titleTypeArray && titleTypeArray.length ? titleTypeArray[0].name : '';
   }
+
   getFeatureTypes() {
     return this.studyLookupService.getFeatureTypes(this.pageSize);
   }
+
   getFeatureValues() {
     return this.studyLookupService.getFeatureValues(this.pageSize);
   }
+
   setFeatureTypes(featureTypes) {
     if (featureTypes?.data) {
       this.featureTypes = featureTypes.data;
     }
   }
+
   setFeatureValues(featureValues) {
     if (featureValues?.data) {
       this.featureValuesAll = featureValues.data;
     }
   }
+
   findFeatureType(id) {
     const featureTypeArray: any = this.featureTypes.filter((type: any) => type.id === id);
     return featureTypeArray && featureTypeArray.length ? featureTypeArray[0].name : '';
   }
+
   findFeatureValue(id) {
     const featureValueArray: any = this.featureValuesAll.filter((type: any) => type.id === id);
     return featureValueArray && featureValueArray.length ? featureValueArray[0].name : '';
   }
+
   getTopicTypes() {
     return this.commonLookupService.getTopicTypes(this.pageSize);
   }
+
   setTopicTypes(topicTypes) {
     if (topicTypes?.data) {
       this.topicTypes = topicTypes.data;
     }
   }
+
   findTopicType(id) {
     const topicArray: any = this.topicTypes.filter((type: any) => type.id === id);
     return topicArray && topicArray.length ? topicArray[0].name : '';
   }
+  
   getTopicVocabularies() {
     return this.commonLookupService.getTopicVocabularies(this.pageSize);
   }
+
   setTopicVocabularies(controlledTerminology) {
     if (controlledTerminology?.results) {
       this.controlledTerminology = controlledTerminology.results;
     }
   }
+
   findTopicVocabulary(id) {
     const arr: any = this.controlledTerminology.filter((item: any) => item.id === id);
     return arr && arr.length ? arr[0].name : 'None';
   }
+
   getRelationshipTypes() {
     return this.studyLookupService.getStudyRelationshipTypes(this.pageSize);
   }
+
   setRelationshipTypes(relationshipTypes) {
     if (relationshipTypes?.results) {
       this.relationshipTypes = relationshipTypes.results;
     }
   }
+
   findRelationshipType(id) {
     const relationArray: any = this.relationshipTypes.filter((type: any) => type.id === id);
     return relationArray && relationArray.length ? relationArray[0].name : '';
   }
+
   getAssociatedObjects(id) {
     return this.listService.getObjectByMultiStudies(id);
   }
+
   setAssociatedObjects(associatedObjects) {
     if (associatedObjects?.data) {
       this.associatedObjects = associatedObjects.data;
     }
   }
+
   getOrganisation(orgId) {
     return this.commonLookupService.getOrganizationById(orgId);
   }
+
   setOrganisation(organisation: OrganisationInterface) {
     if (organisation) {
       this.organisationName = organisation.defaultName;
@@ -404,51 +454,27 @@ export class UpsertStudyComponent implements OnInit {
       });
     }
   }
+
   getOrganisations() {
     return this.commonLookupService.getOrganizationList(this.pageSize);
   }
+
   setOrganisations(organisations) {
     if (organisations?.results) {
       this.organisations = organisations.results;
     }
   }
-  getTrialRegistries() {
-    // this.studyLookupService.getTrialRegistries(this.pageSize).subscribe((res: any) => {
-    //   if (res && res.results) {
-    //     this.trialRegistries = res.results;
-    //   }
-    // }, error => {
-    //   this.toastr.error(error.error.title);
-    // })
-    this.trialRegistries = [
-      {id: '100116', name: 'Australian / New Zealand Clinical Trials Registry'},
-      {id: '100117', name: 'Registro Brasileiro de Ensaios Clínicos'},
-      {id: '100118', name: 'Chinese Clinical Trial Register'},
-      {id: '100119', name: 'Clinical Research Information Service (S Korea)'},
-      {id: '100120', name: 'ClinicalTrials.gov'},
-      {id: '100121', name: 'Clinical Trials Registry - India'},
-      {id: '100122', name: 'Registro Público Cubano de Ensayos Clínicos'},
-      {id: '100123', name: 'EU Clinical Trials Register / EMA CTIS'},
-      {id: '100124', name: 'Deutschen Register Klinischer Studien'},
-      {id: '100125', name: 'Iranian Registry of Clinical Trials'},
-      {id: '100126', name: 'ISRCTN'},
-      {id: '100127', name: 'Japan Primary Registries Network'},
-      {id: '100128', name: 'Pan-African Clinical Trials Registry'},
-      {id: '100129', name: 'Registro Peruano de Ensayos Clínicos'},
-      {id: '100130', name: 'Sri Lanka Clinical Trials Registry'},
-      {id: '100131', name: 'Thai Clinical Trials Register'},
-      {id: '100132', name: 'The Netherlands National Trial Register'},
-      {id: '100135', name: 'PubMed'},
-      {id: '101405', name: 'CSDR*'},
-      {id: '101900', name: 'BioLINCC (NIH)'},
-      {id: '101901', name: 'Yoda'},
-      {id: '101940', name: 'Vivli*'},
-      {id: '101989', name: 'Lebenon Clinical Trial Registry'},
-      {id: '109108', name: 'International Traditional Medicine Clinical Trial Registry'},
-      {id: '110426', name: 'BBMRI-ERIC'}
 
-    ]
+  getTrialRegistries() {
+    return this.studyLookupService.getTrialRegistries(this.pageSize);
   }
+
+  setTrialRegistries(regs) {
+    if (regs?.results) {
+      this.trialRegistries = regs.results;
+    }
+  }
+
   patchStudyForm() {
     this.studyForm.patchValue({
       displayTitle: this.studyData.displayTitle,
@@ -473,6 +499,7 @@ export class UpsertStudyComponent implements OnInit {
       studyContributors: this.studyData.studyContributors ? this.studyData.studyContributors : [],
     });
   }
+
   onSave() {
     this.spinner.show();
     if (localStorage.getItem('updateStudyList')) {
@@ -553,17 +580,21 @@ export class UpsertStudyComponent implements OnInit {
     }
     this.spinner.hide()
   }
+
   back(): void {
     this.backService.back();
   }
+
   onChange() {
     this.publicTitle = this.studyForm.value.displayTitle;
   }
+
   studyTypeChange() {
     const arrInterventional:any = this.studyTypes.filter((item: any) => item.name.toLowerCase() === 'interventional');
     const arrObservational:any = this.studyTypes.filter((item: any) => item.name.toLowerCase() === 'observational');
     this.studyType = this.studyForm.value.studyType === arrInterventional[0].id ? 'interventional' : this.studyForm.value.studyType === arrObservational[0].id ? 'observational': ''
   }
+
   print() {
     this.studyService.getStudyById(this.id).subscribe((res: any) => {
       if (res) {
@@ -624,13 +655,16 @@ export class UpsertStudyComponent implements OnInit {
       this.toastr.error(error.error.title);
     })
   }
+
   customSearchFn(term: string, item) {
     term = term.toLocaleLowerCase();
     return item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
   }
+
   compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {
     return o1?.id == o2?.id;
   }
+
   gotoTop() {
     window.scroll({ 
       top: 0, 

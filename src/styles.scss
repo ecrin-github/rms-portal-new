@@ -233,6 +233,37 @@ mat-footer-cell:first-of-type {
   border-top-width: 0.4rem;
 }
 
+/* Sticky header */
+.sticky {
+  position: fixed;
+  top: 65px;
+  width: 96%;
+  padding: 25px;
+  z-index: 5;
+  background-color: white;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  right: 0%;
+}
+
+.sticky+.content {
+  padding-top: 100px;
+}
+
+@media (max-width: 991.98px) {
+  .sticky {
+      top: 1px !important;
+      width: 100% !important;
+  }
+}
+
+.displayPermanentNavbar {
+  display: block !important;
+}
+
+.hidePermanentNavbar {
+  display: none;
+}
+
 @media screen and (max-width: 500px) {
   .mat-column-status {
     padding-right: 80px !important;
