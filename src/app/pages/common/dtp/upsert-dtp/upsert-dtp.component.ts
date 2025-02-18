@@ -141,9 +141,7 @@ export class UpsertDtpComponent implements OnInit {
     this.isView = this.router.url.includes('view') ? true : false;
     this.id = this.activatedRoute.snapshot.params.id;
 
-    if (this.isView) {
-      this.scrollService.handleScroll([`/data-transfers/${this.id}/view`]);
-    }
+    this.scrollService.handleScroll([`/data-transfers/${this.id}/view`, `/data-transfers/${this.id}/edit`, `/data-transfers/add`]);
 
     if (this.router.url.includes('add')) {
       this.form.patchValue({

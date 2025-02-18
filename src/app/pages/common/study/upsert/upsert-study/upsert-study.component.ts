@@ -155,9 +155,9 @@ export class UpsertStudyComponent implements OnInit {
         ));
       }
 
-      if (this.isView) {
-        this.scrollService.handleScroll([`/studies/${this.sdSid}/view`, `/browsing/studies/${this.sdSid}/view`]);
-      }
+      this.scrollService.handleScroll([`/studies/${this.sdSid}/view`, `/browsing/studies/${this.sdSid}/view`,
+                                      `/studies/${this.sdSid}/edit`, `/studies/add`]);
+                                      
       // Queries required even for view because of pdf/json exports
       queryFuncs.push(this.getStudyTypes());
       queryFuncs.push(this.getGenderEligibility());

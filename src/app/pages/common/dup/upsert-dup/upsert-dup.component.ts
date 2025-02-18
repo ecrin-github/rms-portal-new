@@ -123,9 +123,7 @@ export class UpsertDupComponent implements OnInit {
     this.isManager = this.statesService.isManager();
     this.user = this.statesService.currentUser;
 
-    if (this.isView) {
-      this.scrollService.handleScroll([`/data-use/${this.id}/view`]);
-    }
+    this.scrollService.handleScroll([`/data-use/${this.id}/view`, `/data-use/${this.id}/edit`, `/data-use/add`]);
 
     if (this.router.url.includes('add')) {
       this.form.patchValue({
