@@ -21,9 +21,16 @@
                 <div class="col-12 mb-5" [id]="'objectinst'+i">
                     <mat-expansion-panel [expanded]="objectInstance.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="mat-expansion-panel-header-instance">
-                            <div class="uploadicon-container">
-                                <i class="fa fa-solid fa-file-circle-check upload-icon" *ngIf="objectInstance.controls['url'].value"></i>
-                            </div>
+                            <ng-container *ngIf="objectInstance.controls['url'].value; else notUploadedYet">
+                                <div class="uploadicon-container">
+                                    <i class="fa fa-solid fa-file-circle-check upload-icon" title="Uploaded"></i>
+                                </div>
+                            </ng-container>
+                            <ng-template #notUploadedYet>
+                                <div class="notuploadedicon-container">
+                                    <i class="fa fa-solid fa-file-arrow-up not-uploaded-icon" title="To be uploaded"></i>
+                                </div>
+                            </ng-template>
                             <span class="objectinstance-headertext">{{objectInstance.value.sdIid}}: {{objectInstance.value.title || findResourceType(objectInstance.value.resourceType)}}</span>
                         </mat-expansion-panel-header>
                         <div class="row form-group">

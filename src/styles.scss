@@ -685,6 +685,17 @@ mat-footer-cell:first-of-type {
   opacity: 80%;
 }
 
+.notuploadedicon-container {
+  flex: 0 0 2rem;
+  margin-right: 1.22rem;
+}
+
+.not-uploaded-icon {
+  font-size: 2.25rem;
+  color: #727a83;
+  opacity: 40%;
+}
+
 .mat-expansion-panel-header-instance {
   padding: 0 1.5rem !important;
 }
