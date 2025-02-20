@@ -32,13 +32,13 @@
                                     <option disabled selected value="null">Please select the type of description</option>
                                     <option [value]=description.id *ngFor="let description of descriptionType">{{description.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findDescriptionType(objectDescription.value.descriptionType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findDescriptionType(objectDescription.value.descriptionType)}}</h6>
                             </div>
                             <div class="col-md-6 form-group">
                                 <label for="label" class="font-style text-capitalize">Description label</label>
                                 <input id="label" type="text" class="form-control" placeholder="Please enter label (Can be used as a sub-header) a parameter..."
                                 formControlName="label" *ngIf="!isView" />
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDescription.value.label}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectDescription.value.label}}</h6>
                             </div>
                         </div>
                         <div class="row">
@@ -46,7 +46,7 @@
                                 <label for="descriptionText" class="font-style text-capitalize">Description text</label>
                                 <textarea id="descriptionText" cols="30" rows="5" placeholder="Please enter description"
                                     formControlName="descriptionText" class="form-control" *ngIf="!isView"></textarea>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDescription.value.descriptionText}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectDescription.value.descriptionText}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="langCode" class="font-style text-capitalize">Language code</label>
@@ -54,7 +54,7 @@
                                     <option disabled selected value=""></option>
                                     <option [value]="language.id" *ngFor="let language of languageCodes">{{language.langNameEn}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findLangcodeById(objectDescription.value.langCode)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findLangcodeById(objectDescription.value.langCode)}}</h6>
                             </div>
                         </div>
 

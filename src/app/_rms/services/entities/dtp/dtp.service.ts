@@ -10,30 +10,11 @@ const base = environment.baseUrlApi;
 export class DtpService {
 
   constructor( private http: HttpClient) { }
-
-  // full DTP - with attributes
-
-  getFullDtpById(id) {
-    return this.http.get(`${base}/data-transfers/full/${id}`);
-  }
-
-  deleteFullDtpById(id) {
-    return this.http.delete(`${base}/data-transfers/full/${id}`);
-  }
-
-  // check for the deletion
-  // checkDtaAgreed(dtpId) {
-  //   return this.http.get(`${base}/rms/dtp/${dtpId}`);
-  // }
   
-  // DTP record - core record only
+  // DTP record
 
   getDtpById(id) {
     return this.http.get(`${base}/rms/dtp/${id}`);
-  }
-
-  getDtpByIdWfkn(id) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${id}`);
   }
 
   addDtp(payload) {
@@ -57,9 +38,6 @@ export class DtpService {
   getDta(dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/dta`);
   }
-  getDtaWfkn(dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/dta`);
-  }
   editDta(dtpId, payload, id) {
     return this.http.put(`${base}/rms/dtp/${dtpId}/dta/${id}`, payload);
   }
@@ -73,17 +51,11 @@ export class DtpService {
   getDtpStudies(dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/studies`);
   }
-  getDtpStudiesWfkn(dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/studies`);
-  }
   addDtpStudy(dtpId, payload) {
     return this.http.post(`${base}/rms/dtp/${dtpId}/studies`, payload);
   }
   getDtpStudy(id, dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/studies/${id}`);
-  }
-  getDtpStudyWfkn(id, dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/studies/${id}`);
   }
   editDtpStudy(id, dtpId, payload) {
     return this.http.put(`${base}/rms/dtp/${dtpId}/studies/${id}`, payload);
@@ -98,17 +70,11 @@ export class DtpService {
   getDtpObjects(dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/objects`);
   }
-  getDtpObjectsWfkn(dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/objects`);
-  }
   addDtpObject(dtpId, payload) {
     return this.http.post(`${base}/rms/dtp/${dtpId}/objects`, payload);
   }
   getDtpObject(id, dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/objects/${id}`);
-  }
-  getDtpObjectWfkn(id, dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/objects/${id}`);
   }
   editDtpObject(id, dtpId, payload) {
     return this.http.put(`${base}/rms/dtp/${dtpId}/objects/${id}`, payload);
@@ -123,17 +89,11 @@ export class DtpService {
   getDtpPeople(dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/people`);
   }
-  getDtpPeopleWfkn(dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/people`);
-  }
   addDtpPerson(dtpId, payload) {
     return this.http.post(`${base}/rms/dtp/${dtpId}/people`, payload);
   }
   getDtpPerson(id, dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/people/${id}`);
-  }
-  getDtpPersonWfkn(id, dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/people/${id}`);
   }
   editDtpPerson(id, dtpId, payload) {
     return this.http.put(`${base}/rms/dtp/${dtpId}/people/${id}`, payload);
@@ -148,17 +108,11 @@ export class DtpService {
   getDtpNotes(dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/notes`);
   }
-  getDtpNotesWfkn(dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/notes`);
-  }
   addDtpNote(dtpId, payload) {
     return this.http.post(`${base}/rms/dtp/${dtpId}/notes`, payload);
   }
   getDtpNote(id, dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/notes/${id}`);
-  }
-  getDtpNoteWfkn(id, dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/notes/${id}`);
   }
   editDtpNote(id, dtpId, payload) {
     return this.http.put(`${base}/rms/dtp/${dtpId}/notes/${id}`, payload);
@@ -173,17 +127,11 @@ export class DtpService {
   getDtpObjectPrereqs(dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/prereqs`);
   }
-  getDtpObjectPrereqsWfkn(sdOid, dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/objects/${sdOid}/prereqs`);
-  }
   addDtpObjectPrereq(dtpId, payload) {
     return this.http.post(`${base}/rms/dtp/${dtpId}/prereqs`, payload);
   }
   getDtpObjectPrereq(id, sdOid, dtpId) {
     return this.http.get(`${base}/rms/dtp/${dtpId}/objects/${sdOid}/prereqs/${id}`);
-  }
-  getDtpObjectPrereqWfkn(id, sdOid, dtpId) {
-    return this.http.get(`${base}/rms/dtp/with-fk-names/${dtpId}/objects/${sdOid}/prereqs/${id}`);
   }
   editDtpObjectPrereq(id, dtpId, payload) {
     return this.http.put(`${base}/rms/dtp/${dtpId}/prereqs/${id}`, payload);
@@ -201,13 +149,7 @@ export class DtpService {
   getDtpObjectDataset(id, sdOid, dtpId) {
     return this.http.get(`${base}/data-transfers/${dtpId}/objects/${sdOid}/dataset`);
   }
-  getDtpObjectDatasetWfkn(id, sdOid, dtpId) {
-    return this.http.get(`${base}/data-transfers/with-fk-names/${dtpId}/objects/${sdOid}/dataset`);
-  }
   editDtpObjectDataset(id, sdOid, dtpId, payload) {
     return this.http.put(`${base}/data-transfers/${dtpId}/objects/${sdOid}/dataset`, payload);
-  }
-  deleteDtpObjectDataset(id, sdOid, dtpId) {
-    return this.http.delete(`${base}/data-transfers/${dtpId}/objects/${sdOid}/dataset`);
   }
 }

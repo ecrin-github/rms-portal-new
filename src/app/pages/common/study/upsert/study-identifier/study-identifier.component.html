@@ -30,13 +30,13 @@
                                     <option selected disabled value="null">Please select type</option>
                                     <option [value]=identifier.id *ngFor="let identifier of identifierTypes">{{identifier.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findIdentifierType(studyIdentifier.value.identifierType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findIdentifierType(studyIdentifier.value.identifierType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="identifierValue" class="font-style text-capitalize">Identifier value</label>
                                 <input type="text" id="identifierValue" class="form-control" placeholder="Please enter identifier"
                                 formControlName="identifierValue" *ngIf="!isView"/>
-                            <h6 style="font-weight: 100;" *ngIf="isView">{{studyIdentifier.value.identifierValue}}</h6>
+                            <h6 class="text-value" *ngIf="isView">{{studyIdentifier.value.identifierValue}}</h6>
                             </div>
                         </div>
                         <div class="row">
@@ -46,7 +46,7 @@
                                     [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No organization found"
                                     appendTo="body" placeholder="Select Organization" *ngIf="!isView">
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findOrganization(studyIdentifier.value.identifierOrg)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findOrganization(studyIdentifier.value.identifierOrg)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="identifierDate" class="font-style text-capitalize">Identifier date</label>
@@ -65,7 +65,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{dateToString(studyIdentifier.value.identifierDate)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{dateToString(studyIdentifier.value.identifierDate)}}</h6>
                             </div>
                         </div>
                         <div class="row" *ngIf="showIdentifierLinks[i]">
@@ -73,7 +73,7 @@
                                 <label for="identifierLink" class="font-style text-capitalize">Identifier link</label>
                                 <input type="text" id="identifierLink" class="form-control" placeholder="Enter a parameter..."
                                     formControlName="identifierLink" *ngIf="!isView"/>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyIdentifier.value.identifierLink}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{studyIdentifier.value.identifierLink}}</h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">

@@ -31,13 +31,13 @@
                                     <option disabled selected value="null">Please select topic type</option>
                                     <option [value]="title.id" *ngFor="let title of topicTypes">{{title.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTopicType(studyTopic.value.topicType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findTopicType(studyTopic.value.topicType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="meshValue" class="font-style text-capitalize">Topic value</label>
                                 <input type="text" id="meshValue" class="form-control" placeholder="Please enter topic"
                                 formControlName="meshValue" *ngIf="!isView"/>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTopic.value.meshValue}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{studyTopic.value.meshValue}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -57,13 +57,13 @@
                                         </div>
                                     </ng-template>
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{ studyTopic.value.originalValue?.name }}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{ studyTopic.value.originalValue?.name }}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="meshCode" class="font-style text-capitalize">CT code</label>
                                 <input type="text" id="meshCode" class="form-control" placeholder="Please enter terminology code"
                                 formControlName="meshCode" *ngIf="!isView"/>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTopic.value.meshCode}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{studyTopic.value.meshCode}}</h6>
                             </div>
                             <!-- <div class="col-md-4">
                                 <label for="meshCoded" class="font-style text-capitalize">Mesh coded</label>
@@ -72,7 +72,7 @@
                                     <option value=true>Yes</option>
                                     <option value=false>No</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{studyTopic.value.meshCoded}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{studyTopic.value.meshCoded}}</h6>
                             </div> -->
                         </div>
                         <mat-action-row *ngIf="!isView">

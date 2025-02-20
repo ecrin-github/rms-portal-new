@@ -21,15 +21,22 @@
                 <div class="col-12 mb-5" [id]="'objectinst'+i">
                     <mat-expansion-panel [expanded]="objectInstance.value.alreadyExist ? false : true">
                         <mat-expansion-panel-header class="mat-expansion-panel-header-instance">
-                            <div class="uploadicon-container">
-                                <i class="fa fa-solid fa-file-circle-check upload-icon" *ngIf="objectInstance.controls['url'].value"></i>
-                            </div>
+                            <ng-container *ngIf="objectInstance.controls['url'].value; else notUploadedYet">
+                                <div class="uploadicon-container">
+                                    <i class="fa fa-solid fa-file-circle-check upload-icon" title="Uploaded"></i>
+                                </div>
+                            </ng-container>
+                            <ng-template #notUploadedYet>
+                                <div class="notuploadedicon-container">
+                                    <i class="fa fa-solid fa-file-arrow-up not-uploaded-icon" title="To be uploaded"></i>
+                                </div>
+                            </ng-template>
                             <span class="objectinstance-headertext">{{objectInstance.value.sdIid}}: {{objectInstance.value.title || findResourceType(objectInstance.value.resourceType)}}</span>
                         </mat-expansion-panel-header>
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="sd_iid" class="font-style text-capitalize">Instance ID</label>
-                                <h6 style="font-weight: 100;" id="sd_iid">{{objectInstance.value.sdIid}}</h6>
+                                <h6 class="text-value" id="sd_iid">{{objectInstance.value.sdIid}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -37,7 +44,7 @@
                                 <label for="title" class="font-style text-capitalize">Title</label>
                                 <input id="title" type="text" class="form-control" placeholder="Enter a title for this instance"
                                             formControlName="title" *ngIf="!isView" maxlength="200"/>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.title}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectInstance.value.title}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="resourceType" class="font-style text-capitalize">Resource type</label>
@@ -46,7 +53,7 @@
                                     <option [value]=resource.id *ngFor="let resource of resourceType">{{resource.name}}
                                     </option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findResourceType(objectInstance.value.resourceType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findResourceType(objectInstance.value.resourceType)}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -57,7 +64,7 @@
                                 </span>
                                 <input id="repository" type="text" class="form-control" placeholder="Enter the data repository name"
                                             formControlName="repository" *ngIf="!isView" />
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.repository}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectInstance.value.repository}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="url" class="font-style text-capitalize">Access URL</label>
@@ -68,11 +75,11 @@
                                     formControlName="url" *ngIf="!isView"/>
                                 <ng-container *ngIf="objectInstance.value.url != '[hidden]'; else displayHidden">
                                     <a href="{{objectInstance.value.url}}">
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
+                                        <h6 class="text-value" *ngIf="isView">{{objectInstance.value.url}}</h6>
                                     </a>
                                 </ng-container>
                                 <ng-template #displayHidden>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.url}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{objectInstance.value.url}}</h6>
                                 </ng-template>
                             </div>
                         </div>
@@ -84,7 +91,7 @@
                                         <label for="resourceSize" class="font-style text-capitalize">Resource size</label>
                                         <input id="resourceSize" type="text" class="form-control" placeholder="Enter a parameter..."
                                             formControlName="resourceSize" *ngIf="!isView" />
-                                        <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.resourceSize}} {{findSizeUnit(objectInstance.value.resourceSizeUnit)}}</h6>
+                                        <h6 class="text-value" *ngIf="isView">{{objectInstance.value.resourceSize}} {{findSizeUnit(objectInstance.value.resourceSizeUnit)}}</h6>
                                     </div>
                                     <div class="col-md-4" *ngIf="!isView">
                                         <label for="resourceSize" class="font-style text-capitalize">Units</label>
@@ -100,7 +107,7 @@
                                 <label for="resourceComments" class="font-style text-capitalize">Comments</label>
                                 <textarea id="resourceComments" class="form-control" cols="30" rows="5" placeholder="Any further technical information about the resource"
                                     formControlName="resourceComments" *ngIf="!isView"></textarea>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectInstance.value.resourceComments}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectInstance.value.resourceComments}}</h6>
                             </div>
                         </div>
                         <mat-action-row *ngIf="!isView">

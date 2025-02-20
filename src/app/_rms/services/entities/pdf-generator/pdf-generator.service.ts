@@ -227,93 +227,174 @@ export class PdfGeneratorService {
     doc.save(dtpData.displayName + '.pdf');
   }
 
-  dupPdfGenerator(dupData, peopleData) {
+  dupPdfGenerator(dupData) {
     const doc = new jsPDF();
 
-    const bodyData: Array<any> = [];
+    const offsetX = 16;
+    const offsetY = 25;
+    const offsetT1 = 12;
+    const offsetT2 = 6;
+    const offsetSection = 14;
+    const offsetGeneral = 9;
+    const t1Size = 18;
+    const t2Size = 15;
+    const t3Size = 12;
+    const textSize = 10;
 
-    bodyData.push([{content: dupData.coreDup.displayName, colSpan: 4, rowSpan: 1, styles: {halign: 'left', fontStyle: 'bold', fontSize: 16}}]);
-    bodyData.push([
-      { content: 'Organisation: ' + dupData.coreDup.orgId, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Status: ' + dupData.coreDup.statusId, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } }
-    ]);
-    bodyData.push([
-      { content: 'Initial Contact Date: ' + dupData.coreDup.initialContactDate, colSpan: 2, styles: { halign: 'left' } },
-      { content: 'SetUp Completed: ' + dupData.coreDup.setUpCompleted, colSpan: 2, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'PreRequstMet: ' + dupData.coreDup.prereqsMet, colSpan: 2, styles: { halign: 'left' } },
-      { content: 'DUA Agreed Date: ' + dupData.coreDup.duaAgreedDate, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ])
-    bodyData.push([
-      { content: 'Availability Requested: ' + dupData.coreDup.availabilityRequested, rowSpan: 1, colSpan: 2, styles: { halign: 'left' } },
-      { content: 'Availability Confirmed: ' + dupData.coreDup.availabilityConfirmed, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } }
-    ]);
-    bodyData.push([
-      { content: 'Access Confirmed: ' + dupData.coreDup.accessConfirmed, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'Agreement Details', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
-    bodyData.push([
-      { content: 'Conforms To Default: ' + dupData.duas[0].conformsToDefault, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Variations: ' + dupData.duas[0].variations, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'Repo Is Proxy Provider: ' + dupData.duas[0].repoIsProxyProvider, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'DTA File Path: ' + dupData.duas[0].duaFilePath, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } }
-    ])
-    bodyData.push([
-      { content: 'Repository Signatory 1: ' + dupData.duas[0].repoSignatory1, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Repository Signatory 2: ' + dupData.duas[0].repoSignatory2, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'Provider Signatory 1: ' + dupData.duas[0].providerSignatory1, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'Provider Signatory 2: ' + dupData.duas[0].providerSignatory2, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'RequesterSignatory 1: ' + dupData.duas[0].requesterSignatory1, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-      { content: 'RequesterSignatory 2: ' + dupData.duas[0].requesterSignatory2, colSpan: 2, rowSpan: 1, styles: { halign: 'left' } },
-    ]);
-    bodyData.push([
-      { content: 'Notes', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
-    for (let note of dupData.dupNotes) {
-      bodyData.push([
-        { content: note.author + ' ' + note.createdOn + ':' + note.text, colSpan: 4, rowSpan: 1, styles: { halign: 'left' } },
-      ])
-    }
-    bodyData.push([
-      { content: 'Studies', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
+    let currX = offsetX;
+    let currY = offsetY;
 
-    for ( let study of dupData.dupStudies) {
-      bodyData.push([
-        { content: study.studyName + '(' + study.sdSid + ')', colSpan: 4, rowSpan: 1, styles: { halign: 'left' } },
-      ])
-    } 
-    bodyData.push([
-      { content: 'Objects', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
-    for ( let object of dupData.dupObjects) {
-      bodyData.push([
-        { content: object.sdOid + '(' + object.objectName + ')' ,colSpan: 4, rowSpan: 1, styles: { halign: 'left' } },
-      ])
+    /* Title */
+    currY = this.makeTable([
+      [
+        { content: `Data Use - ${dupData.displayName}`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
+      ]
+    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+  
+    /* Study ID */
+    currY += offsetT1;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Provider Organisation', currX, currY);
+    doc.setFont(undefined, 'normal');
+    
+    currY += offsetT2;
+    currY = this.makeTable([
+      [
+        { content: (dupData.organisation?.defaultName ? dupData.organisation.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
+      ]
+    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+
+    /* Associated Studies */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Studies', currX, currY);
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(textSize);
+    
+    currY += offsetT2;
+    if (dupData.associatedStudies.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Study ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Study Title', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        ]
+      ].concat(
+        dupData.associatedStudies.map(associatedStudy => [
+          { content: (associatedStudy.study?.sdSid ? associatedStudy.study.sdSid : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (associatedStudy.study?.displayTitle ? associatedStudy.study.displayTitle : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      )
+      , doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     }
-    bodyData.push([
-      { content: 'Associated People', colSpan: 4, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: 14 } },
-    ]);
-    for (let person of peopleData) {
-      bodyData.push([
-        { content: person.personName, colSpan: 4, rowSpan: 1, styles: { halign: 'left' } },
-      ])
+
+    /* Associated Data Objects */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Data Objects', currX, currY);
+    
+    currY += offsetT2;
+    if (dupData.associatedObjects.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Data Object ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Data Object Title', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Access Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Embargo Until', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Data Object Instances', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } }
+        ]
+      ].concat(
+        dupData.associatedObjects.map(obj => [
+            { content: (obj.dataObject?.sdOid ? obj.dataObject.sdOid : this.defaultMissingValueText), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize} },
+            { content: (obj.dataObject?.displayTitle ? obj.dataObject.displayTitle : this.defaultMissingValueText), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+            { content: (obj.dataObject?.accessType?.name ? obj.dataObject.accessType.name : 'Unknown'), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+            { content: (obj.dataObject?.embargoExpiry ? (obj.dataObject.embargoExpiry.slice(0, 10)) : this.defaultMissingValueText), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+            { content: (obj.dataObject?.objectInstances?.length > 0 ?
+              (obj.dataObject?.objectInstances?.map(instance => {
+                return '• ' + (instance?.resourceType?.name ? instance.resourceType.name : 'Unknown resource type');
+              }).join('\n')) : 'No instances'), 
+                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      ), doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     }
-    autoTable(doc, {
-      startY: 20,
-      theme: 'plain',
-      body: bodyData,
-    })
-    doc.save(dupData.coreDup.displayName + '.pdf');
+
+    /* Data Objects Controlled Access Pre-requisites */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Data Objects Controlled Access Prerequisites', currX, currY);
+    
+    // Data sharing statement before the table
+    currY += offsetT2;
+    currY = this.makeTable([
+      [
+        { content: 'Study ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        { content: 'Data Sharing Statement', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+      ]
+    ].concat(
+      dupData.associatedStudies.map(associatedStudy => [
+        { content: (associatedStudy.study?.sdSid ? associatedStudy.study.sdSid : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        { content: (associatedStudy.study?.dataSharingStatement ? associatedStudy.study.dataSharingStatement : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+      ])
+    ), doc, currX, currY, 'grid', {}, {});
+    
+    currY += offsetT2;
+    if (dupData.prereqs.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Data Object ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Prerequisite type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Prerequisite details', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        ]
+      ].concat(
+        dupData.prereqs.map(prereq => [
+          { content: (prereq?.dtpDataObject?.dataObject?.sdOid ? prereq.dtpDataObject.dataObject.sdOid : this.defaultMissingValueText), 
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (prereq?.prereqType?.name ? prereq.prereqType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (prereq.prereqNotes ? prereq.prereqNotes : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      )
+      , doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'No object-specific prerequisites', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+    }
+
+    /* Associated People */
+    currY += offsetSection;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Associated People', currX, currY);
+    
+    currY += offsetT2;
+    if (dupData.associatedUsers.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Name', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Email', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        ]
+      ].concat(
+        dupData.associatedUsers.map(user => [
+          { content: (user.person?.firstName || user.person?.lastName ? (user.person.firstName + ' ' + user.person.lastName).trim() : this.defaultMissingValueText), 
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (user.person?.email ? user.person.email : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      )
+      , doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+    }
+
+    doc.save(dupData.displayName + '.pdf');
   }
 
   studyPdfGenerator(studyData) {

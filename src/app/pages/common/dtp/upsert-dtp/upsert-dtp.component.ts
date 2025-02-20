@@ -68,7 +68,6 @@ export class UpsertDtpComponent implements OnInit {
   instanceArray = [];
   pageSize: number = 10000;
   dtaData: any;
-  embargoData: any;
   prereqs: any;
   dtpNotes: any;
   stepperFields = {
@@ -142,9 +141,7 @@ export class UpsertDtpComponent implements OnInit {
     this.isView = this.router.url.includes('view') ? true : false;
     this.id = this.activatedRoute.snapshot.params.id;
 
-    if (this.isView) {
-      this.scrollService.handleScroll([`/data-transfers/${this.id}/view`]);
-    }
+    this.scrollService.handleScroll([`/data-transfers/${this.id}/view`, `/data-transfers/${this.id}/edit`, `/data-transfers/add`]);
 
     if (this.router.url.includes('add')) {
       this.form.patchValue({
@@ -585,8 +582,8 @@ export class UpsertDtpComponent implements OnInit {
         if (res) {
           this.getSortedDtpObjects(res.results);
           this.associatedObjects = res.results;
-          this.embargoData = this.associatedObjects;
           // TODO improve with API for a single call
+          // TODO: useless? associatedObjects contains instances already
           this.associatedObjects.map((item, index) => {
             this.dataObjectService.getObjectInstances(item.dataObject?.id, this.pageSize).subscribe((res:any) => {
               res.results.forEach(inst => inst.sdOid = item.dataObject?.sdOid);
@@ -1113,6 +1110,7 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   checkUrl(instanceUrl) {
+    // TODO: return different things if no valid URL, if TSD, or if external URL
     return (instanceUrl + '').includes('tsd.usit.no');
   }
 

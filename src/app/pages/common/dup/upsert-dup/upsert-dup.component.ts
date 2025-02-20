@@ -17,7 +17,8 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
-import { dateToString, stringToDate } from 'src/assets/js/util';
+import { dateToString, isWholeNumber, stringToDate } from 'src/assets/js/util';
+import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
 
 @Component({
   selector: 'app-upsert-dup',
@@ -47,6 +48,7 @@ export class UpsertDupComponent implements OnInit {
   studyList: [] = [];
   objectList: [] = [];
   role: any;
+  user: UserInterface;
   isManager: boolean = false;
   showUploadButton: boolean = false;
   addDOButtonDisabled: boolean = true;
@@ -119,10 +121,9 @@ export class UpsertDupComponent implements OnInit {
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isView = this.router.url.includes('view') ? true : false;
     this.isManager = this.statesService.isManager();
+    this.user = this.statesService.currentUser;
 
-    if (this.isView) {
-      this.scrollService.handleScroll([`/data-use/${this.id}/view`]);
-    }
+    this.scrollService.handleScroll([`/data-use/${this.id}/view`, `/data-use/${this.id}/edit`, `/data-use/add`]);
 
     if (this.router.url.includes('add')) {
       this.form.patchValue({
@@ -638,8 +639,9 @@ export class UpsertDupComponent implements OnInit {
   }
 
   setDupStudies(res) {
-    if (res) {
-      this.associatedStudies = res.results ? res.results : [];
+    if (res?.results?.length > 0) {
+      this.getSortedDupStudies(res.results);
+      this.associatedStudies = res.results;
       if (this.associatedStudies.length > 0) {
         this.addDOButtonDisabled = false;
       }
@@ -689,8 +691,9 @@ export class UpsertDupComponent implements OnInit {
   getDupObjectsAndPrereqs(id) {
     return this.dupService.getDupObjects(id).pipe(
       mergeMap((res: any) => {
-        if (res) {
-          this.associatedObjects = res.results ? res.results : [];
+        if (res?.results?.length > 0) {
+          this.getSortedDupObjects(res.results);
+          this.associatedObjects = res.results;
           this.dataObjectIds = this.associatedObjects.map((assocDo: any) => assocDo.dataObject.id);
           return this.getDupObjectPrereqs(this.dataObjectIds);
         }
@@ -702,12 +705,6 @@ export class UpsertDupComponent implements OnInit {
     );
   }
 
-  setDupObjects(res) {
-    if (res) {
-      this.associatedObjects = res.results ? res.results : [];
-    }
-  }
-
   getDupObjectPrereqs(dataObjectsIds) {
     return this.dupService.getDupObjectPrereqs(dataObjectsIds);
   }
@@ -716,7 +713,7 @@ export class UpsertDupComponent implements OnInit {
     if (res?.data) {
       this.prereqs = this.dataObjectIds.map(() => []);
       res.data.forEach((prereq) => {
-        const ind = this.dataObjectIds.indexOf(prereq?.dataObject?.id);
+        const ind = this.dataObjectIds.indexOf(prereq?.dtpDataObject?.dataObject?.id);
         if (ind > -1) {
           this.prereqs[ind].push(prereq);
         }
@@ -734,6 +731,52 @@ export class UpsertDupComponent implements OnInit {
     }, error => {
       this.toastr.error(error.error.title);
     })
+  }
+
+  getSortedDupStudies(studies) {
+    const { compare } = Intl.Collator('en-GB');
+    studies.sort((a, b) => {
+      if (a.study?.sdSid.length > 5 && b.study?.sdSid.length > 5) {
+        if (isWholeNumber(a.study?.sdSid.slice(5, ))) {
+          if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
+            // Both a and b are int
+            return parseInt(a.study?.sdSid.slice(5, )) > parseInt(b.study?.sdSid.slice(5, )) ? 1 : -1;
+          }
+        } else {
+          if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
+            // a is not int, b is int
+            return 1;
+          } else {
+            // Both a and b are not int
+            return compare(a.study?.sdSid, b.study?.sdSid);
+          }
+        }
+      }
+      return -1;
+    });
+  }
+
+  getSortedDupObjects(objects) {
+    const { compare } = Intl.Collator('en-GB');
+    objects.sort((a, b) => {
+      if (a.dataObject?.sdOid.length > 5 && b.dataObject?.sdOid.length > 5) {
+        if (isWholeNumber(a.dataObject?.sdOid.slice(5, ))) {
+          if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
+            // Both a and b are int
+            return parseInt(a.dataObject?.sdOid.slice(5, )) > parseInt(b.dataObject?.sdOid.slice(5, )) ? 1 : -1;
+          }
+        } else {
+          if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
+            // a is not int, b is int
+            return 1;
+          } else {
+            // Both a and b are not int
+            return compare(a.dataObject?.sdOid, b.dataObject?.sdOid);
+          }
+        }
+      }
+      return -1;
+    });
   }
 
   addUser() {
@@ -798,33 +841,11 @@ export class UpsertDupComponent implements OnInit {
 
   printDocument() {
     const payload = JSON.parse(JSON.stringify(this.dupData));
-    payload.coreDup.organisation = this.findOrganization(payload.coreDup.organisation);
-    payload.coreDup.status = this.findStatus(payload.coreDup.status);
-    payload.coreDup.initialContactDate = this.viewDate(payload.coreDup.initialContactDate);
-    payload.coreDup.setUpCompleteDate = this.viewDate(payload.coreDup.setUpCompleteDate);
-    payload.coreDup.prereqsMetDate = this.viewDate(payload.coreDup.prereqsMetDate);
-    payload.coreDup.duaAgreedDate = this.viewDate(payload.coreDup.duaAgreedDate);
-    payload.coreDup.availabilityRequestedDate = this.viewDate(payload.coreDup.availabilityRequestedDate);
-    payload.coreDup.availabilityConfirmedDate = this.viewDate(payload.coreDup.availabilityConfirmedDate);
-    payload.coreDup.accessConfirmedDate = this.viewDate(payload.coreDup.accessConfirmedDate);
-    payload.duas[0].repoSignatory1 = this.findPeopleById(payload.duas[0].repoSignatory1);
-    payload.duas[0].repoSignatory2 = this.findPeopleById(payload.duas[0].repoSignatory2);
-    payload.duas[0].providerSignatory1 = this.findPeopleById(payload.duas[0].providerSignatory1);
-    payload.duas[0].providerSignatory2 = this.findPeopleById(payload.duas[0].providerSignatory2);
-    payload.duas[0].requesterSignatory1 = this.findPeopleById(payload.duas[0].requesterSignatory1);
-    payload.duas[0].requesterSignatory2 = this.findPeopleById(payload.duas[0].requesterSignatory2);
-
-    payload.dupNotes.map(item => {
-      item.author = this.findPeopleById(item.author);
-      item.createdOn = this.viewDate(item.createdOn);
-    });
-    payload.dupObjects.map(item => {
-      item.objectName = this.findObjectById(item.objectId);
-    });
-    payload.dupStudies.map(item => {
-      item.studyName = this.findStudyById(item.sdSid);
-    });
-    this.pdfGeneratorService.dupPdfGenerator(payload, this.associatedUsers);
+    payload.associatedStudies = this.associatedStudies;
+    payload.associatedObjects = this.associatedObjects;
+    payload.associatedUsers = this.associatedUsers;
+    payload.prereqs = ([] as string[]).concat(...this.prereqs);
+    this.pdfGeneratorService.dupPdfGenerator(payload);
   }
 
   jsonExport() {
@@ -898,6 +919,20 @@ export class UpsertDupComponent implements OnInit {
 
   compareUsers(u1: any, u2: any) {
     return u1.id === u2.id;
+  }
+
+  checkUrl(instanceUrl) {
+    // TODO: return different things if no valid URL, if TSD, or if external URL
+    return (instanceUrl + '').includes('tsd.usit.no');
+  }
+
+  canAccess() {
+    for (const aUser of this.associatedUsers) {
+      if (aUser.person?.id === this.user.id) {
+        return true;
+      }
+    }
+    return false;
   }
 
   goToTsd() {

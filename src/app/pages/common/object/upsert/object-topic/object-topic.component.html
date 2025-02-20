@@ -31,13 +31,13 @@
                                     <option selected disabled value="">Select an option...</option>
                                     <option [value]=topic.id *ngFor="let topic of topicType">{{topic.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findTopicType(objectTopic.value.topicType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findTopicType(objectTopic.value.topicType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="meshValue" class="font-style text-capitalize">Topic value</label>
                                 <input id="meshValue" type="text" class="form-control" placeholder="Enter a parameter..."
                                 formControlName="meshValue" *ngIf="!isView">
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectTopic.value.meshValue}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectTopic.value.meshValue}}</h6>
                             </div>
                         </div>
                         <br />
@@ -58,13 +58,13 @@
                                         </div>
                                     </ng-template>
                                 </ng-select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectTopic.value.originalValue?.name}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectTopic.value.originalValue?.name}}</h6>
                             </div>
                             <div class="col-md-4">
                                 <label for="meshCode" class="font-style text-capitalize">CT Code</label>
                                 <input id="meshCode" type="text" class="form-control" placeholder="Enter a parameter..."
                                 formControlName="meshCode" *ngIf="!isView">
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectTopic.value.meshCode}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectTopic.value.meshCode}}</h6>
                             </div>
                             <div class="col-md-4">
                                 <label for="meshCoded" class="font-style text-capitalize">Mesh Coded</label>
@@ -73,7 +73,7 @@
                                     <option value=false>No</option>
                                     <option value=true>Yes</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{(objectTopic.value.meshCoded==='true' || objectTopic.value.meshCoded===true) ? 'Yes' : 'No'}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{(objectTopic.value.meshCoded==='true' || objectTopic.value.meshCoded===true) ? 'Yes' : 'No'}}</h6>
                             </div>
                         </div>
 

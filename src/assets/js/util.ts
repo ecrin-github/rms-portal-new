@@ -28,3 +28,8 @@ export function stringToDate(date) {
 export function isWholeNumber(value) {
     return /^-?\d+$/.test(value);
 }
+
+export function getHeightWithoutPadding(element) {
+    const computedStyle = getComputedStyle(element);
+    return element.clientHeight - (parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom));
+}

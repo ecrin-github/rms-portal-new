@@ -118,8 +118,20 @@
   margin: 1.5rem 0 0 0.75rem !important;
 }
 
-.associated-do-li {
+.dtp-associated-do-li {
   margin-top: 0.6rem;
+}
+
+.dup-associated-do-li {
+  margin-bottom: 0.6rem;
+}
+
+.associated-do-title {
+  font-size: 1.15rem;
+}
+
+.li-subtitle {
+  font-weight: 500;
 }
 
 .capitalize-first-word:first-letter {
@@ -212,8 +224,44 @@ mat-footer-cell:first-of-type {
   color: #315492 !important;
 }
 
+.text-value {
+  font-weight: 100;
+  white-space: pre-wrap;
+}
+
 .hr-big {
   border-top-width: 0.4rem;
+}
+
+/* Sticky header */
+.sticky {
+  position: fixed;
+  top: 65px;
+  width: 96%;
+  padding: 25px;
+  z-index: 5;
+  background-color: white;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  right: 0%;
+}
+
+.sticky+.content {
+  padding-top: 100px;
+}
+
+@media (max-width: 991.98px) {
+  .sticky {
+      top: 1px !important;
+      width: 100% !important;
+  }
+}
+
+.displayPermanentNavbar {
+  display: block !important;
+}
+
+.hidePermanentNavbar {
+  display: none;
 }
 
 @media screen and (max-width: 500px) {
@@ -303,8 +351,8 @@ mat-footer-cell:first-of-type {
 
 /* Summary DO columns */
 .mat-column-sdOid {
-  flex: 0 0 15% !important;
-  width: 15% !important;
+  flex: 0 0 10% !important;
+  width: 10% !important;
   word-wrap: break-word !important;
   white-space: unset !important;
   overflow-wrap: break-word;
@@ -330,8 +378,17 @@ mat-footer-cell:first-of-type {
 }
 
 .mat-column-objectType {
-  flex: 0 0 14% !important;
-  width: 14% !important;
+  flex: 0 0 16% !important;
+  width: 16% !important;
+  word-wrap: break-word !important;
+  white-space: unset !important;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mat-column-access {
+  flex: 0 0 9% !important;
+  width: 9% !important;
   word-wrap: break-word !important;
   white-space: unset !important;
   overflow-wrap: break-word;
@@ -339,8 +396,8 @@ mat-footer-cell:first-of-type {
 }
 
 .mat-column-linkedStudy {
-  flex: 0 0 15% !important;
-  width: 15% !important;
+  flex: 0 0 9% !important;
+  width: 9% !important;
   word-wrap: break-word !important;
   white-space: unset !important;
   overflow-wrap: break-word;
@@ -626,6 +683,17 @@ mat-footer-cell:first-of-type {
   font-size: 2rem;
   color: #3aa677;
   opacity: 80%;
+}
+
+.notuploadedicon-container {
+  flex: 0 0 2rem;
+  margin-right: 1.25rem;
+}
+
+.not-uploaded-icon {
+  font-size: 2.25rem;
+  color: #727a83;
+  opacity: 40%;
 }
 
 .mat-expansion-panel-header-instance {

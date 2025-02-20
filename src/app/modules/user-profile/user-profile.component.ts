@@ -35,6 +35,9 @@ export class UserProfileComponent implements OnInit {
   ngOnInit(): void {
     this.user = this.statesService.currentUser;
     this.patchForm();
+    // this.userService.getUserAccessData(this.statesService.currentUser.id).subscribe((res) => {
+    //   console.log(`userAccessData: ${JSON.stringify(res)}`);
+    // })
   }
 
   patchForm() {

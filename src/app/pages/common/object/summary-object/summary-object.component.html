@@ -11,6 +11,7 @@
             </div>
         </div>
     </div>
+    <div id="permanentNavbar"></div>
 
     <div class="card-body">
         <div class="row">
@@ -45,13 +46,18 @@
             </ng-container>
 
             <ng-container matColumnDef="objectOrganisation">
-                <mat-header-cell *matHeaderCellDef> Organisation </mat-header-cell>
+                <mat-header-cell *matHeaderCellDef>Organisation</mat-header-cell>
                 <mat-cell *matCellDef="let row">{{row.organisation?.defaultName}}</mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="objectType">
-                <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                <mat-header-cell *matHeaderCellDef>Object Type</mat-header-cell>
                 <mat-cell *matCellDef="let row">{{row.objectType?.name}}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="access">
+                <mat-header-cell *matHeaderCellDef>Access</mat-header-cell>
+                <mat-cell *matCellDef="let row">{{row.accessType?.name}}</mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="linkedStudy">

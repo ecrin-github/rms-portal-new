@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header">
-        <div id="navbar" [ngClass]="isBrowsing ? 'browsing-header' : ''">
+        <div id="navbar">
             <div class="row upsert-navbar">
                 <div class="col-md-4">
                     <h2 class="text-capitalize">{{ isView ? 'Study Details' : isEdit ? 'Editing Study Details' : 'Add a new study'}}</h2>
@@ -28,11 +28,12 @@
             </div>
             <div class="row mt-5">
                 <div class="pl-5">
-                    <h6>{{studyData?.displayTitle}}</h6>
+                    <h4>{{studyData?.displayTitle}}</h4>
                 </div>   
             </div>
         </div>
     </div>
+    <div id="permanentNavbar"></div>
 
     <div class="card-body" id="content">
         <div class="row form-group" *ngIf="isAdd && addType === 'usingTrialId'">
@@ -53,7 +54,7 @@
                 <div class="row form-group">
                     <div class="col-md-6">
                         <label for="studyId" class="font-style text-capitalize">study id</label>
-                        <h6 id="studyId" style="font-weight: 100;">{{sdSid}}</h6>
+                        <h6 id="studyId" class="text-value">{{sdSid}}</h6>
                     </div>
                 </div>
                 <div class="row form-group">
@@ -64,7 +65,7 @@
                             <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.displayTitle.errors">
                                 <p *ngIf="isSubmitted && g.displayTitle.errors.required"> Please enter study title</p>
                             </div>
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.displayTitle}}</h6>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.displayTitle}}</h6>
                     </div>
                     <div class="col-md-4">
                         <label for="organisation" class="font-style text-capitalize">Organisation <sup>*</sup> </label>
@@ -84,7 +85,7 @@
                             </ng-select>
                         </ng-container>
                         <ng-template #displayOrgName>
-                            <h6 id="organisationName" style="font-weight: 100;">{{organisationName}}</h6>
+                            <h6 id="organisationName" class="text-value">{{organisationName}}</h6>
                         </ng-template>
                     </div>
                 </div>
@@ -98,7 +99,7 @@
                         <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.studyStatus.errors">
                             <p *ngIf="isSubmitted && g.studyStatus.errors.required"> Please enter the study status</p>
                         </div>
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyStatus?.name}}</h6>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.studyStatus?.name}}</h6>
                     </div>
                     <div class="col-md-4">
                         <label for="studyType" class="font-style text-capitalize">type <sup>*</sup> </label>
@@ -110,7 +111,7 @@
                         <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.studyType.errors">
                             <p *ngIf="isSubmitted && g.studyType.errors.required"> Please enter the study type</p>
                         </div>
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyType?.name}}</h6>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.studyType?.name}}</h6>
                     </div>
                     <div class="col-md-2">
                         <label for="studyStartMonth" class="font-style text-capitalize">Start Month</label>
@@ -118,16 +119,16 @@
                             <option selected disabled value="null">Select a month</option>
                             <option [value]="month.id" *ngFor="let month of monthValues">{{month.name}}</option>
                         </select>
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyStartMonth}}</h6>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.studyStartMonth}}</h6>
                     </div>
                     <div class="col-md-2">
                         <label for="studyStartYear" class="font-style text-capitalize">Start Year <sup>*</sup> </label>
                         <p-calendar id="studyStartYear" formControlName="studyStartYear" view="year" dateFormat="yy"
                             *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStartYear.errors }" placeholder="Select a year"></p-calendar>
                         <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.studyStartYear.errors">
-                            <p *ngIf="isSubmitted && g.studyStartYear.errors.required"> Please enter the study start year</p>
+                            <p *ngIf="isSubmitted && g.studyStartYear.errors.required">Please enter the study start year</p>
                         </div>
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyStartYear}}</h6>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.studyStartYear}}</h6>
                     </div>
                 </div>
                 <div class="row form-group">
@@ -136,15 +137,18 @@
                         <textarea class="form-control" cols="30" rows="5" placeholder="Please enter a brief description of your study"
                             formControlName="briefDescription" *ngIf="!isView" id="briefDescription">
                             </textarea>
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.briefDescription}}</h6>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.briefDescription}}</h6>
                     </div>
                 </div>
                 <div class="row form-group">
                     <div class="col-md-12">
-                        <label for="dataSharingStatement" class="font-style text-capitalize">Data sharing statement</label>
+                        <label for="dataSharingStatement" class="font-style text-capitalize">Data sharing statement*</label>
                         <textarea class="form-control" cols="30" rows="5" placeholder="Please enter a Data sharing statement related to your submission, e.g. ‘Submitter agrees that data can be shared with others by the repository manager’, or ‘Any request of sharing the data should be agreed directly with the submitter’, etc."
                             formControlName="dataSharingStatement" *ngIf="!isView" id="dataSharingStatement"></textarea>
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.dataSharingStatement}}</h6>
+                        <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.dataSharingStatement.errors">
+                            <p *ngIf="isSubmitted && g.dataSharingStatement.errors.required">Please enter a data sharing statement</p>
+                        </div>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.dataSharingStatement}}</h6>
                     </div>
                 </div>
                 <div class="row form-group">
@@ -154,13 +158,13 @@
                             <option selected disabled value="null">Please select...</option>
                             <option [value]=gender.id *ngFor="let gender of genderEligibility">{{gender.name}}</option>
                         </select>
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyGenderElig?.name}}</h6>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.studyGenderElig?.name}}</h6>
                     </div>
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
                         <label for="studyEnrollment" class="font-style text-capitalize">Study enrollment</label>
                         <input type="text" class="form-control" placeholder="Estimated or actual number of participants in the study"
                             formControlName="studyEnrollment" *ngIf="!isView" id="studyEnrollment" />
-                        <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.studyEnrollment}}</h6>
+                        <h6 *ngIf="isView" class="text-value">{{studyData?.studyEnrollment}}</h6>
                     </div>
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
                         <div class="row">
@@ -168,7 +172,7 @@
                                 <label for="minAge" class="font-style text-capitalize">Min age</label>
                                 <input type="text" id="minAge" class="form-control" placeholder="Minimum age value"
                                     formControlName="minAge" *ngIf="!isView" />
-                                <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.minAge ? studyData?.minAge :
+                                <h6 *ngIf="isView" class="text-value">{{studyData?.minAge ? studyData?.minAge :
                                     ''}}</h6>
                             </div>
                             <div class="col-4">
@@ -177,7 +181,7 @@
                                     <option selected disabled value="null">Please select...</option>
                                     <option [value]=unit.id *ngFor="let unit of timeUnits">{{unit.name}}</option>
                                 </select>
-                                <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.minAgeUnit?.name}}</h6>
+                                <h6 *ngIf="isView" class="text-value">{{studyData?.minAgeUnit?.name}}</h6>
                             </div>
                         </div>
                     </div>
@@ -187,7 +191,7 @@
                                 <label for="maxAge" class="font-style text-capitalize">Max age</label>
                                 <input id="maxAge" type="text" class="form-control" placeholder="Maximum age value"
                                     formControlName="maxAge" *ngIf="!isView" />
-                                <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.maxAge ? studyData?.maxAge :
+                                <h6 *ngIf="isView" class="text-value">{{studyData?.maxAge ? studyData?.maxAge :
                                     ''}}</h6>
                             </div>
                             <div class="col-4">
@@ -196,7 +200,7 @@
                                     <option selected disabled value="null">Please select...</option>
                                     <option [value]=unit.id *ngFor="let unit of timeUnits">{{unit.name}}</option>
                                 </select>
-                                <h6 *ngIf="isView" style="font-weight: 100;">{{studyData?.maxAgeUnit?.name}}</h6>
+                                <h6 *ngIf="isView" class="text-value">{{studyData?.maxAgeUnit?.name}}</h6>
                             </div>
                         </div>
                     </div>

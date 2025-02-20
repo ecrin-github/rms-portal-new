@@ -29,7 +29,7 @@
                                     <option disabled selected value="null">Please select the type of date</option>
                                     <option [value]=date.id *ngFor="let date of dateType">{{date.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{findDateType(objectDate.value.dateType)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{findDateType(objectDate.value.dateType)}}</h6>
                             </div>
                             <div class="col-md-6">
                                 <label for="dateIsRange" class="font-style text-capitalize">Is date range?</label>
@@ -38,7 +38,7 @@
                                     <option value=false>No</option>
                                     <option value=true>Yes</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.dateIsRange ? 'Yes': 'No'}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectDate.value.dateIsRange ? 'Yes': 'No'}}</h6>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -49,7 +49,7 @@
                                     <option [value]="day" *ngFor="let day of dayValues">{{day}}</option>
                                 </select>
                                 <!-- <p-calendar id="startDay" formControlName="startDay" view="date" dateFormat="dd"></p-calendar> -->
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.startDay}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectDate.value.startDay}}</h6>
                             </div>
                             <div class="col-md-2">
                                 <label for="startMonth" class="font-style text-capitalize">Start Month</label>
@@ -57,12 +57,12 @@
                                     <option selected disabled value="">Select an option...</option>
                                     <option [value]="month.id" *ngFor="let month of monthValues">{{month.name}}</option>
                                 </select>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.startMonth}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{objectDate.value.startMonth}}</h6>
                             </div>
                             <div class="col-md-2">
                                 <label for="startYear" class="font-style text-capitalize">Start Year</label>
                                 <p-calendar id="startYear" formControlName="startYear" view="year" dateFormat="yy" *ngIf="!isView"></p-calendar>
-                                <h6 style="font-weight: 100;" *ngIf="isView">{{getYear(objectDate.value.startYear)}}</h6>
+                                <h6 class="text-value" *ngIf="isView">{{getYear(objectDate.value.startYear)}}</h6>
                             </div>
                             <div *ngIf="showEndday[i]" class="col-md-6 row form-group">
                                 <div class="col-md-4">
@@ -71,7 +71,7 @@
                                         <option selected disabled value="">Select an option...</option>
                                         <option [value]="day" *ngFor="let day of dayValues">{{day}}</option>
                                     </select>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.endDay}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{objectDate.value.endDay}}</h6>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="endMonth" class="font-style text-capitalize">End Month</label>
@@ -79,12 +79,12 @@
                                         <option selected disabled value="">Select an option...</option>
                                         <option [value]="month.id" *ngFor="let month of monthValues">{{month.name}}</option>
                                     </select>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{objectDate.value.endMonth}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{objectDate.value.endMonth}}</h6>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="endYear" class="font-style text-capitalize">End Year</label>
                                     <p-calendar id="endYear" formControlName="endYear" view="year" dateFormat="yy" *ngIf="!isView"></p-calendar>
-                                    <h6 style="font-weight: 100;" *ngIf="isView">{{getYear(objectDate.value.endYear)}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{getYear(objectDate.value.endYear)}}</h6>
                                 </div>
                             </div>
                         </div>

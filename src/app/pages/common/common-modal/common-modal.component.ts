@@ -228,7 +228,7 @@ export class CommonModalComponent implements OnInit {
       this.spinner.hide();
       if (res?.data) {
         this.objectList = res.data.filter((item: any) => {
-          return (!this.currentObjectsIds.has(item?.id));
+          return item?.accessType?.name?.toLocaleLowerCase() === 'controlled' && !this.currentObjectsIds.has(item?.id);
         }); 
       }
     }, error => {
