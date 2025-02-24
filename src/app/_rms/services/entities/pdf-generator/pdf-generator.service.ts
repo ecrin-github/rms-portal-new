@@ -178,6 +178,20 @@ export class PdfGeneratorService {
     doc.setFont(undefined, 'bold');
     doc.text('Data Objects Controlled Access Prerequisites', currX, currY);
     
+    // Data sharing statement before the table
+    currY += offsetT2;
+    currY = this.makeTable([
+      [
+        { content: 'Study ID', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        { content: 'Data Sharing Statement', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+      ]
+    ].concat(
+      dtpData.associatedStudies.map(associatedStudy => [
+        { content: (associatedStudy.study?.sdSid ? associatedStudy.study.sdSid : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        { content: (associatedStudy.study?.dataSharingStatement ? associatedStudy.study.dataSharingStatement : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+      ])
+    ), doc, currX, currY, 'grid', {}, {});
+    
     currY += offsetT2;
     if (dtpData.prereqs.length > 0) {
       currY = this.makeTable([
@@ -196,7 +210,7 @@ export class PdfGeneratorService {
       )
       , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'No object-specific prerequisites', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
     }
 
     /* Associated People */
