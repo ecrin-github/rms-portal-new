@@ -46,6 +46,7 @@ export interface DataObjectInterface {
     objectRights: ObjectRightInterface[] | null;
     objectTitles: ObjectTitleInterface[] | null;
     objectTopics: ObjectTopicInterface[] | null;
+    releaseDate: string | null;
 }
 
 

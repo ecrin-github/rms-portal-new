@@ -28,7 +28,8 @@
             </div>
             <div class="row mt-5">
                 <div class="pl-5">
-                    <h4>{{objectData?.displayTitle}}</h4>
+                    <!-- <h4>{{objectData?.displayTitle}}</h4> -->
+                    <h4>{{objectForm.value.displayTitle}}</h4>
                 </div>
             </div>
         </div>
@@ -44,7 +45,7 @@
                 </div>
             </div>
             <div class="row form-group">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <label for="study" class="font-style text-capitalize">parent study<sup>*</sup></label>
                     <ng-select id="study" [items]="studyList" formControlName="linkedStudy"
                     [compareWith]="compareStudies" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
@@ -77,7 +78,7 @@
                     </ng-container>
                     <br *ngIf="isView || isEdit">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label for="organisationName" class="font-style text-capitalize">Organisation<sup>*</sup></label>
                     <h6 id="organisationName" class="text-value">{{organisationName ? organisationName : isView ? '' : 'Select parent study to update organisation'}}</h6>
                 </div>
@@ -96,15 +97,29 @@
             <div class="row form-group">
                 <div class="col-md-6">
                     <label for="objectClass" class="font-style text-capitalize">Object class</label>
-                    <select id="objectClass" class="form-control" formControlName="objectClass" *ngIf="!isView" (change)="onChange()">
-                        <option selected disabled value="null">Please select object class</option>
-                        <option [value]=class.id *ngFor="let class of objectClasses">{{class.name}}</option>
-                    </select>
+                    <ng-select id="objectClass" [items]="objectClasses" formControlName="objectClass" [compareWith]="compareObjects" 
+                    [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
+                    notFoundText="No object class found" placeholder="Please select the object class"
+                    *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.objectClass.errors }" (change)="onClassChange()">
+                        <ng-template ng-label-tmp let-item="item">
+                            {{item.name}}
+                        </ng-template>
+                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                            <div class="row m-0">
+                                <div class="col-md-8 col-8 p-0 m-0">
+                                    <div class="col-md-12">{{item.name}}</div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </ng-select>
                     <h6 class="text-value" *ngIf="isView">{{objectData?.objectClass ? objectData?.objectClass.name : 'None'}}</h6>
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.objectClass.errors">
+                        <p *ngIf="isSubmitted && g.objectClass.errors">Please select the object class</p>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label for="objectType" class="font-style text-capitalize">Object type</label>
-                    <ng-select id="objectType" [items]="objectTypes" formControlName="objectType" [compareWith]="compareObjectTypes" 
+                    <ng-select id="objectType" [items]="objectTypes" formControlName="objectType" [compareWith]="compareObjects" 
                     [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" [searchFn]="customSearchObjectTypes"
                     notFoundText="No object type found" placeholder="Please select the object type"
                     *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.objectType.errors }" (change)="onTypeChange()">
@@ -161,7 +176,7 @@
             </div>
             <br />
             <div class="row form-group">
-                <div class="col-md-3">
+                <div [ngClass]="showReleaseDate ? 'col-md-2' : 'col-md-3'">
                     <label for="accessType" class="font-style text-capitalize">Access type<sup>*</sup></label>
                     <ng-select id="accessType" [items]="accessTypes" formControlName="accessType" [compareWith]="compareAccessTypes" 
                     [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
@@ -183,7 +198,7 @@
                         <p *ngIf="isSubmitted && g.accessType.errors">Please select the type of access to the data</p>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div [ngClass]="showReleaseDate ? 'col-md-2' : 'col-md-3'">
                     <label for="embargoExpiry" class="font-style text-capitalize">Embargo expiry date</label>
                     <div class="input-group" *ngIf="!isView">
                         <input class="form-control" placeholder="Leave empty if no embargo"
@@ -201,6 +216,10 @@
                     <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.embargoExpiry.errors">
                         <p *ngIf="isSubmitted && g.embargoExpiry.errors">Please enter a valid date (date must be greater than today's date)</p>
                     </div>
+                </div>
+                <div *ngIf="showReleaseDate" class="col-md-2">
+                    <label for="releaseDate" class="font-style text-capitalize">Release date</label>
+                    <h6 class="text-value">{{objectData?.releaseDate ? viewDate(objectData?.releaseDate) : ''}}</h6>
                 </div>
                 <div class="col-md-6">
                     <label class="font-style text-capitalize">Parent study data sharing statement</label>
