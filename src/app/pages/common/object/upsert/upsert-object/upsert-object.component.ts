@@ -552,7 +552,7 @@ export class UpsertObjectComponent implements OnInit {
 
   onClassChange() {
     const arr: any = this.objectClasses.filter((item:any) => item.name.toLowerCase() === 'dataset');
-    this.showDatasetKey = this.objectForm.value.objectClass.id === arr[0].id ? true : false;
+    this.showDatasetKey = this.objectForm.value.objectClass?.id === arr[0].id ? true : false;
     if (this.showDatasetKey) {
       const validators = [Validators.required];
       this.objectForm.controls['objectDatasets']['controls']['recordkeyType'].setValidators(validators);
@@ -571,7 +571,7 @@ export class UpsertObjectComponent implements OnInit {
     // TODO: to replace by regex?
     const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name) || item.name.toLowerCase() === 'individual participant data');
     for (let item of arrType) {
-      if (item.id === this.objectForm.value.objectType.id) {
+      if (item.id === this.objectForm.value.objectType?.id) {
         if (item.name.toLowerCase() === 'individual participant data') {
           this.showReleaseDate = true;
         } else {
