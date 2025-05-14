@@ -100,7 +100,7 @@
                                         </div>
                                     </a>
                                     <a class="stepper-step" href="javascript:;" data-stepper-state=""
-                                        title="Preparation of the DTA">
+                                        title="Preparation of the DSA">
                                         <div class="stepper-label">
                                             <i class="stepper-icon flaticon-responsive"></i>
                                             <h3 class="stepper-title">Agreement preparation</h3>
@@ -199,7 +199,7 @@
                                                 {{viewDate(dtpData?.mdCompleteDate)}}</h6>
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="" class="font-style text-capitalize">Data Transfer Agreement</label>
+                                            <label for="" class="font-style text-capitalize">Data Service Agreement</label>
                                             <div class="form-group" *ngIf="!isView">
                                                 <div class="input-group">
                                                     <input class="form-control" placeholder="yyyy-mm-dd"
@@ -312,7 +312,7 @@
                                 </div>
                                 <div class="row form-group ">
                                     <div class="col-md-6">
-                                        <label for="filePath" class="font-style text-capitalize">DTA file path</label>
+                                        <label for="filePath" class="font-style text-capitalize">DSA file path</label>
                                         <input type="text" class="form-control" id="filePath" formControlName="dtaFilePath" *ngIf="!isView">
                                         <h6 class="text-value" *ngIf="isView">{{dtaData ? dtaData[0]?.dtaFilePath : ''}}
                                         </h6>
