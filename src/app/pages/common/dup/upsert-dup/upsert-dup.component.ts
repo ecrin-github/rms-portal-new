@@ -17,7 +17,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
-import { dateToString, isWholeNumber, stringToDate } from 'src/assets/js/util';
+import { dateToString, isWholeNumber, sqlDateStringToString, stringToDate } from 'src/assets/js/util';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
 
 @Component({
@@ -406,10 +406,7 @@ export class UpsertDupComponent implements OnInit {
   }
 
   viewDate(date) {
-    const dateArray = new Date(date);
-    return date ? dateArray.getFullYear() + '/' 
-        + (dateArray.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + '/' 
-        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : '';
+    return sqlDateStringToString(date);
   }
 
   onSave() {

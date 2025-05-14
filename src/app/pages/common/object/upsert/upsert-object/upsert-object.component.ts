@@ -18,7 +18,7 @@ import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generato
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
-import { stringToDate, dateToString } from 'src/assets/js/util';
+import { stringToDate, dateToString, sqlDateStringToString } from 'src/assets/js/util';
 import { RepoAccessTypeInterface } from 'src/app/_rms/interfaces/types/repo-access-type.interface';
 
 @Component({
@@ -71,6 +71,7 @@ export class UpsertObjectComponent implements OnInit {
   isBrowsing: boolean = false;
   showEdit: boolean = false;
   pageSize: Number = 10000;
+  showReleaseDate: boolean;
 
   constructor(private statesService: StatesService,
               private backService: BackService,
@@ -99,8 +100,6 @@ export class UpsertObjectComponent implements OnInit {
       organisation: null,
       accessType: ['', Validators.required],
       embargoExpiry: null,
-      accessDetails: '',
-      accessDetailsUrl: '',
       eoscCategory: 0,
       objectDatasets: this.fb.group({
         recordkeyType: null,
@@ -381,45 +380,21 @@ export class UpsertObjectComponent implements OnInit {
   }
 
   viewDate(date) {
-    const dateArray = new Date(date);
-    return date ? dateArray.getFullYear() + '/' 
-        + (dateArray.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + '/' 
-        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : '';
+    return sqlDateStringToString(date);
   }
 
   patchObjectForm() {
-    const arr: any = this.objectClasses.filter((item:any) => item.name === 'Dataset');
-    if (this.objectData.objectClass) {
-      this.showDatasetKey = this.objectData.objectClass.id === arr[0].id ? true : false;
-      let validators: any = [];
-      if (this.showDatasetKey) {
-        validators = [Validators.required];
-      }
-      this.objectForm.controls['objectDatasets']['controls']['recordkeyType'].setValidators(validators);
-      this.objectForm.controls['objectDatasets']['controls']['recordkeyDetails'].setValidators(validators);
-    }
-    const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
-    if(this.objectData.objectType) {
-      arrType.map(item => {
-        if (item.id === this.objectData.objectType.id) {
-          this.showTopic = true;
-          return;
-        }
-      });
-    }
     this.objectForm.patchValue({
       linkedStudy: this.objectData.linkedStudy ? this.objectData.linkedStudy : null,
       doi: this.objectData.doi,
       displayTitle: this.objectData.displayTitle,
       version: this.objectData.version,
-      objectClass: this.objectData.objectClass ? this.objectData.objectClass.id : null,
+      objectClass: this.objectData.objectClass ? this.objectData.objectClass : null,
       objectType: this.objectData.objectType ? this.objectData.objectType : null,
       publicationYear: this.objectData.publicationYear ? new Date(`01/01/${this.objectData.publicationYear}`) : '',
       langCode: this.objectData.langCode ? this.objectData.langCode.id : null,
       organisation: this.objectData.organisation ? this.objectData.organisation.id : null,
       accessType: this.objectData.accessType ? this.objectData.accessType : null,
-      accessDetails: this.objectData.accessDetails,
-      accessDetailsUrl: this.objectData.accessDetailsUrl,
       embargoExpiry: this.objectData.embargoExpiry ? stringToDate(this.objectData.embargoExpiry) : null,
       eoscCategory: this.objectData.eoscCategory,
       objectDatasets: {
@@ -443,6 +418,8 @@ export class UpsertObjectComponent implements OnInit {
       objectRights: this.objectData.objectRights ? this.objectData.objectRights : [],
       objectRelationships: this.objectData.objectRelationships ? this.objectData.objectRelationships : []
     });
+    this.onClassChange();
+    this.onTypeChange();
     this.setControlled();
   }
 
@@ -459,14 +436,12 @@ export class UpsertObjectComponent implements OnInit {
         version: this.objectForm.value.version,
         doi: this.objectForm.value.doi,
         publicationYear: this.objectForm.value.publicationYear ? this.objectForm.value.publicationYear.getFullYear() : null,
-        accessDetails: this.objectForm.value.accessDetails,
-        accessDetailsUrl: this.objectForm.value.accessDetailsUrl,
         embargoExpiry: this.objectForm.value.embargoExpiry ? dateToString(this.objectForm.value.embargoExpiry) : null,
         urlLastChecked: this.objectForm.value.urlLastChecked,
         addStudyContributors: true,
         addStudyTopics: true,
         linkedStudy: this.objectForm.value.linkedStudy ? this.objectForm.value.linkedStudy.id : null,
-        objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass : null,
+        objectClass: this.objectForm.value.objectClass ? this.objectForm.value.objectClass.id : null,
         objectType: this.objectForm.value.objectType ? this.objectForm.value.objectType.id : null,
         organisation: this.objectForm.value.organisation ? this.objectForm.value.organisation : null,
         langCode: this.objectForm.value.langCode,
@@ -556,27 +531,6 @@ export class UpsertObjectComponent implements OnInit {
       this.toastr.error("Please correct the errors in the form's fields.");
     }
   }
-  // findObjectClass(id) {
-  //   const objectClassArray: any = this.objectClass.filter((type: any) => type.id === id);
-  //   return objectClassArray && objectClassArray.length ? objectClassArray[0].name : '';
-  // }
-  // findobjectType(id) {
-  //   const objectTypeArray: any = this.objectType.filter((type: any) => type.id === id);
-  //   return objectTypeArray && objectTypeArray.length ? objectTypeArray[0].name : '';
-  // }
-  // findAccessType(id) {
-  //   const accessTypeArray: any = this.accessType.filter((type: any) => type.id === id);
-  //   return accessTypeArray && accessTypeArray.length ? accessTypeArray[0].name : '';
-  // }
-  // findKeyType(id) {
-  //   const keyTypeArray: any = this.keyType.filter((type: any) => type.id === id);
-  //   return keyTypeArray && keyTypeArray.length ? keyTypeArray[0].name : 'None';
-  // }
-  // findDeidentificationType(id) {
-  //   const deidentificationArray: any = this.deidentificationType.filter((type: any) => type.id === id);
-  //   return deidentificationArray && deidentificationArray.length ? deidentificationArray[0].name : 'None';
-  // }
-
   findConsentType(id) {
     const consentTypeArray: any = this.consentTypes.filter((type: any) => type.id === id);
     return consentTypeArray && consentTypeArray.length ?consentTypeArray[0].name : 'None';
@@ -593,9 +547,9 @@ export class UpsertObjectComponent implements OnInit {
     this.backService.back();
   }
 
-  onChange() {
+  onClassChange() {
     const arr: any = this.objectClasses.filter((item:any) => item.name.toLowerCase() === 'dataset');
-    this.showDatasetKey = this.objectForm.value.objectClass === arr[0].id ? true : false;
+    this.showDatasetKey = this.objectForm.value.objectClass?.id === arr[0].id ? true : false;
     if (this.showDatasetKey) {
       const validators = [Validators.required];
       this.objectForm.controls['objectDatasets']['controls']['recordkeyType'].setValidators(validators);
@@ -610,11 +564,16 @@ export class UpsertObjectComponent implements OnInit {
 
   onTypeChange() {
     this.showTopic = false;
-    const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name));
+    this.showReleaseDate = false;
+    // TODO: to replace by regex?
+    const arrType: any = this.objectTypes.filter((item: any) => UpsertObjectComponent.isShowTopicType(item.name) || item.name.toLowerCase() === 'individual participant data');
     for (let item of arrType) {
-      if (item.id === this.objectForm.value.objectType) {
-        this.showTopic = true;
-        break;
+      if (item.id === this.objectForm.value.objectType?.id) {
+        if (item.name.toLowerCase() === 'individual participant data') {
+          this.showReleaseDate = true;
+        } else {
+          this.showTopic = true;
+        }
       }
     }
   }
@@ -804,22 +763,12 @@ export class UpsertObjectComponent implements OnInit {
     return at1?.id === at2?.id;
   }
   
-  compareObjectTypes(ot1, ot2): boolean {
-    return ot1?.id === ot2?.id;
+  compareObjects(o1, o2): boolean {
+    return o1?.id === o2?.id;
   }
 
   setControlled() {
     this.controlled = (this.objectForm.value.accessType?.name?.toLocaleLowerCase() === 'controlled');
-    this.showControlledDetails();
-  }
-
-  showControlledDetails() {
-    if (this.controlled) {
-      this.g['accessDetails'].setValidators([Validators.required]);
-    } else {
-      this.g['accessDetails'].clearValidators();
-      this.g['accessDetails'].setErrors(null);
-    }
   }
   
   gotoTop() {

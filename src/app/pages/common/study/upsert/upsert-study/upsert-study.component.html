@@ -151,6 +151,18 @@
                         <h6 *ngIf="isView" class="text-value">{{studyData?.dataSharingStatement}}</h6>
                     </div>
                 </div>
+                <div class="row form-group" *ngIf="studyForm.value.ipdDO">
+                    <div class="col-md">
+                        <label for="ipdDO" class="font-style text-capitalize">IPD Data object</label>
+                        <h6 class="text-value">
+                            <a [routerLink]="isBrowsing ? ['/browsing/data-objects', studyForm.value.ipdDO.sdOid, 'view'] : ['/data-objects', studyForm.value.ipdDO.sdOid, 'view']">{{studyForm.value.ipdDO.displayTitle}} ({{studyForm.value.ipdDO.sdOid}})</a>
+                        </h6>
+                    </div>
+                    <div class="col-md">
+                        <label for="ipdDO" class="font-style text-capitalize">IPD Release Date</label>
+                        <h6 class="text-value">{{studyForm.value.ipdDO.releaseDate ? viewDate(studyForm.value.ipdDO.releaseDate) : ''}}</h6>
+                    </div>
+                </div>
                 <div class="row form-group">
                     <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
                         <label for="studyGenderElig" class="font-style text-capitalize">Study gender eligibility</label>

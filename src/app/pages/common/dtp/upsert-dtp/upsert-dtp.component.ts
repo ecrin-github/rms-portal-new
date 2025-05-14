@@ -24,7 +24,7 @@ import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
-import { dateToString, isWholeNumber, stringToDate } from 'src/assets/js/util';
+import { dateToString, isWholeNumber, sqlDateStringToString, stringToDate } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -725,10 +725,7 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   viewDate(date) {
-    const dateArray = new Date(date);
-    return date ? dateArray.getFullYear() + '/' 
-        + (dateArray.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + '/' 
-        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : '';
+    return sqlDateStringToString(date);
   }
 
   onSave() {
