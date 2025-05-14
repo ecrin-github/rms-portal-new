@@ -17,6 +17,7 @@ import { StudyService } from 'src/app/_rms/services/entities/study/study.service
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
+import { sqlDateStringToString } from 'src/assets/js/util';
 
 @Component({
   selector: 'app-upsert-study',
@@ -96,6 +97,7 @@ export class UpsertStudyComponent implements OnInit {
       minAgeUnit: null,
       maxAge: null,
       maxAgeUnit: null,
+      ipdDO: null,
       studyIdentifiers: [],
       studyTitles: [],
       studyFeatures: [],
@@ -173,7 +175,7 @@ export class UpsertStudyComponent implements OnInit {
 
       let obsArr: Array<Observable<any>> = [];
       queryFuncs.forEach((funct) => {
-        obsArr.push(funct.pipe(catchError(error => of(this.toastr.error(error.error.title)))));
+        obsArr.push(funct.pipe(catchError(error => of(this.toastr.error(error)))));
       });
 
       combineLatest(obsArr).subscribe(res => {
@@ -476,6 +478,15 @@ export class UpsertStudyComponent implements OnInit {
   }
 
   patchStudyForm() {
+    let ipdDO = null;
+    for (let linkedObject of this.studyData.linkedObjects) {
+      // TODO: to replace by regex?
+      if (linkedObject?.objectType?.name?.toLowerCase() === "individual participant data") {
+        ipdDO = linkedObject;
+        break;
+      }
+    }
+
     this.studyForm.patchValue({
       displayTitle: this.studyData.displayTitle,
       briefDescription: this.studyData.briefDescription,
@@ -497,6 +508,7 @@ export class UpsertStudyComponent implements OnInit {
       studyTopics: this.studyData.studyTopics ? this.studyData.studyTopics : [],
       studyRelationships: this.studyData.studyRelationships ? this.studyData.studyRelationships : [],
       studyContributors: this.studyData.studyContributors ? this.studyData.studyContributors : [],
+      ipdDO: ipdDO,
     });
   }
 
@@ -663,6 +675,10 @@ export class UpsertStudyComponent implements OnInit {
 
   compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {
     return o1?.id == o2?.id;
+  }
+
+  viewDate(sqlDateStr) {
+    return sqlDateStringToString(sqlDateStr);
   }
 
   gotoTop() {

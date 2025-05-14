@@ -18,7 +18,7 @@ import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generato
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
-import { stringToDate, dateToString } from 'src/assets/js/util';
+import { stringToDate, dateToString, sqlDateStringToString } from 'src/assets/js/util';
 import { RepoAccessTypeInterface } from 'src/app/_rms/interfaces/types/repo-access-type.interface';
 
 @Component({
@@ -380,10 +380,7 @@ export class UpsertObjectComponent implements OnInit {
   }
 
   viewDate(date) {
-    const dateArray = new Date(date);
-    return date ? dateArray.getFullYear() + '/' 
-        + (dateArray.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + '/' 
-        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : '';
+    return sqlDateStringToString(date);
   }
 
   patchObjectForm() {

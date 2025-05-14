@@ -25,6 +25,13 @@ export function stringToDate(date) {
     return date ? {year: dateArray.getFullYear(), month: dateArray.getMonth() + 1, day: dateArray.getDate()} : null;
 }
 
+export function sqlDateStringToString(date) {
+    const dateArray = new Date(date);
+    return date ? dateArray.getFullYear() + '-' 
+        + (dateArray.getMonth()+1).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + '-' 
+        + (dateArray.getDate()).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : '';
+}
+
 export function isWholeNumber(value) {
     return /^-?\d+$/.test(value);
 }

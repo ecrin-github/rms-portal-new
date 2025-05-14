@@ -37,7 +37,7 @@ export interface StudyInterface {
     studyRelationships: StudyRelationshipInterface[] | null;
     studyTitles: StudyTitleInterface[] | null;
     studyTopics: StudyTopicInterface[] | null;
-    linkedObjects: DataObjectInterface | null;
+    linkedObjects: DataObjectInterface[] | null;
 }
 
 export interface StudyDataInterface {
