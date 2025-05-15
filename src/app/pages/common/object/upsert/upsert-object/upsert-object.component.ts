@@ -142,8 +142,11 @@ export class UpsertObjectComponent implements OnInit {
     this.minEmbargoDate = {year: tomorrow.getFullYear(), month: tomorrow.getMonth()+1, day: tomorrow.getDate()};
     this.isAdd = this.router.url.includes('add') ? true : false;
     this.isEdit = this.router.url.includes('edit') ? true : false;
-    this.isView = this.router.url.includes('view') ? true : false;
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
+
+    if (!this.isEdit && !this.isAdd) {
+      this.isView = true;
+    }
 
     this.isManager = this.statesService.isManager();
     this.orgId = this.statesService.currentAuthOrgId;

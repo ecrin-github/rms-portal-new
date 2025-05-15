@@ -49,6 +49,15 @@ import { NgxPermissionsModule } from 'ngx-permissions';
         }
       },
       {
+        path: 'browsing/studies/:id',
+        pathMatch: 'full',
+        component: UpsertStudyComponent,
+        data: { 
+          shouldReuse: false,
+          key: 'upsertstudycomponent'
+        }
+      },
+      {
         path: 'browsing/studies/:id/view',
         pathMatch: 'full',
         component: UpsertStudyComponent,
@@ -65,6 +74,15 @@ import { NgxPermissionsModule } from 'ngx-permissions';
           shouldReuse: true,
           key: 'summaryobjectcomponent',
           reuseRoutesFrom: ['data-objects/:id/view', 'data-objects/:id/add', 'data-objects/:id/edit']
+        }
+      },
+      {
+        path: 'browsing/data-objects/:id',
+        pathMatch: 'full',
+        component: UpsertObjectComponent,
+        data: { 
+          shouldReuse: false,
+          key: 'upsertobjectcomponent'
         }
       },
       {

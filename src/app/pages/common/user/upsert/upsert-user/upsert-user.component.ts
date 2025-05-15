@@ -20,6 +20,7 @@ export class UpsertUserComponent implements OnInit {
   userForm: UntypedFormGroup;
   isEdit: boolean = false;
   isView: boolean = false;
+  isAdd: boolean = false;
   id: any;
   role: any;
   userData: any;
@@ -52,7 +53,11 @@ export class UpsertUserComponent implements OnInit {
     this.role = this.statesService.currentAuthRole;
     this.getOrganization();
     this.isEdit = this.router.url.includes('edit') ? true : false;
-    this.isView = this.router.url.includes('view') ? true : false;
+    this.isAdd = this.router.url.includes('add') ? true : false;
+    if (!this.isEdit && !this.isAdd) {
+      this.isView = true;
+    }
+
     if (this.isEdit || this.isView) {
       this.id = this.activatedRoute.snapshot.params.id;
       this.getPeopleById(this.id);
