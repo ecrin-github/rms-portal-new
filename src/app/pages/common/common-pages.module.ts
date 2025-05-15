@@ -113,6 +113,16 @@ import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
         RouterModule.forChild([
             // DUP details pages
             {
+                path: 'data-use/:id',
+                pathMatch: 'full',
+                component: UpsertDupComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertdupcomponentview'
+                },
+                canActivate: [RoleGuard]
+            },
+            {
                 path: 'data-use/:id/view',
                 pathMatch: 'full',
                 component: UpsertDupComponent,
@@ -133,6 +143,16 @@ import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
                 canActivate: [ManagerGuard]
             },
             // DTP details pages
+            {
+                path: 'data-transfers/:id',
+                pathMatch: 'full',
+                component: UpsertDtpComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertdtpcomponentview'
+                },
+                canActivate: [RoleGuard]
+            },
             {
                 path: 'data-transfers/:id/view',
                 pathMatch: 'full',
@@ -155,14 +175,13 @@ import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
             },
             // Studies details pages
             {
-                path: 'studies/:id/edit',
+                path: 'studies/:id',
                 pathMatch: 'full',
                 component: UpsertStudyComponent,
                 data: { 
                     shouldReuse: false,
-                    key: 'upsertstudycomponentedit'
-                },
-                canActivate: [RoleGuard]
+                    key: 'upsertstudycomponentview'
+                }
             },
             {
                 path: 'studies/:id/view',
@@ -173,16 +192,25 @@ import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
                     key: 'upsertstudycomponentview'
                 }
             },
+            {
+                path: 'studies/:id/edit',
+                pathMatch: 'full',
+                component: UpsertStudyComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertstudycomponentedit'
+                },
+                canActivate: [RoleGuard]
+            },
             // Object details pages
             {
-                path: 'data-objects/:id/edit',
+                path: 'data-objects/:id',
                 pathMatch: 'full',
                 component: UpsertObjectComponent,
                 data: { 
                     shouldReuse: false,
-                    key: 'upsertobjectcomponentedit'
-                },
-                canActivate: [RoleGuard]
+                    key: 'upsertobjectcomponentview'
+                }
             },
             {
                 path: 'data-objects/:id/view',
@@ -194,12 +222,22 @@ import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
                 }
             },
             {
-                path: 'people/:id/edit',
+                path: 'data-objects/:id/edit',
+                pathMatch: 'full',
+                component: UpsertObjectComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertobjectcomponentedit'
+                },
+                canActivate: [RoleGuard]
+            },
+            {
+                path: 'people/:id',
                 pathMatch: 'full',
                 component: UpsertUserComponent,
                 data: { 
                     shouldReuse: false,
-                    key: 'upsertusercomponentedit'
+                    key: 'upsertusercomponentview'
                 },
                 canActivate: [ManagerGuard]
             },
@@ -212,7 +250,17 @@ import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
                     key: 'upsertusercomponentview'
                 },
                 canActivate: [ManagerGuard]
-            }
+            },
+            {
+                path: 'people/:id/edit',
+                pathMatch: 'full',
+                component: UpsertUserComponent,
+                data: { 
+                    shouldReuse: false,
+                    key: 'upsertusercomponentedit'
+                },
+                canActivate: [ManagerGuard]
+            },
         ]),
         MatTableModule,
         MatPaginatorModule,

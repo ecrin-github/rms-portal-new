@@ -30,6 +30,7 @@ export class UpsertDupComponent implements OnInit {
   form: UntypedFormGroup;
   isEdit: boolean = false;
   isView: boolean = false;
+  isAdd: boolean = false;
   organizationList:[] = [];
   statusList = [];
   id: any;
@@ -113,23 +114,25 @@ export class UpsertDupComponent implements OnInit {
       this.spinner.show(); 
     });
 
-    this.role = this.statesService.currentAuthRole;
-    this.id = this.activatedRoute.snapshot.params.id;
     const todayDate = new Date();
     this.todayDate = {year: todayDate.getFullYear(), month: todayDate.getMonth()+1, day: todayDate.getDate()};
-
-    this.isEdit = this.router.url.includes('edit') ? true : false;
-    this.isView = this.router.url.includes('view') ? true : false;
+    this.role = this.statesService.currentAuthRole;
+    this.id = this.activatedRoute.snapshot.params.id;
     this.isManager = this.statesService.isManager();
     this.user = this.statesService.currentUser;
 
-    this.scrollService.handleScroll([`/data-use/${this.id}/view`, `/data-use/${this.id}/edit`, `/data-use/add`]);
-
+    this.isEdit = this.router.url.includes('edit') ? true : false;
     if (this.router.url.includes('add')) {
+      this.isAdd = true;
       this.form.patchValue({
         setUpStartDate: this.todayDate
       })
     }
+    if (!this.isEdit && !this.isAdd) {
+      this.isView = true;
+    }
+
+    this.scrollService.handleScroll([`/data-use/${this.id}/view`, `/data-use/${this.id}/edit`, `/data-use/add`]);
 
     let queryFuncs: Array<Observable<any>> = [];
 

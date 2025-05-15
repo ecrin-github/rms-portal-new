@@ -38,6 +38,7 @@ export class UpsertDtpComponent implements OnInit {
   objectEmbargoForm: UntypedFormGroup;
   isEdit: boolean = false;
   isView: boolean = false;
+  isAdd: boolean = false;
   organizationList: [] = [];
   statusList = [];
   id: any;
@@ -137,17 +138,20 @@ export class UpsertDtpComponent implements OnInit {
     this.isManager = this.statesService.isManager();
     this.role = this.statesService.currentAuthRole;
     this.user = this.statesService.currentUser;
-    this.isEdit = this.router.url.includes('edit') ? true : false;
-    this.isView = this.router.url.includes('view') ? true : false;
     this.id = this.activatedRoute.snapshot.params.id;
-
-    this.scrollService.handleScroll([`/data-transfers/${this.id}/view`, `/data-transfers/${this.id}/edit`, `/data-transfers/add`]);
-
+    
+    this.isEdit = this.router.url.includes('edit') ? true : false;
     if (this.router.url.includes('add')) {
+      this.isAdd = true;
       this.form.patchValue({
         setUpStartDate: this.todayDate
       })
     }
+    if (!this.isEdit && !this.isAdd) {
+      this.isView = true;
+    }
+
+    this.scrollService.handleScroll([`/data-transfers/${this.id}/view`, `/data-transfers/${this.id}/edit`, `/data-transfers/add`]);
     
     let queryFuncs: Array<Observable<any>> = [];
 

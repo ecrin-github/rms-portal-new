@@ -117,9 +117,13 @@ export class UpsertStudyComponent implements OnInit {
     this.sdSid = this.activatedRoute.snapshot.params.id;
 
     this.isEdit = this.router.url.includes('edit');
-    this.isView = this.router.url.includes('view');
     this.isAdd = this.router.url.includes('add');
     this.isBrowsing = this.router.url.includes('browsing');
+
+    if (!this.isEdit && !this.isAdd) {
+      this.isView = true;
+    }
+
     if (!this.isManager) {
       this.studyForm.get('studyType').setValidators(Validators.required);
       this.studyForm.get('studyStatus').setValidators(Validators.required);
@@ -137,6 +141,7 @@ export class UpsertStudyComponent implements OnInit {
         if (this.addType === 'usingTrialId') {
           queryFuncs.push(this.getTrialRegistries());
         }
+        // TODO: remove this if orgId null 
         queryFuncs.push(this.getOrganisation(this.orgId));
         // Getting new study ID if manual add
         queryFuncs.push(this.getQueryParams());
