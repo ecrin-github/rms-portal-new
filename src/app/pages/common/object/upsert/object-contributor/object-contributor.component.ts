@@ -9,6 +9,8 @@ import { CommonLookupService } from 'src/app/_rms/services/entities/common-looku
 import { DataObjectService } from 'src/app/_rms/services/entities/data-object/data-object.service';
 import { ConfirmationWindowComponent } from '../../../confirmation-window/confirmation-window.component';
 import { Router } from '@angular/router';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 
 @Component({
   selector: 'app-object-contributor',
@@ -18,7 +20,7 @@ import { Router } from '@angular/router';
 export class ObjectContributorComponent implements OnInit {
   form: UntypedFormGroup;
   contributorType: [] = [];
-  organizationList: [] = [];
+  organizationList: OrganisationInterface[] = [];
   subscription: Subscription = new Subscription();
   @Input() objectId: string;
   @Input() isView: boolean;
@@ -38,6 +40,7 @@ export class ObjectContributorComponent implements OnInit {
     private fb: UntypedFormBuilder, 
     private router: Router, 
     private commonLooupService: CommonLookupService, 
+    private contextService: ContextService,
     private objectService: DataObjectService, 
     private spinner: NgxSpinnerService, 
     private toastr: ToastrService, 
@@ -50,10 +53,13 @@ export class ObjectContributorComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getContributorType();
-    this.getOrganization();
     if (this.isEdit || this.isView) {
       this.getObjectContributor();
     }
+
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organizationList = organisations;
+    });
   }
 
   objectContributors(): UntypedFormArray {
@@ -190,18 +196,8 @@ export class ObjectContributorComponent implements OnInit {
     })
   }
 
-  getOrganization() {
-    this.commonLooupService.getOrganizationList(this.pagesize).subscribe((res: any) => {
-      if (res && res.results) {
-        this.organizationList = res.results;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
-
   findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
+    const organizationArray: any = this.organizationList?.filter((type: any) => type.id === id);
     return organizationArray && organizationArray.length ? organizationArray[0].defaultName : '';
   }
 
@@ -234,12 +230,13 @@ export class ObjectContributorComponent implements OnInit {
   }
 
   scrollToElement(): void {
-    setTimeout(() => {
-      const yOffset = -200;
-      const element = document.getElementById('objectconst' + this.objectContributors().value.length);
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    });
+    // TODO
+    // setTimeout(() => {
+    //   const yOffset = -200;
+    //   const element = document.getElementById('objectconst' + this.objectContributors().value.length);
+    //   const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    //   window.scrollTo({ top: y, behavior: 'smooth' });
+    // });
   }
 
   ngOnDestroy() {

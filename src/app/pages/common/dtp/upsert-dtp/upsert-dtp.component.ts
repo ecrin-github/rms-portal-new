@@ -25,6 +25,8 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
 import { dateToString, isWholeNumber, sqlDateStringToString, stringToDate } from 'src/assets/js/util';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
 
 @Component({
   selector: 'app-upsert-dtp',
@@ -39,7 +41,7 @@ export class UpsertDtpComponent implements OnInit {
   isEdit: boolean = false;
   isView: boolean = false;
   isAdd: boolean = false;
-  organizationList: [] = [];
+  organizationList: OrganisationInterface[] = [];
   statusList = [];
   id: any;
   dtpData: any;
@@ -96,6 +98,7 @@ export class UpsertDtpComponent implements OnInit {
               private processLookup: ProcessLookupService,
               private reuseService: ReuseService,
               private listService: ListService, 
+              private contextService: ContextService,
               private pdfGeneratorService: PdfGeneratorService, 
               private jsonGenerator: JsonGeneratorService,
               private dataObjectService: DataObjectService, 
@@ -151,6 +154,10 @@ export class UpsertDtpComponent implements OnInit {
       this.isView = true;
     }
 
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organizationList = organisations;
+    });
+
     this.scrollService.handleScroll([`/data-transfers/${this.id}/view`, `/data-transfers/${this.id}/edit`, `/data-transfers/add`]);
     
     let queryFuncs: Array<Observable<any>> = [];
@@ -169,7 +176,6 @@ export class UpsertDtpComponent implements OnInit {
     }
 
     // TODO: improve speed by removing calls not needed if isView
-    queryFuncs.push(this.getOrganisation());
     queryFuncs.push(this.getStatus());
     queryFuncs.push(this.getStudyList());
     queryFuncs.push(this.getObjectList());
@@ -189,7 +195,6 @@ export class UpsertDtpComponent implements OnInit {
       this.setObjectList(res.pop());
       this.setStudyList(res.pop());
       this.setStatus(res.pop());
-      this.setOrganisation(res.pop());
 
       if (this.isEdit || this.isView) {
         this.setDtpById(res.pop());
@@ -471,10 +476,6 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   get g() { return this.form.controls; }
-
-  getOrganisation() {
-    return this.commonLookup.getOrganizationList(this.pageSize);
-  }
 
   setOrganisation(res) {
     if (res && res.results) {

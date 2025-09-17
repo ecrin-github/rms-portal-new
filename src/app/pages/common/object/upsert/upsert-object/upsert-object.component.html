@@ -425,7 +425,7 @@
                         <app-object-date [objectId]="id" *ngIf="id" [isView]="isView" [isEdit]="isEdit"></app-object-date>
                     </mat-expansion-panel>
                     <hr />
-                    <ng-container *ngIf="showTopic">
+                    <ng-container>
                         <mat-expansion-panel [expanded]="objectData?.objectContributors?.length > 0 ? true : false" [disabled]="(isView && objectData?.objectContributors?.length === 0) ? true : false">
                             <mat-expansion-panel-header>
                                 <h6 class="pt-3 font-style">Object contributor(s)</h6>

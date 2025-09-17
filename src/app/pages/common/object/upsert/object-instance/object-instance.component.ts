@@ -10,6 +10,8 @@ import { ConfirmationWindowComponent } from '../../../confirmation-window/confir
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { Router } from '@angular/router';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 
 @Component({
   selector: 'app-object-instance',
@@ -20,7 +22,7 @@ export class ObjectInstanceComponent implements OnInit {
   form: UntypedFormGroup;
   sizeUnit: [] = [];
   resourceType: [] = [];
-  organizationList: []  [];
+  organizationList: OrganisationInterface[] = [];
   subscription: Subscription = new Subscription();
   @Input() objectId: string;
   @Input() sdOid: string;
@@ -38,7 +40,16 @@ export class ObjectInstanceComponent implements OnInit {
   @Output() emitInstance: EventEmitter<any> = new EventEmitter();
   pageSize: number = 10000;
 
-  constructor( private fb: UntypedFormBuilder, private router: Router, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private commonLookup: CommonLookupService) { 
+  constructor(
+    private fb: UntypedFormBuilder, 
+    private router: Router, 
+    private objectLookupService: ObjectLookupService, 
+    private objectService: DataObjectService, 
+    private spinner: NgxSpinnerService, 
+    private toastr: ToastrService, 
+    private contextService: ContextService,
+    private modalService: NgbModal, 
+    private commonLookup: CommonLookupService) { 
     this.form = this.fb.group({
       objectInstances: this.fb.array([])
     });
@@ -48,7 +59,11 @@ export class ObjectInstanceComponent implements OnInit {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     // this.getSizeUnit();
     this.getResourceType();
-    this.getOrganization();
+
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organizationList = organisations;
+    });
+
     if (this.isEdit || this.isView) {
       this.getObjectInstances();
     }
@@ -219,20 +234,6 @@ export class ObjectInstanceComponent implements OnInit {
       }
     }, error => {
       this.spinner.hide();
-      // this.toastr.error(error.error.title);
-      const arr = Object.keys(error.error);
-      arr.map((item,index) => {
-        this.toastr.error(`${item} : ${error.error[item]}`);
-      })
-    })
-  }
-
-  getOrganization() {
-    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      if (res && res.results) {
-        this.organizationList = res.results;
-      }
-    }, error => {
       // this.toastr.error(error.error.title);
       const arr = Object.keys(error.error);
       arr.map((item,index) => {

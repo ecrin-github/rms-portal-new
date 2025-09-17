@@ -11,6 +11,7 @@ import { SplashScreenService } from './_rms/partials/layout/splash-screen/splash
 import { Router, NavigationEnd, NavigationError } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TableExtendedService } from './_rms/shared/crud-table';
+import { ContextService } from './_rms/services/context/context.service';
 
 
 @Component({
@@ -29,6 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private splashScreenService: SplashScreenService,
     private router: Router,
     private tableService: TableExtendedService,
+    private contextService: ContextService  // Do not remove
   ) {
     // register translations
     // this.translationService.loadTranslations(

@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { StudyContributorTypeInterface } from 'src/app/_rms/interfaces/study/study-contributor-type.interface';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
 
 @Component({
   selector: 'app-study-contributor',
@@ -21,7 +22,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 export class StudyContributorComponent implements OnInit {
   form: UntypedFormGroup;
   contributorTypes: [] = [];
-  organizationList: [] = [];
+  organizationList: OrganisationInterface[] = [];
   subscription: Subscription = new Subscription();
   @Input() studyId: string;
   @Input() isView: boolean;
@@ -44,6 +45,7 @@ export class StudyContributorComponent implements OnInit {
   constructor(
     private fb: UntypedFormBuilder, 
     private router: Router, 
+    private contextService: ContextService,
     private commonLookupService: CommonLookupService, 
     private studyService: StudyService, 
     private spinner: NgxSpinnerService, 
@@ -64,10 +66,9 @@ export class StudyContributorComponent implements OnInit {
       this.setOrganisation(res);
     });
 
-    // if (this.isEdit && this.isManager) {
-    if (this.isEdit) {
-      this.getOrganization();
-    }
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organizationList = organisations;
+    });
 
     if (this.isEdit || this.isView) {
       this.getStudyContributor();
@@ -122,16 +123,6 @@ export class StudyContributorComponent implements OnInit {
     }, error => {
       console.log('error', error);
     });
-  }
-
-  getOrganization() {
-    this.commonLookupService.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      if (res && res.results) {
-        this.organizationList = res.results;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
   }
 
   getStudyContributor() {
