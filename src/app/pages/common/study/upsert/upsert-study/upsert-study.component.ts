@@ -18,6 +18,7 @@ import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { sqlDateStringToString } from 'src/assets/js/util';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
 
 @Component({
   selector: 'app-upsert-study',
@@ -41,7 +42,7 @@ export class UpsertStudyComponent implements OnInit {
   id: string;
   sdSid: string;
   organisationName: string;
-  organisations: Array<OrganisationInterface>;
+  organisations: OrganisationInterface[] = [];
   studyData: StudyInterface;
   studyFull: any;
   count = 0;
@@ -71,6 +72,7 @@ export class UpsertStudyComponent implements OnInit {
               private router: Router, 
               private studyLookupService: StudyLookupService, 
               private studyService: StudyService, 
+              private contextService: ContextService,
               private reuseService: ReuseService,
               private scrollService: ScrollService,
               private activatedRoute: ActivatedRoute,
@@ -135,6 +137,10 @@ export class UpsertStudyComponent implements OnInit {
     
       let queryFuncs: Array<Observable<any>> = [];
 
+      this.contextService.organisations.subscribe((organisations) => {
+        this.organisations = organisations;
+      });
+
       // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
       // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
       if (this.isAdd) {
@@ -145,9 +151,6 @@ export class UpsertStudyComponent implements OnInit {
         queryFuncs.push(this.getOrganisation(this.orgId));
         // Getting new study ID if manual add
         queryFuncs.push(this.getQueryParams());
-      }
-      if ((this.isEdit || this.isAdd) && this.isManager) {
-        queryFuncs.push(this.getOrganisations());
       }
 
       // Need to pipe both getStudy and getAssociatedObjects because they need to be completed in order
@@ -200,9 +203,7 @@ export class UpsertStudyComponent implements OnInit {
           // setStudyById not used here, see above
           this.setAssociatedObjects(res.pop());
         }
-        if ((this.isEdit || this.isAdd) && this.isManager) {
-          this.setOrganisations(res.pop());
-        }
+
         if (this.isAdd) {
           this.setStudySdSid(res.pop());
           this.setOrganisation(res.pop());
@@ -460,10 +461,6 @@ export class UpsertStudyComponent implements OnInit {
         organisation: organisation,
       });
     }
-  }
-
-  getOrganisations() {
-    return this.commonLookupService.getOrganizationList(this.pageSize);
   }
 
   setOrganisations(organisations) {

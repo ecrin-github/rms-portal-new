@@ -45,6 +45,15 @@
                                 <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id" formControlName="identifierOrg"
                                     [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No organization found"
                                     appendTo="body" placeholder="Select Organization" *ngIf="!isView">
+                                    <ng-template ng-label-tmp let-item="item">
+                                        {{item.defaultName}}{{item.city ? (', ' + item.city) : ''}}{{item.countryName ? (', ' + item.countryName) : ''}}
+                                    </ng-template>
+                                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                        <div class="row m-0">
+                                            <div class="col-md-12 p-0 m-0">{{item.defaultName}}</div>
+                                            <div class="col-md-12 p-0 m-0" style="font-size: 83%; color: gray;">{{item.city}}{{(item.city && item.countryName) ? ', ' : ''}}{{item.countryName}}</div>
+                                        </div>
+                                    </ng-template>
                                 </ng-select>
                                 <h6 class="text-value" *ngIf="isView">{{findOrganization(studyIdentifier.value.identifierOrg)}}</h6>
                             </div>

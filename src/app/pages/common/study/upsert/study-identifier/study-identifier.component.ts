@@ -12,6 +12,8 @@ import { CommonLookupService } from 'src/app/_rms/services/entities/common-looku
 import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/study-lookup.service';
 import { Router } from '@angular/router';
 import { dateToString, stringToDate } from 'src/assets/js/util';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 
 @Component({
   selector: 'app-study-identifier',
@@ -24,7 +26,7 @@ export class StudyIdentifierComponent implements OnInit {
   subscription: Subscription = new Subscription();
   studyIdentifier: StudyIdentifierInterface;
   showIdentifierLinks = [];
-  organizationList:[] = [];
+  organizationList: OrganisationInterface[] = [];
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   @Input() studyId: string;
@@ -39,7 +41,16 @@ export class StudyIdentifierComponent implements OnInit {
   @ViewChildren("panel", { read: ElementRef }) panel: QueryList<ElementRef>;
   pageSize: Number = 10000;
 
-  constructor( private fb: UntypedFormBuilder, private studyService: StudyService, private studyLookupService: StudyLookupService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private router: Router, private commonLookup: CommonLookupService) { 
+  constructor(
+    private fb: UntypedFormBuilder, 
+    private studyService: StudyService, 
+    private studyLookupService: StudyLookupService, 
+    private spinner: NgxSpinnerService, 
+    private contextService: ContextService,
+    private toastr: ToastrService, 
+    private modalService: NgbModal, 
+    private router: Router, 
+    private commonLookup: CommonLookupService) { 
     this.form = this.fb.group({
       studyIdentifiers: this.fb.array([])
     });
@@ -48,7 +59,11 @@ export class StudyIdentifierComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getIdentifierType();
-    this.getOrganization();
+    
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organizationList = organisations;
+    });
+
     if (this.isEdit || this.isView) {
       this.getStudyIdentifiers();
     }
@@ -107,15 +122,7 @@ export class StudyIdentifierComponent implements OnInit {
       }, error => {})
     }
   }
-  getOrganization() {
-    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      if (res && res.results) {
-        this.organizationList = res.results;
-      }
-    }, error => {
-      this.toastr.error(error.error.title);
-    })
-  }
+
   getIdentifierType() {
     this.studyLookupService.getStudyIdentifierTypes(this.pageSize).subscribe((res: any) => {
       if(res && res.results) {
@@ -203,7 +210,7 @@ export class StudyIdentifierComponent implements OnInit {
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : ''
   }
   findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
+    const organizationArray: any = this.organizationList?.filter((type: any) => type.id === id);
     return organizationArray && organizationArray.length ? organizationArray[0].defaultName : ''
   }
   emitData() {

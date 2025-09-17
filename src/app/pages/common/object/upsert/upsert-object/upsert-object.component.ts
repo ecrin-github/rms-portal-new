@@ -20,6 +20,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { stringToDate, dateToString, sqlDateStringToString } from 'src/assets/js/util';
 import { RepoAccessTypeInterface } from 'src/app/_rms/interfaces/types/repo-access-type.interface';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
 
 @Component({
   selector: 'app-upsert-object',
@@ -41,7 +42,7 @@ export class UpsertObjectComponent implements OnInit {
   deidentificationTypes: [] = [];
   consentTypes: [] = [];
   languageCodes: [] = [];
-  organisations: [] = [];
+  organisations: OrganisationInterface[] = [];
   organisationName: string;
   id: string;
   sdOid: string;
@@ -76,6 +77,7 @@ export class UpsertObjectComponent implements OnInit {
   constructor(private statesService: StatesService,
               private backService: BackService,
               private scrollService: ScrollService,
+              private contextService: ContextService,
               private fb: UntypedFormBuilder, 
               private router: Router, 
               private commonLookupService: CommonLookupService, 
@@ -155,6 +157,10 @@ export class UpsertObjectComponent implements OnInit {
       this.objectForm.get('objectType').setValidators(Validators.required);
     }
 
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organisations = organisations;
+    });
+
     let queryFuncs: Array<Observable<any>> = [];
 
     // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
@@ -163,9 +169,6 @@ export class UpsertObjectComponent implements OnInit {
       queryFuncs.push(this.getNextDOSdOid());
     }
 
-    if ((this.isEdit || this.isAdd) && (this.isManager)) {
-      queryFuncs.push(this.getOrganisations());
-    }
     if (this.isEdit || this.isView) {
       queryFuncs.push(this.getObjectById(this.sdOid));
     }
@@ -214,9 +217,6 @@ export class UpsertObjectComponent implements OnInit {
 
       if (this.isEdit || this.isView) {
         this.setObjectById(res.pop());
-      }
-      if ((this.isEdit || this.isAdd) && this.isManager) {
-        this.setOrganisations(res.pop());
       }
       if (this.isAdd) {
         this.setDOSdOid(res.pop());
@@ -352,10 +352,6 @@ export class UpsertObjectComponent implements OnInit {
         });
       }
     }
-  }
-
-  getOrganisations() {
-    return this.commonLookupService.getOrganizationList(this.pageSize);
   }
 
   setOrganisations(organisations) {

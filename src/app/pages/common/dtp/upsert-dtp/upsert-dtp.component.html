@@ -62,6 +62,15 @@
                                         formControlName="organisation" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" 
                                         notFoundText="No members found" placeholder="Select Organisation"
                                         *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }">
+                                        <ng-template ng-label-tmp let-item="item">
+                                            {{item.defaultName}}{{item.city ? (', ' + item.city) : ''}}{{item.countryName ? (', ' + item.countryName) : ''}}
+                                        </ng-template>
+                                        <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                                            <div class="row m-0">
+                                                <div class="col-md-12 p-0 m-0">{{item.defaultName}}</div>
+                                                <div class="col-md-12 p-0 m-0" style="font-size: 83%; color: gray;">{{item.city}}{{(item.city && item.countryName) ? ', ' : ''}}{{item.countryName}}</div>
+                                            </div>
+                                        </ng-template>
                                     </ng-select>
                                     <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.organisation.errors">
                                         <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>

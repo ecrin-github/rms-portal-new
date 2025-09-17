@@ -59,7 +59,7 @@
                 </div>
                 <div class="row form-group">
                     <div class="col-md-8">
-                        <label for="displayTitle" class="font-style text-capitalize">Title <sup>*</sup> </label>
+                        <label for="displayTitle" class="font-style text-capitalize">Title<sup *ngIf="!isView">*</sup> </label>
                         <textarea cols="30" rows="3" class="form-control" placeholder="Please enter a good mnemonic reference for your study"
                             formControlName="displayTitle" *ngIf="!isView" id="displayTitle" (change)="onChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.displayTitle.errors }"></textarea>
                             <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.displayTitle.errors">
@@ -68,18 +68,19 @@
                         <h6 *ngIf="isView" class="text-value">{{studyData?.displayTitle}}</h6>
                     </div>
                     <div class="col-md-4">
-                        <label for="organisation" class="font-style text-capitalize">Organisation <sup>*</sup> </label>
+                        <label for="organisation" class="font-style text-capitalize">Organisation<sup *ngIf="!isView">*</sup> </label>
                         <ng-container *ngIf="!isView && isManager; else displayOrgName">
                             <ng-select id="organisation" [items]="organisations" formControlName="organisation" *ngxPermissionsOnly="['Admin', 'Manager']"
                             [compareWith]="compareOrganisations" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control"
                             notFoundText="No organisation found" placeholder="Please select the organisation" [searchFn]="customSearchFn" 
                             [ngClass]="{ 'is-invalid': isSubmitted && g.organisation.errors }">
                                 <ng-template ng-label-tmp let-item="item">
-                                    {{item.defaultName}}
+                                    {{item.defaultName}}{{item.city ? (', ' + item.city) : ''}}{{item.countryName ? (', ' + item.countryName) : ''}}
                                 </ng-template>
                                 <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                     <div class="row m-0">
-                                        <div class="col-md-12 col-8 p-0 m-0">{{item.defaultName}}</div>
+                                        <div class="col-md-12 p-0 m-0">{{item.defaultName}}</div>
+                                        <div class="col-md-12 p-0 m-0" style="font-size: 83%; color: gray;">{{item.city}}{{(item.city && item.countryName) ? ', ' : ''}}{{item.countryName}}</div>
                                     </div>
                                 </ng-template>
                             </ng-select>
@@ -91,7 +92,7 @@
                 </div>
                 <div class="row form-group">
                     <div class="col-md-4">
-                        <label for="studyStatus" class="font-style text-capitalize">status <sup>*</sup> </label>
+                        <label for="studyStatus" class="font-style text-capitalize">status<sup *ngIf="!isView">*</sup> </label>
                         <select class="form-control" id="studyStatus" formControlName="studyStatus" *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStatus.errors }">
                             <option selected disabled value="null">Please select...</option>
                             <option [value]=status.id *ngFor="let status of studyStatuses">{{status.name}}</option>
@@ -102,7 +103,7 @@
                         <h6 *ngIf="isView" class="text-value">{{studyData?.studyStatus?.name}}</h6>
                     </div>
                     <div class="col-md-4">
-                        <label for="studyType" class="font-style text-capitalize">type <sup>*</sup> </label>
+                        <label for="studyType" class="font-style text-capitalize">type<sup *ngIf="!isView">*</sup> </label>
                         <select class="form-control" id="studyType" formControlName="studyType" *ngIf="!isView"
                             (change)="studyTypeChange()" [ngClass]="{ 'is-invalid': isSubmitted && g.studyType.errors }">
                             <option selected disabled value="null">Please select...</option>
@@ -122,7 +123,7 @@
                         <h6 *ngIf="isView" class="text-value">{{studyData?.studyStartMonth}}</h6>
                     </div>
                     <div class="col-md-2">
-                        <label for="studyStartYear" class="font-style text-capitalize">Start Year <sup>*</sup> </label>
+                        <label for="studyStartYear" class="font-style text-capitalize">Start Year<sup *ngIf="!isView">*</sup> </label>
                         <p-calendar id="studyStartYear" formControlName="studyStartYear" view="year" dateFormat="yy"
                             *ngIf="!isView" [ngClass]="{ 'is-invalid': isSubmitted && g.studyStartYear.errors }" placeholder="Select a year"></p-calendar>
                         <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.studyStartYear.errors">
@@ -142,7 +143,7 @@
                 </div>
                 <div class="row form-group">
                     <div class="col-md-12">
-                        <label for="dataSharingStatement" class="font-style text-capitalize">Data sharing statement*</label>
+                        <label for="dataSharingStatement" class="font-style text-capitalize">Data sharing statement<sup *ngIf="!isView">*</sup></label>
                         <textarea class="form-control" cols="30" rows="5" placeholder="Please enter a Data sharing statement related to your submission, e.g. ‘Submitter agrees that data can be shared with others by the repository manager’, or ‘Any request of sharing the data should be agreed directly with the submitter’, etc."
                             formControlName="dataSharingStatement" *ngIf="!isView" id="dataSharingStatement"></textarea>
                         <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.dataSharingStatement.errors">

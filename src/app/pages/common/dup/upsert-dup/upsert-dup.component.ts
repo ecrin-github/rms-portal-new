@@ -19,6 +19,8 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 import { dateToString, isWholeNumber, sqlDateStringToString, stringToDate } from 'src/assets/js/util';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
 
 @Component({
   selector: 'app-upsert-dup',
@@ -31,7 +33,7 @@ export class UpsertDupComponent implements OnInit {
   isEdit: boolean = false;
   isView: boolean = false;
   isAdd: boolean = false;
-  organizationList:[] = [];
+  organizationList: OrganisationInterface[] = [];
   statusList = [];
   id: any;
   dupData: any;
@@ -76,6 +78,7 @@ export class UpsertDupComponent implements OnInit {
               private dupService: DupService, 
               private spinner: NgxSpinnerService, 
               private toastr: ToastrService,
+              private contextService: ContextService,
               private activatedRoute: ActivatedRoute, 
               private modalService: NgbModal, 
               private reuseService: ReuseService,
@@ -132,6 +135,10 @@ export class UpsertDupComponent implements OnInit {
       this.isView = true;
     }
 
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organizationList = organisations;
+    });
+
     this.scrollService.handleScroll([`/data-use/${this.id}/view`, `/data-use/${this.id}/edit`, `/data-use/add`]);
 
     let queryFuncs: Array<Observable<any>> = [];
@@ -150,7 +157,6 @@ export class UpsertDupComponent implements OnInit {
     queryFuncs.push(this.getObjectList());
     queryFuncs.push(this.getStudyList());
     queryFuncs.push(this.getStatus());
-    queryFuncs.push(this.getOrganisation());
 
     let obsArr: Array<Observable<any>> = [];
     queryFuncs.forEach((funct) => {
@@ -158,7 +164,6 @@ export class UpsertDupComponent implements OnInit {
     });
 
     combineLatest(obsArr).subscribe(res => {
-      this.setOrganisation(res.pop());
       this.setStatus(res.pop());
       this.setStudyList(res.pop());
       this.setObjectList(res.pop());
@@ -371,16 +376,6 @@ export class UpsertDupComponent implements OnInit {
   }
   
   get g() { return this.form.controls; }
-
-  getOrganisation() {
-    return this.commonLookup.getOrganizationList(this.pageSize);
-  }
-
-  setOrganisation(res) {
-    if (res?.results) {
-      this.organizationList = res.results;
-    }
-  }
 
   getStatus() {
     return this.processLookup.getDupStatusTypes();

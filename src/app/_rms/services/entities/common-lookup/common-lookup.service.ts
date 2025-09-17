@@ -21,8 +21,8 @@ export class CommonLookupService {
   getContributorTypes(pageSize) {
     return this.http.get(`${baseApi}/context/contributor-types?page_size=${pageSize}`);
   }
-  getOrganizationList(pageSize) {
-    return this.http.get(`${baseApi}/general/organisations?page_size=${pageSize}`);
+  getOrganizationList() {
+    return this.http.get(`${baseApi}/general/organisations`);
   }
   getOrganizationById(orgId) {
     return this.http.get(`${baseApi}/general/organisations/${orgId}`);

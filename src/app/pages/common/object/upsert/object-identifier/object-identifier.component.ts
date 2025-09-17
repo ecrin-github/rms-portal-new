@@ -11,6 +11,8 @@ import { ObjectLookupService } from 'src/app/_rms/services/entities/object-looku
 import { Router } from '@angular/router';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { dateToString, stringToDate } from 'src/assets/js/util';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 
 
 @Component({
@@ -21,7 +23,7 @@ import { dateToString, stringToDate } from 'src/assets/js/util';
 export class ObjectIdentifierComponent implements OnInit {
   form: UntypedFormGroup;
   identifierType: [] = [];
-  organizationList: [] = [];
+  organizationList: OrganisationInterface[] = [];
   subscription: Subscription = new Subscription();
   @Input() objectId: string;
   @Input() isView: boolean;
@@ -37,7 +39,16 @@ export class ObjectIdentifierComponent implements OnInit {
   isBrowsing: boolean = false;
   pageSize: Number = 10000;
 
-  constructor( private fb: UntypedFormBuilder, private router: Router, private objectLookupService: ObjectLookupService, private objectService: DataObjectService, private spinner: NgxSpinnerService, private toastr: ToastrService, private modalService: NgbModal, private commonLookup: CommonLookupService) {
+  constructor(
+    private fb: UntypedFormBuilder, 
+    private router: Router, 
+    private objectLookupService: ObjectLookupService, 
+    private objectService: DataObjectService, 
+    private spinner: NgxSpinnerService, 
+    private toastr: ToastrService, 
+    private modalService: NgbModal, 
+    private contextService: ContextService,
+    private commonLookup: CommonLookupService) {
     this.form = this.fb.group({
       objectIdentifiers: this.fb.array([])
     });
@@ -46,7 +57,11 @@ export class ObjectIdentifierComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.getIdentifierType();
-    this.getOrganization();
+
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organizationList = organisations;
+    });
+
     if (this.isEdit || this.isView) {
       this.getObjectIdentifier();
     }
@@ -126,19 +141,7 @@ export class ObjectIdentifierComponent implements OnInit {
       })
     })
   }
-  getOrganization() {
-    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      if (res && res.results) {
-        this.organizationList = res.results;
-      }
-    }, error => {
-      // this.toastr.error(error.error.title);
-      const arr = Object.keys(error.error);
-      arr.map((item,index) => {
-        this.toastr.error(`${item} : ${error.error[item]}`);
-      })
-    })
-  }
+
   patchForm(identifiers) {
     this.form.setControl('objectIdentifiers', this.patchArray(identifiers));
   }
@@ -207,7 +210,7 @@ export class ObjectIdentifierComponent implements OnInit {
     return identifierTypeArray && identifierTypeArray.length ? identifierTypeArray[0].name : '';
   }
   findOrganization(id) {
-    const orgArr: any = this.organizationList.filter((type: any) => type.id === id);
+    const orgArr: any = this.organizationList?.filter((type: any) => type.id === id);
     return orgArr && orgArr.length ? orgArr[0].defaultName : '';
   }
 

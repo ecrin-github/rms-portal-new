@@ -4,7 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, combineLatest, of } from 'rxjs';
+import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { BackService } from 'src/app/_rms/services/back/back.service';
+import { ContextService } from 'src/app/_rms/services/context/context.service';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { PeopleService } from 'src/app/_rms/services/entities/people/people.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
@@ -16,7 +18,7 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
   styleUrls: ['./upsert-user.component.scss']
 })
 export class UpsertUserComponent implements OnInit {
-  organizationList: [] = [];
+  organizationList: OrganisationInterface[] = [];
   userForm: UntypedFormGroup;
   isEdit: boolean = false;
   isView: boolean = false;
@@ -28,6 +30,7 @@ export class UpsertUserComponent implements OnInit {
 
   constructor(private statesService: StatesService,
     private backService: BackService,
+    private contextService: ContextService,
     private fb: UntypedFormBuilder,
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -51,7 +54,11 @@ export class UpsertUserComponent implements OnInit {
 
   ngOnInit(): void {
     this.role = this.statesService.currentAuthRole;
-    this.getOrganization();
+    
+    this.contextService.organisations.subscribe((organisations) => {
+      this.organizationList = organisations;
+    });
+
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isAdd = this.router.url.includes('add') ? true : false;
     if (!this.isEdit && !this.isAdd) {
@@ -89,19 +96,6 @@ export class UpsertUserComponent implements OnInit {
       email: userData.email,
       password: userData.password,
       username: userData.username
-    })
-  }
-
-  getOrganization() {
-    this.spinner.show();
-    this.commonLookup.getOrganizationList(this.pageSize).subscribe((res: any) => {
-      this.spinner.hide();
-      if (res && res.results) {
-        this.organizationList = res.results;
-      }
-    }, error => {
-      this.spinner.hide();
-      this.toastr.error(error.error.title);
     })
   }
 
