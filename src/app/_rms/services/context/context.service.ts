@@ -30,8 +30,6 @@ export class ContextService {
     combineLatest(obsArr).subscribe(res => {
       this.setOrganisations(res.pop());
     });
-
-    console.log("constructed context service");
   }
 
   /* Organisations */
