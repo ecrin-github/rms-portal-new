@@ -45,8 +45,8 @@ export class ContextService {
   setOrganisations(organisations) {
     if (organisations.results){
       organisations = organisations.results;
+      this.sortOrganisations(organisations);
     }
-    this.sortOrganisations(organisations);
     this.organisations.next(organisations);
   }
 
