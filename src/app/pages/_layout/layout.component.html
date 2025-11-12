@@ -35,7 +35,7 @@
             <div class="d-flex flex-column-fluid">
               <!--begin::Container-->
               <div [ngClass]="contentContainerClasses">
-                <div class="alert alert-warning alert-dismissible fade show no-organisation" role="alert">
+                <div class="alert alert-warning alert-dismissible fade show no-organisation" role="alert" *ngIf="!isBrowsing && !isOrgIdValid">
                   You are logged in but have not been assigned to an organisation, which is required to be able to fully use the repository.<br>
                   If you would like to do so, <a [routerLink]="['/contactUs']" class="alert-link">please contact us</a> if you have not done it already.
                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">

@@ -47,6 +47,7 @@ export class LayoutComponent implements OnInit, AfterViewInit {
 
   // Role checker
   isBrowsing: boolean = false;
+  isOrgIdValid: boolean = false;
 
   constructor(
     private initService: LayoutInitService,
@@ -58,7 +59,8 @@ export class LayoutComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.isBrowsing = this.router.url.includes('browsing') ? true : false
+    this.isBrowsing = this.router.url.includes('browsing') ? true : false;
+    this.isOrgIdValid = this.statesService.isOrgIdValid();
     // build view by layout config settings
     this.selfLayout = this.layout.getProp('self.layout');
     this.asideSelfDisplay = this.layout.getProp('aside.self.display');
