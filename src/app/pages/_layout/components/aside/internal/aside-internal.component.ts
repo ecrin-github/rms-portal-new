@@ -23,6 +23,7 @@ export class AsideInternalComponent implements OnInit {
   asideSelfMinimizeToggle = false;
   menuSelected: string = 'dashboard';
   isBrowsing: boolean = true;
+  isOrgIdValid: boolean = false;
   isManager: boolean = false;
 
   constructor(private statesService: StatesService,
@@ -32,8 +33,9 @@ export class AsideInternalComponent implements OnInit {
 
   ngOnInit(): void {
     const orgId = this.statesService.currentAuthOrgId;
-    this.isManager = this.statesService.isManager();
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
+    this.isManager = this.statesService.isManager();
+    this.isOrgIdValid = this.statesService.isOrgIdValid();
 
     // load view settings
     this.disableAsideSelfDisplay =
