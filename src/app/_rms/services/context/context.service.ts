@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { OrganisationInterface } from '../../interfaces/organisation/organisation.interface';
 import { CommonLookupService } from '../entities/common-lookup/common-lookup.service';
+import { StatesService } from '../states/states.service';
+import { States } from '../../states/states';
 
 @Injectable({
   providedIn: 'root'
@@ -12,24 +14,24 @@ export class ContextService {
 
   public organisations: BehaviorSubject<OrganisationInterface[]> =
         new BehaviorSubject<OrganisationInterface[]>(null);
+  private isOrgIdValid: boolean = false;
 
   constructor(
     private commonLookup: CommonLookupService,
+    private statesService: StatesService,
+    private states: States,
     private toastr: ToastrService) {
-    // Note: be careful if you add new observables because of the way their result is retrieved later (combineLatest + pop)
-    // The code is built like this because in the version of RxJS used here combineLatest does not handle dictionaries
-    let queryFuncs: Array<Observable<any>> = [];
 
-    queryFuncs.push(this.getOrganisations());
-
-    let obsArr: Array<Observable<any>> = [];
-    queryFuncs.forEach((funct) => {
-      obsArr.push(funct.pipe(catchError(error => of(this.toastr.error(error.error.title)))));
-    });
-
-    combineLatest(obsArr).subscribe(res => {
-      this.setOrganisations(res.pop());
-    });
+    // Subscribing to org id changes to load organisations
+    this.states.currentAuthOrgId.subscribe(() => {
+      this.isOrgIdValid = this.statesService.isOrgIdValid();
+      // TODO: re-triggered on user profile page and probably others as well
+      if (this.isOrgIdValid && !(this.organisations.value?.length > 0)) { // If auth with org + query not already done
+        this.getOrganisations().subscribe(res => {
+          this.setOrganisations(res);
+        });
+      }
+    })
   }
 
   /* Organisations */
