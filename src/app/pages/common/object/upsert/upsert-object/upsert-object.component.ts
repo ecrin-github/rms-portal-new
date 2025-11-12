@@ -35,6 +35,7 @@ export class UpsertObjectComponent implements OnInit {
   isEdit: boolean = false;
   isView: boolean = false;
   isAdd: boolean = false;
+  isOrgIdValid: boolean = false;
   objectClasses: [] = [];
   objectTypes: [] = [];
   accessTypes: [] = [];
@@ -145,6 +146,7 @@ export class UpsertObjectComponent implements OnInit {
     this.isAdd = this.router.url.includes('add') ? true : false;
     this.isEdit = this.router.url.includes('edit') ? true : false;
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
+    this.isOrgIdValid = this.statesService.isOrgIdValid();
 
     if (!this.isEdit && !this.isAdd) {
       this.isView = true;
@@ -252,7 +254,7 @@ export class UpsertObjectComponent implements OnInit {
 
   getStudyList() {
     let studyList$: Observable<Object>;
-    if (!(this.isManager || this.isBrowsing)) {
+    if (!this.isManager && this.isOrgIdValid) {
       studyList$ = this.listService.getStudyListByOrg(this.orgId);
     } else {
       studyList$ = this.listService.getStudyList(this.pageSize, '');
