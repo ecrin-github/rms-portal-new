@@ -147,7 +147,7 @@ export class UpsertStudyComponent implements OnInit {
         if (this.addType === 'usingTrialId') {
           queryFuncs.push(this.getTrialRegistries());
         }
-        // TODO: remove this if orgId null 
+
         queryFuncs.push(this.getOrganisation(this.orgId));
         // Getting new study ID if manual add
         queryFuncs.push(this.getQueryParams());
