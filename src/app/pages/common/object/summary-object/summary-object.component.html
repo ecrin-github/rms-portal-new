@@ -32,7 +32,7 @@
         <mat-table [dataSource]="dataSource">
 
             <ng-container matColumnDef="sdOid">
-                <mat-header-cell *matHeaderCellDef>Study ID</mat-header-cell>
+                <mat-header-cell *matHeaderCellDef>Object ID</mat-header-cell>
                 <mat-cell *matCellDef="let row">
                     <a [routerLink]="isBrowsing ? ['/browsing/data-objects', row.sdOid, 'view'] : ['/data-objects', row.sdOid, 'view']">{{row.sdOid}}</a>
                 </mat-cell>
