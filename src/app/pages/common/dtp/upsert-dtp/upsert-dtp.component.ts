@@ -41,7 +41,7 @@ export class UpsertDtpComponent implements OnInit {
   isEdit: boolean = false;
   isView: boolean = false;
   isAdd: boolean = false;
-  organizationList: OrganisationInterface[] = [];
+  organisations: OrganisationInterface[] = [];
   statusList = [];
   id: any;
   dtpData: any;
@@ -155,7 +155,7 @@ export class UpsertDtpComponent implements OnInit {
     }
 
     this.contextService.organisations.subscribe((organisations) => {
-      this.organizationList = organisations;
+      this.organisations = organisations;
     });
 
     this.scrollService.handleScroll([`/data-transfers/${this.id}/view`, `/data-transfers/${this.id}/edit`, `/data-transfers/add`]);
@@ -214,6 +214,9 @@ export class UpsertDtpComponent implements OnInit {
     });
   }
 
+  get fc() { return this.form.controls; }
+  get fv() { return this.form.value; }
+
   changeStep(forward) {
     if (forward) {
       if (this.isView || (!(this.currentStep === this.maxSteps) && (this.currentStep <= this.lastCompletedStep))) {
@@ -245,7 +248,7 @@ export class UpsertDtpComponent implements OnInit {
     for (let i = 1; i <= this.maxSteps; i++) {
       for (const field of this.stepperFields[i]) {
         if (!isValid) {
-          this.g[field].setValue(null);
+          this.fc[field].setValue(null);
         } else if (!(this.form.value[field])) {
           isValid = false;
           notValidInd = i;
@@ -296,9 +299,9 @@ export class UpsertDtpComponent implements OnInit {
   updateStatus() {
     if (this.lastCompletedStep >= 0) {
       if (this.lastCompletedStep === this.maxSteps) {
-        this.g['status'].setValue(this.statusList[this.lastCompletedStep-1]);
+        this.fc['status'].setValue(this.statusList[this.lastCompletedStep-1]);
       } else {
-        this.g['status'].setValue(this.statusList[this.lastCompletedStep]);
+        this.fc['status'].setValue(this.statusList[this.lastCompletedStep]);
       }
     }
   }
@@ -475,14 +478,6 @@ export class UpsertDtpComponent implements OnInit {
     }, error => {})
   }
 
-  get g() { return this.form.controls; }
-
-  setOrganisation(res) {
-    if (res && res.results) {
-      this.organizationList = res.results;
-    }
-  }
-
   getStatus() {
     return this.processLookup.getDtpStatusTypes();
   }
@@ -496,7 +491,7 @@ export class UpsertDtpComponent implements OnInit {
       });
 
       if (this.statusList.length > 0) {
-        this.g['status'].setValue(this.statusList[0]);
+        this.fc['status'].setValue(this.statusList[0]);
       }
     }
   }
@@ -733,12 +728,7 @@ export class UpsertDtpComponent implements OnInit {
     return sqlDateStringToString(date);
   }
 
-  onSave() {
-    // Setting local storage to reload the dashboard page when adding or editing the dtp
-    if (localStorage.getItem('updateDtpList')) {
-      localStorage.removeItem('updateDtpList');
-    }
-    const payload = JSON.parse(JSON.stringify(this.form.value));
+  updatePayload(payload) {
     payload.setUpStartDate = this.dateToString(payload.setUpStartDate);
     payload.setUpCompleteDate = this.dateToString(payload.setUpCompleteDate);
     payload.mdCompleteDate = this.dateToString(payload.mdCompleteDate);
@@ -763,6 +753,19 @@ export class UpsertDtpComponent implements OnInit {
     if (payload.status?.id) {
       payload.status = payload.status.id;
     }
+
+    if (payload.organisation?.id) {
+      payload.organisation = payload.organisation.id;
+    }
+  }
+
+  onSave() {
+    // Setting local storage to reload the dashboard page when adding or editing the dtp
+    if (localStorage.getItem('updateDtpList')) {
+      localStorage.removeItem('updateDtpList');
+    }
+    const payload = JSON.parse(JSON.stringify(this.form.value));
+    this.updatePayload(payload);
 
     let hasErrors: boolean = false;
     for (const [step, errors] of Object.entries(this.storedDatesError)) {
@@ -838,7 +841,7 @@ export class UpsertDtpComponent implements OnInit {
 
   patchForm(data) {
     this.form.patchValue({
-      organisation: data.organisation ? data.organisation.id : null,
+      organisation: data.organisation,
       displayName: data.displayName,
       status: data.status,
       setUpStartDate: this.stringToDate(data.setUpStartDate),
@@ -880,11 +883,6 @@ export class UpsertDtpComponent implements OnInit {
       providerSignature2: dtaData[0]?.providerSignature2
     });
     this.showVariations = dtaData[0]?.conformsToDefault ? true : false;
-  }
-
-  findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
-    return organizationArray && organizationArray.length ? organizationArray[0].defaultName : ''
   }
 
   findStatus(id) {
@@ -1063,37 +1061,6 @@ export class UpsertDtpComponent implements OnInit {
 
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.dtpData));
-    /*payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
-    payload.coreDtp.status = this.findStatus(payload.coreDtp.status);
-    payload.coreDtp.initialContactDate = this.viewDate(payload.coreDtp.initialContactDate);
-    payload.coreDtp.setUpCompleteDate = this.viewDate(payload.coreDtp.setUpCompleteDate);
-    payload.coreDtp.mdAccessGrantedDate = this.viewDate(payload.coreDtp.mdAccessGrantedDate);
-    payload.coreDtp.mdCompleteDate = this.viewDate(payload.coreDtp.mdCompleteDate);
-    payload.coreDtp.dtaAgreedDate = this.viewDate(payload.coreDtp.dtaAgreedDate);
-    payload.coreDtp.uploadAccessRequestedDate = this.viewDate(payload.coreDtp.uploadAccessRequestedDate);
-    payload.coreDtp.uploadAccessConfirmedDate = this.viewDate(payload.coreDtp.uploadAccessConfirmedDate);
-    payload.coreDtp.uploadCompleteDate = this.viewDate(payload.coreDtp.uploadCompleteDate);
-    payload.coreDtp.qcChecksCompleteDate = this.viewDate(payload.coreDtp.qcChecksCompleteDate);
-    payload.coreDtp.mdIntegratedWithMdrDate = this.viewDate(payload.coreDtp.mdIntegratedWithMdrDate);
-    payload.coreDtp.availabilityRequestedDate = this.viewDate(payload.coreDtp.availabilityRequestedDate);
-    payload.coreDtp.availabilityConfirmedDate = this.viewDate(payload.coreDtp.availabilityConfirmedDate);
-    payload.dtas[0].repoSignature1 = this.findPeopleById(payload.dtas[0].repoSignature1);
-    payload.dtas[0].repoSignature2 = this.findPeopleById(payload.dtas[0].repoSignature2);
-    payload.dtas[0].providerSignature1 = this.findPeopleById(payload.dtas[0].providerSignature1);
-    payload.dtas[0].providerSignature2 = this.findPeopleById(payload.dtas[0].providerSignature2);
-    payload.dtpNotes.map(item => {
-      item.author = this.findPeopleById(item.author);
-      item.createdOn = this.viewDate(item.createdOn);
-    })
-    payload.dtpStudies.map(item => {
-      item.studyName = this.findStudyById(item.sdSid);
-    })
-    payload.dtpObjects.map(item => {
-      item.objectName  =  this.findObjectById(item.objectId);
-      item.accessType = this.findAccessType(payload.accessType);
-      item.accessCheckStatus = this.findCheckSatus(item.accessCheckStatus);
-      item.accessCheckBy = this.findPeopleById(item.accessCheckBy);
-    });*/
     this.jsonGenerator.jsonGenerator(payload, 'dtp');
   }
   
@@ -1131,6 +1098,14 @@ export class UpsertDtpComponent implements OnInit {
         || item.person?.lastName.toLocaleLowerCase().indexOf(term) > -1
         || item.person?.email.toLocaleLowerCase().indexOf(term) > -1
         || (item.person?.firstName.toLocaleLowerCase() + " " + item.person?.lastName.toLocaleLowerCase()).indexOf(term) > -1;
+  }
+
+  searchOrganisations = (term: string, item) => {
+    return this.contextService.searchOrganisations(term, item);
+  }
+
+  compareIds(fv1, fv2): boolean {
+    return fv1?.id == fv2?.id;
   }
 
   compareUsers(u1: any, u2: any) {

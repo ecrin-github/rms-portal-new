@@ -57,11 +57,11 @@
                         <form [formGroup]="form">
                             <div class="row form-group">
                                 <div class="col-md-6">
-                                    <label for="" class="font-style text-capitalize">organisation<sup>*</sup></label>
-                                    <ng-select [items]="organizationList" bindLabel="defaultName" bindValue="id"
+                                    <label for="organisation" class="font-style text-capitalize">organisation<sup>*</sup></label>
+                                    <ng-select [items]="organisations" bindLabel="defaultName" [compareWith]="compareIds"
                                         formControlName="organisation" [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" 
-                                        notFoundText="No members found" placeholder="Select Organisation"
-                                        *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.organisation.errors }">
+                                        notFoundText="No members found" placeholder="Select Organisation" [searchFn]="searchOrganisations"
+                                        *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && fc.organisation.errors }">
                                         <ng-template ng-label-tmp let-item="item">
                                             {{item.defaultName}}{{item.city ? (', ' + item.city) : ''}}{{item.countryName ? (', ' + item.countryName) : ''}}
                                         </ng-template>
@@ -72,18 +72,17 @@
                                             </div>
                                         </ng-template>
                                     </ng-select>
-                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.organisation.errors">
-                                        <p *ngIf="submitted && g.organisation.errors.required"> Please select Organization</p>
+                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && fc.organisation.errors">
+                                        <p *ngIf="submitted && fc.organisation.errors.required">Please select the organisation</p>
                                     </div>
-                                    <h6 class="text-value" *ngIf="isView">
-                                        {{findOrganization(dtpData?.organisation?.id)}}</h6>
+                                    <h6 class="text-value" *ngIf="isView">{{fv.organisation?.defaultName}}</h6>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize">display name<sup>*</sup></label>
                                     <input type="text" class="form-control" formControlName="displayName"
-                                        *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && g.displayName.errors }">
-                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.displayName.errors">
-                                        <p *ngIf="submitted && g.displayName.errors.required"> Please enter the Display
+                                        *ngIf="!isView" [ngClass]="{ 'is-invalid': submitted && fc.displayName.errors }">
+                                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && fc.displayName.errors">
+                                        <p *ngIf="submitted && fc.displayName.errors.required"> Please enter the Display
                                             Name
                                         </p>
                                     </div>
@@ -93,7 +92,7 @@
                             <div class="row form-group" *ngIf="isEdit || isView">
                                 <div class="col-md-6">
                                     <label for="" class="font-style text-capitalize pr-5">Status</label>
-                                    <h6 class="text-value" *ngIf="!isView">{{g.status?.value?.name}}</h6>
+                                    <h6 class="text-value" *ngIf="!isView">{{fc.status?.value?.name}}</h6>
                                     <h6 class="text-value" *ngIf="isView">{{dtpData?.status?.name}}</h6>
                                 </div>
                             </div>
@@ -146,7 +145,7 @@
                                                 <div class="input-group">
                                                     <input class="form-control" placeholder="yyyy-mm-dd"
                                                         name="setUpStartDate" ngbDatepicker #setUpStartDate="ngbDatepicker"
-                                                        [ngClass]="{ 'is-invalid': submitted && g.setUpStartDate.errors }"
+                                                        [ngClass]="{ 'is-invalid': submitted && fc.setUpStartDate.errors }"
                                                         (click)="setUpStartDate.toggle()" (dateSelect)="verifyStep()"
                                                         (input)="verifyStep()"
                                                         formControlName="setUpStartDate" [maxDate]="todayDate" container='body'>
@@ -167,7 +166,7 @@
                                                 <div class="input-group">
                                                     <input class="form-control" placeholder="yyyy-mm-dd"
                                                         name="setUpCompleteDate" ngbDatepicker #setUpCompleteDate="ngbDatepicker"
-                                                        [ngClass]="{ 'is-invalid': submitted && g.setUpCompleteDate.errors }"
+                                                        [ngClass]="{ 'is-invalid': submitted && fc.setUpCompleteDate.errors }"
                                                         (click)="setUpCompleteDate.toggle()" (dateSelect)="verifyStep()"
                                                         (input)="verifyStep()"
                                                         formControlName="setUpCompleteDate" [maxDate]="todayDate" container='body'>
@@ -192,7 +191,7 @@
                                                 <div class="input-group">
                                                     <input class="form-control" placeholder="yyyy-mm-dd"
                                                         name="mdCompleteDate" ngbDatepicker #mdCompleteDate="ngbDatepicker"
-                                                        [ngClass]="{ 'is-invalid': submitted && g.mdCompleteDate.errors }"
+                                                        [ngClass]="{ 'is-invalid': submitted && fc.mdCompleteDate.errors }"
                                                         (click)="mdCompleteDate.toggle()" (dateSelect)="verifyStep()"
                                                         (input)="verifyStep()"
                                                         formControlName="mdCompleteDate" [maxDate]="todayDate" container='body'>
@@ -213,7 +212,7 @@
                                                 <div class="input-group">
                                                     <input class="form-control" placeholder="yyyy-mm-dd"
                                                         name="dtaAgreedDate" ngbDatepicker #dtaAgreedDate="ngbDatepicker"
-                                                        [ngClass]="{ 'is-invalid': submitted && g.dtaAgreedDate.errors }"
+                                                        [ngClass]="{ 'is-invalid': submitted && fc.dtaAgreedDate.errors }"
                                                         (click)="dtaAgreedDate.toggle()" (dateSelect)="verifyStep()"
                                                         (input)="verifyStep()"
                                                         formControlName="dtaAgreedDate" [maxDate]="todayDate" container='body'>
@@ -238,7 +237,7 @@
                                                 <div class="input-group">
                                                     <input class="form-control" placeholder="yyyy-mm-dd"
                                                         name="qcChecksCompleteDate" ngbDatepicker #qcChecksCompleteDate="ngbDatepicker"
-                                                        [ngClass]="{ 'is-invalid': submitted && g.qcChecksCompleteDate.errors }"
+                                                        [ngClass]="{ 'is-invalid': submitted && fc.qcChecksCompleteDate.errors }"
                                                         (click)="qcChecksCompleteDate.toggle()" (dateSelect)="verifyStep()"
                                                         (input)="verifyStep()"
                                                         formControlName="qcChecksCompleteDate" [maxDate]="todayDate" container='body'>
@@ -263,7 +262,7 @@
                                                 <div class="input-group">
                                                     <input class="form-control" placeholder="yyyy-mm-dd"
                                                         name="uploadCompleteDate" ngbDatepicker #uploadCompleteDate="ngbDatepicker"
-                                                        [ngClass]="{ 'is-invalid': submitted && g.uploadCompleteDate.errors }"
+                                                        [ngClass]="{ 'is-invalid': submitted && fc.uploadCompleteDate.errors }"
                                                         (click)="uploadCompleteDate.toggle()" (dateSelect)="verifyStep()"
                                                         (input)="verifyStep()"
                                                         formControlName="uploadCompleteDate" [maxDate]="todayDate" container='body'>
