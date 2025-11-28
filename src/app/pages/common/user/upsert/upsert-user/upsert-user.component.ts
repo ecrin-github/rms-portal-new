@@ -99,6 +99,11 @@ export class UpsertUserComponent implements OnInit {
     })
   }
 
+  deleteOrganisation = ($event, item) => {
+    $event.stopPropagation();
+    this.contextService.deleteOrganisationDropdown(item);
+  }
+
   onSave() {
     if (localStorage.getItem('updateUserList')) {
       localStorage.removeItem('updateUserList');
