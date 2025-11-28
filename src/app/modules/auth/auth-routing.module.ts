@@ -21,7 +21,7 @@ const routes: Routes = [
         // data: {returnUrl: window.location.pathname}
       },
       {
-        path: 'contactUs',
+        path: 'contact-us',
         component: ContactUsComponent
       },
       {

@@ -231,9 +231,36 @@ mat-footer-cell:first-of-type {
   border-color: #ffeeba !important;
 }
 
+.access-data-btn {
+  font-size: 1.4rem;
+  padding: 0.5rem 1rem;
+}
+
+.li-text-1 {
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.li-text-2 {
+  font-size: 1.175rem;
+  font-weight: 400;
+  white-space: pre-wrap;
+  line-height: 1.25;
+}
+
 .text-value {
   font-weight: 100;
   white-space: pre-wrap;
+}
+
+.section-title-field {
+  margin-bottom: 0.5rem !important;
+}
+
+.view-sub-sub-title {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: #315492 !important;
 }
 
 .hr-big {
@@ -705,6 +732,34 @@ mat-footer-cell:first-of-type {
 
 .mat-expansion-panel-header-instance {
   padding: 0 1.5rem !important;
+}
+
+.underline {
+  text-decoration: underline !important;
+}
+
+.blue {
+  background-color: #000091;
+}
+
+.white {
+  background-color: white;
+}
+
+.project-logos {
+  height: 100%;
+}
+
+.o-hidden {
+  overflow: hidden;
+}
+
+.footer-links {
+  padding-left: 0 !important;
+  color: white;
+  font-size: 2.1vh;
+  list-style: none;
+  margin-bottom: 0;
 }
 
 #matomo-wrapper {

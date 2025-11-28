@@ -7,13 +7,29 @@
   
     /* new small viewport height for modern browsers */
     min-height:100svh;
+}
+#flex-container > footer {
+  margin-top:auto;
+}
+@media screen and (max-width: 500px) {
+  .display-text {
+    display: none;
   }
-  #flex-container > footer {
-    margin-top:auto;
-  }
-  @media screen and (max-width: 500px) {
-    .display-text {
-      display: none;
-    }
-  }
-  
+}
+
+#projects-text {
+  font-size: 1.5vh;
+  color: white;
+}
+
+header {
+  height: 10vh;
+}
+
+main {
+  min-height: 80vh;
+}
+
+footer {
+  height: 10vh;
+}
