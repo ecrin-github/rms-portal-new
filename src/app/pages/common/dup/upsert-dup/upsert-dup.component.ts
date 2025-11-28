@@ -33,7 +33,7 @@ export class UpsertDupComponent implements OnInit {
   isEdit: boolean = false;
   isView: boolean = false;
   isAdd: boolean = false;
-  organizationList: OrganisationInterface[] = [];
+  organisations: OrganisationInterface[] = [];
   statusList = [];
   id: any;
   dupData: any;
@@ -136,7 +136,7 @@ export class UpsertDupComponent implements OnInit {
     }
 
     this.contextService.organisations.subscribe((organisations) => {
-      this.organizationList = organisations;
+      this.organisations = organisations;
     });
 
     this.scrollService.handleScroll([`/data-use/${this.id}/view`, `/data-use/${this.id}/edit`, `/data-use/add`]);
@@ -208,22 +208,23 @@ export class UpsertDupComponent implements OnInit {
   }
 
   verifyStep() {
-    this.storedDatesError = {1: [], 2: [], 3: []};;
+    this.storedDatesError = {1: [], 2: [], 3: []};
     let lastDateField = '';
     let isValid: boolean = true;
     let notValidInd = this.maxSteps + 1;
 
     for (let i = 1; i <= this.maxSteps; i++) {
-      for (const field of this.stepperFields[i]) {
+      for (const [j, field] of this.stepperFields[i].entries()) {  // TODO: with index here
         if (!isValid) {
-          this.g[field].setValue(null);
+          this.fc[field].setValue(null);
         } else if (!(this.form.value[field])) {
           isValid = false;
           notValidInd = i;
           break;
         }
 
-        if (lastDateField) {  // Note: if this.form.value[field] is not set, loop will break before (hence no checking here)
+        // Note: if this.form.value[field] is not set, loop will break before (hence no checking here)
+        if (lastDateField && !(i == 3 && j == 0)) { // Not checking availability requested date against dua agreed date
           this.verifyDates(lastDateField, field, i);
         }
         lastDateField = field;
@@ -247,8 +248,6 @@ export class UpsertDupComponent implements OnInit {
         errorMessage = 'Prerequisites met date cannot be earlier than Setup completed date';
       } else if (currDateField === 'duaAgreedDate') {
         errorMessage = 'Data Use Agreement date cannot be earlier than Prerequisites met completed date';
-      } else if (currDateField === 'availabilityRequestedDate') {
-        errorMessage = 'Availability requested date cannot be earlier than Data Use Agreement date';
       } else if (currDateField === 'availabilityExpiryDate') {
         errorMessage = 'Availability expires date cannot be earlier than Availability requested completed date';
       }
@@ -267,9 +266,9 @@ export class UpsertDupComponent implements OnInit {
   updateStatus() {
     if (this.lastCompletedStep >= 0) {
       if (this.lastCompletedStep === this.maxSteps) {
-        this.g['status'].setValue(this.statusList[this.lastCompletedStep-1]);
+        this.fc['status'].setValue(this.statusList[this.lastCompletedStep-1]);
       } else {
-        this.g['status'].setValue(this.statusList[this.lastCompletedStep]);
+        this.fc['status'].setValue(this.statusList[this.lastCompletedStep]);
       }
     }
   }
@@ -375,7 +374,8 @@ export class UpsertDupComponent implements OnInit {
     }
   }
   
-  get g() { return this.form.controls; }
+  get fc() { return this.form.controls; }
+  get fv() { return this.form.value; }
 
   getStatus() {
     return this.processLookup.getDupStatusTypes();
@@ -390,7 +390,7 @@ export class UpsertDupComponent implements OnInit {
       });
 
       if (this.statusList.length > 0) {
-        this.g['status'].setValue(this.statusList[0]);
+        this.fc['status'].setValue(this.statusList[0]);
       }
     }
   }
@@ -407,12 +407,7 @@ export class UpsertDupComponent implements OnInit {
     return sqlDateStringToString(date);
   }
 
-  onSave() {
-    if (localStorage.getItem('updateDupList')) {
-      localStorage.removeItem('updateDupList');
-    }
-
-    const payload = JSON.parse(JSON.stringify(this.form.value));
+  updatePayload(payload) {
     payload.setUpStartDate = this.dateToString(payload.setUpStartDate);
     payload.setUpCompleteDate = this.dateToString(payload.setUpCompleteDate);
     payload.prereqsMetDate = this.dateToString(payload.prereqsMetDate);
@@ -441,6 +436,18 @@ export class UpsertDupComponent implements OnInit {
     if (payload.status?.id) {
       payload.status = payload.status.id;
     }
+    if (payload.organisation?.id) {
+      payload.organisation = payload.organisation.id;
+    }
+  }
+
+  onSave() {
+    if (localStorage.getItem('updateDupList')) {
+      localStorage.removeItem('updateDupList');
+    }
+
+    const payload = JSON.parse(JSON.stringify(this.form.value));
+    this.updatePayload(payload);
 
     let hasErrors: boolean = false;
     for (const [step, errors] of Object.entries(this.storedDatesError)) {
@@ -538,7 +545,7 @@ export class UpsertDupComponent implements OnInit {
 
   patchForm(data) {
     this.form.patchValue({
-      organisation: data.organisation ? data.organisation.id : null,
+      organisation: data.organisation,
       displayName: data.displayName,
       status: data.status,
       setUpStartDate: this.stringToDate(data.setUpStartDate),
@@ -592,7 +599,7 @@ export class UpsertDupComponent implements OnInit {
   }
 
   findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
+    const organizationArray: any = this.organisations.filter((type: any) => type.id === id);
     return organizationArray && organizationArray.length ? organizationArray[0].defaultName : 'None'
   }
 
@@ -634,7 +641,7 @@ export class UpsertDupComponent implements OnInit {
   }
 
   setDupStudies(res) {
-    if (res?.results?.length > 0) {
+    if (res?.results) {
       this.getSortedDupStudies(res.results);
       this.associatedStudies = res.results;
       if (this.associatedStudies.length > 0) {
@@ -686,11 +693,14 @@ export class UpsertDupComponent implements OnInit {
   getDupObjectsAndPrereqs(id) {
     return this.dupService.getDupObjects(id).pipe(
       mergeMap((res: any) => {
-        if (res?.results?.length > 0) {
+        if (res?.results) {
           this.getSortedDupObjects(res.results);
           this.associatedObjects = res.results;
           this.dataObjectIds = this.associatedObjects.map((assocDo: any) => assocDo.dataObject.id);
-          return this.getDupObjectPrereqs(this.dataObjectIds);
+          if (res?.results?.length > 0) {
+            return this.getDupObjectPrereqs(this.dataObjectIds);
+          }
+          return of(true);
         }
         return of(false);
       }),
@@ -725,6 +735,7 @@ export class UpsertDupComponent implements OnInit {
       });
     }, error => {
       this.toastr.error(error.error.title);
+      this.spinner.hide();
     })
   }
 
@@ -845,32 +856,6 @@ export class UpsertDupComponent implements OnInit {
 
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.dupData));
-    /*payload.coreDup.organisation = this.findOrganization(payload.coreDup.organisation);
-    payload.coreDup.status = this.findStatus(payload.coreDup.status);
-    payload.coreDup.initialContactDate = this.viewDate(payload.coreDup.initialContactDate);
-    payload.coreDup.setUpCompleteDate = this.viewDate(payload.coreDup.setUpCompleteDate);
-    payload.coreDup.prereqsMetDate = this.viewDate(payload.coreDup.prereqsMetDate);
-    payload.coreDup.duaAgreedDate = this.viewDate(payload.coreDup.duaAgreedDate);
-    payload.coreDup.availabilityRequestedDate = this.viewDate(payload.coreDup.availabilityRequestedDate);
-    payload.coreDup.availabilityConfirmedDate = this.viewDate(payload.coreDup.availabilityConfirmedDate);
-    payload.coreDup.accessConfirmedDate = this.viewDate(payload.coreDup.accessConfirmedDate);
-    payload.duas[0].repoSignatory1 = this.findPeopleById(payload.duas[0].repoSignatory1);
-    payload.duas[0].repoSignatory2 = this.findPeopleById(payload.duas[0].repoSignatory2);
-    payload.duas[0].providerSignatory1 = this.findPeopleById(payload.duas[0].providerSignatory1);
-    payload.duas[0].providerSignatory2 = this.findPeopleById(payload.duas[0].providerSignatory2);
-    payload.duas[0].requesterSignatory1 = this.findPeopleById(payload.duas[0].requesterSignatory1);
-    payload.duas[0].requesterSignatory2 = this.findPeopleById(payload.duas[0].requesterSignatory2);
-
-    payload.dupNotes.map(item => {
-      item.author = this.findPeopleById(item.author);
-      item.createdOn = this.viewDate(item.createdOn);
-    });
-    payload.dupObjects.map(item => {
-      item.objectName = this.findObjectById(item.objectId);
-    });
-    payload.dupStudies.map(item => {
-      item.studyName = this.findStudyById(item.sdSid);
-    });*/
     this.jsonGenerator.jsonGenerator(payload, 'dup');
   }
 
@@ -914,6 +899,14 @@ export class UpsertDupComponent implements OnInit {
 
   compareUsers(u1: any, u2: any) {
     return u1.id === u2.id;
+  }
+
+  compareIds(fc1, fc2): boolean {
+    return fc1?.id == fc2?.id;
+  }
+
+  searchOrganisations = (term: string, item) => {
+    return this.contextService.searchOrganisations(term, item);
   }
 
   checkUrl(instanceUrl) {
