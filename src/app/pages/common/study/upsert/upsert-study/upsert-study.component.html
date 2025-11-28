@@ -12,8 +12,11 @@
                                 <i class="fa fa-edit"></i> Edit
                             </a>
                         </ng-container>
+                        <a [routerLink]="['/contact-us']" [queryParams]="{option: 'access', sdSid: sdSid}" class="btn btn-primary mr-1" *ngIf="hasControlledDO">
+                            <i class="fa fa-computer"></i>Request access to full study data
+                        </a>
                         <button class="btn btn-primary mr-1" (click)="print()">
-                            <i class="fa fa-print"></i> PDF
+                            <i class="fa fa-print"></i>PDF
                         </button>
                         <button class="btn btn-primary mr-1" (click)="jsonExport()">
                             <i class="fa fa-code"></i> JSON
@@ -27,9 +30,7 @@
                 </div>
             </div>
             <div class="row mt-5">
-                <div class="pl-5">
-                    <h4>{{studyData?.displayTitle}}</h4>
-                </div>   
+                <div class="pl-5"><h4>{{studyData?.displayTitle}}</h4></div>   
             </div>
         </div>
     </div>

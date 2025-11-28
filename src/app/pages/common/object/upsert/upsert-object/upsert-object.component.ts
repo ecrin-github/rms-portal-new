@@ -356,12 +356,6 @@ export class UpsertObjectComponent implements OnInit {
     }
   }
 
-  setOrganisations(organisations) {
-    if (organisations?.results) {
-      this.organisations = organisations.results;
-    }
-  }
-
   getObjectById(id) {
     return this.objectService.getDataObjectById(id);
   }
@@ -749,11 +743,6 @@ export class UpsertObjectComponent implements OnInit {
 
   compareStudies(s1: StudyDataInterface, s2: StudyDataInterface): boolean {
     return s1?.id == s2?.id;
-  }
-
-  customSearchOrganisations(term: string, item) {
-    term = term.toLocaleLowerCase();
-    return item.defaultName.toLocaleLowerCase().indexOf(term) > -1;
   }
 
   compareOrganisations(o1: OrganisationInterface, o2: OrganisationInterface): boolean {

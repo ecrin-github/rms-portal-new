@@ -45,7 +45,6 @@ export class UpsertStudyComponent implements OnInit {
   organisations: OrganisationInterface[] = [];
   studyData: StudyInterface;
   studyFull: any;
-  count = 0;
   publicTitle: string = '';
   monthValues = [{id:'1', name:'January'}, {id:'2', name:'February'}, {id:'3', name: 'March'}, {id:'4', name: 'April'}, {id:'5', name: 'May'}, {id:'6', name: 'June'}, {id:'7', name: 'July'}, {id:'8', name: 'August'}, {id:'9', name: 'September'}, {id:'10', name: 'October'}, {id:'11', name:'November'}, {id:'12', name: 'December'}];
   sticky: boolean = false;
@@ -66,6 +65,7 @@ export class UpsertStudyComponent implements OnInit {
   associatedObjects: any;
   pageSize: Number = 10000;
   showEdit: boolean = false;
+  hasControlledDO: boolean = false; // True if study has at least one controlled-access DO
 
   constructor(private statesService: StatesService,
               private fb: UntypedFormBuilder, 
@@ -481,10 +481,18 @@ export class UpsertStudyComponent implements OnInit {
 
   patchStudyForm() {
     let ipdDO = null;
+
     for (let linkedObject of this.studyData.linkedObjects) {
-      // TODO: to replace by regex?
+      // TODO: to replace by regex? there are multiple "IPD" values
       if (linkedObject?.objectType?.name?.toLowerCase() === "individual participant data") {
         ipdDO = linkedObject;
+      }
+
+      if (linkedObject?.accessType?.name?.toLowerCase() === "controlled") {
+        this.hasControlledDO = true;
+      }
+
+      if (ipdDO && this.hasControlledDO) {
         break;
       }
     }
@@ -573,7 +581,6 @@ export class UpsertStudyComponent implements OnInit {
         this.gotoTop();
         this.toastr.error("Please correct the errors in the form's fields.");
       }
-      this.count = 0;
     }
     if (this.addType === 'usingTrialId') {
       // TODO
