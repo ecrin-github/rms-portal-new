@@ -43,7 +43,7 @@
             </select>
           </div>
         </div>
-        <app-contact-form *ngIf="!isAccessRequest && reasonPicked"></app-contact-form>
+        <app-contact-form *ngIf="!isAccessRequest && reasonPicked" [reason]="reason"></app-contact-form>
         <app-access-request-form *ngIf="isAccessRequest"></app-access-request-form>
       </div>
     </div>

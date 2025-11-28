@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -10,9 +10,9 @@ import { CommonLookupService } from 'src/app/_rms/services/entities/common-looku
   styleUrls: ['./contact-form.component.scss']
 })
 export class ContactFormComponent implements OnInit {
+  @Input() reason: any;
   contactForm: UntypedFormGroup;
   isAccessRequest: boolean = false;
-  reason: any;
   isSubmitted: boolean = false;
 
   constructor(private fb: UntypedFormBuilder, 
@@ -59,11 +59,12 @@ export class ContactFormComponent implements OnInit {
   }
 
   submitContact() {
+    this.contactForm.patchValue({"reason": this.reason});
     this.isSubmitted = true;
     if (this.contactForm.valid) {
       if (this.contactForm.value.email === this.contactForm.value.confirmEmail) {
         const payload = {
-          recipients: 'crr@ecrin.org',
+          recipients: 'leopold.cudilla@ecrin.org',
           subject: this.contactForm.value.reason,
           message: this.emailBuilder(
               this.contactForm.value.firstName,

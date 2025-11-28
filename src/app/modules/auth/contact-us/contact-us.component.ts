@@ -10,6 +10,7 @@ import { BackService } from 'src/app/_rms/services/back/back.service';
 export class ContactUsComponent implements OnInit {
   isAccessRequest: boolean = false;
   reasonPicked: boolean = false;
+  reason: string = null;
 
   constructor(private router: Router, 
               private backService: BackService,
@@ -28,6 +29,7 @@ export class ContactUsComponent implements OnInit {
   onChangeReason($event) {
     if ($event.target.value) {
       this.reasonPicked = true;
+      this.reason = $event.target.value;
     }
 
     if ($event.target.value?.toLowerCase() === "access") {
