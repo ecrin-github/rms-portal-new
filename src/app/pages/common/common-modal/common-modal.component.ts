@@ -228,7 +228,8 @@ export class CommonModalComponent implements OnInit {
       this.spinner.hide();
       if (res?.data) {
         this.objectList = res.data.filter((item: any) => {
-          return !this.currentObjectsIds.has(item?.id);
+          // Filtering out DOs already select + public DOs
+          return !this.currentObjectsIds.has(item?.id) && item?.accessType?.name?.toLowerCase() === 'controlled';
         }); 
       }
     }, error => {
