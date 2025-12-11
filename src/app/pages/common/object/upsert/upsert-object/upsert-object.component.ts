@@ -18,9 +18,12 @@ import { PdfGeneratorService } from 'src/app/_rms/services/entities/pdf-generato
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
-import { stringToDate, dateToString, sqlDateStringToString } from 'src/assets/js/util';
+import { stringToNgbDateStruct, ngbDateStructToString, sqlDateStringToString } from 'src/assets/js/util';
 import { RepoAccessTypeInterface } from 'src/app/_rms/interfaces/types/repo-access-type.interface';
 import { ContextService } from 'src/app/_rms/services/context/context.service';
+import { ObjectInstanceInterface } from 'src/app/_rms/interfaces/data-object/object-instance.interface';
+import { environment } from 'src/environments/environment';
+import { UserService } from 'src/app/_rms/services/user/user.service';
 
 @Component({
   selector: 'app-upsert-object',
@@ -29,6 +32,8 @@ import { ContextService } from 'src/app/_rms/services/context/context.service';
   providers: [ScrollService]
 })
 export class UpsertObjectComponent implements OnInit {
+  tsdUrl: string = environment.tsdUrl;
+
   public isCollapsed: boolean = true;
   static showTopicTypes = ['publication list', 'journal article', 'working paper / pre-print'];
   objectForm: UntypedFormGroup;
@@ -72,6 +77,7 @@ export class UpsertObjectComponent implements OnInit {
   isSubmitted: boolean = false;
   isBrowsing: boolean = false;
   showEdit: boolean = false;
+  hasAccess: boolean = false;
   pageSize: Number = 10000;
   showReleaseDate: boolean;
 
@@ -89,6 +95,7 @@ export class UpsertObjectComponent implements OnInit {
               private activatedRoute: ActivatedRoute, 
               private listService: ListService, 
               private reuseService: ReuseService,
+              private userService: UserService,
               private pdfGenerator: PdfGeneratorService, 
               private jsonGenerator: JsonGeneratorService) {
     this.objectForm = this.fb.group({
@@ -171,6 +178,10 @@ export class UpsertObjectComponent implements OnInit {
       queryFuncs.push(this.getNextDOSdOid());
     }
 
+    if (!this.isBrowsing && this.isView) {
+      queryFuncs.push(this.getAccessCheck(this.sdOid));
+    }
+
     if (this.isEdit || this.isView) {
       queryFuncs.push(this.getObjectById(this.sdOid));
     }
@@ -220,6 +231,11 @@ export class UpsertObjectComponent implements OnInit {
       if (this.isEdit || this.isView) {
         this.setObjectById(res.pop());
       }
+
+      if (!this.isBrowsing && this.isView) {
+        this.setAccessCheck(res.pop());
+      }
+
       if (this.isAdd) {
         this.setDOSdOid(res.pop());
       }
@@ -374,6 +390,20 @@ export class UpsertObjectComponent implements OnInit {
     }
   }
 
+  getAccessCheck(sdOid) {
+    return this.userService.checkDOAccess(sdOid);
+  }
+
+  setAccessCheck(accessRes) {
+    if (accessRes?.statusCode === 200) {
+      if (accessRes.hasAccess) {
+        this.hasAccess = true;
+      }
+    } else {
+      this.toastr.error("Couldn't perform object access check");
+    }
+  }
+
   viewDate(date) {
     return sqlDateStringToString(date);
   }
@@ -390,7 +420,7 @@ export class UpsertObjectComponent implements OnInit {
       langCode: this.objectData.langCode ? this.objectData.langCode.id : null,
       organisation: this.objectData.organisation ? this.objectData.organisation.id : null,
       accessType: this.objectData.accessType ? this.objectData.accessType : null,
-      embargoExpiry: this.objectData.embargoExpiry ? stringToDate(this.objectData.embargoExpiry) : null,
+      embargoExpiry: this.objectData.embargoExpiry ? stringToNgbDateStruct(this.objectData.embargoExpiry) : null,
       eoscCategory: this.objectData.eoscCategory,
       objectDatasets: {
         recordkeyType: this.objectData.objectDatasets[0] ? this.objectData.objectDatasets[0].recordkeyType ? this.objectData.objectDatasets[0].recordkeyType.id : null :null,
@@ -431,7 +461,7 @@ export class UpsertObjectComponent implements OnInit {
         version: this.objectForm.value.version,
         doi: this.objectForm.value.doi,
         publicationYear: this.objectForm.value.publicationYear ? this.objectForm.value.publicationYear.getFullYear() : null,
-        embargoExpiry: this.objectForm.value.embargoExpiry ? dateToString(this.objectForm.value.embargoExpiry) : null,
+        embargoExpiry: this.objectForm.value.embargoExpiry ? ngbDateStructToString(this.objectForm.value.embargoExpiry) : null,
         urlLastChecked: this.objectForm.value.urlLastChecked,
         addStudyContributors: true,
         addStudyTopics: true,
@@ -526,9 +556,14 @@ export class UpsertObjectComponent implements OnInit {
       this.toastr.error("Please correct the errors in the form's fields.");
     }
   }
+
+  hasUploadedInstance() {
+    return this.objectForm.value?.objectInstances?.some((inst: ObjectInstanceInterface) => (inst.url));
+  }
+
   findConsentType(id) {
     const consentTypeArray: any = this.consentTypes.filter((type: any) => type.id === id);
-    return consentTypeArray && consentTypeArray.length ?consentTypeArray[0].name : 'None';
+    return consentTypeArray && consentTypeArray.length ? consentTypeArray[0].name : 'None';
   }
 
   findLangCode(languageCode) {
@@ -733,7 +768,7 @@ export class UpsertObjectComponent implements OnInit {
 
   customSearchStudies(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.sdSid?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle.toLocaleLowerCase().indexOf(term) > -1;
+    return item.sdSid?.toLocaleLowerCase().indexOf(term) > -1 || item.displayTitle?.toLocaleLowerCase().indexOf(term) > -1;
   }
 
   customSearchObjectTypes(term: string, item) {

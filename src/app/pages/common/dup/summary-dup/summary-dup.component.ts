@@ -16,6 +16,8 @@ import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { resolvePath } from 'src/assets/js/util';
+import { StatusIndex, UpsertDupComponent } from '../upsert-dup/upsert-dup.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-summary-dup',
@@ -24,6 +26,8 @@ import { resolvePath } from 'src/assets/js/util';
   providers: [ScrollService]
 })
 export class SummaryDupComponent implements OnInit {
+  tsdUrl: string = environment.tsdUrl;
+  
   usedURLs = ['/', '/data-use'];
   // search dropdown filters
   searchColumns = [
@@ -35,16 +39,19 @@ export class SummaryDupComponent implements OnInit {
   filterColumn: string = 'displayName';
   displayedColumns = ['dupId', 'dupTitle', 'dupOrganisation', 'dupStatus', 'actions'];
   dataSource: MatTableDataSource<DupListEntryInterface>;
+  dupsData: [] = [];
   searchText: string = '';
   dupLength: number = 0;
   warningModal: any;
   orgId: any;
   role: any;
+  isManager: boolean = false;
   deBouncedInputValue = this.searchText;
   searchDebounce: Subject<string> = new Subject();
   sticky: boolean = false;
   notDashboard: boolean = false;
   dataChanged: boolean = false;
+  getStatusTagClasses = UpsertDupComponent.getStatusTagClasses; // Allowing access in template
 
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('deleteModal') deleteModal : TemplateRef<any>;
@@ -61,12 +68,13 @@ export class SummaryDupComponent implements OnInit {
 
   ngOnInit() {
     this.role = this.statesService.currentAuthRole;
+    this.isManager = this.statesService.isManager();
     this.permissionService.loadPermissions([this.role]);
     this.orgId = this.statesService.currentAuthOrgId;
     this.notDashboard = this.router.url.includes('data-use') ? true : false;
     this.getDupList();
     this.setupSearchDeBouncer();
-    this.scrollService.handleScroll(['/data-use']);
+    // this.scrollService.handleScroll(['/data-use']);
 
     // Updating data while reusing detached component
     this.router.events.subscribe(event => {
@@ -101,10 +109,10 @@ export class SummaryDupComponent implements OnInit {
 
   getDupList() {
     this.spinner.show();
-    const pageSize = 10000;
-    this.listService.getDupList(pageSize, '').subscribe((res: any) => {
+    this.listService.getDupList().subscribe((res: any) => {
       if (res && res.results) {
         this.getSortedDUPs(res.results);
+        this.dupsData = res.results;
         this.dataSource = new MatTableDataSource<DupListEntryInterface>(res.results);
       } else {
         this.dataSource = new MatTableDataSource();
@@ -115,6 +123,10 @@ export class SummaryDupComponent implements OnInit {
       this.spinner.hide();
       this.toastr.error(error.error.title);
     });
+  }
+
+  hasOneAccessGrantedDUP() {
+    return this.dupsData.some((dup: any) => dup?.status?.listOrder === StatusIndex.AccessGranted);
   }
   
   @HostListener('window:storage', ['$event'])
@@ -127,7 +139,7 @@ export class SummaryDupComponent implements OnInit {
   deleteRecord(id) {
     this.dupService.getDupById(id).subscribe((res: any) => {
       if (res) {
-        if (res.status?.id === '5f7846ba-0627-49f7-acf6-9b362db5af1b' || res.status?.id === '16f2eb8a-9694-46c9-830e-b961e3371500') {
+        if (res.status?.id === '5f7846ba-0627-49f7-acf6-9b362db5af1b' || res.status?.id === '16f2eb8a-9694-46c9-830e-b961e3371500') { // TODO: ?
           this.warningModal = this.modalService.open(this.deleteModal, {size: 'lg', backdrop: 'static'});
         } else {
           const deleteModal = this.modalService.open(ConfirmationWindowComponent, { size: 'lg', backdrop: 'static' });
@@ -167,7 +179,7 @@ export class SummaryDupComponent implements OnInit {
       this.filterSearch();
     });
   }
-  
+
   ngOnDestroy() {
     this.scrollService.unsubscribeScroll();
   }

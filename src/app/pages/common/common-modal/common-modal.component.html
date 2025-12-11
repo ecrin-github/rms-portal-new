@@ -4,11 +4,11 @@
     </div>
     <div class="modal-body">
         <div class="row ml-3 form-group">
-            <div class="col-md-12" *ngIf="type === 'study'" [formGroup]="studyForm">
+            <div class="col-md-12" *ngIf="type === DataType.STUDY" [formGroup]="studyForm">
                 <label for="study" class="font-style text-capitalize">Study</label>
-                <ng-select id="study" [items]="studyList" bindLabel="id" bindValue="id" formControlName="studyId" [closeOnSelect]="false" 
-                [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
-                    placeholder="Select study" [searchFn]="customSearchStudies" (close)="studyDropdownClose()">
+                <ng-select id="study" [items]="filteredStudies" formControlName="studies" [closeOnSelect]="false" 
+                    [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
+                    [clearSearchOnAdd]="true" placeholder="Select study" [searchFn]="customSearchStudies" (close)="studyDropdownClose()">
                     <ng-template ng-label-tmp let-item="item">
                         {{item.sdSid}}
                     </ng-template>
@@ -24,11 +24,11 @@
             </div>
         </div>
         <div class="row ml-3 form-group">
-            <div class="col-md-12" *ngIf="type === 'study' || type === 'dataObject'" [formGroup]="objectForm">
+            <div class="col-md-12" *ngIf="type === DataType.STUDY || type === DataType.DATA_OBJECT" [formGroup]="objectForm">
                 <label for="study" class="font-style text-capitalize">Data Object</label>
-                <ng-select [items]="objectList" bindLabel="id" bindValue="id" formControlName="objectId" [closeOnSelect]="false" 
-                [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
-                    placeholder="Select object" [searchFn]="customSearchObjects">
+                <ng-select [items]="filteredDataObjects" formControlName="dataObjects" [closeOnSelect]="false" 
+                    [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
+                    [clearSearchOnAdd]="true" placeholder="Select object" [searchFn]="customSearchObjects">
                     <ng-template ng-label-tmp let-item="item">
                         {{item.sdOid}}
                     </ng-template>
@@ -44,11 +44,11 @@
             </div>
         </div>
         <div class="row ml-3 form-group">
-            <div class="col-md-12" *ngIf="type === 'user'" [formGroup]="userForm">
+            <div class="col-md-12" *ngIf="type === DataType.USER" [formGroup]="userForm">
                 <label for="study" class="font-style text-capitalize">People</label>
-                <ng-select [items]="userList" bindLabel="id" bindValue="id" formControlName="person" [closeOnSelect]="false" 
-                [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
-                    placeholder="Select object" [searchFn]="customSearchUser">
+                <ng-select [items]="userList" bindLabel="id" bindValue="id" formControlName="people" [closeOnSelect]="false" 
+                    [multiple]="true" [virtualScroll]="true" class="form-control ng-form-control" notFoundText="No members found"
+                    [clearSearchOnAdd]="true" placeholder="Select object" [searchFn]="customSearchUser">
                     <ng-template ng-label-tmp let-item="item">
                         {{item.firstName}} {{item.lastName}} ({{item.email}})
                     </ng-template>
@@ -66,6 +66,5 @@
     <div class="modal-footer">
         <button type="button" class="btn btn-primary" (click)="save()">Add</button>
         <button type="button" class="btn btn-danger" (click)="closeModal(null)">Cancel</button>
-
     </div>
 </div>

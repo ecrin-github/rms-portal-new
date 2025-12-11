@@ -2,10 +2,29 @@
     <div class="card-header">
         <div class="row" id="navbar">
             <div class="col-md-6">
-                <h2>Data Usage</h2>
+                <h2>{{isManager ? 'Data access' : 'Your data access requests'}}</h2>
             </div>
-            <div class="col-md-6 text-right" *ngxPermissionsOnly="['Admin', 'Manager']">
-                <a [routerLink]="['/data-use', 'add']" class="btn btn-success">
+            <div class="col-md-6 text-right">
+                <ng-container *ngIf="dupsData?.length > 0; else noDar">
+                    <ng-container *ngIf="hasOneAccessGrantedDUP(); else noAccessGranted">
+                        <span class="pl-2">
+                            <a class="btn btn-sm btn-success access-data-btn" target="_blank" href="{{tsdUrl}}">Access data in the TSD TRE</a>
+                        </span>
+                    </ng-container>
+                    <ng-template #noAccessGranted>
+                        <span class="pl-2" title="You are only able to access data of requests in 'access granted' status.">
+                            <button class="btn btn-sm btn-secondary access-data-btn" disabled>Access data in the TSD TRE</button>
+                        </span>
+                    </ng-template>
+                </ng-container>
+                <ng-template #noDar>
+                    <span class="pl-2">
+                        <button [routerLink]="['/contact-us']" [queryParams]="{option: 'access'}" class="btn btn-primary mr-1">
+                            <i class="fa fa-computer"></i>Request access to data
+                        </button>
+                    </span>
+                </ng-template>
+                <a [routerLink]="['/data-use', 'add']" class="btn btn-success ml-2" *ngxPermissionsOnly="['Admin', 'Manager']">
                     <i class="fa fa-plus"></i> New data use
                 </a>    
             </div>
@@ -16,76 +35,104 @@
     <div id="permanentNavbar"></div>
 
     <div class="card-body">
+        <ng-container *ngIf="isManager">
+            <div class="row">
+                <div class="col-md-3">
+                    <select class="form-control" [(ngModel)]="filterColumn" (change)="filterSearch()">
+                        <option selected disabled value="">Search by...</option>
+                        <option [value]=searchColumn.value *ngFor="let searchColumn of searchColumns">
+                            {{searchColumn.text}}</option>
+                    </select>
+                </div>
+                <div class="col-md-9">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search Data Use Process..." [(ngModel)]="searchText" (keyup)="onInputChange($event)"/>
+                    </div>
+                </div>
+                <!-- <div class="col-md-3">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" (click)="filterSearch()">Search</button>
+                        <span class="pl-2"><button class="btn btn-warning" (click)="getDupList()">Clear</button></span>
+                    </div>
+                </div> -->
+            </div>
+    
+            <mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="dupId">
+                    <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                        <a [routerLink]="['/data-use', row.id, 'view']">
+                            {{row.id}}
+                        </a>
+                    </mat-cell>
+                </ng-container>
+    
+                <ng-container matColumnDef="dupOrganisation">
+                    <mat-header-cell *matHeaderCellDef> Organisation </mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                        <strong>{{row.organisation?.defaultName}}</strong>
+                    </mat-cell>
+                </ng-container>
+    
+                <ng-container matColumnDef="dupTitle">
+                    <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                        <a [routerLink]="['/data-use', row.id, 'view']">{{row.displayName}}</a>
+                    </mat-cell>
+                </ng-container>
+    
+                <ng-container matColumnDef="dupStatus">
+                    <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+                    <mat-cell *matCellDef="let row"> {{row.status?.name}} </mat-cell>
+                </ng-container>
+    
+                <ng-container matColumnDef="actions">
+                    <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+                    <mat-cell *matCellDef="let row">
+                        <a [routerLink]="['/data-use', row.id, 'view']">
+                            <i class="fa fa-eye mr-4" style="color:#0688fa;"></i>
+                        </a>
+                        <a [routerLink]="['/data-use', row.id, 'edit']" *ngxPermissionsOnly="['Admin', 'Manager']">
+                            <i class="fa fa-edit mr-4" style="color:#0688fa;"></i>
+                        </a>
+                        <i class="fa fa-trash mr-4" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngxPermissionsOnly="['Admin', 'Manager']">
+    
+                        </i>
+                    </mat-cell>
+                </ng-container>
+    
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;">
+                </mat-row>
+            </mat-table>
+            <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" [length]="dupLength" [pageSize]="25"></mat-paginator>
+            <hr class="mt-6 mb-6"/>
+        </ng-container>
         <div class="row">
-            <div class="col-md-3">
-                <select class="form-control" [(ngModel)]="filterColumn" (change)="filterSearch()">
-                    <option selected disabled value="">Search by...</option>
-                    <option [value]=searchColumn.value *ngFor="let searchColumn of searchColumns">
-                        {{searchColumn.text}}</option>
-                </select>
+            <div class="col-md-12">
+                <ng-container *ngIf="dupsData?.length > 0">
+                    <ul class="list-unstyled">
+                        <li *ngFor="let dup of dupsData; let i = index;" class="text-value">
+                            <hr *ngIf="i > 0" class="mt-6 mb-6"/>
+                            <span class="li-text-1"><a [routerLink]="['/data-use', dup.id, 'view']">{{dup.displayName}}</a></span>
+                            <div class="d-inline-flex ml-2 li-text-1">
+                                <div [class]="getStatusTagClasses(dup.status?.listOrder)">{{dup.status?.name}}</div>
+                            </div>
+                            <ul class="mt-3 list-style-arrow pl-4">
+                                <li *ngFor="let dupStudy of dup.dupStudies, let j = index" [ngClass]="{'mt-3': j > 0}">
+                                    <span class="li-text-2 pl-1"><a [routerLink]="['/studies', dupStudy.study.sdSid, 'view']">{{dupStudy.study.sdSid}}</a>&nbsp;-&nbsp;{{dupStudy.study.displayTitle}}</span>
+                                    <ul class="list-style-square pl-4">
+                                        <li *ngFor="let dupObj of dupStudy.dupObjects" class="mt-1">
+                                            <span class="li-text-2"><a [routerLink]="['/data-objects', dupObj.dataObject.sdOid, 'view']">{{dupObj.dataObject.sdOid}}</a>&nbsp;-&nbsp;{{dupObj.dataObject.displayTitle}}</span>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </ng-container>
             </div>
-            <div class="col-md-9">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search Data Use Process..." [(ngModel)]="searchText" (keyup)="onInputChange($event)"/>
-                </div>
-            </div>
-            <!-- <div class="col-md-3">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" (click)="filterSearch()">Search</button>
-                    <span class="pl-2"><button class="btn btn-warning" (click)="getDupList()">Clear</button></span>
-                </div>
-            </div> -->
         </div>
-
-        <mat-table [dataSource]="dataSource">
-            <ng-container matColumnDef="dupId">
-                <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
-                <mat-cell *matCellDef="let row">
-                    <a [routerLink]="['/data-use', row.id, 'view']">
-                        {{row.id}}
-                    </a>
-                </mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="dupOrganisation">
-                <mat-header-cell *matHeaderCellDef> Organisation </mat-header-cell>
-                <mat-cell *matCellDef="let row">
-                    <strong>{{row.organisation?.defaultName}}</strong>
-                </mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="dupTitle">
-                <mat-header-cell *matHeaderCellDef> Title </mat-header-cell>
-                <mat-cell *matCellDef="let row">
-                    <a [routerLink]="['/data-use', row.id, 'view']">{{row.displayName}}</a>
-                </mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="dupStatus">
-                <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
-                <mat-cell *matCellDef="let row"> {{row.status?.name}} </mat-cell>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-                <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
-                <mat-cell *matCellDef="let row">
-                    <a [routerLink]="['/data-use', row.id, 'view']">
-                        <i class="fa fa-eye mr-4" style="color:#0688fa;"></i>
-                    </a>
-                    <a [routerLink]="['/data-use', row.id, 'edit']" *ngxPermissionsOnly="['Admin', 'Manager']">
-                        <i class="fa fa-edit mr-4" style="color:#0688fa;"></i>
-                    </a>
-                    <i class="fa fa-trash mr-4" style="color:#f24437; cursor: pointer;" (click)="deleteRecord(row.id)" *ngxPermissionsOnly="['Admin', 'Manager']">
-
-                    </i>
-                </mat-cell>
-            </ng-container>
-
-            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns;">
-            </mat-row>
-        </mat-table>
-        <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" [length]="dupLength" [pageSize]="25"></mat-paginator>
     </div>
 </div>
 

@@ -24,7 +24,7 @@ export class RecentDupComponent {
 
   getDupList() {
     const page = 1;
-    this.listService.getDupList('', page).subscribe((res: any) => {
+    this.listService.getDupList().subscribe((res: any) => {
       if (res && res.results) {
         this.dataSource = new MatTableDataSource(res.results);
       } else {

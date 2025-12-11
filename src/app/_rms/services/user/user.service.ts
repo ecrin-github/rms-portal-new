@@ -13,7 +13,24 @@ export class UserService {
   getUser() {
     return this.http.get(`${environment.userInfoUrl}`);
   }
+
   getUserRoleInfo(payload) {
     return this.http.post(`${environment.baseUrlApi}/users/login`, payload);
+  }
+
+  getUserAccessData(userId) {
+    return this.http.get(`${environment.baseUrlApi}/users/${userId}/access-data`);
+  }
+
+  checkStudyAccess(sdSid) {
+    return this.http.get(`${environment.baseUrlApi}/users/access-check-study/${sdSid}`);
+  }
+
+  checkDOAccess(sdOid) {
+    return this.http.get(`${environment.baseUrlApi}/users/access-check-do/${sdOid}`);
+  }
+
+  getUserDUPAccessData() {
+    return this.http.get(`${environment.baseUrlApi}/users/dup-access-data`);
   }
 }

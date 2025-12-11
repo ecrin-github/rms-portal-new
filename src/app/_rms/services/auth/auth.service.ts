@@ -10,6 +10,7 @@ import { UserService } from '../user/user.service';
 import { LsAaiUserInterface } from '../../interfaces/user/ls-aai/ls-aai.user.interface';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { WebSocketService } from '../notifications/websocket.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 
 @Injectable({
@@ -20,6 +21,7 @@ export class AuthService {
   isAuthenticated: boolean;
 
   constructor(
+    private spinner: NgxSpinnerService,
     private statesService: StatesService,
     private permissionService: NgxPermissionsService, 
     private router: Router,
@@ -32,6 +34,7 @@ export class AuthService {
   isAuthenticUser() {
     /* TODO: checkAuth only checks that the locally stored tokens are valid when logged in, doesn't query LS AAI again
        there should be a separate use case for handling logging out (and choosing to stay logged in on logout page)*/
+    this.spinner.show();
     return this.oidcSecurityService.checkAuth().pipe(
       timeout(20000),
       mergeMap(async ({isAuthenticated, userData, accessToken, idToken}) => {
@@ -44,9 +47,11 @@ export class AuthService {
         } else {
           this.logout();
         }
+        this.spinner.hide();
         return isAuthenticated;
       }),
       catchError(err => {
+        this.spinner.hide();
         this.logout(err);
         return of(false);
       })

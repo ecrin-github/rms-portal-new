@@ -3,7 +3,7 @@ export function resolvePath(object, path) {
     return path.split('.').reduce((o, p) => o ? o[p] : null, object);
 }
 
-export function dateToString(date) {
+export function ngbDateStructToString(date) {
     if (date?.day && date?.month && date?.year) {
         const dateString =  date.year + '-' + date.month.toString().padStart(2, '0') + '-' + date.day.toString().padStart(2, '0');
         return new Date(dateString).toISOString().slice(0, 10);
@@ -12,7 +12,7 @@ export function dateToString(date) {
     }
 }
 
-export function dateObjToTimeString(date) {
+export function dateToTimeString(date) {
     if (date instanceof Date) {
         return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} \
         ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
@@ -20,9 +20,22 @@ export function dateObjToTimeString(date) {
     throw new Error("Date must be an instance of Date class");
 }
 
-export function stringToDate(date) {
-    const dateArray = new Date(date);
-    return date ? {year: dateArray.getFullYear(), month: dateArray.getMonth() + 1, day: dateArray.getDate()} : null;
+export function dateToNgbDateStruct(date) {
+    if (date) {
+        if (date instanceof Date) {
+            return date ? {year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate()} : null;
+        }
+        throw new Error("Date must be an instance of Date class");
+    }
+    return null;
+}
+
+export function stringToNgbDateStruct(dateStr) {
+    if (dateStr) {
+        const date = new Date(dateStr);
+        return dateToNgbDateStruct(date);
+    }
+    return null;
 }
 
 export function sqlDateStringToString(date) {

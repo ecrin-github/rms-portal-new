@@ -8,7 +8,7 @@ import { Observable, combineLatest, of } from 'rxjs';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { DtpService } from 'src/app/_rms/services/entities/dtp/dtp.service';
 import { ProcessLookupService } from 'src/app/_rms/services/entities/process-lookup/process-lookup.service';
-import { CommonModalComponent } from '../../common-modal/common-modal.component';
+import { CommonModalComponent, DataType } from '../../common-modal/common-modal.component';
 import { ConfirmationWindow1Component } from '../../confirmation-window1/confirmation-window1.component';
 import { ConfirmationWindowComponent } from '../../confirmation-window/confirmation-window.component';
 import { AddModalComponent } from '../../add-modal/add-modal.component';
@@ -24,7 +24,7 @@ import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
-import { dateToString, isWholeNumber, sqlDateStringToString, stringToDate } from 'src/assets/js/util';
+import { ngbDateStructToString, isWholeNumber, sqlDateStringToString, stringToNgbDateStruct } from 'src/assets/js/util';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { ContextService } from 'src/app/_rms/services/context/context.service';
 
@@ -270,7 +270,7 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   verifyDates(lastDateField, currDateField, step) {
-    if (this.dateToString(this.form.value[lastDateField]) > this.dateToString(this.form.value[currDateField])) {
+    if (this.ngbDateStructToString(this.form.value[lastDateField]) > this.ngbDateStructToString(this.form.value[currDateField])) {
       let errorMessage = '';
 
       if (currDateField === 'setUpCompleteDate') {
@@ -716,12 +716,12 @@ export class UpsertDtpComponent implements OnInit {
     return arr && arr.length ? arr[0].name : 'None';
   }
 
-  dateToString(date) {
-    return dateToString(date);
+  ngbDateStructToString(date) {
+    return ngbDateStructToString(date);
   }
 
-  stringToDate(date) {
-    return stringToDate(date);
+  stringToNgbDateStruct(date) {
+    return stringToNgbDateStruct(date);
   }
 
   viewDate(date) {
@@ -729,14 +729,14 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   updatePayload(payload) {
-    payload.setUpStartDate = this.dateToString(payload.setUpStartDate);
-    payload.setUpCompleteDate = this.dateToString(payload.setUpCompleteDate);
-    payload.mdCompleteDate = this.dateToString(payload.mdCompleteDate);
-    payload.dtaAgreedDate = this.dateToString(payload.dtaAgreedDate);
-    payload.qcChecksCompleteDate = this.dateToString(payload.qcChecksCompleteDate);
-    payload.uploadAccessRequestedDate = this.dateToString(payload.uploadAccessRequestedDate);
-    payload.uploadAccessConfirmedDate = this.dateToString(payload.uploadAccessConfirmedDate);
-    payload.uploadCompleteDate = this.dateToString(payload.uploadCompleteDate);
+    payload.setUpStartDate = this.ngbDateStructToString(payload.setUpStartDate);
+    payload.setUpCompleteDate = this.ngbDateStructToString(payload.setUpCompleteDate);
+    payload.mdCompleteDate = this.ngbDateStructToString(payload.mdCompleteDate);
+    payload.dtaAgreedDate = this.ngbDateStructToString(payload.dtaAgreedDate);
+    payload.qcChecksCompleteDate = this.ngbDateStructToString(payload.qcChecksCompleteDate);
+    payload.uploadAccessRequestedDate = this.ngbDateStructToString(payload.uploadAccessRequestedDate);
+    payload.uploadAccessConfirmedDate = this.ngbDateStructToString(payload.uploadAccessConfirmedDate);
+    payload.uploadCompleteDate = this.ngbDateStructToString(payload.uploadCompleteDate);
 
     if (payload.repoSignature1?.id) {
       payload.repoSignature1 = payload.repoSignature1.id;
@@ -844,12 +844,12 @@ export class UpsertDtpComponent implements OnInit {
       organisation: data.organisation,
       displayName: data.displayName,
       status: data.status,
-      setUpStartDate: this.stringToDate(data.setUpStartDate),
-      setUpCompleteDate: this.stringToDate(data.setUpCompleteDate),
-      mdCompleteDate: this.stringToDate(data.mdCompleteDate),
-      dtaAgreedDate: this.stringToDate(data.dtaAgreedDate),
-      qcChecksCompleteDate: this.stringToDate(data.qcChecksCompleteDate),
-      uploadCompleteDate: this.stringToDate(data.uploadCompleteDate),
+      setUpStartDate: this.stringToNgbDateStruct(data.setUpStartDate),
+      setUpCompleteDate: this.stringToNgbDateStruct(data.setUpCompleteDate),
+      mdCompleteDate: this.stringToNgbDateStruct(data.mdCompleteDate),
+      dtaAgreedDate: this.stringToNgbDateStruct(data.dtaAgreedDate),
+      qcChecksCompleteDate: this.stringToNgbDateStruct(data.qcChecksCompleteDate),
+      uploadCompleteDate: this.stringToNgbDateStruct(data.uploadCompleteDate),
     });
 
     let found: boolean = false;
@@ -897,10 +897,10 @@ export class UpsertDtpComponent implements OnInit {
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
     studyModal.componentInstance.title = 'Add Studies and Data Objects';
-    studyModal.componentInstance.type = 'study';
+    studyModal.componentInstance.type = DataType.STUDY;
     studyModal.componentInstance.dtpId = this.id;
-    studyModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
-    studyModal.componentInstance.currentObjectsIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
+    studyModal.componentInstance.alreadyAddedDPStudies = this.associatedStudies;
+    studyModal.componentInstance.alreadyAddedObjectIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
     studyModal.result.then((data) => {
       if (data) {
         this.spinner.show();
@@ -920,6 +920,7 @@ export class UpsertDtpComponent implements OnInit {
 
   removeDtpStudy(dtpStudy) {
     this.spinner.show();
+    // TODO: remove this check, cascade delete
     this.commonLookup.objectInvolvementDtp(this.id, dtpStudy.study?.id).subscribe((res: any) => {
       if (res.studyAssociated && res.objectsAssociated) {
         this.toastr.error(`Object(s) linked to this study are linked to this DTP. Remove the object(s) before removing this study.`);
@@ -944,10 +945,10 @@ export class UpsertDtpComponent implements OnInit {
   addDataObject() {
     const dataModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
     dataModal.componentInstance.title = 'Add Data Objects';
-    dataModal.componentInstance.type = 'dataObject';
+    dataModal.componentInstance.type = DataType.DATA_OBJECT;
     dataModal.componentInstance.dtpId = this.id;
-    dataModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
-    dataModal.componentInstance.currentObjectsIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
+    dataModal.componentInstance.alreadyAddedDPStudies = this.associatedStudies;
+    dataModal.componentInstance.alreadyAddedObjectIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
     dataModal.result.then((data) => {
       if (data) {
         this.spinner.show();
@@ -976,9 +977,9 @@ export class UpsertDtpComponent implements OnInit {
   addUser() {
     const userModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
     userModal.componentInstance.title = 'Add Users';
-    userModal.componentInstance.type = 'user';
+    userModal.componentInstance.type = DataType.USER;
     userModal.componentInstance.dtpId = this.id;
-    userModal.componentInstance.currentUsersIds = new Set(this.associatedUsers.map((item) => item.person?.id));
+    userModal.componentInstance.alreadyAddedUserIds = new Set(this.associatedUsers.map((item) => item.person?.id));
 
     userModal.result.then((data) => {
       if (data) {

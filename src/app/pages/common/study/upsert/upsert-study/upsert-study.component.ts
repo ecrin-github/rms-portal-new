@@ -19,6 +19,8 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { sqlDateStringToString } from 'src/assets/js/util';
 import { ContextService } from 'src/app/_rms/services/context/context.service';
+import { UserService } from 'src/app/_rms/services/user/user.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-upsert-study',
@@ -27,6 +29,8 @@ import { ContextService } from 'src/app/_rms/services/context/context.service';
   providers: [ScrollService]
 })
 export class UpsertStudyComponent implements OnInit {
+  tsdUrl: string = environment.tsdUrl;
+  
   public isCollapsed: boolean = false;
   studyForm: UntypedFormGroup;
   isEdit: boolean = false;
@@ -66,6 +70,7 @@ export class UpsertStudyComponent implements OnInit {
   pageSize: Number = 10000;
   showEdit: boolean = false;
   hasControlledDO: boolean = false; // True if study has at least one controlled-access DO
+  hasAccess: boolean = false;
 
   constructor(private statesService: StatesService,
               private fb: UntypedFormBuilder, 
@@ -82,6 +87,7 @@ export class UpsertStudyComponent implements OnInit {
               private jsonGenerator: JsonGeneratorService, 
               private commonLookupService: CommonLookupService, 
               private listService: ListService,
+              private userService: UserService,
               private backService: BackService) {
     this.studyForm = this.fb.group({
       sdSid: '',
@@ -153,6 +159,10 @@ export class UpsertStudyComponent implements OnInit {
         queryFuncs.push(this.getQueryParams());
       }
 
+      if (!this.isBrowsing && this.isView) { // Before get object by ID to check for access
+        queryFuncs.push(this.getAccessCheck(this.sdSid));
+      }
+
       // Need to pipe both getStudy and getAssociatedObjects because they need to be completed in order
       if (this.isEdit || this.isView) {
         queryFuncs.push(this.getStudyById(this.sdSid).pipe(
@@ -160,7 +170,7 @@ export class UpsertStudyComponent implements OnInit {
             if (res) {
               this.setStudyById(res);
             }
-            return this.getAssociatedObjects(this.id);
+            return this.getAssociatedObjects(this.id);  // TODO: useless, the objects are already in the returned study data
           })
         ));
       }
@@ -202,6 +212,10 @@ export class UpsertStudyComponent implements OnInit {
         if (this.isEdit || this.isView) {
           // setStudyById not used here, see above
           this.setAssociatedObjects(res.pop());
+        }
+
+        if (!this.isBrowsing && this.isView) {
+          this.setAccessCheck(res.pop());
         }
 
         if (this.isAdd) {
@@ -311,6 +325,20 @@ export class UpsertStudyComponent implements OnInit {
         this.showEdit = true;
       }
       this.patchStudyForm();
+    }
+  }
+
+  getAccessCheck(sdOid) {
+    return this.userService.checkStudyAccess(sdOid);
+  }
+
+  setAccessCheck(accessRes) {
+    if (accessRes?.statusCode === 200) {
+      if (accessRes.hasAccess) {
+        this.hasAccess = true;
+      }
+    } else {
+      this.toastr.error("Couldn't perform study access check");
     }
   }
 
