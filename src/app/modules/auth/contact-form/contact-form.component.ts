@@ -14,6 +14,7 @@ export class ContactFormComponent implements OnInit {
   contactForm: UntypedFormGroup;
   isAccessRequest: boolean = false;
   isSubmitted: boolean = false;
+  submittedSuccessfully: boolean = false;
 
   constructor(private fb: UntypedFormBuilder, 
               private commonLookUpService: CommonLookupService, 
@@ -24,7 +25,7 @@ export class ContactFormComponent implements OnInit {
       lastName: ['', Validators.required],
       email: ['', Validators.required],
       confirmEmail: ['', Validators.required],
-      organization: '',
+      organisation: '',
       message: ['', Validators.required],
       reason: ['', Validators.required]
     })
@@ -59,17 +60,16 @@ export class ContactFormComponent implements OnInit {
   }
 
   submitContact() {
-    this.contactForm.patchValue({"reason": this.reason});
+    this.contactForm.patchValue({"reason": (this.contactForm.value?.reason?.toLowerCase() === "upload" ? "crDSR Data Upload Request" : "crDSR Incoming Message")});
     this.isSubmitted = true;
     if (this.contactForm.valid) {
       if (this.contactForm.value.email === this.contactForm.value.confirmEmail) {
         const payload = {
-          recipients: 'leopold.cudilla@ecrin.org',
           subject: this.contactForm.value.reason,
           message: this.emailBuilder(
               this.contactForm.value.firstName,
               this.contactForm.value.lastName,
-              this.contactForm.value.organization,
+              this.contactForm.value.organisation,
               this.contactForm.value.email,
               this.contactForm.value.message
           ),
@@ -77,14 +77,15 @@ export class ContactFormComponent implements OnInit {
           cc: this.contactForm.value.email
         }
         this.commonLookUpService.emailAPI(payload).subscribe((res: any) => {
-          if (res.status === 'success') {
-            this.toastr.success('Thank you for contacting us. An email has been sent to your mail address.')
+          if (res.status === 'success') { // TODO: BE should be changed
+            this.toastr.success('Success! An email has been sent to your mail address.')
+            this.submittedSuccessfully = true;
           }
         }, error => {
           this.toastr.error(error.message);
         })
       } else {
-        this.toastr.error('Email entered are not same. Please enter the correct email.')
+        this.toastr.error('Emails entered are not same. Please enter the correct email.')
       }
     }
   }
