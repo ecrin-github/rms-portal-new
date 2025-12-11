@@ -75,7 +75,11 @@
         <div class="row form-group">
             <div class="col-md-12">
                 <div for="cv" class="font-style">CV<sup>*</sup> (max. 2.5MB)</div>
-                <input type="file" class="file-upload" accept=".doc,.docx,.odt,.pdf" (change)="onFileChange($event)">
+                <input type="file" class="file-upload" accept=".doc,.docx,.odt,.pdf" (change)="onFileChange($event)"
+                    [ngClass]="{ 'is-invalid': submitted && g.cv.errors?.required }">
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.cv.errors">
+                    <p *ngIf="submitted && g.cv.errors.required">Please add a CV to your request</p>
+                </div>
             </div>
         </div>
         <hr class="m-10">
@@ -372,6 +376,6 @@
 </ng-container>
 <ng-template #sent>
     <div class="row">
-        <h2>Your request has been submitted successfully! We will get back to you soon.</h2>
+        <h2>Your request has been submitted successfully! We will get back to you shortly.</h2>
     </div>
 </ng-template>

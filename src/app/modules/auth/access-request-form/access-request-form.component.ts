@@ -13,7 +13,7 @@ import { DupService } from 'src/app/_rms/services/entities/dup/dup.service';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
 import { UserService } from 'src/app/_rms/services/user/user.service';
 import { OrganisationModalComponent } from 'src/app/pages/common/organisation-modal/organisation-modal.component';
-import { dateToString, keysToSnakeCase, objectToFormData } from 'src/assets/js/util';
+import { ngbDateStructToString, keysToSnakeCase, objectToFormData } from 'src/assets/js/util';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -179,8 +179,8 @@ export class AccessRequestFormComponent implements OnInit {
     return fv1?.id == fv2?.id;
   }
 
-  dateToString(date) {
-    return dateToString(date);
+  ngbDateStructToString(date) {
+    return ngbDateStructToString(date);
   }
 
   onFileChange($event) {
@@ -203,7 +203,7 @@ export class AccessRequestFormComponent implements OnInit {
       payload.requestedStudy = payload.requestedStudy.id;
     }
 
-    payload.provisionalStartingDate = this.dateToString(payload.provisionalStartingDate);
+    payload.provisionalStartingDate = this.ngbDateStructToString(payload.provisionalStartingDate);
   }
 
   getFormDataFromPayload(payload) {
@@ -218,7 +218,6 @@ export class AccessRequestFormComponent implements OnInit {
     formData.append("cv", this.form.value.cv);  // Non-stringified CV file
 
     for (let i = 0; i < payload.additionalSecondaryUsers.length; i++) {
-      console.log(JSON.stringify(this.keysToSnakeCase(payload.additionalSecondaryUsers[i])));
       formData.append(`additional_secondary_users`, JSON.stringify(this.keysToSnakeCase(payload.additionalSecondaryUsers[i])));
     }
 
