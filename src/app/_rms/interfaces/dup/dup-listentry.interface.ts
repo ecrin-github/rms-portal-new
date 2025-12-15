@@ -1,5 +1,5 @@
 export interface DupListEntryInterface {
-    id: number;
+    creationDate: string;
     orgName: string | null;
     displayName: string | null;
     statusName: string | null;

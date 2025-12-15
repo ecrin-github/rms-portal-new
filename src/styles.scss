@@ -476,9 +476,9 @@ mat-footer-cell:first-of-type {
 }
 
 /* Summary DUP columns */
-.mat-column-dupId {
-  flex: 0 0 19% !important;
-  width: 19% !important;
+.mat-column-dupCreationDate {
+  flex: 0 0 10% !important;
+  width: 10% !important;
   word-wrap: break-word !important;
   white-space: unset !important;
   overflow-wrap: break-word;
@@ -495,8 +495,8 @@ mat-footer-cell:first-of-type {
 }
 
 .mat-column-dupOrganisation {
-  flex: 0 0 22% !important;
-  width: 22% !important;
+  flex: 0 0 29% !important;
+  width: 29% !important;
   word-wrap: break-word !important;
   white-space: unset !important;
   overflow-wrap: break-word;

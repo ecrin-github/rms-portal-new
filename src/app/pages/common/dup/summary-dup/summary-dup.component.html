@@ -58,12 +58,10 @@
             </div>
     
             <mat-table [dataSource]="dataSource">
-                <ng-container matColumnDef="dupId">
-                    <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
+                <ng-container matColumnDef="dupCreationDate">
+                    <mat-header-cell *matHeaderCellDef> Created On </mat-header-cell>
                     <mat-cell *matCellDef="let row">
-                        <a [routerLink]="['/data-use', row.id, 'view']">
-                            {{row.id}}
-                        </a>
+                        {{sqlDateStringToString(row.createdOn)}}
                     </mat-cell>
                 </ng-container>
     

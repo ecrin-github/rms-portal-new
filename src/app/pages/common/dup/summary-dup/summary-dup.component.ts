@@ -15,9 +15,11 @@ import { NavigationEnd, Router } from '@angular/router';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { ReuseService } from 'src/app/_rms/services/reuse/reuse.service';
 import { StatesService } from 'src/app/_rms/services/states/states.service';
-import { resolvePath } from 'src/assets/js/util';
+import { resolvePath, sqlDateStringToString } from 'src/assets/js/util';
 import { StatusIndex, UpsertDupComponent } from '../upsert-dup/upsert-dup.component';
 import { environment } from 'src/environments/environment';
+import { DupInterface } from 'src/app/_rms/interfaces/dup/dup.interface';
+import { DupPersonInterface } from 'src/app/_rms/interfaces/dup/dup-person.interface';
 
 @Component({
   selector: 'app-summary-dup',
@@ -31,19 +33,19 @@ export class SummaryDupComponent implements OnInit {
   usedURLs = ['/', '/data-use'];
   // search dropdown filters
   searchColumns = [
-    { 'value': 'id', 'text': 'DUP ID' },
     { 'value': 'displayName', 'text': 'Title' },
     { 'value': 'organisation.defaultName', 'text': 'Organisation' },
     { 'value': 'status.name', 'text': 'Status' },
   ]
   filterColumn: string = 'displayName';
-  displayedColumns = ['dupId', 'dupTitle', 'dupOrganisation', 'dupStatus', 'actions'];
+  displayedColumns = ['dupCreationDate', 'dupTitle', 'dupOrganisation', 'dupStatus', 'actions'];
   dataSource: MatTableDataSource<DupListEntryInterface>;
-  dupsData: [] = [];
+  dupsData: DupInterface[] = [];
   searchText: string = '';
   dupLength: number = 0;
   warningModal: any;
   orgId: any;
+  userId: any;
   role: any;
   isManager: boolean = false;
   deBouncedInputValue = this.searchText;
@@ -71,6 +73,7 @@ export class SummaryDupComponent implements OnInit {
     this.isManager = this.statesService.isManager();
     this.permissionService.loadPermissions([this.role]);
     this.orgId = this.statesService.currentAuthOrgId;
+    this.userId = this.statesService.currentUser?.id;
     this.notDashboard = this.router.url.includes('data-use') ? true : false;
     this.getDupList();
     this.setupSearchDeBouncer();
@@ -96,13 +99,15 @@ export class SummaryDupComponent implements OnInit {
     dups.sort((a, b) => {
       if (a.organisation?.id === this.orgId) {
         if (b.organisation?.id === this.orgId) {
-          return compare(a.displayName, b.displayName);
+          return (a.createdOn < b.createdOn);
+          // return compare(a.displayName, b.displayName);
         }
         return -1;
       } else if (b.organisation?.id === this.orgId) {
         return 1;
       } else {
-        return compare(a.displayName, b.displayName);
+        return (a.createdOn < b.createdOn);
+        // return compare(a.displayName, b.displayName);
       }
     });
   }
@@ -112,8 +117,12 @@ export class SummaryDupComponent implements OnInit {
     this.listService.getDupList().subscribe((res: any) => {
       if (res && res.results) {
         this.getSortedDUPs(res.results);
-        this.dupsData = res.results;
+        // The mat table data is different than dupsData for managers, dupsData will be filtered to only contain their DUPs
         this.dataSource = new MatTableDataSource<DupListEntryInterface>(res.results);
+        this.dupsData = res.results;
+        if (this.isManager) {
+          this.filterDupsData();
+        }
       } else {
         this.dataSource = new MatTableDataSource();
       }
@@ -122,6 +131,12 @@ export class SummaryDupComponent implements OnInit {
     }, error => {
       this.spinner.hide();
       this.toastr.error(error.error.title);
+    });
+  }
+
+  filterDupsData() {
+    this.dupsData = this.dupsData.filter((dup: DupInterface) => {
+      return dup?.dupPeople?.some((dupPerson: DupPersonInterface) => dupPerson?.person?.id === this.userId);
     });
   }
 
@@ -161,6 +176,10 @@ export class SummaryDupComponent implements OnInit {
 
   onInputChange(e) {
     this.searchDebounce.next(e.target.value);
+  }
+
+  sqlDateStringToString(date) {
+    return sqlDateStringToString(date);
   }
 
   filterSearch() {
