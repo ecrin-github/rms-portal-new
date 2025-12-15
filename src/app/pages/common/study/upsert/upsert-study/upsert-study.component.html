@@ -7,11 +7,6 @@
                 </div>
                 <div class="col-md-8 text-right">
                     <ng-container *ngIf="isView">
-                        <ng-container *ngIf="showEdit || isManager">
-                            <a [routerLink]="['/studies', sdSid, 'edit']" class="btn btn-primary mr-1">
-                                <i class="fa fa-edit"></i> Edit
-                            </a>
-                        </ng-container>
                         <ng-container *ngIf="hasControlledDO">
                             <ng-container *ngIf="hasAccess; else requestAccessButton">
                                 <span>
@@ -24,7 +19,11 @@
                                 </a>
                             </ng-template>
                         </ng-container>
-                        
+                        <ng-container *ngIf="showEdit || isManager">
+                            <a [routerLink]="['/studies', sdSid, 'edit']" class="btn btn-primary mr-1">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                        </ng-container>
                         <button class="btn btn-primary mr-1" (click)="print()">
                             <i class="fa fa-print"></i>PDF
                         </button>
