@@ -30,7 +30,7 @@ export class BackService {
         this.router.navigate([matchView[0], 'view']); // skipLocationChange to avoid going to edit on view back
       } else {
         if (!this.router.url.includes('browsing')) {
-          const regSummary = new RegExp(/(?<=^[\/\\])[^\/\\]+/);  // matches the string between the first two slashes
+          const regSummary = new RegExp(/(?<=^[\/\\])[^\/\\]+(?=\/)/);  // matches the string between the first two slashes
           const match = regSummary.exec(this.router.url);
           if (match) {
             this.router.navigate(match);
