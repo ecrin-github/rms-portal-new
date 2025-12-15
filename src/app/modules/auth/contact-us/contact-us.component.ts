@@ -8,6 +8,12 @@ import { BackService } from 'src/app/_rms/services/back/back.service';
   styleUrls: ['./contact-us.component.scss']
 })
 export class ContactUsComponent implements OnInit {
+  aboutUrl: string = "https://crr.gitbook.io/crdsr/";
+  userGuideUrl: string = "https://crr.gitbook.io/crdsr/user-guide";
+  mdrUrl: string = "https://crmdr.ecrin.org/";
+  legalNoticeUrl: string = "https://crr.gitbook.io/crr/legal-notice";
+  dataPrivacyPolicyUrl: string = "https://crr.gitbook.io/crr/data-privacy-policy";
+
   isAccessRequest: boolean = false;
   reasonPicked: boolean = false;
   reason: string = null;
@@ -41,29 +47,5 @@ export class ContactUsComponent implements OnInit {
 
   back() {
     this.backService.back();
-  }
-
-  goToUserGuide() {
-    this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crr/', '_blank'); });
-  }
-  goToAbout() {
-    this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crdsr/', '_tab1'); });
-  }
-  goToMdr() {
-    this.router.navigate([])
-    .then(result => { window.open('https://crmdr.ecrin.org/', '_blank'); });
-  }
-  goToLegalNotice() {
-    this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crr/legal-notice', '_blank'); });
-  }
-  goToPrivacy() {
-    this.router.navigate([])
-    .then(result => { window.open('https://crr.gitbook.io/crr/data-privacy-policy', '_blank'); });
-  }
-  goToLogin() {
-    this.router.navigate(['/']);
   }
 }
