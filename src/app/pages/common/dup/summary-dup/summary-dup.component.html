@@ -112,7 +112,7 @@
                     <ul class="list-unstyled">
                         <li *ngFor="let dup of dupsData; let i = index;" class="text-value">
                             <hr *ngIf="i > 0" class="mt-6 mb-6"/>
-                            <span class="li-text-1"><a [routerLink]="['/data-use', dup.id, 'view']">{{dup.displayName}}</a></span>
+                            <span class="li-text-2">{{sqlDateStringToString(dup.createdOn)}}&nbsp;-&nbsp;</span><span class="li-text-1"><a [routerLink]="['/data-use', dup.id, 'view']">{{dup.displayName}}</a></span>
                             <div class="d-inline-flex ml-2 li-text-1">
                                 <div [class]="getStatusTagClasses(dup.status?.listOrder)">{{dup.status?.name}}</div>
                             </div>

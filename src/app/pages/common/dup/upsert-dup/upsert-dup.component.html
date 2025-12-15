@@ -1,4 +1,10 @@
 <ng-template #darView>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="" class="font-style">Request date</label>
+            <h6 class="text-value">{{viewDate(dar?.requestDate)}}</h6>
+        </div>
+    </div>
     <div class="row mb-2">
         <div class="col-md-6">
             <label for="organisation" class="view-sub-sub-title">Requesting organisation</label>
@@ -12,37 +18,39 @@
             <h6 class="text-value">CV: see email</h6>
         </div>
     </div>
-    <div class="row section-title">
-        <div class="col-md-12 text-left">
-            <div class="text-value" class="view-sub-sub-title">Additional secondary users</div>
-        </div>
-    </div>
-    <ng-container *ngIf="dar?.additionalSecondaryUsers?.length > 0; else displaySecondaryUsers">
-        <div class="row">
-            <div class="col-md-12 text-left">
-                <ul>
-                    <li *ngFor="let additionalSecondaryUser of dar?.additionalSecondaryUsers">
-                        <h6 class="text-value">{{additionalSecondaryUser?.firstName}} {{additionalSecondaryUser?.lastName}} ({{additionalSecondaryUser?.email}})</h6>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </ng-container>
-    <ng-template #displaySecondaryUsers>
-        <div class="row">
-            <div class="col-md-12">
-                <h6 class="text-value">No other secondary users</h6>
-            </div>
-        </div>
-    </ng-template>
     <div class="row section-title mt-7">
-        <div class="col-md-12 text-left">
+        <div class="col-md-6 text-left">
             <div class="text-value" class="view-sub-sub-title">Requested study for secondary use</div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <h6 class="text-value"><a [routerLink]="['/studies', dar?.requestedStudy?.sdSid, 'view']">{{dar?.requestedStudy?.sdSid}} - {{dar?.requestedStudy?.displayTitle}}</a></h6>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col-md-12">
-            <h6 class="text-value"><a [routerLink]="['/studies', dar?.requestedStudy?.sdSid, 'view']">{{dar?.requestedStudy?.sdSid}} - {{dar?.requestedStudy?.displayTitle}}</a></h6>
+        <div class="col-md-6 text-left">
+            <div class="row section-title">
+                <div class="col-md-12 text-left">
+                    <div class="text-value" class="view-sub-sub-title">Additional secondary users</div>
+                </div>
+            </div>
+            <ng-container *ngIf="dar?.additionalSecondaryUsers?.length > 0; else displaySecondaryUsers">
+                <div class="row">
+                    <div class="col-md-12 text-left">
+                        <ul class="pl-5">
+                            <li *ngFor="let additionalSecondaryUser of dar?.additionalSecondaryUsers">
+                                <h6 class="text-value">{{additionalSecondaryUser?.firstName}} {{additionalSecondaryUser?.lastName}} ({{additionalSecondaryUser?.email}})</h6>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </ng-container>
+            <ng-template #displaySecondaryUsers>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6 class="text-value">No other secondary users</h6>
+                    </div>
+                </div>
+            </ng-template>
         </div>
     </div>
     <div class="row">
@@ -92,11 +100,11 @@
         </div>
     </div>
     <div class="row mt-2">
-        <div class="col-md-6">
+        <div class="col-md-3">
             <div class="font-style">Estimated access duration required</div>
             <h6 class="text-value">{{dar?.estimatedAccessDurationRequired ? dar.estimatedAccessDurationRequired : 'No duration specified'}}</h6>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
             <div class="font-style">Provisional starting date</div>
             <h6 class="text-value">{{dar?.provisionalStartingDate ? dar.provisionalStartingDate : 'No provisional starting date specified'}}</h6>
         </div>
@@ -208,6 +216,10 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3">
+                                        <label for="" class="font-style">Creation date</label>
+                                        <h6 class="text-value">{{viewDate(fv?.createdOn)}}</h6>
+                                    </div>
+                                    <div class="col-md-3">
                                         <label for="" class="font-style text-capitalize">organisation<sup *ngIf="!isView">*</sup></label>
                                         <ng-select [items]="organisations" bindLabel="defaultName" formControlName="organisation"
                                             [multiple]="false" [virtualScroll]="true" class="form-control ng-form-control" [compareWith]="compareIds"
@@ -228,7 +240,7 @@
                                         </div>
                                         <h6 *ngIf="isView" class="text-value">{{fv?.organisation?.defaultName}}</h6>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <label for="" class="font-style text-capitalize">Display Name<sup *ngIf="!isView">*</sup></label>
                                         <input type="text" class="form-control" formControlName="displayName" *ngIf="!isView"
                                             [ngClass]="{ 'is-invalid': submitted && fc.displayName.errors }">

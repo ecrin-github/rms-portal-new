@@ -104,6 +104,7 @@ export class UpsertDupComponent implements OnInit {
       providerSignatory2: null,
       requesterSignatory1: null,
       requesterSignatory2: null,
+      createdOn: null,
       notes: this.fb.array([])
     });
   }
@@ -350,6 +351,7 @@ export class UpsertDupComponent implements OnInit {
       agreementSignedDate: this.stringToNgbDateStruct(data.agreementSignedDate),
       dataAccessAvailableFrom: this.stringToNgbDateStruct(data.dataAccessAvailableFrom),
       dataAccessAvailableUntil: this.stringToNgbDateStruct(data.dataAccessAvailableUntil),
+      createdOn: data.createdOn
     });
 
     // Setting status this way to set style as well instead of using patchValue
