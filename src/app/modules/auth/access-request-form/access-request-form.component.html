@@ -8,6 +8,45 @@
         <hr class="m-10">
         <div class="row section-title-field">
             <div class="col-md-12 text-left">
+                <div class="view-sub-sub-title">Request submittor</div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="requesterName" class="font-style">Your Name<sup>*</sup></div>
+                <input type="text" id="requesterName" class="form-control" formControlName="requesterName"
+                    [ngClass]="{ 'is-invalid': submitted && g.requesterName.errors }"/>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterName.errors?.required">
+                <p *ngIf="submitted && g.requesterName.errors?.required">Please enter your name</p>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="requesterEmail" class="font-style">Your email (institutional)<sup>*</sup></div>
+                <input type="text" id="requesterEmail" class="form-control" formControlName="requesterEmail"
+                    [ngClass]="{ 'is-invalid': submitted && g.requesterEmail.errors }"/>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterEmail.errors?.required">
+                <p *ngIf="submitted && g.requesterEmail.errors?.required">Please enter your email address</p>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="requesterEmailConfirmation" class="font-style">Confirm your email<sup>*</sup></div>
+                <input type="text" id="requesterEmailConfirmation" class="form-control" formControlName="requesterEmailConfirmation"
+                    [ngClass]="{ 'is-invalid': submitted && g.requesterEmailConfirmation.errors }"/>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterEmailConfirmation.errors?.required">
+                <p *ngIf="submitted && g.requesterEmailConfirmation.errors?.required">Please confirm your email address</p>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && form.errors?.emailMismatch">
+                <p *ngIf="submitted && form.errors?.emailMismatch">{{form.errors.emailMismatch}}</p>
+            </div>
+        </div>
+        <hr class="m-10">
+        <div class="row section-title-field">
+            <div class="col-md-12 text-left">
                 <div class="view-sub-sub-title">Data requesting organisation</div>
             </div>
         </div>
@@ -324,47 +363,13 @@
                 <textarea id="otherInfo" cols="30" rows="2" class="form-control" formControlName="otherInfo"></textarea>
             </div>
         </div>
-        <hr class="m-10">
-        <div class="row form-group">
-            <div class="col-md-12">
-                <div for="requesterName" class="font-style">Your Name<sup>*</sup></div>
-                <input type="text" id="requesterName" class="form-control" formControlName="requesterName"
-                    [ngClass]="{ 'is-invalid': submitted && g.requesterName.errors }"/>
-            </div>
-            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterName.errors?.required">
-                <p *ngIf="submitted && g.requesterName.errors?.required">Please enter your name</p>
-            </div>
-        </div>
-        <div class="row form-group">
-            <div class="col-md-12">
-                <div for="requesterEmail" class="font-style">Your email (institutional)<sup>*</sup></div>
-                <input type="text" id="requesterEmail" class="form-control" formControlName="requesterEmail"
-                    [ngClass]="{ 'is-invalid': submitted && g.requesterEmail.errors }"/>
-            </div>
-            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterEmail.errors?.required">
-                <p *ngIf="submitted && g.requesterEmail.errors?.required">Please enter your email address</p>
-            </div>
-        </div>
-        <div class="row form-group">
-            <div class="col-md-12">
-                <div for="requesterEmailConfirmation" class="font-style">Confirm your email<sup>*</sup></div>
-                <input type="text" id="requesterEmailConfirmation" class="form-control" formControlName="requesterEmailConfirmation"
-                    [ngClass]="{ 'is-invalid': submitted && g.requesterEmailConfirmation.errors }"/>
-            </div>
-            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterEmailConfirmation.errors?.required">
-                <p *ngIf="submitted && g.requesterEmailConfirmation.errors?.required">Please confirm your email address</p>
-            </div>
-            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && form.errors?.emailMismatch">
-                <p *ngIf="submitted && form.errors?.emailMismatch">{{form.errors.emailMismatch}}</p>
-            </div>
-        </div>
         <div class="row">
             <div class="col-md-12 d-flex">
                 <input class="form-check-input mr-2 checkbox" type="checkbox" id="acceptedTCs" formControlName="acceptedTCs">
                 <span>I have read and agree to ECRIN's <a href="https://ecrin.org/data-privacy-policy" target="_blank">privacy policy</a></span>
             </div>
             <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.acceptedTCs.errors">
-                <p *ngIf="submitted && g.acceptedTCs.errors.required">You need to accept this (TODO)</p>
+                <p *ngIf="submitted && g.acceptedTCs.errors.required">You need to read and agree to ECRIN's privacy policy</p>
             </div>
         </div>
         <div class="row mt-5 pb-4 justify-content-end">
