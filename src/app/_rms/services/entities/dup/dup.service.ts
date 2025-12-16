@@ -11,6 +11,11 @@ export class DupService {
 
   constructor( private http: HttpClient) { }
   
+  // Access request form
+  addAccessRequest(payload) {
+    return this.http.post(`${base}/rms/data-access-requests`, payload);
+  }
+  
   // full DUP - with attributes
 
   getFullDupById(id) {

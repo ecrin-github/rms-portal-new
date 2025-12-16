@@ -1,0 +1,64 @@
+<ng-container *ngIf="!submittedSuccessfully; else sent">
+    <form [formGroup]="contactForm">
+        <div class="row form-group">
+            <div class="col-md-12">
+                <label for="message" class="font-style">Message</label>
+                <textarea id="message" cols="30" rows="5" class="form-control" formControlName="message" [ngClass]="{ 'is-invalid': isSubmitted && g.message.errors }"></textarea>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.message.errors">
+                    <p *ngIf="isSubmitted && g.message.errors.required"> Please enter the message</p>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-6">
+                <label for="firstName" class="font-style">First name</label>
+                <input type="text" class="form-control" placeholder="First Name" id="firstName" formControlName="firstName" [ngClass]="{ 'is-invalid': isSubmitted && g.firstName.errors }">
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.firstName.errors">
+                    <p *ngIf="isSubmitted && g.firstName.errors.required"> Please enter Your first name</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="lastName" class="font-style">Last name</label>
+                <input type="text" class="form-control" placeholder="Last Name" id="lastName" formControlName="lastName" [ngClass]="{ 'is-invalid': isSubmitted && g.lastName.errors }">
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.lastName.errors">
+                    <p *ngIf="isSubmitted && g.lastName.errors.required"> Please enter your last name</p>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <label for="organisation" class="font-style" for="organisation">Organisation</label>
+                <input type="text" class="form-control" placeholder="Enter your organisation" form="organisation" formControlName="organisation">
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <label for="" class="font-style" for="email">Email <small>(*Please enter your organisation email address)</small> </label>
+                <input type="text" class="form-control" placeholder="Email" id="email" formControlName="email" [ngClass]="{ 'is-invalid': isSubmitted && g.email.errors }">
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.email.errors">
+                    <p *ngIf="isSubmitted && g.email.errors.required"> Please enter your email</p>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+          <div class="col-md-12">
+              <label for="" class="font-style" for="confirmEmail">Confirm Email <small>(*Please re-enter your organisation email address)</small> </label>
+              <input type="text" class="form-control" placeholder="Email" id="confirmEmail" formControlName="confirmEmail" [ngClass]="{ 'is-invalid': isSubmitted && g.confirmEmail.errors }">
+              <div class="col-md-12 invalid-feedback d-block" *ngIf="isSubmitted && g.confirmEmail.errors">
+                  <p *ngIf="isSubmitted && g.confirmEmail.errors.required"> Please re-enter your email</p>
+              </div>
+          </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12 text-center">
+                <span class="pr-2"><button class="btn-primary btn w-25" (click)="submitContact()">Send</button></span>
+                <button class="btn-warning btn w-25" (click)="goToLogin()">Back</button>
+            </div>
+        </div>
+    </form>
+</ng-container>
+<ng-template #sent>
+    <div class="row">
+        <h2>Thank you for contacting us! We will get back to you shortly.</h2>
+    </div>
+</ng-template>

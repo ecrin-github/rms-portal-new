@@ -8,7 +8,7 @@ import { Observable, combineLatest, of } from 'rxjs';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { DtpService } from 'src/app/_rms/services/entities/dtp/dtp.service';
 import { ProcessLookupService } from 'src/app/_rms/services/entities/process-lookup/process-lookup.service';
-import { CommonModalComponent } from '../../common-modal/common-modal.component';
+import { CommonModalComponent, DataType } from '../../common-modal/common-modal.component';
 import { ConfirmationWindow1Component } from '../../confirmation-window1/confirmation-window1.component';
 import { ConfirmationWindowComponent } from '../../confirmation-window/confirmation-window.component';
 import { AddModalComponent } from '../../add-modal/add-modal.component';
@@ -24,7 +24,7 @@ import { BackService } from 'src/app/_rms/services/back/back.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { catchError, finalize, map, mergeMap } from 'rxjs/operators';
 import { UserInterface } from 'src/app/_rms/interfaces/user/user.interface';
-import { dateToString, isWholeNumber, sqlDateStringToString, stringToDate } from 'src/assets/js/util';
+import { ngbDateStructToString, isWholeNumber, sqlDateStringToString, stringToNgbDateStruct } from 'src/assets/js/util';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 import { ContextService } from 'src/app/_rms/services/context/context.service';
 
@@ -41,7 +41,7 @@ export class UpsertDtpComponent implements OnInit {
   isEdit: boolean = false;
   isView: boolean = false;
   isAdd: boolean = false;
-  organizationList: OrganisationInterface[] = [];
+  organisations: OrganisationInterface[] = [];
   statusList = [];
   id: any;
   dtpData: any;
@@ -155,7 +155,7 @@ export class UpsertDtpComponent implements OnInit {
     }
 
     this.contextService.organisations.subscribe((organisations) => {
-      this.organizationList = organisations;
+      this.organisations = organisations;
     });
 
     this.scrollService.handleScroll([`/data-transfers/${this.id}/view`, `/data-transfers/${this.id}/edit`, `/data-transfers/add`]);
@@ -214,6 +214,9 @@ export class UpsertDtpComponent implements OnInit {
     });
   }
 
+  get fc() { return this.form.controls; }
+  get fv() { return this.form.value; }
+
   changeStep(forward) {
     if (forward) {
       if (this.isView || (!(this.currentStep === this.maxSteps) && (this.currentStep <= this.lastCompletedStep))) {
@@ -245,7 +248,7 @@ export class UpsertDtpComponent implements OnInit {
     for (let i = 1; i <= this.maxSteps; i++) {
       for (const field of this.stepperFields[i]) {
         if (!isValid) {
-          this.g[field].setValue(null);
+          this.fc[field].setValue(null);
         } else if (!(this.form.value[field])) {
           isValid = false;
           notValidInd = i;
@@ -267,7 +270,7 @@ export class UpsertDtpComponent implements OnInit {
   }
 
   verifyDates(lastDateField, currDateField, step) {
-    if (this.dateToString(this.form.value[lastDateField]) > this.dateToString(this.form.value[currDateField])) {
+    if (this.ngbDateStructToString(this.form.value[lastDateField]) > this.ngbDateStructToString(this.form.value[currDateField])) {
       let errorMessage = '';
 
       if (currDateField === 'setUpCompleteDate') {
@@ -296,9 +299,9 @@ export class UpsertDtpComponent implements OnInit {
   updateStatus() {
     if (this.lastCompletedStep >= 0) {
       if (this.lastCompletedStep === this.maxSteps) {
-        this.g['status'].setValue(this.statusList[this.lastCompletedStep-1]);
+        this.fc['status'].setValue(this.statusList[this.lastCompletedStep-1]);
       } else {
-        this.g['status'].setValue(this.statusList[this.lastCompletedStep]);
+        this.fc['status'].setValue(this.statusList[this.lastCompletedStep]);
       }
     }
   }
@@ -475,14 +478,6 @@ export class UpsertDtpComponent implements OnInit {
     }, error => {})
   }
 
-  get g() { return this.form.controls; }
-
-  setOrganisation(res) {
-    if (res && res.results) {
-      this.organizationList = res.results;
-    }
-  }
-
   getStatus() {
     return this.processLookup.getDtpStatusTypes();
   }
@@ -496,7 +491,7 @@ export class UpsertDtpComponent implements OnInit {
       });
 
       if (this.statusList.length > 0) {
-        this.g['status'].setValue(this.statusList[0]);
+        this.fc['status'].setValue(this.statusList[0]);
       }
     }
   }
@@ -721,32 +716,27 @@ export class UpsertDtpComponent implements OnInit {
     return arr && arr.length ? arr[0].name : 'None';
   }
 
-  dateToString(date) {
-    return dateToString(date);
+  ngbDateStructToString(date) {
+    return ngbDateStructToString(date);
   }
 
-  stringToDate(date) {
-    return stringToDate(date);
+  stringToNgbDateStruct(date) {
+    return stringToNgbDateStruct(date);
   }
 
   viewDate(date) {
     return sqlDateStringToString(date);
   }
 
-  onSave() {
-    // Setting local storage to reload the dashboard page when adding or editing the dtp
-    if (localStorage.getItem('updateDtpList')) {
-      localStorage.removeItem('updateDtpList');
-    }
-    const payload = JSON.parse(JSON.stringify(this.form.value));
-    payload.setUpStartDate = this.dateToString(payload.setUpStartDate);
-    payload.setUpCompleteDate = this.dateToString(payload.setUpCompleteDate);
-    payload.mdCompleteDate = this.dateToString(payload.mdCompleteDate);
-    payload.dtaAgreedDate = this.dateToString(payload.dtaAgreedDate);
-    payload.qcChecksCompleteDate = this.dateToString(payload.qcChecksCompleteDate);
-    payload.uploadAccessRequestedDate = this.dateToString(payload.uploadAccessRequestedDate);
-    payload.uploadAccessConfirmedDate = this.dateToString(payload.uploadAccessConfirmedDate);
-    payload.uploadCompleteDate = this.dateToString(payload.uploadCompleteDate);
+  updatePayload(payload) {
+    payload.setUpStartDate = this.ngbDateStructToString(payload.setUpStartDate);
+    payload.setUpCompleteDate = this.ngbDateStructToString(payload.setUpCompleteDate);
+    payload.mdCompleteDate = this.ngbDateStructToString(payload.mdCompleteDate);
+    payload.dtaAgreedDate = this.ngbDateStructToString(payload.dtaAgreedDate);
+    payload.qcChecksCompleteDate = this.ngbDateStructToString(payload.qcChecksCompleteDate);
+    payload.uploadAccessRequestedDate = this.ngbDateStructToString(payload.uploadAccessRequestedDate);
+    payload.uploadAccessConfirmedDate = this.ngbDateStructToString(payload.uploadAccessConfirmedDate);
+    payload.uploadCompleteDate = this.ngbDateStructToString(payload.uploadCompleteDate);
 
     if (payload.repoSignature1?.id) {
       payload.repoSignature1 = payload.repoSignature1.id;
@@ -763,6 +753,19 @@ export class UpsertDtpComponent implements OnInit {
     if (payload.status?.id) {
       payload.status = payload.status.id;
     }
+
+    if (payload.organisation?.id) {
+      payload.organisation = payload.organisation.id;
+    }
+  }
+
+  onSave() {
+    // Setting local storage to reload the dashboard page when adding or editing the dtp
+    if (localStorage.getItem('updateDtpList')) {
+      localStorage.removeItem('updateDtpList');
+    }
+    const payload = JSON.parse(JSON.stringify(this.form.value));
+    this.updatePayload(payload);
 
     let hasErrors: boolean = false;
     for (const [step, errors] of Object.entries(this.storedDatesError)) {
@@ -838,15 +841,15 @@ export class UpsertDtpComponent implements OnInit {
 
   patchForm(data) {
     this.form.patchValue({
-      organisation: data.organisation ? data.organisation.id : null,
+      organisation: data.organisation,
       displayName: data.displayName,
       status: data.status,
-      setUpStartDate: this.stringToDate(data.setUpStartDate),
-      setUpCompleteDate: this.stringToDate(data.setUpCompleteDate),
-      mdCompleteDate: this.stringToDate(data.mdCompleteDate),
-      dtaAgreedDate: this.stringToDate(data.dtaAgreedDate),
-      qcChecksCompleteDate: this.stringToDate(data.qcChecksCompleteDate),
-      uploadCompleteDate: this.stringToDate(data.uploadCompleteDate),
+      setUpStartDate: this.stringToNgbDateStruct(data.setUpStartDate),
+      setUpCompleteDate: this.stringToNgbDateStruct(data.setUpCompleteDate),
+      mdCompleteDate: this.stringToNgbDateStruct(data.mdCompleteDate),
+      dtaAgreedDate: this.stringToNgbDateStruct(data.dtaAgreedDate),
+      qcChecksCompleteDate: this.stringToNgbDateStruct(data.qcChecksCompleteDate),
+      uploadCompleteDate: this.stringToNgbDateStruct(data.uploadCompleteDate),
     });
 
     let found: boolean = false;
@@ -882,11 +885,6 @@ export class UpsertDtpComponent implements OnInit {
     this.showVariations = dtaData[0]?.conformsToDefault ? true : false;
   }
 
-  findOrganization(id) {
-    const organizationArray: any = this.organizationList.filter((type: any) => type.id === id);
-    return organizationArray && organizationArray.length ? organizationArray[0].defaultName : ''
-  }
-
   findStatus(id) {
     const statusArray: any = this.statusList.filter((type: any) => type.id === id);
     return statusArray && statusArray.length ? statusArray[0].name : '';
@@ -899,10 +897,10 @@ export class UpsertDtpComponent implements OnInit {
   addStudy() {
     const studyModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
     studyModal.componentInstance.title = 'Add Studies and Data Objects';
-    studyModal.componentInstance.type = 'study';
+    studyModal.componentInstance.type = DataType.STUDY;
     studyModal.componentInstance.dtpId = this.id;
-    studyModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
-    studyModal.componentInstance.currentObjectsIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
+    studyModal.componentInstance.alreadyAddedDPStudies = this.associatedStudies;
+    studyModal.componentInstance.alreadyAddedObjectIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
     studyModal.result.then((data) => {
       if (data) {
         this.spinner.show();
@@ -922,6 +920,7 @@ export class UpsertDtpComponent implements OnInit {
 
   removeDtpStudy(dtpStudy) {
     this.spinner.show();
+    // TODO: remove this check, cascade delete
     this.commonLookup.objectInvolvementDtp(this.id, dtpStudy.study?.id).subscribe((res: any) => {
       if (res.studyAssociated && res.objectsAssociated) {
         this.toastr.error(`Object(s) linked to this study are linked to this DTP. Remove the object(s) before removing this study.`);
@@ -946,10 +945,10 @@ export class UpsertDtpComponent implements OnInit {
   addDataObject() {
     const dataModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
     dataModal.componentInstance.title = 'Add Data Objects';
-    dataModal.componentInstance.type = 'dataObject';
+    dataModal.componentInstance.type = DataType.DATA_OBJECT;
     dataModal.componentInstance.dtpId = this.id;
-    dataModal.componentInstance.currentStudiesIds = new Set(this.associatedStudies.map((item) => item.study?.id));
-    dataModal.componentInstance.currentObjectsIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
+    dataModal.componentInstance.alreadyAddedDPStudies = this.associatedStudies;
+    dataModal.componentInstance.alreadyAddedObjectIds = new Set(this.associatedObjects.map((item) => item.dataObject?.id));
     dataModal.result.then((data) => {
       if (data) {
         this.spinner.show();
@@ -978,9 +977,9 @@ export class UpsertDtpComponent implements OnInit {
   addUser() {
     const userModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
     userModal.componentInstance.title = 'Add Users';
-    userModal.componentInstance.type = 'user';
+    userModal.componentInstance.type = DataType.USER;
     userModal.componentInstance.dtpId = this.id;
-    userModal.componentInstance.currentUsersIds = new Set(this.associatedUsers.map((item) => item.person?.id));
+    userModal.componentInstance.alreadyAddedUserIds = new Set(this.associatedUsers.map((item) => item.person?.id));
 
     userModal.result.then((data) => {
       if (data) {
@@ -1063,37 +1062,6 @@ export class UpsertDtpComponent implements OnInit {
 
   jsonExport() {
     const payload = JSON.parse(JSON.stringify(this.dtpData));
-    /*payload.coreDtp.organisation = this.findOrganization(payload.coreDtp.organisation);
-    payload.coreDtp.status = this.findStatus(payload.coreDtp.status);
-    payload.coreDtp.initialContactDate = this.viewDate(payload.coreDtp.initialContactDate);
-    payload.coreDtp.setUpCompleteDate = this.viewDate(payload.coreDtp.setUpCompleteDate);
-    payload.coreDtp.mdAccessGrantedDate = this.viewDate(payload.coreDtp.mdAccessGrantedDate);
-    payload.coreDtp.mdCompleteDate = this.viewDate(payload.coreDtp.mdCompleteDate);
-    payload.coreDtp.dtaAgreedDate = this.viewDate(payload.coreDtp.dtaAgreedDate);
-    payload.coreDtp.uploadAccessRequestedDate = this.viewDate(payload.coreDtp.uploadAccessRequestedDate);
-    payload.coreDtp.uploadAccessConfirmedDate = this.viewDate(payload.coreDtp.uploadAccessConfirmedDate);
-    payload.coreDtp.uploadCompleteDate = this.viewDate(payload.coreDtp.uploadCompleteDate);
-    payload.coreDtp.qcChecksCompleteDate = this.viewDate(payload.coreDtp.qcChecksCompleteDate);
-    payload.coreDtp.mdIntegratedWithMdrDate = this.viewDate(payload.coreDtp.mdIntegratedWithMdrDate);
-    payload.coreDtp.availabilityRequestedDate = this.viewDate(payload.coreDtp.availabilityRequestedDate);
-    payload.coreDtp.availabilityConfirmedDate = this.viewDate(payload.coreDtp.availabilityConfirmedDate);
-    payload.dtas[0].repoSignature1 = this.findPeopleById(payload.dtas[0].repoSignature1);
-    payload.dtas[0].repoSignature2 = this.findPeopleById(payload.dtas[0].repoSignature2);
-    payload.dtas[0].providerSignature1 = this.findPeopleById(payload.dtas[0].providerSignature1);
-    payload.dtas[0].providerSignature2 = this.findPeopleById(payload.dtas[0].providerSignature2);
-    payload.dtpNotes.map(item => {
-      item.author = this.findPeopleById(item.author);
-      item.createdOn = this.viewDate(item.createdOn);
-    })
-    payload.dtpStudies.map(item => {
-      item.studyName = this.findStudyById(item.sdSid);
-    })
-    payload.dtpObjects.map(item => {
-      item.objectName  =  this.findObjectById(item.objectId);
-      item.accessType = this.findAccessType(payload.accessType);
-      item.accessCheckStatus = this.findCheckSatus(item.accessCheckStatus);
-      item.accessCheckBy = this.findPeopleById(item.accessCheckBy);
-    });*/
     this.jsonGenerator.jsonGenerator(payload, 'dtp');
   }
   
@@ -1131,6 +1099,14 @@ export class UpsertDtpComponent implements OnInit {
         || item.person?.lastName.toLocaleLowerCase().indexOf(term) > -1
         || item.person?.email.toLocaleLowerCase().indexOf(term) > -1
         || (item.person?.firstName.toLocaleLowerCase() + " " + item.person?.lastName.toLocaleLowerCase()).indexOf(term) > -1;
+  }
+
+  searchOrganisations = (term: string, item) => {
+    return this.contextService.searchOrganisations(term, item);
+  }
+
+  compareIds(fv1, fv2): boolean {
+    return fv1?.id == fv2?.id;
   }
 
   compareUsers(u1: any, u2: any) {

@@ -69,7 +69,7 @@ import { RoleGuard } from 'src/app/_rms/guards/role/role.guard';
                 pathMatch: 'full',
                 component: SummaryDtpComponent,
                 data: { 
-                    shouldReuse: true,
+                    shouldReuse: false,
                     key: 'summarydtpcomponent',
                     reuseRoutesFrom: ['data-transfers/:id/view', 'data-transfers/:id/add', 'data-transfers/:id/edit']
                 },
@@ -91,7 +91,7 @@ import { RoleGuard } from 'src/app/_rms/guards/role/role.guard';
                 pathMatch: 'full',
                 component: SummaryDupComponent,
                 data: { 
-                    shouldReuse: true,
+                    shouldReuse: false,
                     key: 'summarydupcomponent',
                     reuseRoutesFrom: ['data-use/:id/view', 'data-use/:id/add', 'data-use/:id/edit']
                 },

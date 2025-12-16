@@ -79,8 +79,16 @@
                                     </ng-template>
                                     <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
                                         <div class="row m-0">
-                                            <div class="col-md-12 p-0 m-0">{{item.defaultName}}</div>
-                                            <div class="col-md-12 p-0 m-0" style="font-size: 83%; color: gray;">{{item.city}}{{(item.city && item.countryName) ? ', ' : ''}}{{item.countryName}}</div>
+                                            <div class="col-md-11 col-11 p-0 m-0">
+                                                <div class="col-md-12">{{item.defaultName}}</div>
+                                                <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.city}}{{(item.city && item.countryName) ? ', ' : ''}}{{item.countryName}}</div>
+                                            </div>
+                                            <div class="col-md-1 col-1 p-0 m-0 d-flex">
+                                                <div class="col-md-12 col-1 p-0 m-0 d-flex align-items-start justify-content-center">
+                                                    <i class="fa fa-trash" style="color:#f24437; cursor: pointer;" (click)="deleteOrganisation($event, item)">
+                                                    </i>
+                                                </div>
+                                            </div>
                                         </div>
                                     </ng-template>
                                 </ng-select>

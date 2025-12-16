@@ -1,0 +1,386 @@
+<ng-container *ngIf="!submittedSuccessfully; else sent">
+    <form [formGroup]="form" ngNativeValidate>
+        <!-- <div class="row section-title-field">
+            <div class="col-md-12 text-left">
+                <div class="text-value" class="view-sub-sub-title">Country<sup *ngIf="!isView">*</sup></div>
+            </div>
+        </div> -->
+        <hr class="m-10">
+        <div class="row section-title-field">
+            <div class="col-md-12 text-left">
+                <div class="view-sub-sub-title">Request submittor</div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="requesterName" class="font-style">Your Name<sup>*</sup></div>
+                <input type="text" id="requesterName" class="form-control" formControlName="requesterName"
+                    [ngClass]="{ 'is-invalid': submitted && g.requesterName.errors }"/>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterName.errors?.required">
+                <p *ngIf="submitted && g.requesterName.errors?.required">Please enter your name</p>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="requesterEmail" class="font-style">Your email (institutional)<sup>*</sup></div>
+                <input type="text" id="requesterEmail" class="form-control" formControlName="requesterEmail"
+                    [ngClass]="{ 'is-invalid': submitted && g.requesterEmail.errors }"/>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterEmail.errors?.required">
+                <p *ngIf="submitted && g.requesterEmail.errors?.required">Please enter your email address</p>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="requesterEmailConfirmation" class="font-style">Confirm your email<sup>*</sup></div>
+                <input type="text" id="requesterEmailConfirmation" class="form-control" formControlName="requesterEmailConfirmation"
+                    [ngClass]="{ 'is-invalid': submitted && g.requesterEmailConfirmation.errors }"/>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requesterEmailConfirmation.errors?.required">
+                <p *ngIf="submitted && g.requesterEmailConfirmation.errors?.required">Please confirm your email address</p>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && form.errors?.emailMismatch">
+                <p *ngIf="submitted && form.errors?.emailMismatch">{{form.errors.emailMismatch}}</p>
+            </div>
+        </div>
+        <hr class="m-10">
+        <div class="row section-title-field">
+            <div class="col-md-12 text-left">
+                <div class="view-sub-sub-title">Data requesting organisation</div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="organisation" class="font-style">Organisation<sup>*</sup></div>
+                <ng-select [items]="organisations" formControlName="organisation" [searchFn]="searchOrganisations"
+                [multiple]="false" [virtualScroll]="true" [compareWith]="compareIds"  class="form-control ng-form-control" 
+                notFoundText="Loading organisations..." placeholder="Select organisation"
+                addTagText="Add" [addTag]="addOrganisation" [clearSearchOnAdd]="true"
+                appendTo="body" name="organisation" [ngClass]="{ 'is-invalid': submitted && g.organisation.errors?.required }">
+                <ng-template ng-label-tmp let-item="item">
+                    {{item.defaultName}}{{item.city ? (', ' + item.city) : ''}}{{item.countryName ? (', ' + item.countryName) : ''}}
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                        <div class="row m-0">
+                            <div class="col-md-12 p-0 m-0">{{item.defaultName}}</div>
+                            <div class="col-md-12 p-0 m-0" style="font-size: 83%; color: gray;">{{item.city}}{{(item.city && item.countryName) ? ', ' : ''}}{{item.countryName}}</div>
+                        </div>
+                    </ng-template>
+                </ng-select>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.organisation.errors">
+                    <p *ngIf="submitted && g.organisation.errors.required">Please select your organisation</p>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="organisationAddress" class="font-style">Organisation address<sup>*</sup></div>
+                <textarea id="organisationAddress" cols="30" rows="1" class="form-control" formControlName="organisationAddress"
+                    [ngClass]="{ 'is-invalid': submitted && g.organisationAddress.errors?.required }"></textarea>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.organisationAddress.errors">
+                    <p *ngIf="submitted && g.organisationAddress.errors.required">Please enter the organisation address</p>
+                </div>
+            </div>
+        </div>
+        <hr class="m-10">
+        <div class="row section-title-field">
+            <div class="col-md-12 text-left">
+                <div class="view-sub-sub-title">Principal Data Secondary User</div>
+            </div>
+        </div>
+        <div formGroupName="principalSecondaryUser">
+            <div class="row form-group">
+                <div class="col-md-12">
+                    <div for="name" class="font-style">Name<sup>*</sup></div>
+                    <input type="text" id="name" class="form-control" formControlName="name"
+                        [ngClass]="{ 'is-invalid': submitted && puc.name.errors?.required }"/>
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && puc.name.errors">
+                        <p *ngIf="submitted && puc.name.errors.required">Please enter the name of the principal data secondary user</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-md-12">
+                    <div for="email" class="font-style">Email (institutional)<sup>*</sup></div>
+                    <input type="text" id="email" class="form-control" formControlName="email"
+                        [ngClass]="{ 'is-invalid': submitted && puc.email.errors?.required }"/>
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && puc.email.errors">
+                        <p *ngIf="submitted && puc.email.errors.required">Please enter the email of the principal data secondary user</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="cv" class="font-style">CV<sup>*</sup> (max. 2.5MB)</div>
+                <input type="file" class="file-upload" accept=".doc,.docx,.odt,.pdf" (change)="onFileChange($event)"
+                    [ngClass]="{ 'is-invalid': submitted && g.cv.errors?.required }">
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.cv.errors">
+                    <p *ngIf="submitted && g.cv.errors.required">Please add a CV to your request</p>
+                </div>
+            </div>
+        </div>
+        <hr class="m-10">
+        <div class="row section-title-field">
+            <div class="col-md-12 text-left">
+                <div class="view-sub-sub-title">Additional secondary users</div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12 text-left">
+                <div formArrayName="additionalSecondaryUsers">
+                    <div class="row" *ngFor="let sUser of getAdditionalSecondaryUsersForm().controls; let i = index" [ngClass]="i > 0 ? 'mt-2': ''" [formGroupName]="i">
+                        <div class="col-md-5">
+                            <div for="name" class="font-style">Name<sup>*</sup></div>
+                            <input type="text" id="name" class="form-control" formControlName="name" 
+                                [ngClass]="{ 'is-invalid': submitted && g.additionalSecondaryUsers[i]?.name?.errors?.required }"/>
+                            <!-- <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.additionalSecondaryUsers.errors">
+                                <p *ngIf="submitted && g.name.errors.required">Please enter the name of the principal data secondary user</p>
+                            </div> -->
+                        </div>
+                        <div class="col-md-6">
+                            <div for="email" class="font-style">Email (institutional)<sup>*</sup></div>
+                            <input type="text" id="email" class="form-control" formControlName="email"
+                                [ngClass]="{ 'is-invalid': submitted && g.additionalSecondaryUsers[i]?.email?.errors?.required }"/>
+                            <!-- <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.email.errors">
+                                <p *ngIf="submitted && g.email.errors.required">Please enter the email of the principal data secondary user</p>
+                            </div> -->
+                        </div>
+                        <div class="col-md-1 col-1 p-0 m-0 d-flex">
+                            <div class="col-md-12 col-1 p-0 m-0 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-trash" style="color:#f24437; cursor: pointer;" (click)="deleteAdditionalUser(i)">
+                                </i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 text-left">
+                <button class="btn btn-primary mt-2" (click)="addAdditionalUser()"><i class="fa fa-plus"></i>Add additional user</button>
+            </div>
+        </div>
+        <hr class="m-10">
+        <div class="row section-title-field">
+            <div class="col-md-12 text-left">
+                <div class="view-sub-sub-title">Requested study for secondary use<sup>*</sup></div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <ng-select [items]="studies" formControlName="requestedStudy" [searchFn]="searchStudies"
+                [multiple]="false" [virtualScroll]="true" [compareWith]="compareIds"  class="form-control ng-form-control" 
+                notFoundText="No studies found" placeholder="Select study"
+                appendTo="body" name="requestedStudy" [ngClass]="{ 'is-invalid': submitted && g.requestedStudy.errors?.required }">
+                <ng-template ng-label-tmp let-item="item">
+                    {{item.displayTitle}}
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                    <div class="row m-0">
+                        <div class="col-md-8 col-8 p-0 m-0">
+                            <div class="col-md-12">{{item.displayTitle}}</div>
+                            <div class="col-md-12" style="font-size: 83%; color: gray;">{{item.sdSid}}</div>
+                        </div>
+                    </div>
+                </ng-template>
+                </ng-select>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.requestedStudy.errors">
+                    <p *ngIf="submitted && g.requestedStudy.errors.required">Please select the study you are requesting for secondary use</p>
+                </div>
+            </div>
+            <div class="mt-2" *ngIf="form.value.requestedStudy?.linkedObjects">
+                <div class="col-md-12">
+                    <span class="font-style">Controlled access data objects</span>
+                </div>
+                <div class="col-md-12">
+                    <ul class="mb-0">
+                        <ng-container *ngFor="let do of form.value.requestedStudy.linkedObjects; let i = index;">
+                            <li *ngIf="do.accessType?.name.toLowerCase() === 'controlled'">
+                                <span class="li-text-2"><a [routerLink]="['/browsing/data-objects', do.sdOid, 'view']">{{do.sdOid}}</a>&nbsp;-&nbsp;{{do.displayTitle}}</span>
+                            </li>
+                        </ng-container>
+                        <!-- <li *ngFor="let do of form.value.requestedStudy.linkedObjects; let i = index;" [ngClass]="i > 0 ? 'mt-1' : ''">
+                            <span class="li-text-2"><a [routerLink]="['/data-objects', do.sdOid, 'view']">{{do.sdOid}}</a>&nbsp;-&nbsp;{{do.displayTitle}}</span>
+                        </li> -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <hr class="m-10">
+        <div class="row section-title-field">
+            <div class="col-md-12 text-left">
+                <div class="view-sub-sub-title">Secondary Use Project</div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="projectTitle" class="font-style">Title<sup>*</sup></div>
+                <input type="text" id="projectTitle" class="form-control" formControlName="projectTitle"
+                    [ngClass]="{ 'is-invalid': submitted && g.projectTitle.errors?.required }"/>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.projectTitle.errors">
+                    <p *ngIf="submitted && g.projectTitle.errors.required">Please enter the title of your project</p>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="projectType" class="font-style">Type<sup>*</sup></div>
+                <ng-select [items]="projectTypes" formControlName="projectType" [clearSearchOnAdd]="true"
+                    [hideSelected]="true" [virtualScroll]="false" class="form-control ng-form-control custom" 
+                    notFoundText="No funding source found" placeholder="Start typing to add a different project type"
+                    [ngClass]="{ 'is-invalid': submitted && g.projectType.errors?.required }"
+                    addTagText="Add" [addTag]="addProjectType" appendTo="body">
+                    <ng-template ng-label-tmp let-item="item" let-clear="clear">
+                        <span class="ng-value-label">{{item}}</span>
+                        <span class="ng-value-icon right" (click)="clear(item)">×</span>
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item" let-search="searchTerm">
+                        <div class="row m-0">
+                            <div class="col-md-11 col-11 p-0 m-0">{{item}}</div>
+                            <!-- <div class="col-md-1 col-1 p-0 m-0 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-trash" style="color:#f24437; cursor: pointer;" (click)="deleteFundingSource($event, item)">
+                                </i>
+                            </div> -->
+                        </div>
+                    </ng-template>
+                </ng-select>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.projectType.errors">
+                    <p *ngIf="submitted && g.projectType.errors.required">Please enter the type of your project</p>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="projectAbstract" class="font-style">Abstract/summary<sup>*</sup></div>
+                <textarea id="projectAbstract" cols="30" rows="2" class="form-control" formControlName="projectAbstract"
+                    [ngClass]="{ 'is-invalid': submitted && g.projectAbstract.errors?.required }"></textarea>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.projectAbstract.errors">
+                    <p *ngIf="submitted && g.projectAbstract.errors.required">Please enter an abstract/summary of your project</p>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-2" [ngClass]="{ 'is-invalid': submitted && g.ethicsApproval.errors?.required }">
+            <div class="col-md-12">
+                <div for="ethicsApproval" class="font-style">Ethics approval<sup>*</sup></div>
+                <!-- <input type="text" id="projectFunding" class="form-control" formControlName="projectFunding"/>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.projectFunding.errors">
+                    <p *ngIf="submitted && g.projectFunding.errors.required">Please enter the funding of your project</p>
+                </div> -->
+            </div>
+        </div>
+        <div class="row form-group">
+            <!-- TODO: is-invalid does not work because it's not form-control class-->
+            <div class="col-md-3" [ngClass]="{ 'is-invalid': submitted && g.ethicsApproval.errors?.required }">
+                    <div class="col-md-12">
+                        <label class="d-flex">
+                            <input type="radio" value="Yes" formControlName="ethicsApproval">
+                                <span class="ml-1">Yes</span>
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="d-flex">
+                            <input type="radio" value="No" formControlName="ethicsApproval">
+                                <span class="ml-1">No</span>
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="d-flex">
+                            <input type="radio" value="Not Applicable" formControlName="ethicsApproval">
+                                <span class="ml-1">Not Applicable</span>
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="d-flex">
+                            <input type="radio" value="Other" formControlName="ethicsApproval">
+                                <span class="ml-1">Other</span>
+                        </label>
+                    </div>
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.ethicsApproval.errors">
+                        <p *ngIf="submitted && g.ethicsApproval.errors.required">Please select a value</p>
+                    </div>
+            </div>
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div for="ethicsApproval" class="font-style">Details<sup>*</sup></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea id="ethicsApprovalDetails" cols="30" rows="3" class="form-control" formControlName="ethicsApprovalDetails"
+                            [ngClass]="{ 'is-invalid': submitted && g.ethicsApprovalDetails.errors?.required }"></textarea>
+                    </div>
+                    <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.ethicsApprovalDetails.errors">
+                        <p *ngIf="submitted && g.ethicsApprovalDetails.errors.required">Please provide details regarding the ethics approval</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="projectFunding" class="font-style">Funding</div>
+                <input type="text" id="projectFunding" class="form-control" formControlName="projectFunding"/>
+                <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.projectFunding.errors">
+                    <p *ngIf="submitted && g.projectFunding.errors.required">Please enter the funding of your project</p>
+                </div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <div for="estimatedAccessDurationRequired" class="font-style">Estimated access duration required (max. 6 months)</div>
+                <input type="text" id="estimatedAccessDurationRequired" class="form-control" formControlName="estimatedAccessDurationRequired"/>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-4">
+                <div for="provisionalStartingDate" class="font-style">Provisional starting date</div>
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="input-group">
+                            <input class="form-control" placeholder="yyyy-mm-dd"
+                                name="provisionalStartingDate" ngbDatepicker #provisionalStartingDate="ngbDatepicker"
+                                [ngClass]="{ 'is-invalid': submitted && g.provisionalStartingDate.errors }"
+                                formControlName="provisionalStartingDate" container='body'>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary"
+                                    (click)="provisionalStartingDate.toggle()" type="button">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="m-10">
+        <div class="row section-title-field">
+            <div class="col-md-12 text-left">
+                <div class="view-sub-sub-title">Any other information</div>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <textarea id="otherInfo" cols="30" rows="2" class="form-control" formControlName="otherInfo"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 d-flex">
+                <input class="form-check-input mr-2 checkbox" type="checkbox" id="acceptedTCs" formControlName="acceptedTCs">
+                <span>I have read and agree to ECRIN's <a href="https://ecrin.org/data-privacy-policy" target="_blank">privacy policy</a></span>
+            </div>
+            <div class="col-md-12 invalid-feedback d-block" *ngIf="submitted && g.acceptedTCs.errors">
+                <p *ngIf="submitted && g.acceptedTCs.errors.required">You need to read and agree to ECRIN's privacy policy</p>
+            </div>
+        </div>
+        <div class="row mt-5 pb-4 justify-content-end">
+            <div class="col-4 text-right justify-content-end">
+                <button class="btn btn-primary" (click)="submit()">Submit access request</button>
+            </div>
+        </div>
+    </form>
+</ng-container>
+<ng-template #sent>
+    <div class="row">
+        <h2>Your request has been submitted successfully! We will get back to you shortly.</h2>
+    </div>
+</ng-template>

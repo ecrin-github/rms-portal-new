@@ -28,8 +28,6 @@ export class UserOffcanvasComponent implements OnInit {
   getUserData() {
     // TODO
     this.userData = this.statesService.currentUser;
-    this.userData.pic = './assets/media/svg/avatars/001-boy.svg';
-    this.userData.occupation = '';
   }
 
   logout() {

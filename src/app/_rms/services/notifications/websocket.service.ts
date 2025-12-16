@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ToastrService}  from 'ngx-toastr';
 import { environment } from "../../../../environments/environment";
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { dateObjToTimeString } from 'src/assets/js/util';
+import { dateToTimeString } from 'src/assets/js/util';
 
 @Injectable({
     providedIn: 'root'
@@ -34,10 +34,10 @@ export class WebSocketService {
     
     showNotification(data) {
         console.log(`notification ${JSON.stringify(data)}`);
-        this.toastr.success(`${dateObjToTimeString(new Date(data?.time*1000))} - ${data?.message}`, '', { timeOut: 60000, extendedTimeOut: 60000 });
+        this.toastr.success(`${dateToTimeString(new Date(data?.time*1000))} - ${data?.message}`, '', { timeOut: 60000, extendedTimeOut: 60000 });
     }
 
     close() {
-        this.ws.close();
+        this.ws?.close();
     }
 }

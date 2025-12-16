@@ -1,7 +1,7 @@
 export interface DupObjectInterface {
     id: number;
     dupId: number;
-    objectId: string;
+    dataObject: string;
     accessTypeId: number;
     accessDetails: string;
     notes: string;

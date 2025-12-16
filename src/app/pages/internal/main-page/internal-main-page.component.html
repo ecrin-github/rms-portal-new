@@ -131,21 +131,17 @@
 </ng-container>
 <ng-container *ngxPermissionsOnly="['User']">
     <ng-container *ngIf="organisation">
-
-        <div class="row">
-            <div class="col-12">
-                <app-summary-dtp></app-summary-dtp>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-12">
                 <app-summary-dup></app-summary-dup>
             </div>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <app-summary-dtp></app-summary-dtp>
+            </div>
+        </div>
     </ng-container>
-
-
 
     <div class="row">
         <div class="col-12">

@@ -19,6 +19,8 @@ import { StatesService } from 'src/app/_rms/services/states/states.service';
 import { ScrollService } from 'src/app/_rms/services/scroll/scroll.service';
 import { sqlDateStringToString } from 'src/assets/js/util';
 import { ContextService } from 'src/app/_rms/services/context/context.service';
+import { UserService } from 'src/app/_rms/services/user/user.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-upsert-study',
@@ -27,6 +29,8 @@ import { ContextService } from 'src/app/_rms/services/context/context.service';
   providers: [ScrollService]
 })
 export class UpsertStudyComponent implements OnInit {
+  tsdUrl: string = environment.tsdUrl;
+  
   public isCollapsed: boolean = false;
   studyForm: UntypedFormGroup;
   isEdit: boolean = false;
@@ -45,7 +49,6 @@ export class UpsertStudyComponent implements OnInit {
   organisations: OrganisationInterface[] = [];
   studyData: StudyInterface;
   studyFull: any;
-  count = 0;
   publicTitle: string = '';
   monthValues = [{id:'1', name:'January'}, {id:'2', name:'February'}, {id:'3', name: 'March'}, {id:'4', name: 'April'}, {id:'5', name: 'May'}, {id:'6', name: 'June'}, {id:'7', name: 'July'}, {id:'8', name: 'August'}, {id:'9', name: 'September'}, {id:'10', name: 'October'}, {id:'11', name:'November'}, {id:'12', name: 'December'}];
   sticky: boolean = false;
@@ -66,6 +69,8 @@ export class UpsertStudyComponent implements OnInit {
   associatedObjects: any;
   pageSize: Number = 10000;
   showEdit: boolean = false;
+  hasControlledDO: boolean = false; // True if study has at least one controlled-access DO
+  hasAccess: boolean = false;
 
   constructor(private statesService: StatesService,
               private fb: UntypedFormBuilder, 
@@ -82,6 +87,7 @@ export class UpsertStudyComponent implements OnInit {
               private jsonGenerator: JsonGeneratorService, 
               private commonLookupService: CommonLookupService, 
               private listService: ListService,
+              private userService: UserService,
               private backService: BackService) {
     this.studyForm = this.fb.group({
       sdSid: '',
@@ -147,10 +153,14 @@ export class UpsertStudyComponent implements OnInit {
         if (this.addType === 'usingTrialId') {
           queryFuncs.push(this.getTrialRegistries());
         }
-        // TODO: remove this if orgId null 
+
         queryFuncs.push(this.getOrganisation(this.orgId));
         // Getting new study ID if manual add
         queryFuncs.push(this.getQueryParams());
+      }
+
+      if (!this.isBrowsing && this.isView) { // Before get object by ID to check for access
+        queryFuncs.push(this.getAccessCheck(this.sdSid));
       }
 
       // Need to pipe both getStudy and getAssociatedObjects because they need to be completed in order
@@ -160,7 +170,7 @@ export class UpsertStudyComponent implements OnInit {
             if (res) {
               this.setStudyById(res);
             }
-            return this.getAssociatedObjects(this.id);
+            return this.getAssociatedObjects(this.id);  // TODO: useless, the objects are already in the returned study data
           })
         ));
       }
@@ -202,6 +212,10 @@ export class UpsertStudyComponent implements OnInit {
         if (this.isEdit || this.isView) {
           // setStudyById not used here, see above
           this.setAssociatedObjects(res.pop());
+        }
+
+        if (!this.isBrowsing && this.isView) {
+          this.setAccessCheck(res.pop());
         }
 
         if (this.isAdd) {
@@ -311,6 +325,20 @@ export class UpsertStudyComponent implements OnInit {
         this.showEdit = true;
       }
       this.patchStudyForm();
+    }
+  }
+
+  getAccessCheck(sdOid) {
+    return this.userService.checkStudyAccess(sdOid);
+  }
+
+  setAccessCheck(accessRes) {
+    if (accessRes?.statusCode === 200) {
+      if (accessRes.hasAccess) {
+        this.hasAccess = true;
+      }
+    } else {
+      this.toastr.error("Couldn't perform study access check");
     }
   }
 
@@ -481,10 +509,18 @@ export class UpsertStudyComponent implements OnInit {
 
   patchStudyForm() {
     let ipdDO = null;
+
     for (let linkedObject of this.studyData.linkedObjects) {
-      // TODO: to replace by regex?
+      // TODO: to replace by regex? there are multiple "IPD" values
       if (linkedObject?.objectType?.name?.toLowerCase() === "individual participant data") {
         ipdDO = linkedObject;
+      }
+
+      if (linkedObject?.accessType?.name?.toLowerCase() === "controlled") {
+        this.hasControlledDO = true;
+      }
+
+      if (ipdDO && this.hasControlledDO) {
         break;
       }
     }
@@ -573,7 +609,6 @@ export class UpsertStudyComponent implements OnInit {
         this.gotoTop();
         this.toastr.error("Please correct the errors in the form's fields.");
       }
-      this.count = 0;
     }
     if (this.addType === 'usingTrialId') {
       // TODO

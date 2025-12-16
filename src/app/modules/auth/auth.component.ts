@@ -18,7 +18,7 @@ export class AuthComponent implements OnInit {
 
   ngOnInit(): void {
     this.appVersion = environment.appVersion;
-    this.showFooter = this.router.url.includes('contactUs') ? false : true;
+    this.showFooter = this.router.url.includes('contact-us') ? false : true;
   }
   ngAfterViewInit(): void {
     if (environment.production) {
@@ -30,7 +30,7 @@ export class AuthComponent implements OnInit {
   }
   goToContact() {
     this.router.navigate([])
-      .then(result => { window.open('/contactUs', '_self'); });
+      .then(result => { window.open('/contact-us', '_self'); });
   }
   goToAbout() {
     this.router.navigate([])

@@ -65,8 +65,8 @@ export class ListService {
 
   // DUP lists
 
-  getDupList(pageSize?, page?) {
-    return this.http.get(`${base}/rms/dup?${pageSize ? `page_size=${pageSize}` : ''}${page ? `page=${page}` : ''}`);
+  getDupList() {
+    return this.http.get(`${base}/rms/dup`);
   }
 
   getDupListByOrg(orgId :number) {

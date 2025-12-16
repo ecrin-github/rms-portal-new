@@ -1,0 +1,29 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Add new organisation</h5>
+    </div>
+    <div class="modal-body">
+        <div class="row form-group">
+            <div class="col-md-12">
+                <label for="name" class="font-style">Name<sup>*</sup></label>
+                <input type="text" id="name" class="form-control" [(ngModel)]="name"/>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <label for="city" class="font-style">City<sup>*</sup></label>
+                <input type="text" id="city" class="form-control" [(ngModel)]="city"/>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-md-12">
+                <label for="countryName" class="font-style">Country<sup>*</sup></label>
+                <input type="text" id="countryName" class="form-control" [(ngModel)]="countryName"/>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="onSave()">Save</button>
+        <button type="button" class="btn btn-danger" (click)="closeModal()">Cancel</button>
+    </div>
+</div>

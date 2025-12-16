@@ -24,6 +24,9 @@ export class CommonLookupService {
   getOrganizationList() {
     return this.http.get(`${baseApi}/general/organisations`);
   }
+  deleteOrganisation(id) {
+    return this.http.delete(`${baseApi}/general/organisations/${id}`, {observe: "response", responseType: 'json'});
+  }
   getOrganizationById(orgId) {
     return this.http.get(`${baseApi}/general/organisations/${orgId}`);
   }

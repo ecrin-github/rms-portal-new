@@ -10,7 +10,7 @@ import { ConfirmationWindowComponent } from '../../../confirmation-window/confir
 import { ObjectLookupService } from 'src/app/_rms/services/entities/object-lookup/object-lookup.service';
 import { Router } from '@angular/router';
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
-import { dateToString, stringToDate } from 'src/assets/js/util';
+import { ngbDateStructToString, stringToNgbDateStruct } from 'src/assets/js/util';
 import { ContextService } from 'src/app/_rms/services/context/context.service';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 
@@ -153,7 +153,7 @@ export class ObjectIdentifierComponent implements OnInit {
         objectId: identifier.objectId,
         identifierValue: identifier.identifierValue,
         identifierType: identifier.identifierType ? identifier.identifierType.id : null,
-        identifierDate: identifier.identifierDate ? stringToDate(identifier.identifierDate): '',
+        identifierDate: identifier.identifierDate ? stringToNgbDateStruct(identifier.identifierDate): '',
         identifierOrg: identifier.identifierOrg ? identifier.identifierOrg.id : null,
         alreadyExist: true
       }))
@@ -164,7 +164,7 @@ export class ObjectIdentifierComponent implements OnInit {
     this.spinner.show();
     const payload = this.form.value.objectIdentifiers[index];
     payload.objectId = this.objectId;
-    payload.identifierDate = new Date(this.dateToString(payload.identifierDate));
+    payload.identifierDate = new Date(this.ngbDateStructToString(payload.identifierDate));
     delete payload.id;
 
     this.objectService.addObjectIdentifier(this.objectId, payload).subscribe((res: any) => {
@@ -186,7 +186,7 @@ export class ObjectIdentifierComponent implements OnInit {
   }
   editIdentifier(identifierObject) {
     const payload = identifierObject.value;
-    payload.identifierDate = new Date(this.dateToString(payload.identifierDate));
+    payload.identifierDate = new Date(this.ngbDateStructToString(payload.identifierDate));
     this.spinner.show();
     this.objectService.editObjectIdentifier(payload.id, payload.objectId, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -214,13 +214,13 @@ export class ObjectIdentifierComponent implements OnInit {
     return orgArr && orgArr.length ? orgArr[0].defaultName : '';
   }
 
-  dateToString(date) {
-    return dateToString(date);
+  ngbDateStructToString(date) {
+    return ngbDateStructToString(date);
   }
 
   emitData() {
     const payload = this.form.value.objectIdentifiers.map(item => {
-      item.identifierDate = this.dateToString(item.identifierDate);
+      item.identifierDate = this.ngbDateStructToString(item.identifierDate);
       if (!item.id) {
         delete item.id;
       }

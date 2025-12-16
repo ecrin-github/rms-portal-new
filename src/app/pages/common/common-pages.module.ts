@@ -57,6 +57,7 @@ import { AddModalComponent } from './add-modal/add-modal.component';
 import { UpsertUserComponent } from './user/upsert/upsert-user/upsert-user.component';
 import { RoleGuard } from 'src/app/_rms/guards/role/role.guard';
 import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
+import { OrganisationModalComponent } from './organisation-modal/organisation-modal.component';
 
 
 @NgModule({
@@ -105,7 +106,8 @@ import { ManagerGuard } from 'src/app/_rms/guards/role/manager.guard';
         ConfirmationWindow1Component,
         SummaryUserComponent,
         AddModalComponent,
-        UpsertUserComponent
+        UpsertUserComponent,
+        OrganisationModalComponent,
     ],
     schemas: [NO_ERRORS_SCHEMA],
     imports: [

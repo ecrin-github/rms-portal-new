@@ -31,19 +31,20 @@
           <span class="menu-text" style="color: aqua;">Dashboard</span>
         </a>
       </li>
-      <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active" *ngIf="!isBrowsing"
+
+      <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active" *ngIf="!isBrowsing && isOrgIdValid"
+        [routerLinkActiveOptions]="{exact: true}">
+        <a class="menu-link" routerLink="/data-use" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <i class="fas fa-shield-alt svg-icon menu-icon" aria-hidden="true" style="color: aqua;"></i>
+          <span class="menu-text" style="color: aqua;">Data Access</span>
+        </a>
+      </li>
+
+      <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active" *ngIf="!isBrowsing && isOrgIdValid"
         [routerLinkActiveOptions]="{exact: true}">
         <a class="menu-link" routerLink="/data-transfers" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <i class="fas fa-exchange-alt svg-icon menu-icon" aria-hidden="true" style="color: aqua;"></i>
           <span class="menu-text" style="color: aqua;">Data Transfers</span>
-        </a>
-      </li>
-
-      <li class="menu-item" aria-haspopup="true" routerLinkActive="menu-item-active" *ngIf="!isBrowsing"
-        [routerLinkActiveOptions]="{exact: true}">
-        <a class="menu-link" routerLink="/data-use" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-          <i class="fas fa-shield-alt svg-icon menu-icon" aria-hidden="true" style="color: aqua;"></i>
-          <span class="menu-text" style="color: aqua;">Data Use</span>
         </a>
       </li>
 

@@ -28,6 +28,7 @@ export class StudyContributorComponent implements OnInit {
   @Input() isView: boolean;
   @Input() isEdit: boolean;
   studyContributor: StudyContributorInterface;
+  isOrgIdValid: boolean = false;
   isManager: boolean = false;
   isIndividual = [];
   notindividualArr: [] = [];
@@ -60,11 +61,15 @@ export class StudyContributorComponent implements OnInit {
   ngOnInit(): void {
     this.isBrowsing = this.router.url.includes('browsing') ? true : false;
     this.isManager = this.statesService.isManager();
+    this.isOrgIdValid = this.statesService.isOrgIdValid();
 
     this.getContributorTypes();
-    this.getOrganisation(this.statesService.currentAuthOrgId).subscribe((res: OrganisationInterface) => {
-      this.setOrganisation(res);
-    });
+
+    if (this.isOrgIdValid) {
+      this.getOrganisation(this.statesService.currentAuthOrgId).subscribe((res: OrganisationInterface) => {
+        this.setOrganisation(res);
+      });
+    }
 
     this.contextService.organisations.subscribe((organisations) => {
       this.organizationList = organisations;

@@ -224,9 +224,43 @@ mat-footer-cell:first-of-type {
   color: #315492 !important;
 }
 
+.no-organisation {
+  font-size: 1.2rem !important;
+  color: #856404 !important;
+  background-color: #fff3cd !important;
+  border-color: #ffeeba !important;
+}
+
+.access-data-btn {
+  font-size: 1.4rem;
+  padding: 0.5rem 1rem;
+}
+
+.li-text-1 {
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.li-text-2 {
+  font-size: 1.175rem;
+  font-weight: 400;
+  white-space: pre-wrap;
+  line-height: 1.25;
+}
+
 .text-value {
   font-weight: 100;
   white-space: pre-wrap;
+}
+
+.section-title-field {
+  margin-bottom: 0.5rem !important;
+}
+
+.view-sub-sub-title {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: #315492 !important;
 }
 
 .hr-big {
@@ -442,9 +476,9 @@ mat-footer-cell:first-of-type {
 }
 
 /* Summary DUP columns */
-.mat-column-dupId {
-  flex: 0 0 19% !important;
-  width: 19% !important;
+.mat-column-dupCreationDate {
+  flex: 0 0 10% !important;
+  width: 10% !important;
   word-wrap: break-word !important;
   white-space: unset !important;
   overflow-wrap: break-word;
@@ -461,8 +495,8 @@ mat-footer-cell:first-of-type {
 }
 
 .mat-column-dupOrganisation {
-  flex: 0 0 22% !important;
-  width: 22% !important;
+  flex: 0 0 29% !important;
+  width: 29% !important;
   word-wrap: break-word !important;
   white-space: unset !important;
   overflow-wrap: break-word;
@@ -522,6 +556,14 @@ mat-footer-cell:first-of-type {
   white-space: unset !important;
   overflow-wrap: break-word;
   word-break: break-word;
+}
+
+.list-style-arrow {
+  list-style-type: "\1F852";
+}
+
+.list-style-square {
+  list-style-type: square;
 }
 
 /* Stepper */
@@ -590,6 +632,43 @@ mat-footer-cell:first-of-type {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.tag {
+  border-width: 0.15rem;
+  border-style: solid;
+  border-radius: 1.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 1rem !important;
+}
+
+.success-tag {
+  border-color: rgba(0, 200, 0, 0.3);
+  background-color: rgba(0, 200, 0, 0.15);
+}
+
+.warning-tag {
+  border-color: rgba(255, 215, 0, 0.3);
+  background-color: rgba(255, 215, 0, 0.15);
+}
+
+.danger-tag {
+  border-color: rgba(255, 0, 0, 0.3);
+  background-color: rgba(255, 0, 0, 0.15);
+}
+
+.primary-tag {
+  border-color: rgba(0, 100, 200, 0.3);
+  background-color: rgba(0, 100, 200, 0.15);
+}
+
+.secondary-tag {
+  border-color: rgba(100, 100, 100, 0.3);
+  background-color: rgba(100, 100, 100, 0.15);
 }
 
 /* Stepper - Desktop Mode */
@@ -698,6 +777,34 @@ mat-footer-cell:first-of-type {
 
 .mat-expansion-panel-header-instance {
   padding: 0 1.5rem !important;
+}
+
+.underline {
+  text-decoration: underline !important;
+}
+
+.blue {
+  background-color: #000091;
+}
+
+.white {
+  background-color: white;
+}
+
+.project-logos {
+  height: 100%;
+}
+
+.o-hidden {
+  overflow: hidden;
+}
+
+.footer-links {
+  padding-left: 0 !important;
+  color: white;
+  font-size: 2.1vh;
+  list-style: none;
+  margin-bottom: 0;
 }
 
 #matomo-wrapper {

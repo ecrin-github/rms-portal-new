@@ -11,7 +11,7 @@ import { ConfirmationWindowComponent } from '../../../confirmation-window/confir
 import { CommonLookupService } from 'src/app/_rms/services/entities/common-lookup/common-lookup.service';
 import { StudyLookupService } from 'src/app/_rms/services/entities/study-lookup/study-lookup.service';
 import { Router } from '@angular/router';
-import { dateToString, stringToDate } from 'src/assets/js/util';
+import { ngbDateStructToString, stringToNgbDateStruct } from 'src/assets/js/util';
 import { ContextService } from 'src/app/_rms/services/context/context.service';
 import { OrganisationInterface } from 'src/app/_rms/interfaces/organisation/organisation.interface';
 
@@ -153,7 +153,7 @@ export class StudyIdentifierComponent implements OnInit {
         studyId: identifier.studyId,
         identifierValue: identifier.identifierValue,
         identifierType: identifier.identifierType ? identifier.identifierType.id : null,
-        identifierDate: identifier.identifierDate ? stringToDate(identifier.identifierDate) : '',
+        identifierDate: identifier.identifierDate ? stringToNgbDateStruct(identifier.identifierDate) : '',
         identifierLink: identifier.identifierLink,
         identifierOrg: identifier.identifierOrg ? identifier.identifierOrg.id : null,
         alreadyExist: true
@@ -167,7 +167,7 @@ export class StudyIdentifierComponent implements OnInit {
     this.spinner.show();
     const payload = this.form.value.studyIdentifiers[index];
     payload.studyId = this.studyId;
-    payload.identifierDate = new Date(this.dateToString(payload.identifierDate));
+    payload.identifierDate = new Date(this.ngbDateStructToString(payload.identifierDate));
     delete payload.id;
     
     this.studyService.addStudyIdentifier(this.studyId, payload).subscribe((res: any) => {
@@ -185,7 +185,7 @@ export class StudyIdentifierComponent implements OnInit {
   }
   editIdentifier(identifierObject) {
     const payload = identifierObject.value;
-    payload.identifierDate = new Date(this.dateToString(payload.identifierDate));
+    payload.identifierDate = new Date(this.ngbDateStructToString(payload.identifierDate));
     this.spinner.show();
     this.studyService.editStudyIdentifier(payload.id, payload.studyId, payload).subscribe((res: any) => {
       this.spinner.hide();
@@ -201,8 +201,8 @@ export class StudyIdentifierComponent implements OnInit {
     });
   }
 
-  dateToString(date) {
-    return dateToString(date);
+  ngbDateStructToString(date) {
+    return ngbDateStructToString(date);
   }
 
   findIdentifierType(id) {
@@ -215,7 +215,7 @@ export class StudyIdentifierComponent implements OnInit {
   }
   emitData() {
     const payload = this.form.value.studyIdentifiers.map(item => {
-      item.identifierDate = item.identifierDate ? this.dateToString(item.identifierDate) : ''
+      item.identifierDate = item.identifierDate ? this.ngbDateStructToString(item.identifierDate) : ''
       if (!item.id) {
         delete item.id;
       }

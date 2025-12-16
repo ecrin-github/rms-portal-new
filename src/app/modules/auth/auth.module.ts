@@ -8,6 +8,10 @@ import { LogoutComponent } from './logout/logout.component';
 import { AuthComponent } from './auth.component';
 import {TranslationModule} from '../i18n/translation.module';
 import { ContactUsComponent } from './contact-us/contact-us.component';
+import { ContactFormComponent } from './contact-form/contact-form.component';
+import { AccessRequestFormComponent } from './access-request-form/access-request-form.component';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { NgbDatepickerModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -15,6 +19,8 @@ import { ContactUsComponent } from './contact-us/contact-us.component';
     LogoutComponent,
     AuthComponent,
     ContactUsComponent,
+    ContactFormComponent,
+    AccessRequestFormComponent,
   ],
   imports: [
     CommonModule,
@@ -23,6 +29,9 @@ import { ContactUsComponent } from './contact-us/contact-us.component';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    NgSelectModule,
+    NgbModule,
+    NgbDatepickerModule,
   ]
 })
 export class AuthModule {}

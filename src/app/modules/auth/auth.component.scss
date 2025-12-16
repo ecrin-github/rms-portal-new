@@ -30,10 +30,6 @@ body {
   max-height:100vh !important;
 }
 
-#auth-container {
-  overflow: hidden;
-}
-
 .tr-logos {
   max-width: 50%;
   max-height: 80%;
@@ -53,10 +49,6 @@ body {
   font-size: 2.5vh;
 }
 
-.blue {
-  background-color: #000091;
-}
-
 .home-buttons {
   font-size: 2vh;
   font-weight: bold;
@@ -72,22 +64,6 @@ body {
   color: white;
 }
 
-#links {
-  padding-left: 0 !important;
-  color: white;
-  font-size: 2.1vh;
-  list-style: none;
-  margin-bottom: 0;
-}
-
-#funded {
-  background-color: white;
-}
-
 #version {
   color: rgb(131, 128, 128);
-}
-
-.project-logos {
-  height: 100%;
 }

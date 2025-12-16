@@ -12,7 +12,7 @@ import {ObjectTitleInterface} from './object-title.interface';
 import {ObjectTopicInterface} from './object-topic.interface';
 
 export interface DataObjectInterface {
-    id: number;
+    id: string;
     sdOid: string | null;
     linkedStudy: StudyDataInterface | null;
     doi: string | null;
