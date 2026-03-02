@@ -7,7 +7,7 @@ import { DataObjectService } from 'src/app/_rms/services/entities/data-object/da
 import { DtpService } from 'src/app/_rms/services/entities/dtp/dtp.service';
 import { DupService } from 'src/app/_rms/services/entities/dup/dup.service';
 import { ListService } from 'src/app/_rms/services/entities/list/list.service';
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, combineLatest, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { StudyInterface } from 'src/app/_rms/interfaces/study/study.interface';
@@ -25,7 +25,7 @@ export enum DataType {
   styleUrls: ['./common-modal.component.scss']
 })
 export class CommonModalComponent implements OnInit {
-  
+
   studyForm: UntypedFormGroup;
   objectForm: UntypedFormGroup;
   userForm: UntypedFormGroup;
@@ -50,22 +50,22 @@ export class CommonModalComponent implements OnInit {
   userList: [] = [];
   DataType = DataType;  // To allow access in template
 
-  constructor(private activeModal: NgbActiveModal, private listService: ListService, private spinner: NgxSpinnerService, 
-              private toastr: ToastrService, private objectService: DataObjectService, private fb: UntypedFormBuilder,
-              private dtpService: DtpService, private dupService: DupService, private httpClient: HttpClient) {
-      this.studyForm = this.fb.group({
-        studies: '',
-      });
-      this.objectForm = this.fb.group({
-        dataObjects: ''
-      });
-      this.userForm = this.fb.group({
-        people: ''
-      })
-    }
+  constructor(private activeModal: NgbActiveModal, private listService: ListService, private spinner: NgxSpinnerService,
+    private toastr: ToastrService, private objectService: DataObjectService, private fb: UntypedFormBuilder,
+    private dtpService: DtpService, private dupService: DupService, private httpClient: HttpClient) {
+    this.studyForm = this.fb.group({
+      studies: '',
+    });
+    this.objectForm = this.fb.group({
+      dataObjects: ''
+    });
+    this.userForm = this.fb.group({
+      people: ''
+    })
+  }
 
   ngOnInit(): void {
-    if(this.type === DataType.STUDY || this.type === DataType.DATA_OBJECT) {
+    if (this.type === DataType.STUDY || this.type === DataType.DATA_OBJECT) {
       this.getStudies();
     }
     if (this.type === DataType.USER) {
@@ -115,11 +115,10 @@ export class CommonModalComponent implements OnInit {
 
     // Note: can probably be optimised but the first filter will return a few studies at most so it should be fine
     this.filteredDataObjects = this.allStudies.filter((study: StudyInterface) => this.currentStudyIds.has(study?.id))
-                                              .map((study: StudyInterface) => study.linkedObjects)
-                                              .reduce((accumulator, objArr) => accumulator.concat(objArr), []);
-    // Filtering out DOs already added + public DOs
-    this.filteredDataObjects = this.filteredDataObjects.filter((dataObj: DataObjectInterface) => !this.alreadyAddedObjectIds.has(dataObj?.id)
-                                                                                                  && dataObj?.accessType?.name?.toLowerCase() === 'controlled');
+      .map((study: StudyInterface) => study.linkedObjects)
+      .reduce((accumulator, objArr) => accumulator.concat(objArr), []);
+    // Filtering out DOs already added
+    this.filteredDataObjects = this.filteredDataObjects.filter((dataObj: DataObjectInterface) => !this.alreadyAddedObjectIds.has(dataObj?.id));
   }
 
   getPeopleList() {
@@ -138,8 +137,8 @@ export class CommonModalComponent implements OnInit {
 
   studyDropdownClose() {
     if (this.type === DataType.STUDY && this.studyForm.value.studies.length) {
-        // Updating list of selectable DOs based on current studies (list of added + selected study IDs is also updated there)
-        this.setFilteredDataObjects();
+      // Updating list of selectable DOs based on current studies (list of added + selected study IDs is also updated there)
+      this.setFilteredDataObjects();
     }
   }
 
@@ -162,7 +161,7 @@ export class CommonModalComponent implements OnInit {
   addDupStudy(dupId, payload) {
     return this.dupService.addDupStudy(dupId, payload);
   }
-  
+
   addDtpObject(dtpId, payload) {
     return this.dtpService.addDtpObject(dtpId, payload);
   }
@@ -181,12 +180,12 @@ export class CommonModalComponent implements OnInit {
     let studies$: Array<Observable<any>> = [];
 
     if (studies?.length > 0) {
-      studies.map((study : StudyInterface) => {
+      studies.map((study: StudyInterface) => {
         if (this.dtpId) {
-          studies$.push(this.addDtpStudy(this.dtpId, {dtpId: this.dtpId, study: study.id}));
+          studies$.push(this.addDtpStudy(this.dtpId, { dtpId: this.dtpId, study: study.id }));
         }
         if (this.dupId) {
-          studies$.push(this.addDupStudy(this.dupId, {dupId: this.dupId, study: study.id}));
+          studies$.push(this.addDupStudy(this.dupId, { dupId: this.dupId, study: study.id }));
         }
       });
 
@@ -204,7 +203,7 @@ export class CommonModalComponent implements OnInit {
             } else {
               this.toastr.error("Couldn't properly associate study");
             }
-          }), 
+          }),
           catchError(error => of(this.toastr.error(error))));
       });
     }
@@ -216,20 +215,20 @@ export class CommonModalComponent implements OnInit {
     let dataObjects$: Array<Observable<any>> = [];
 
     if (dos?.length > 0) {
-      dos.map((dataObject : any) => {
+      dos.map((dataObject: any) => {
         if (dataObject?.linkedStudy?.id && dataObject.linkedStudy.id in this.studyIdDPStudyIdDict) {  // TODO: should change BE to serialize study object probably
           const dpStudyId = this.studyIdDPStudyIdDict[dataObject.linkedStudy.id];
           if (this.dtpId) {
-            dataObjects$.push(this.addDtpObject(this.dtpId, {dtpId: this.dtpId, dataObject: dataObject.id, dtpStudy: dpStudyId}));
+            dataObjects$.push(this.addDtpObject(this.dtpId, { dtpId: this.dtpId, dataObject: dataObject.id, dtpStudy: dpStudyId }));
           }
           if (this.dupId) {
-            dataObjects$.push(this.addDupObject(this.dupId, {dupId: this.dupId, dataObject: dataObject.id, dupStudy: dpStudyId}));
+            dataObjects$.push(this.addDupObject(this.dupId, { dupId: this.dupId, dataObject: dataObject.id, dupStudy: dpStudyId }));
           }
         } else {
           this.toastr.error("Couldn't find DTP/DUP study from data object study, not associating DO");
         }
       });
-  
+
       dataObjects$ = dataObjects$.map((funct) => {
         return funct.pipe(
           map((res) => {
@@ -238,7 +237,7 @@ export class CommonModalComponent implements OnInit {
             } else {
               this.toastr.error(res.message);
             }
-          }), 
+          }),
           catchError(error => of(this.toastr.error(error))));
       });
     }
@@ -252,9 +251,9 @@ export class CommonModalComponent implements OnInit {
     if (payload?.length > 0) {
       payload.map((item: any) => {
         if (this.dtpId) {
-          users$.push(this.addDtpUser(this.dtpId, {dtpId: this.dtpId, person: item}));
+          users$.push(this.addDtpUser(this.dtpId, { dtpId: this.dtpId, person: item }));
         } else if (this.dupId) {
-          users$.push(this.addDupUser(this.dupId, {dupId: this.dupId, person: item}));
+          users$.push(this.addDupUser(this.dupId, { dupId: this.dupId, person: item }));
         }
       });
       users$ = users$.map((funct) => {
@@ -295,7 +294,7 @@ export class CommonModalComponent implements OnInit {
     if (this.type === DataType.DATA_OBJECT) {
       this.runDOQueries(dos);
     }
-    
+
     if (this.type === DataType.USER) {
       combineLatest(this.getUserQueries(personIds)).subscribe(res => {
         res.forEach((resI: any) => {
