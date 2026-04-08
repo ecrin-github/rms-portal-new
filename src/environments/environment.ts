@@ -20,6 +20,6 @@ export const environment = {
   wsBaseUrl: 'wss://api-dsrdev.ecrin.org/',
   apiUrl: 'api',
   tsdUploadPath: 'test',
-  tsdUrl: "https://crdsr.tsd.usit.no/",
+  tsdUrl: "https://selfservice.tsd.usit.no/",
   apiVersion: 'v1'
 };
