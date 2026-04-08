@@ -70,22 +70,22 @@ export class UpsertDupComponent implements OnInit {
   getStatusTagClasses = UpsertDupComponent.getStatusTagClasses; // Allowing access in template
 
   constructor(private statesService: StatesService,
-              private backService: BackService,
-              private scrollService: ScrollService,
-              private router: Router, 
-              private fb: UntypedFormBuilder, 
-              private dupService: DupService, 
-              private spinner: NgxSpinnerService, 
-              private toastr: ToastrService,
-              private contextService: ContextService,
-              private activatedRoute: ActivatedRoute, 
-              private modalService: NgbModal, 
-              private reuseService: ReuseService,
-              private commonLookup: CommonLookupService, 
-              private processLookup: ProcessLookupService, 
-              private pdfGeneratorService: PdfGeneratorService,
-              private jsonGenerator: JsonGeneratorService, 
-              private listService: ListService) {
+    private backService: BackService,
+    private scrollService: ScrollService,
+    private router: Router,
+    private fb: UntypedFormBuilder,
+    private dupService: DupService,
+    private spinner: NgxSpinnerService,
+    private toastr: ToastrService,
+    private contextService: ContextService,
+    private activatedRoute: ActivatedRoute,
+    private modalService: NgbModal,
+    private reuseService: ReuseService,
+    private commonLookup: CommonLookupService,
+    private processLookup: ProcessLookupService,
+    private pdfGeneratorService: PdfGeneratorService,
+    private jsonGenerator: JsonGeneratorService,
+    private listService: ListService) {
     this.form = this.fb.group({
       organisation: [null, Validators.required],
       displayName: [null, Validators.required],
@@ -111,7 +111,7 @@ export class UpsertDupComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.spinner.show(); 
+      this.spinner.show();
     });
 
     this.role = this.statesService.currentAuthRole;
@@ -159,7 +159,7 @@ export class UpsertDupComponent implements OnInit {
       this.setStatusList(res.pop());
       this.setStudyList(res.pop());
       this.setObjectList(res.pop());
-      
+
       if (this.isEdit || this.isView) {
         this.setDupById(res.pop());
         this.setDua(res.pop());
@@ -172,11 +172,11 @@ export class UpsertDupComponent implements OnInit {
       // this.verifyStep();
 
       setTimeout(() => {
-        this.spinner.hide(); 
+        this.spinner.hide();
       });
     });
   }
-  
+
   get dar() { return this.fc.dataAccessRequest.value; }
   get fc() { return this.form.controls; }
   get fv() { return this.form.value; }
@@ -294,8 +294,8 @@ export class UpsertDupComponent implements OnInit {
     if (res?.results) {
       this.statusList = res.results;
 
-      this.statusList.sort((a: any, b: any) => { 
-        return a?.listOrder > b?.listOrder ? 1 : -1; 
+      this.statusList.sort((a: any, b: any) => {
+        return a?.listOrder > b?.listOrder ? 1 : -1;
       });
 
       if (this.statusList.length > 0) {
@@ -361,7 +361,7 @@ export class UpsertDupComponent implements OnInit {
       this.hasDataAccessRequest = true;
     }
 
-    if (this.fv.status?.listOrder !== StatusIndex.RequestUnderReview 
+    if (this.fv.status?.listOrder !== StatusIndex.RequestUnderReview
       && this.fv.status?.listOrder !== StatusIndex.RequestDenied) {
       this.requestApproved = true;
     } else if (this.fv.status?.listOrder === StatusIndex.RequestDenied) {
@@ -372,7 +372,7 @@ export class UpsertDupComponent implements OnInit {
       this.processAborted = true;
     }
 
-    if (this.fv.dataAccessAvailableUntil 
+    if (this.fv.dataAccessAvailableUntil
       && this.ngbDateStructToString(this.fv.dataAccessAvailableUntil) < this.ngbDateStructToString(this.dateToNgbDateStruct(new Date()))) {
       this.setStatusValue(StatusIndex.AccessExpired);
     }
@@ -413,7 +413,7 @@ export class UpsertDupComponent implements OnInit {
           })
         });
       }
-    }, error => {});
+    }, error => { });
   }
 
   getDupStudies(id) {
@@ -524,13 +524,13 @@ export class UpsertDupComponent implements OnInit {
     const { compare } = Intl.Collator('en-GB');
     studies.sort((a, b) => {
       if (a.study?.sdSid.length > 5 && b.study?.sdSid.length > 5) {
-        if (isWholeNumber(a.study?.sdSid.slice(5, ))) {
-          if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
+        if (isWholeNumber(a.study?.sdSid.slice(5,))) {
+          if (isWholeNumber(b.study?.sdSid.slice(5,))) {
             // Both a and b are int
-            return parseInt(a.study?.sdSid.slice(5, )) > parseInt(b.study?.sdSid.slice(5, )) ? 1 : -1;
+            return parseInt(a.study?.sdSid.slice(5,)) > parseInt(b.study?.sdSid.slice(5,)) ? 1 : -1;
           }
         } else {
-          if (isWholeNumber(b.study?.sdSid.slice(5, ))) {
+          if (isWholeNumber(b.study?.sdSid.slice(5,))) {
             // a is not int, b is int
             return 1;
           } else {
@@ -547,13 +547,13 @@ export class UpsertDupComponent implements OnInit {
     const { compare } = Intl.Collator('en-GB');
     objects.sort((a, b) => {
       if (a.dataObject?.sdOid.length > 5 && b.dataObject?.sdOid.length > 5) {
-        if (isWholeNumber(a.dataObject?.sdOid.slice(5, ))) {
-          if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
+        if (isWholeNumber(a.dataObject?.sdOid.slice(5,))) {
+          if (isWholeNumber(b.dataObject?.sdOid.slice(5,))) {
             // Both a and b are int
-            return parseInt(a.dataObject?.sdOid.slice(5, )) > parseInt(b.dataObject?.sdOid.slice(5, )) ? 1 : -1;
+            return parseInt(a.dataObject?.sdOid.slice(5,)) > parseInt(b.dataObject?.sdOid.slice(5,)) ? 1 : -1;
           }
         } else {
-          if (isWholeNumber(b.dataObject?.sdOid.slice(5, ))) {
+          if (isWholeNumber(b.dataObject?.sdOid.slice(5,))) {
             // a is not int, b is int
             return 1;
           } else {
@@ -567,7 +567,7 @@ export class UpsertDupComponent implements OnInit {
   }
 
   addUser() {
-    const userModal = this.modalService.open(CommonModalComponent, {size: 'xl', backdrop: 'static'});
+    const userModal = this.modalService.open(CommonModalComponent, { size: 'xl', backdrop: 'static' });
     userModal.componentInstance.title = 'Add Users';
     userModal.componentInstance.type = DataType.USER;
     userModal.componentInstance.dupId = this.id;
@@ -582,7 +582,7 @@ export class UpsertDupComponent implements OnInit {
           });
         });
       }
-    }, error => {})
+    }, error => { })
   }
 
   getDupPeople(id) {
@@ -627,6 +627,7 @@ export class UpsertDupComponent implements OnInit {
     payload.associatedStudies = this.associatedStudies;
     payload.associatedObjects = this.associatedObjects;
     payload.associatedUsers = this.associatedUsers;
+    payload.dar = this.form?.value?.dataAccessRequest;
     payload.prereqs = ([] as string[]).concat(...this.prereqs);
     this.pdfGeneratorService.dupPdfGenerator(payload);
   }
@@ -658,10 +659,10 @@ export class UpsertDupComponent implements OnInit {
 
   customSearchUsers(term: string, item) {
     term = term.toLocaleLowerCase();
-    return item.person?.firstName.toLocaleLowerCase().indexOf(term) > -1 
-        || item.person?.lastName.toLocaleLowerCase().indexOf(term) > -1
-        || item.person?.email.toLocaleLowerCase().indexOf(term) > -1
-        || (item.person?.firstName.toLocaleLowerCase() + " " + item.person?.lastName.toLocaleLowerCase()).indexOf(term) > -1;
+    return item.person?.firstName.toLocaleLowerCase().indexOf(term) > -1
+      || item.person?.lastName.toLocaleLowerCase().indexOf(term) > -1
+      || item.person?.email.toLocaleLowerCase().indexOf(term) > -1
+      || (item.person?.firstName.toLocaleLowerCase() + " " + item.person?.lastName.toLocaleLowerCase()).indexOf(term) > -1;
   }
 
   compareUsers(u1: any, u2: any) {
@@ -680,9 +681,9 @@ export class UpsertDupComponent implements OnInit {
     this.spinner.show();
     // const payload = JSON.parse(JSON.stringify(this.form.value));
     if (this.fv.status?.id) {
-      const payload = {'id': this.fv.id, 'status': this.fv.status?.id, 'requestDecisionDate': this.ngbDateStructToString(this.fv.requestDecisionDate)};
+      const payload = { 'id': this.fv.id, 'status': this.fv.status?.id, 'requestDecisionDate': this.ngbDateStructToString(this.fv.requestDecisionDate) };
       // payload.requestDecisionDate = this.ngbDateStructToString(payload.requestDecisionDate);
-  
+
       this.dupService.editDup(this.id, payload).subscribe((res: any) => {
         if (res.statusCode === 200) {
           switch (this.fv.status.listOrder) {
@@ -729,7 +730,7 @@ export class UpsertDupComponent implements OnInit {
 
   static getStatusTagClasses(statusListOrder) {
     let className = "tag";
-    switch(statusListOrder) {
+    switch (statusListOrder) {
       case StatusIndex.RequestUnderReview:
         className = "tag warning-tag";
         break;
@@ -761,7 +762,7 @@ export class UpsertDupComponent implements OnInit {
   setStatusFromForm() {
     // Note: this function only sets status from form fields (not request accept/deny and process abort buttons)
     if (this.fv.agreementSignedDate) {
-      if (this.fv.dataAccessAvailableUntil 
+      if (this.fv.dataAccessAvailableUntil
         && this.ngbDateStructToString(this.fv.dataAccessAvailableUntil) < this.ngbDateStructToString(this.dateToNgbDateStruct(new Date()))) {
         this.setStatusValue(StatusIndex.AccessExpired);
       } else {  // Access granted as soon as agreement is signed
@@ -850,7 +851,7 @@ export class UpsertDupComponent implements OnInit {
         const editCoreDup$ = this.dupService.editDup(this.id, payload);
         const editDua$ = this.duaData?.length ? this.dupService.editDua(this.id, this.duaData[0].id, payload) : this.dupService.addDua(this.id, payload);
         delete payload.notes;
-        const combine$ = combineLatest([editCoreDup$, editDua$]).subscribe(([coreDupRes, duaRes] : [any, any]) => {
+        const combine$ = combineLatest([editCoreDup$, editDua$]).subscribe(([coreDupRes, duaRes]: [any, any]) => {
           let success: boolean = true;
           if (!(coreDupRes.statusCode === 200 || coreDupRes.statusCode === 201)) {
             success = false;
@@ -913,7 +914,7 @@ export class UpsertDupComponent implements OnInit {
 
   goToTsd() {
     this.router.navigate([])
-    .then(result => { window.open('https://crdsr.tsd.usit.no/', '_blank'); });
+      .then(result => { window.open('https://crdsr.tsd.usit.no/', '_blank'); });
   }
 
   back(): void {
