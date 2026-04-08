@@ -10,13 +10,13 @@ import { UpsertObjectComponent } from 'src/app/pages/common/object/upsert/upsert
 export class PdfGeneratorService {
 
   colNb = 12;
-  monthNames = ["January", "February", "March",  "April", "May", "June",  "July", "August", "September", "October", "November", "December"];
+  monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   defaultMissingValueText = '';
 
   constructor() { }
 
   colSpanCalc(nbColRow) {
-    return Math.floor(this.colNb/nbColRow);
+    return Math.floor(this.colNb / nbColRow);
   }
 
   makeTable(data, doc, x, y, theme, styles, columnStyles, didDrawCell?) {
@@ -37,7 +37,7 @@ export class PdfGeneratorService {
     if (didDrawCell) {
       autoTable(doc, {
         startY: y,
-        margin: {left: x},
+        margin: { left: x },
         styles: styles,
         columnStyles: columnStyles,
         theme: theme,
@@ -53,7 +53,7 @@ export class PdfGeneratorService {
     } else {
       autoTable(doc, {
         startY: y,
-        margin: {left: x},
+        margin: { left: x },
         styles: styles,
         columnStyles: columnStyles,
         theme: theme,
@@ -93,21 +93,21 @@ export class PdfGeneratorService {
       [
         { content: `Data Transfer - ${dtpData.displayName}`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
       ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-  
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
     /* Study ID */
     currY += offsetT1;
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Transfering Organisation', currX, currY);
     doc.setFont(undefined, 'normal');
-    
+
     currY += offsetT2;
     currY = this.makeTable([
       [
         { content: (dtpData.organisation?.defaultName ? dtpData.organisation.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
       ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
 
     /* Associated Studies */
     currY += offsetSection;
@@ -116,7 +116,7 @@ export class PdfGeneratorService {
     doc.text('Studies', currX, currY);
     doc.setFont(undefined, 'normal');
     doc.setFontSize(textSize);
-    
+
     currY += offsetT2;
     if (dtpData.associatedStudies.length > 0) {
       currY = this.makeTable([
@@ -130,9 +130,9 @@ export class PdfGeneratorService {
           { content: (associatedStudy.study?.displayTitle ? associatedStudy.study.displayTitle : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Associated Data Objects */
@@ -140,7 +140,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Data Objects', currX, currY);
-    
+
     currY += offsetT2;
     if (dtpData.associatedObjects.length > 0) {
       currY = this.makeTable([
@@ -153,23 +153,33 @@ export class PdfGeneratorService {
         ]
       ].concat(
         dtpData.associatedObjects.map(obj => [
-            { content: (obj.dataObject?.sdOid ? obj.dataObject.sdOid : this.defaultMissingValueText), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize} },
-            { content: (obj.dataObject?.displayTitle ? obj.dataObject.displayTitle : this.defaultMissingValueText), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-            { content: (obj.dataObject?.accessType?.name ? obj.dataObject.accessType.name : 'Unknown'), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-            { content: (obj.dataObject?.embargoExpiry ? (obj.dataObject.embargoExpiry.slice(0, 10)) : this.defaultMissingValueText), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-            { content: (obj.dataObject?.objectInstances?.length > 0 ?
+          {
+            content: (obj.dataObject?.sdOid ? obj.dataObject.sdOid : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (obj.dataObject?.displayTitle ? obj.dataObject.displayTitle : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (obj.dataObject?.accessType?.name ? obj.dataObject.accessType.name : 'Unknown'),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (obj.dataObject?.embargoExpiry ? (obj.dataObject.embargoExpiry.slice(0, 10)) : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (obj.dataObject?.objectInstances?.length > 0 ?
               (obj.dataObject?.objectInstances?.map(instance => {
                 return '• ' + (instance?.resourceType?.name ? instance.resourceType.name : 'Unknown resource type');
-              }).join('\n')) : 'No instances'), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+              }).join('\n')) : 'No instances'),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
         ])
       ), doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Data Objects Controlled Access Pre-requisites */
@@ -177,7 +187,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Data Objects Controlled Access Prerequisites', currX, currY);
-    
+
     // Data sharing statement before the table
     currY += offsetT2;
     currY = this.makeTable([
@@ -191,7 +201,7 @@ export class PdfGeneratorService {
         { content: (associatedStudy.study?.dataSharingStatement ? associatedStudy.study.dataSharingStatement : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ])
     ), doc, currX, currY, 'grid', {}, {});
-    
+
     currY += offsetT2;
     if (dtpData.prereqs.length > 0) {
       currY = this.makeTable([
@@ -202,15 +212,17 @@ export class PdfGeneratorService {
         ]
       ].concat(
         dtpData.prereqs.map(prereq => [
-          { content: (prereq?.dtpDataObject?.dataObject?.sdOid ? prereq.dtpDataObject.dataObject.sdOid : this.defaultMissingValueText), 
-            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          {
+            content: (prereq?.dtpDataObject?.dataObject?.sdOid ? prereq.dtpDataObject.dataObject.sdOid : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
           { content: (prereq?.prereqType?.name ? prereq.prereqType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (prereq.prereqNotes ? prereq.prereqNotes : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'No object-specific prerequisites', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'No object-specific prerequisites', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Associated People */
@@ -218,7 +230,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Associated People', currX, currY);
-    
+
     currY += offsetT2;
     if (dtpData.associatedUsers.length > 0) {
       currY = this.makeTable([
@@ -228,14 +240,16 @@ export class PdfGeneratorService {
         ]
       ].concat(
         dtpData.associatedUsers.map(user => [
-          { content: (user.person?.firstName || user.person?.lastName ? (user.person.firstName + ' ' + user.person.lastName).trim() : this.defaultMissingValueText), 
-            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          {
+            content: (user.person?.firstName || user.person?.lastName ? (user.person.firstName + ' ' + user.person.lastName).trim() : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
           { content: (user.person?.email ? user.person.email : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     doc.save(dtpData.displayName + '.pdf');
@@ -245,9 +259,10 @@ export class PdfGeneratorService {
     const doc = new jsPDF();
 
     const offsetX = 16;
-    const offsetY = 25;
+    const offsetY = 15;
     const offsetT1 = 12;
     const offsetT2 = 6;
+    const offsetT3 = 5;
     const offsetSection = 14;
     const offsetGeneral = 9;
     const t1Size = 18;
@@ -258,35 +273,22 @@ export class PdfGeneratorService {
     let currX = offsetX;
     let currY = offsetY;
 
-    /* Title */
+    /* Annex 1 */
+    /* Annex title */
     currY = this.makeTable([
       [
-        { content: `Data Use - ${dupData.displayName}`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
+        { content: `Annex 1 - List of Accessed Data Objects`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
       ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-  
-    /* Study ID */
-    currY += offsetT1;
-    doc.setFontSize(t2Size);
-    doc.setFont(undefined, 'bold');
-    doc.text('Provider Organisation', currX, currY);
-    doc.setFont(undefined, 'normal');
-    
-    currY += offsetT2;
-    currY = this.makeTable([
-      [
-        { content: (dupData.organisation?.defaultName ? dupData.organisation.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
-      ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
 
     /* Associated Studies */
-    currY += offsetSection;
+    currY += offsetT1;
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Studies', currX, currY);
     doc.setFont(undefined, 'normal');
     doc.setFontSize(textSize);
-    
+
     currY += offsetT2;
     if (dupData.associatedStudies.length > 0) {
       currY = this.makeTable([
@@ -300,17 +302,17 @@ export class PdfGeneratorService {
           { content: (associatedStudy.study?.displayTitle ? associatedStudy.study.displayTitle : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
-    /* Associated Data Objects */
+    /* Data Objects */
     currY += offsetSection;
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Data Objects', currX, currY);
-    
+
     currY += offsetT2;
     if (dupData.associatedObjects.length > 0) {
       currY = this.makeTable([
@@ -323,31 +325,165 @@ export class PdfGeneratorService {
         ]
       ].concat(
         dupData.associatedObjects.map(obj => [
-            { content: (obj.dataObject?.sdOid ? obj.dataObject.sdOid : this.defaultMissingValueText), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize} },
-            { content: (obj.dataObject?.displayTitle ? obj.dataObject.displayTitle : this.defaultMissingValueText), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-            { content: (obj.dataObject?.accessType?.name ? obj.dataObject.accessType.name : 'Unknown'), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-            { content: (obj.dataObject?.embargoExpiry ? (obj.dataObject.embargoExpiry.slice(0, 10)) : this.defaultMissingValueText), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-            { content: (obj.dataObject?.objectInstances?.length > 0 ?
+          {
+            content: (obj.dataObject?.sdOid ? obj.dataObject.sdOid : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (obj.dataObject?.displayTitle ? obj.dataObject.displayTitle : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (obj.dataObject?.accessType?.name ? obj.dataObject.accessType.name : 'Unknown'),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (obj.dataObject?.embargoExpiry ? (obj.dataObject.embargoExpiry.slice(0, 10)) : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (obj.dataObject?.objectInstances?.length > 0 ?
               (obj.dataObject?.objectInstances?.map(instance => {
                 return '• ' + (instance?.resourceType?.name ? instance.resourceType.name : 'Unknown resource type');
-              }).join('\n')) : 'No instances'), 
-                        rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+              }).join('\n')) : 'No instances'),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
         ])
       ), doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
+    /* Annex 2 */
+    doc.addPage();
+    currY = offsetY;
+
+    /* Annex title */
+    currY = this.makeTable([
+      [
+        { content: `Annex 2 - List of Authorised Users`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
+      ]
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
+    /* Authorised Users */
+    currY += offsetT1;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Authorised Users', currX, currY);
+
+    currY += offsetT2;
+    if (dupData.associatedUsers.length > 0) {
+      currY = this.makeTable([
+        [
+          { content: 'Name', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+          { content: 'Email', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
+        ]
+      ].concat(
+        dupData.associatedUsers.map(user => [
+          {
+            content: (user.person?.firstName || user.person?.lastName ? (user.person.firstName + ' ' + user.person.lastName).trim() : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          { content: (user.person?.email ? user.person.email : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        ])
+      )
+        , doc, currX, currY, 'grid', {}, {});
+    } else {
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+    }
+
+    /* Annex 3 */
+    doc.addPage();
+    currY = offsetY;
+
+    /* Annex title */
+    currY = this.makeTable([
+      [
+        { content: `Annex 3 - Description of the Research Project and use of the Data`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
+      ]
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
+    /* Secondary use Research Project */
+    currY += offsetT1;
+    doc.setFontSize(t2Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Secondary use Research Project', currX, currY);
+    doc.setFont(undefined, 'normal');
+
+    /* Project Title */
+    currY += offsetT2;
+    doc.setFontSize(t3Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Title', currX, currY);
+
+    currY += offsetT3;
+    let projectTitleText = "";
+    if (dupData?.dar?.projectTitle) {
+      projectTitleText = dupData.dar.projectTitle;
+    } else {
+      projectTitleText = "/";
+    }
+    currY = this.makeTable([
+      [
+        { content: projectTitleText, rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
+      ]
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
+    /* Project Type */
+    currY += offsetT2;
+    doc.setFontSize(t3Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Type', currX, currY);
+
+    currY += offsetT3;
+    let projectTypeText = "";
+    if (dupData?.dar?.projectType) {
+      projectTypeText = dupData.dar.projectType;
+    } else {
+      projectTypeText = "/";
+    }
+    currY = this.makeTable([
+      [
+        { content: projectTypeText, rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
+      ]
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
+    /* Project abstract */
+    currY += offsetT3;
+    doc.setFontSize(t3Size);
+    doc.setFont(undefined, 'bold');
+    doc.text('Abstract/summary', currX, currY);
+
+    currY += offsetT3;
+    let projectAbstractText = "";
+    if (dupData?.dar?.projectAbstract) {
+      projectAbstractText = dupData.dar.projectAbstract;
+    } else {
+      projectAbstractText = "/";
+    }
+    currY = this.makeTable([
+      [
+        { content: projectAbstractText, rowSpan: 1, styles: { halign: 'left', fontSize: t3Size } }
+      ]
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
+    /* Annex 4 */
+    doc.addPage();
+    currY = offsetY;
+
+    /* Annex title */
+    currY = this.makeTable([
+      [
+        { content: `Annex 4 - Conditions from the Data Provider`, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
+      ]
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
     /* Data Objects Controlled Access Pre-requisites */
-    currY += offsetSection;
+    currY += offsetT1;
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Data Objects Controlled Access Prerequisites', currX, currY);
-    
+
     // Data sharing statement before the table
     currY += offsetT2;
     currY = this.makeTable([
@@ -361,7 +497,7 @@ export class PdfGeneratorService {
         { content: (associatedStudy.study?.dataSharingStatement ? associatedStudy.study.dataSharingStatement : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ])
     ), doc, currX, currY, 'grid', {}, {});
-    
+
     currY += offsetT2;
     if (dupData.prereqs.length > 0) {
       currY = this.makeTable([
@@ -372,40 +508,17 @@ export class PdfGeneratorService {
         ]
       ].concat(
         dupData.prereqs.map(prereq => [
-          { content: (prereq?.dtpDataObject?.dataObject?.sdOid ? prereq.dtpDataObject.dataObject.sdOid : this.defaultMissingValueText), 
-            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          {
+            content: (prereq?.dtpDataObject?.dataObject?.sdOid ? prereq.dtpDataObject.dataObject.sdOid : this.defaultMissingValueText),
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
           { content: (prereq?.prereqType?.name ? prereq.prereqType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (prereq.prereqNotes ? prereq.prereqNotes : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'No object-specific prerequisites', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-    }
-
-    /* Associated People */
-    currY += offsetSection;
-    doc.setFontSize(t2Size);
-    doc.setFont(undefined, 'bold');
-    doc.text('Associated People', currX, currY);
-    
-    currY += offsetT2;
-    if (dupData.associatedUsers.length > 0) {
-      currY = this.makeTable([
-        [
-          { content: 'Name', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
-          { content: 'Email', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
-        ]
-      ].concat(
-        dupData.associatedUsers.map(user => [
-          { content: (user.person?.firstName || user.person?.lastName ? (user.person.firstName + ' ' + user.person.lastName).trim() : this.defaultMissingValueText), 
-            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-          { content: (user.person?.email ? user.person.email : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-        ])
-      )
-      , doc, currX, currY, 'grid', {}, {});
-    } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'No object-specific prerequisites', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     doc.save(dupData.displayName + '.pdf');
@@ -433,7 +546,7 @@ export class PdfGeneratorService {
       [
         { content: studyData.displayTitle, rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t1Size } }
       ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
 
     /* Study ID */
     currY += offsetT1;
@@ -442,14 +555,14 @@ export class PdfGeneratorService {
     doc.text('Study ID', currX, currY);
     doc.setFont(undefined, 'normal');
     doc.setFontSize(textSize);
-    
+
     currY += offsetT2;
     currY = this.makeTable([
       [
         { content: (studyData.sdSid ? studyData.sdSid : 'Missing study ID'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
       ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-    
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
     /* Study description */
     currY += offsetSection;
     doc.setFontSize(t2Size);
@@ -457,14 +570,14 @@ export class PdfGeneratorService {
     doc.text('Study Description', currX, currY);
     doc.setFont(undefined, 'normal');
     doc.setFontSize(textSize);
-    
+
     currY += offsetT2;
     currY = this.makeTable([
       [
         { content: (studyData.briefDescription ? studyData.briefDescription : 'No description'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
       ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-    
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
     /* Data sharing statement */
     currY += offsetSection;
     doc.setFontSize(t2Size);
@@ -472,14 +585,14 @@ export class PdfGeneratorService {
     doc.text('Data Sharing Statement', currX, currY);
     doc.setFont(undefined, 'normal');
     doc.setFontSize(textSize);
-    
+
     currY += offsetT2;
     currY = this.makeTable([
       [
         { content: (studyData.dataSharingStatement ? studyData.dataSharingStatement : 'No data sharing statement'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
       ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-    
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
     /* General data */
     currY += offsetGeneral;
     currY = this.makeTable([
@@ -491,10 +604,12 @@ export class PdfGeneratorService {
       [
         { content: studyData.studyStatus.name, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: studyData.studyType.name, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-        { content: (studyData.studyStartMonth ? this.monthNames[studyData.studyStartMonth - 1] + ' ' : this.defaultMissingValueText) + studyData.studyStartYear, 
-          rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
+        {
+          content: (studyData.studyStartMonth ? this.monthNames[studyData.studyStartMonth - 1] + ' ' : this.defaultMissingValueText) + studyData.studyStartYear,
+          rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+        }
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
 
     currY += offsetT2;
     currY = this.makeTable([
@@ -508,8 +623,8 @@ export class PdfGeneratorService {
         { content: (studyData.minAge ? studyData.minAge + ' ' + studyData.minAgeUnit.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: (studyData.maxAge ? studyData.maxAge + ' ' + studyData.maxAgeUnit.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
-    
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
+
     currY += offsetT2;
     currY = this.makeTable([
       [
@@ -520,14 +635,14 @@ export class PdfGeneratorService {
         { content: (studyData.studyGenderElig?.name ? studyData.studyGenderElig?.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: (studyData.studyEnrolment ? studyData.studyEnrolment : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
 
     /* Study identifiers */
     currY += offsetSection;
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Study Identifiers', currX, currY);
-    
+
     currY += offsetT2;
     if (studyData.studyIdentifiers.length > 0) {
       currY = this.makeTable([
@@ -541,13 +656,13 @@ export class PdfGeneratorService {
         studyData.studyIdentifiers.map(identifier => [
           { content: (identifier.identifierType?.name ? identifier.identifierType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (identifier.identifierValue ? identifier.identifierValue : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-          { content: (identifier.identifierOrg?.defaultName ?  identifier.identifierOrg.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (identifier.identifierOrg?.defaultName ? identifier.identifierOrg.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (identifier.identifierDate ? identifier.identifierDate.slice(0, 10) : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Study titles */
@@ -555,7 +670,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Study Titles', currX, currY);
-    
+
     currY += offsetT2;
     if (studyData.studyTitles.length > 0) {
       currY = this.makeTable([
@@ -571,9 +686,9 @@ export class PdfGeneratorService {
           { content: (title.langCode?.langNameEn ? title.langCode.langNameEn : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Study topics */
@@ -581,7 +696,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Study Topics', currX, currY);
-    
+
     currY += offsetT2;
     if (studyData.studyTopics.length > 0) {
       currY = this.makeTable([
@@ -599,9 +714,9 @@ export class PdfGeneratorService {
           { content: (topic.meshCode ? topic.meshCode : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Study relationships */
@@ -609,7 +724,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Study Relationships', currX, currY);
-    
+
     currY += offsetT2;
     if (studyData.studyRelationships.length > 0) {
       currY = this.makeTable([
@@ -626,9 +741,9 @@ export class PdfGeneratorService {
           { content: (relationship.targetStudy?.displayTitle ? relationship.targetStudy?.displayTitle : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Study contributors */
@@ -636,7 +751,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Study Contributors', currX, currY);
-    
+
     currY += offsetT2;
     if (studyData.studyContributors.length > 0) {
       currY = this.makeTable([
@@ -650,19 +765,21 @@ export class PdfGeneratorService {
         studyData.studyContributors.map(contributor => [
           { content: (contributor.isIndividual ? 'Yes' : 'No'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           // Displaying name if it is a person, N/A otherwise
-          { content: (
-            contributor.isIndividual ? 
-              (contributor.person?.firstName || contributor.person?.lastName ? 
-                (contributor.person.firstName + ' ' + contributor.person?.lastName).trim() : this.defaultMissingValueText)
-            : 'N/A'
-          ), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          {
+            content: (
+              contributor.isIndividual ?
+                (contributor.person?.firstName || contributor.person?.lastName ?
+                  (contributor.person.firstName + ' ' + contributor.person?.lastName).trim() : this.defaultMissingValueText)
+                : 'N/A'
+            ), rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
           { content: (contributor.contributorType?.name ? contributor.contributorType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (contributor.organisation?.defaultName ? contributor.organisation.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Study features */
@@ -684,9 +801,9 @@ export class PdfGeneratorService {
           { content: (feature.featureValue?.name ? feature.featureValue.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     doc.save(studyData.displayTitle + '.pdf');
@@ -695,7 +812,7 @@ export class PdfGeneratorService {
   objectPdfGenerator(objectData) {
     const doc = new jsPDF();
 
-    const isShowTopicType = UpsertObjectComponent.isShowTopicType(objectData.objectType?.name ? objectData.objectType.name: this.defaultMissingValueText);
+    const isShowTopicType = UpsertObjectComponent.isShowTopicType(objectData.objectType?.name ? objectData.objectType.name : this.defaultMissingValueText);
     const offsetX = 16;
     const offsetY = 25;
     const offsetT1 = 10;
@@ -725,14 +842,14 @@ export class PdfGeneratorService {
     doc.text('Object ID', currX, currY);
     doc.setFont(undefined, 'normal');
     doc.setFontSize(textSize);
-    
+
     currY += offsetT2;
     currY = this.makeTable([
       [
         { content: (objectData.sdOid ? objectData.sdOid : 'Missing object ID'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
       ]
-    ], doc, currX, currY, 'plain', {cellPadding: 0}, {});
-    
+    ], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
+
     /* General data */
     currY += offsetSection;
     currY = this.makeTable([
@@ -744,8 +861,8 @@ export class PdfGeneratorService {
         { content: objectData.linkedStudy?.sdSid ? objectData.linkedStudy.sdSid : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.linkedStudy?.displayTitle ? objectData.linkedStudy.displayTitle : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
-    
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
+
     currY += offsetT2;
     currY = this.makeTable([
       [
@@ -758,7 +875,7 @@ export class PdfGeneratorService {
         { content: objectData.doi ? objectData.doi : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.version ? objectData.version : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
 
     currY += offsetT2;
     currY = this.makeTable([
@@ -770,7 +887,7 @@ export class PdfGeneratorService {
         { content: objectData.objectClass?.name ? objectData.objectClass.name : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.objectType?.name ? objectData.objectType.name : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
 
     currY += offsetT2;
     currY = this.makeTable([
@@ -782,8 +899,8 @@ export class PdfGeneratorService {
         { content: objectData.publicationYear ? objectData.publicationYear : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.langCode?.langNameEn ? objectData.langCode.langNameEn : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
-    
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
+
     currY += offsetT2;
     currY = this.makeTable([
       [
@@ -794,8 +911,8 @@ export class PdfGeneratorService {
         { content: objectData.accessType?.name ? objectData.accessType.name : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.embargoExpiry ? objectData.embargoExpiry.slice(0, 10) : 'No embargo', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
-    
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
+
     // If object class is dataset
     if (objectData.objectDatasets.length > 0) {
 
@@ -811,23 +928,27 @@ export class PdfGeneratorService {
           { content: 'Anonymisation Type', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
         ],
         [
-          { content: objectData.objectDatasets[0]?.recordkeyType?.name ? objectData.objectDatasets[0].recordkeyType.name : this.defaultMissingValueText, 
-            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          {
+            content: objectData.objectDatasets[0]?.recordkeyType?.name ? objectData.objectDatasets[0].recordkeyType.name : this.defaultMissingValueText,
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
         ],
-      ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
-      
+      ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
+
       currY += offsetT2;
       currY = this.makeTable([
         [
           { content: 'Anonymisation Details', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
         ],
         [
-          { content: objectData.objectDatasets[0]?.recordkeyDetails ? objectData.objectDatasets[0].recordkeyDetails : 'No details provided', 
-            rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          {
+            content: objectData.objectDatasets[0]?.recordkeyDetails ? objectData.objectDatasets[0].recordkeyDetails : 'No details provided',
+            rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
         ],
-      ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
+      ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
     }
-    
+
     /* Dataset consent */
     currY += offsetSection;
     doc.setFont(undefined, 'bold');
@@ -842,12 +963,14 @@ export class PdfGeneratorService {
         { content: 'Geographic Restrictions', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
       ],
       [
-        { content: objectData.objectDatasets[0]?.consentType?.name ? objectData.objectDatasets[0]?.consentType.name : this.defaultMissingValueText, 
-          rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        {
+          content: objectData.objectDatasets[0]?.consentType?.name ? objectData.objectDatasets[0]?.consentType.name : this.defaultMissingValueText,
+          rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+        },
         { content: objectData.objectDatasets[0]?.consentNoncommercial ? 'Yes' : 'No', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.objectDatasets[0]?.consentGeogRestrict ? 'Yes' : 'No', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
 
     currY += offsetT2;
     currY = this.makeTable([
@@ -861,7 +984,7 @@ export class PdfGeneratorService {
         { content: objectData.objectDatasets[0]?.consentGeneticOnly ? 'Yes' : 'No', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         { content: objectData.objectDatasets[0]?.consentNoMethods ? 'Yes' : 'No', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
 
     currY += offsetT2;
     currY = this.makeTable([
@@ -869,10 +992,12 @@ export class PdfGeneratorService {
         { content: 'Details', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t3Size } },
       ],
       [
-        { content: objectData.objectDatasets[0]?.consentDetails ? objectData.objectDatasets[0].consentDetails : 'No details provided', 
-          rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+        {
+          content: objectData.objectDatasets[0]?.consentDetails ? objectData.objectDatasets[0].consentDetails : 'No details provided',
+          rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+        },
       ],
-    ], doc, currX, currY, 'plain', {cellPadding: 0.5}, {});
+    ], doc, currX, currY, 'plain', { cellPadding: 0.5 }, {});
 
     /* Object instances */
     currY += offsetSection;
@@ -885,12 +1010,14 @@ export class PdfGeneratorService {
       objectData.objectInstances.forEach(instance => {
         currY = this.makeTable([
           [
-            { content: (instance.resourceType?.name ? instance.resourceType.name : 'Unknown type') + ': '
-              + (instance.repository ? instance.repository : 'Unknown repository'), 
-              rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t4Size } },
+            {
+              content: (instance.resourceType?.name ? instance.resourceType.name : 'Unknown type') + ': '
+                + (instance.repository ? instance.repository : 'Unknown repository'),
+              rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t4Size }
+            },
           ]
         ]
-        , doc, currX, currY, 'plain', {cellPadding: 0}, {});
+          , doc, currX, currY, 'plain', { cellPadding: 0 }, {});
 
         currY += offsetLinkedTables;
         currY = this.makeTable([
@@ -898,11 +1025,13 @@ export class PdfGeneratorService {
             { content: 'Repository', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: textSize } },
           ],
           [
-            { content: instance.repository ? instance.repository : this.defaultMissingValueText, 
-              rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize } },
+            {
+              content: instance.repository ? instance.repository : this.defaultMissingValueText,
+              rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize }
+            },
           ]
         ]
-        , doc, currX, currY, 'grid', {}, {});
+          , doc, currX, currY, 'grid', {}, {});
 
         currY += offsetLinkedTables;
         // TODO: make URL clickable: https://github.com/simonbengtsson/jsPDF-AutoTable/issues/167
@@ -916,7 +1045,7 @@ export class PdfGeneratorService {
             { content: instance.url ? instance.url : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize } },
           ]
         ]
-        , doc, currX, currY, 'grid', {}, {});
+          , doc, currX, currY, 'grid', {}, {});
 
         currY += offsetLinkedTables;
         currY = this.makeTable([
@@ -926,11 +1055,13 @@ export class PdfGeneratorService {
           ],
           [
             { content: instance.resourceType?.name ? instance.resourceType.name : this.defaultMissingValueText, rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize } },
-            { content: (instance.resourceSize + (instance.resourceSizeUnit?.name ? ' ' + instance.resourceSizeUnit.name : this.defaultMissingValueText)), 
-              rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize } },
+            {
+              content: (instance.resourceSize + (instance.resourceSizeUnit?.name ? ' ' + instance.resourceSizeUnit.name : this.defaultMissingValueText)),
+              rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize }
+            },
           ]
         ]
-        , doc, currX, currY, 'grid', {}, {});
+          , doc, currX, currY, 'grid', {}, {});
 
         currY += offsetLinkedTables;
         currY = this.makeTable([
@@ -938,16 +1069,18 @@ export class PdfGeneratorService {
             { content: 'Comments', rowSpan: 1, styles: { halign: 'left', fontStyle: 'bold', fontSize: t4Size } },
           ],
           [
-            { content: instance.resourceComments ? instance.resourceComments : 'No comments', 
-              rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize } },
+            {
+              content: instance.resourceComments ? instance.resourceComments : 'No comments',
+              rowSpan: 1, styles: { halign: 'left', fontStyle: 'normal', fontSize: textSize }
+            },
           ]
         ]
-        , doc, currX, currY, 'grid', {}, {});
+          , doc, currX, currY, 'grid', {}, {});
 
         currY += offsetT3;
       });
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Object titles */
@@ -968,12 +1101,12 @@ export class PdfGeneratorService {
         objectData.objectTitles.map(title => [
           { content: (title.titleType?.name ? title.titleType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (title.langCode?.langNameEn ? title.langCode.langNameEn : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-          { content: (title.titleText ?  title.titleText : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (title.titleText ? title.titleText : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Object dates */
@@ -995,18 +1128,22 @@ export class PdfGeneratorService {
         objectData.objectDates.map(date => [
           { content: (date.dateType?.name ? date.dateType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (date.dateIsRange ? 'Yes' : 'No'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-          { content: (date.startYear ? date.startYear : this.defaultMissingValueText) + '-' 
-                      + (date.startMonth ? date.startMonth : this.defaultMissingValueText) + '-' 
-                      + (date.startDay ? date.startDay : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-          { content: (date.dateIsRange ? 
-                      ((date.endYear ? date.endYear : this.defaultMissingValueText) + '-' 
-                      + (date.endMonth ? date.endMonth : this.defaultMissingValueText) + '-' 
-                      + (date.endDay ? date.endDay : this.defaultMissingValueText)) : 'N/A'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          {
+            content: (date.startYear ? date.startYear : this.defaultMissingValueText) + '-'
+              + (date.startMonth ? date.startMonth : this.defaultMissingValueText) + '-'
+              + (date.startDay ? date.startDay : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
+          {
+            content: (date.dateIsRange ?
+              ((date.endYear ? date.endYear : this.defaultMissingValueText) + '-'
+                + (date.endMonth ? date.endMonth : this.defaultMissingValueText) + '-'
+                + (date.endDay ? date.endDay : this.defaultMissingValueText)) : 'N/A'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Object contributors */
@@ -1028,19 +1165,21 @@ export class PdfGeneratorService {
         objectData.objectContributors.map(contributor => [
           { content: (contributor.isIndividual ? 'Yes' : 'No'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           // Displaying name if it is a person, N/A otherwise
-          { content: (
-            contributor.isIndividual ? 
-              (contributor.person?.firstName || contributor.person?.lastName ? 
-                (contributor.person.firstName + ' ' + contributor.person?.lastName).trim() : this.defaultMissingValueText)
-            : 'N/A'
-          ), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          {
+            content: (
+              contributor.isIndividual ?
+                (contributor.person?.firstName || contributor.person?.lastName ?
+                  (contributor.person.firstName + ' ' + contributor.person?.lastName).trim() : this.defaultMissingValueText)
+                : 'N/A'
+            ), rowSpan: 1, styles: { halign: 'left', fontSize: textSize }
+          },
           { content: (contributor.contributorType?.name ? contributor.contributorType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (contributor.organisation?.defaultName ? contributor.organisation.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: isShowTopicType ? 'None': 'N/A', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: isShowTopicType ? 'None' : 'N/A', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Object topics */
@@ -1048,7 +1187,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Object Topics', currX, currY);
-    
+
     currY += offsetT2;
     if (objectData.objectTopics.length > 0) {
       currY = this.makeTable([
@@ -1068,9 +1207,9 @@ export class PdfGeneratorService {
           { content: (topic.meshCoded ? 'Yes' : 'No'), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: isShowTopicType ? 'None': 'N/A', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: isShowTopicType ? 'None' : 'N/A', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Object identifiers */
@@ -1078,7 +1217,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Object Identifiers', currX, currY);
-    
+
     currY += offsetT2;
     if (objectData.objectIdentifiers.length > 0) {
       currY = this.makeTable([
@@ -1092,13 +1231,13 @@ export class PdfGeneratorService {
         objectData.objectIdentifiers.map(identifier => [
           { content: (identifier.identifierType?.name ? identifier.identifierType.name : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (identifier.identifierValue ? identifier.identifierValue : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
-          { content: (identifier.identifierOrg?.defaultName ?  identifier.identifierOrg.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
+          { content: (identifier.identifierOrg?.defaultName ? identifier.identifierOrg.defaultName : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
           { content: (identifier.identifierDate ? identifier.identifierDate.slice(0, 10) : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Object descriptions */
@@ -1106,7 +1245,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Object Descriptions', currX, currY);
-    
+
     currY += offsetT2;
     if (objectData.objectDescriptions.length > 0) {
       currY = this.makeTable([
@@ -1124,9 +1263,9 @@ export class PdfGeneratorService {
           { content: (description.langCode?.langNameEn ? description.langCode.langNameEn : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Object rights */
@@ -1134,7 +1273,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Object Rights', currX, currY);
-    
+
     currY += offsetT2;
     if (objectData.objectRights.length > 0) {
       currY = this.makeTable([
@@ -1151,9 +1290,9 @@ export class PdfGeneratorService {
           { content: (rights.comments ? rights.comments : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } },
         ])
       )
-      , doc, currX, currY, 'grid', {}, {0: {cellWidth: 30}, 1: {cellWidth: 60}, 2: {cellWidth: 90}});
+        , doc, currX, currY, 'grid', {}, { 0: { cellWidth: 30 }, 1: { cellWidth: 60 }, 2: { cellWidth: 90 } });
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     /* Object relationships */
@@ -1161,7 +1300,7 @@ export class PdfGeneratorService {
     doc.setFontSize(t2Size);
     doc.setFont(undefined, 'bold');
     doc.text('Object Relationships', currX, currY);
-    
+
     currY += offsetT2;
     if (objectData.objectRelationships.length > 0) {
       currY = this.makeTable([
@@ -1177,9 +1316,9 @@ export class PdfGeneratorService {
           { content: (relationship.targetObject?.displayTitle ? relationship.targetObject.displayTitle : this.defaultMissingValueText), rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }
         ])
       )
-      , doc, currX, currY, 'grid', {}, {});
+        , doc, currX, currY, 'grid', {}, {});
     } else {
-      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', {cellPadding: 0}, {});
+      currY = this.makeTable([[{ content: 'None', rowSpan: 1, styles: { halign: 'left', fontSize: textSize } }]], doc, currX, currY, 'plain', { cellPadding: 0 }, {});
     }
 
     doc.save(objectData.displayTitle + '.pdf');
